@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:4000/auth
+@email = kulampenda261@gmail.com
+@password = Kula@123!
+
+### 1. Inscription (Création de compte)
+# Remplacez l'email par une vraie adresse à laquelle vous avez accès pour vérifier l'OTP
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "fullName": "Test User",
+  "phone": "+243999123456",
+  "province": "Nord-Kivu",
+  "commune": "Goma",
+  "city": "Goma",
+  "country": "RD Congo",
+  "role": "CLIENT"
+}
+
+### 2. Renvoyer l'OTP (Si vous ne l'avez pas reçu)
+POST {{baseUrl}}/resend-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### 3. Vérification de l'OTP
+# /!\ REMPLACEZ "123456" PAR LE CODE REÇU PAR EMAIL /!\
+POST {{baseUrl}}/verify-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "otp": "880020"
+}
+
+### 4. Connexion (Login)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}

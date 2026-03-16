@@ -1,0 +1,87 @@
+### Tests du Flux d'Authentification WapiBei (Panafricain)
+# Ce fichier permet de tester manuellement l'inscription, l'envoi d'OTP et la connexion.
+# Utilisez l'extension "REST Client" dans VS Code pour exécuter ces requêtes.
+
+@baseUrl = http://localhost:4000
+@email = obedburindi@gmail.com
+@password = Obed@123!@#
+@otp = 365733
+
+
+### 1. NETTOYAGE (Optionnel - Dev uniquement)
+# Supprime les utilisateurs de test pour repartir à zéro
+DELETE {{baseUrl}}/auth/test-users
+
+### 2. INSCRIPTION
+# Testez la portée panafricaine en changeant city/country
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "fullName": "Test Panafricain",
+  "phone": "+243812345671",
+  "province": "Nord-Kivu",
+  "commune": "Goma",
+  "city": "Goma",
+  "country": "RD Congo",
+  "role": "CLIENT"
+}
+
+### 3. RENVOYER L'OTP
+# Utile si l'email a tardé ou si le code est expiré
+POST {{baseUrl}}/auth/resend-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### 4. VÉRIFICATION DE L'OTP
+# Remplacez "otp" par le code reçu par email (ou vu dans le terminal backend)
+POST {{baseUrl}}/auth/verify-otp
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "otp": "{{otp}}"
+}
+
+### 5. CONNEXION
+# Une fois vérifié, vous pouvez vous connecter
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### 6. MOT DE PASSE OUBLIÉ
+# Envoie un email avec un lien contenant le token
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### 7. RÉINITIALISATION DU MOT DE PASSE
+# Remplacez le token par celui reçu dans l'email ou vu dans les logs
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "token": "d1683c94d23aa2a69c1f5a9becea894ba6666f7323f7e58b5c913f72a7a1f748",
+  "newPassword": "NewPassword123!@#"
+}
+
+### 8. VOIR MON PROFIL (Test JWT)
+# Requiert le token de connexion (accessToken du step 5)
+@accessToken = d1683c94d23aa2a69c1f5a9becea894ba6666f7323f7e58b5c913f72a7a1f748
+
+GET {{baseUrl}}/auth/profile
+Authorization: Bearer {{accessToken}}

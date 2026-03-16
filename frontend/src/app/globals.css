@@ -1,0 +1,279 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.theme-dark *));
+
+:root {
+  /* WapiBei Premium Palette - Emerald & Deep Teal */
+  --background: 210 20% 98%;      
+  --foreground: 215 28% 17%;      
+
+  --card: 0 0% 100%;
+  --card-foreground: 215 28% 17%;
+ 
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 28% 17%;
+ 
+  --primary: 158 64% 52%;         
+  --primary-foreground: 150 100% 98%;
+ 
+  --secondary: 155 20% 94%;       
+  --secondary-foreground: 160 60% 20%;
+ 
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+ 
+  --accent: 155 20% 94%;
+  --accent-foreground: 160 60% 20%;
+ 
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 220 13% 91%;          
+  --input: 220 13% 91%;
+  --ring: 158 64% 52%;
+ 
+  --radius: 1rem;                 
+
+  /* Custom helper variables */
+  --deep-blue: 215 28% 17%;
+  --border-sep: 220 13% 91%;
+  --background-alt: 210 20% 99%;
+  --sidebar-bg-start: 215 28% 13%;   /* Dark gradient start */
+  --sidebar-bg-end: 215 40% 10%;     /* Dark gradient end */
+  --glass-border: 255 255% 255% / 0.1;
+  
+  --chart-1: 158 64% 52%;
+  --chart-2: 170 50% 45%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+
+  /* E-Commerce Palette */
+  --price: 152 60% 40%;              /* Emerald/Green for prices */
+  --price-foreground: 150 100% 98%;
+  --promo: 38 92% 50%;               /* Amber/Gold for promo badges */
+  --promo-foreground: 38 100% 98%;
+  --cta-from: 158 64% 52%;           /* Gradient start (primary) */
+  --cta-to: 25 95% 53%;              /* Gradient end (orange-500) */
+  --skeleton: 220 15% 93%;           /* Warm grey for skeletons */
+}
+ 
+.dark, .theme-dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+ 
+  --card: 217 33% 10%;            
+  --card-foreground: 210 40% 98%;
+ 
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+ 
+  --primary: 158 64% 52%;
+  --primary-foreground: 150 100% 98%;
+ 
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+ 
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+ 
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+ 
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+ 
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 158 64% 52%;
+
+  --deep-blue: 210 40% 98%;
+  --border-sep: 217.2 32.6% 17.5%;
+  --background-alt: 222.2 84% 2%;
+  --sidebar-bg-start: 222 47% 7%;
+  --sidebar-bg-end: 222 47% 5%;
+
+  /* E-Commerce Dark */
+  --price: 152 60% 50%;
+  --promo: 38 92% 55%;
+  --skeleton: 217 33% 15%;
+}
+
+@theme inline {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted-foreground));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  
+  /* Custom mappings */
+  --color-deep-blue: hsl(var(--deep-blue));
+  --color-border-sep: hsl(var(--border-sep));
+  --color-background-light: hsl(var(--background-alt));
+  --color-sidebar-start: hsl(var(--sidebar-bg-start));
+  --color-sidebar-end: hsl(var(--sidebar-bg-end));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  /* E-Commerce tokens */
+  --color-price: hsl(var(--price));
+  --color-price-foreground: hsl(var(--price-foreground));
+  --color-promo: hsl(var(--promo));
+  --color-promo-foreground: hsl(var(--promo-foreground));
+  --color-skeleton: hsl(var(--skeleton));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background: hsl(var(--background));
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(158, 64%, 52%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(215, 28%, 17%, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+/* Headings with new font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-xl;
+}
+
+.glass-card {
+  @apply bg-white/80 dark:bg-slate-800/50 backdrop-blur-md border border-slate-100/50 dark:border-white/5 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all duration-300;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border-sep));
+  border-radius: 20px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ========================================
+   E-COMMERCE UTILITIES
+   ======================================== */
+
+/* Gradient CTA Button */
+.btn-cta {
+  background: linear-gradient(135deg, hsl(var(--cta-from)), hsl(var(--cta-to)));
+  color: white;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 15px hsla(var(--cta-from), 0.35);
+  transition: all 0.3s ease;
+}
+.btn-cta:hover {
+  box-shadow: 0 6px 20px hsla(var(--cta-from), 0.5);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.btn-cta:active {
+  transform: scale(0.98) translateY(0);
+}
+
+/* Price Display */
+.text-price {
+  color: hsl(var(--price));
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+/* Promo Badge */
+.badge-promo {
+  background: hsla(var(--promo), 0.12);
+  color: hsl(var(--promo));
+  font-weight: 800;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: hsl(var(--skeleton));
+  border-radius: 0.5rem;
+  animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Grid pattern for tech sections */
+.bg-grid-tech {
+  background-image: 
+    linear-gradient(hsla(var(--border), 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--border), 0.3) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.radial-mask {
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+}

@@ -1,0 +1,69 @@
+### ============================================================
+### Admin Endpoints - Tests manuels
+### ============================================================
+### Variable : remplacer par un vrai token ADMIN JWT
+@baseUrl = http://localhost:4000
+@adminToken = REMPLACER_PAR_VOTRE_TOKEN_ADMIN_JWT
+
+### ------------------------------------------------------------
+### 1. GET /admin/stats — Statistiques globales du dashboard
+### Devrait retourner : users, products, sales, kyc
+### ------------------------------------------------------------
+GET {{baseUrl}}/admin/stats
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+### ------------------------------------------------------------
+### 2. GET /admin/activities — Activités récentes (max 10)
+### Devrait retourner un tableau de : order, vendor_registration, kyc_update
+### ------------------------------------------------------------
+GET {{baseUrl}}/admin/activities
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+### ------------------------------------------------------------
+### 3. GET /admin/users — Liste paginée de tous les utilisateurs
+### Paramètres optionnels : role, kycStatus, page, limit
+### ------------------------------------------------------------
+GET {{baseUrl}}/admin/users?page=1&limit=10
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+### ------------------------------------------------------------
+### 4. GET /admin/users — Filtré par rôle VENDOR
+### ------------------------------------------------------------
+GET {{baseUrl}}/admin/users?role=VENDOR&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+### ------------------------------------------------------------
+### 5. GET /admin/kyc/pending — Vendeurs en attente de validation KYC
+### ------------------------------------------------------------
+GET {{baseUrl}}/admin/kyc/pending
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+### ------------------------------------------------------------
+### 6. PUT /admin/users/:id/kyc — Approuver un vendeur
+### Remplacer :id par un vrai UUID de vendeur
+### ------------------------------------------------------------
+PUT {{baseUrl}}/admin/users/REMPLACER_PAR_USER_ID/kyc
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "APPROVED"
+}
+
+### ------------------------------------------------------------
+### 7. PUT /admin/users/:id/kyc — Rejeter un vendeur
+### Remplacer :id par un vrai UUID de vendeur
+### ------------------------------------------------------------
+PUT {{baseUrl}}/admin/users/REMPLACER_PAR_USER_ID/kyc
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "REJECTED",
+  "rejectionReason": "Documents KYC non conformes"
+}

@@ -1,0 +1,8 @@
+### Variables
+@baseUrl = http://localhost:4000
+
+### Récupérer les vendeurs actifs
+GET {{baseUrl}}/sellers
+
+### Récupérer le contenu de la page d'accueil
+GET {{baseUrl}}/content/homepage

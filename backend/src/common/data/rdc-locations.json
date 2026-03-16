@@ -1,0 +1,54 @@
+{
+  "provinces": [
+    {
+      "name": "Kinshasa",
+      "code": "KN",
+      "communes": ["Gombe", "Lingwala", "Kasa-Vubu", "Ngaliema", "Lemba", "Limete", "Matete", "Ndjili", "Masina", "Kimbanseke", "Bumbu", "Selembao", "Mont-Ngafula"]
+    },
+    {
+      "name": "Nord-Kivu",
+      "code": "NK",
+      "communes": ["Goma", "Beni", "Butembo", "Lubero", "Rutshuru", "Masisi", "Nyiragongo", "Walikale"]
+    },
+    {
+      "name": "Sud-Kivu",
+      "code": "SK",
+      "communes": ["Bukavu", "Uvira", "Baraka", "Kamituga", "Shabunda", "Mwenga", "Fizi", "Kabare", "Kalehe"]
+    },
+    {
+      "name": "Haut-Katanga",
+      "code": "HK",
+      "communes": ["Lubumbashi", "Kipushi", "Likasi", "Kakanda", "Kasumbalesa", "Panda", "Kambove"]
+    },
+    {
+      "name": "Lualaba",
+      "code": "LU",
+      "communes": ["Kolwezi", "Likasi", "Mutshatsha", "Dilolo", "Sandoa"]
+    },
+    {
+      "name": "Kongo-Central",
+      "code": "KC",
+      "communes": ["Matadi", "Boma", "Muanda", "Tumba", "Kasangulu", "Mbanza-Ngungu"]
+    },
+    {
+      "name": "Équateur",
+      "code": "EQ",
+      "communes": ["Mbandaka", "Gemena", "Lisala", "Bumba", "Basankusu", "Boende"]
+    },
+    {
+      "name": "Ituri",
+      "code": "IT",
+      "communes": ["Bunia", "Aru", "Mahagi", "Mambasa", "Irumu", "Djugu"]
+    },
+    {
+      "name": "Maniema",
+      "code": "MA",
+      "communes": ["Kindu", "Kasongo", "Kibombo", "Pangi", "Kabambare", "Lubutu"]
+    },
+    {
+      "name": "Autre",
+      "code": "OT",
+      "communes": ["Centre-ville", "Autre"]
+    }
+  ]
+}
