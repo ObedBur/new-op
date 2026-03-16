@@ -1,0 +1,39 @@
+# Dependances
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js build
+.next/
+out/
+
+# NestJS build
+dist/
+
+# Environnement (TRÈS IMPORTANT : ne jamais commit tes clés API ou DB)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Prisma
+# On ignore les fichiers de base de données SQLite si tu en utilises
+*.db
+*.db-journal
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE (VS Code / WebStorm)
+.vscode/
+.idea/

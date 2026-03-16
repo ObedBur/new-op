@@ -380,30 +380,6 @@ export default function RegisterPage() {
                       fontSize: "1rem",
                     }}
                   />
-                  <style jsx global>{`
-                    .react-international-phone-input {
-                      width: 100%;
-                      background-color: transparent;
-                    }
-                    .react-international-phone-country-selector-button {
-                      background-color: transparent !important;
-                      border-right: 1px solid #f1f5f9 !important; /* Ajoute cette ligne */
-                      margin-right: 8px !important; /* Espace un peu le drapeau du texte */
-                    }
-                    /* Dark mode adjustments override */
-                    .dark .react-international-phone-country-selector-dropdown {
-                      background-color: #0f172a !important; /* slate-900 */
-                      color: white !important;
-                      border-color: #334155 !important; /* slate-700 */
-                    }
-                    .dark .react-international-phone-country-selector-button {
-                      border-right: 1px solid #334155 !important;
-                    }
-                    .dark
-                      .react-international-phone-country-selector-dropdown__list-item:hover {
-                      background-color: #1e293b !important; /* slate-800 */
-                    }
-                  `}</style>
                   {fieldErrors.phone && (
                     <p className="text-red-500 text-xs font-medium mt-1 ml-1 animate-fade-in">
                       {fieldErrors.phone}
@@ -536,19 +512,12 @@ export default function RegisterPage() {
               Vous avez déjà un compte ?{" "}
               <Link
                 href="/login"
-                  className="relative inline-block font-bold text-[#E67E22] dark:text-[#E67E22] group transition-colors duration-300"
+                  className="relative inline-block font-bold text-[#E67E22] dark:text-[#E67E22] group transition-colors duration-300 active:scale-[0.95]"
               >
                 <span>Connectez-vous</span>
 
                 {/* La barre animée en dessous */}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67E22] dark:bg-[#E67E22] transition-all duration-300 group-hover:w-full"></span>
-
-                {/* Petit effet de rebond au clic */}
-                <style jsx>{`
-                  a:active {
-                    transform: scale(0.95);
-                  }
-                `}</style>
               </Link>
             </p>
           </form>

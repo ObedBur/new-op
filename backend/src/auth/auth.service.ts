@@ -125,11 +125,16 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      this.logger.debug(`Utilisateur non trouvé: ${dto.email}`);
+      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
     }
 
-    if (!(await this.passwordService.compare(dto.password, user.password))) {
-      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
+    this.logger.debug(`Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`);
+    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
+    this.logger.debug(`Mot de passe valide: ${isPasswordValid}`);
+
+    if (!isPasswordValid) {
+      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
     }
 
     this.userValidationService.validateLoginEligibility(user);

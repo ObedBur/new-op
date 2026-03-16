@@ -1,0 +1,4 @@
+--- TEST BREVO API ---
+Sender: obedburindi@gmail.com
+API Key present: true
+SUCCESS: 201 MessageId: <202603161510.22700848254@smtp-relay.mailin.fr>

@@ -19,6 +19,11 @@ function VerifyOtpContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [otpError, setOtpError] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     // Get email from URL params or localStorage
@@ -120,7 +125,7 @@ function VerifyOtpContent() {
             </div>
             <h1 className="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center mb-3">Vérification du compte</h1>
             <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed text-center max-w-[280px]">
-              Nous avons envoyé un code à <span className="font-medium text-slate-900 dark:text-slate-200">{email || 'votre email'}</span>.
+              Nous avons envoyé un code à <span className="font-medium text-slate-900 dark:text-slate-200" translate="no">{isMounted ? (email || 'votre email') : '...'}</span>.
             </p>
           </div>
 

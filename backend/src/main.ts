@@ -31,6 +31,9 @@ async function bootstrap() {
     })
   );
 
+  // ============ PREFIXE GLOBAL ============
+  app.setGlobalPrefix('api');
+
   // ============ VALIDATION GLOBALE ============
   app.useGlobalPipes(
     new ValidationPipe({
@@ -60,6 +63,7 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
   await app.listen(port, '0.0.0.0');
 
-  console.log(` WapiBei est en ligne sur http://localhost:${port}`);
+  console.log(`🚀 WapiBei est en ligne sur http://localhost:${port}`);
+  console.log(`🔐 JWT Config: Access (${process.env.JWT_EXPIRES_IN}), Refresh (${process.env.JWT_REFRESH_EXPIRES_IN})`);
 }
 bootstrap();

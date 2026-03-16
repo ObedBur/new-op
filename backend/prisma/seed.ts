@@ -30,9 +30,14 @@ async function main() {
   await prisma.howItWorksStep.deleteMany({});
 
   // 1. Setup Admin
+  console.log('👤 Création de l\'administrateur...');
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { email: 'wapibeapp@gmail.com' },
+    update: {
+      password: hashedPassword,
+    },
+    create: {
       email: 'wapibeapp@gmail.com',
       password: hashedPassword,
       fullName: 'WapiBei Admin',
@@ -46,6 +51,7 @@ async function main() {
       country: 'RD Congo',
     },
   });
+  console.log('✅ Administrateur configuré (wapibeapp@gmail.com / Admin123!)');
 
   // 2. Setup Categories avec l'icône corrigée pour Agricole
   console.log('🏷️ Création des catégories...');

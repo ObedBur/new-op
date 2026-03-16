@@ -3,8 +3,8 @@
 # Utilisez l'extension "REST Client" dans VS Code pour exécuter ces requêtes.
 
 @baseUrl = http://localhost:4000
-@email = obedburindi@gmail.com
-@password = Obed@123!@#
+@email = wapibeiapp@gmail.com
+@password = Admin123!
 @otp = 365733
 
 

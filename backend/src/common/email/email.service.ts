@@ -8,13 +8,13 @@ export class EmailService {
 
   constructor() {
     this.apiInstance = new Brevo.TransactionalEmailsApi();
-    
-    
+
+
     require('dns').setDefaultResultOrder('ipv4first');
 
     const apiKey = process.env.BREVO_API_KEY || process.env.SMTP_PASSWORD;
     this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}, Sender: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM}`);
-    
+
     if (apiKey) {
       this.apiInstance.setApiKey(
         Brevo.TransactionalEmailsApiApiKeys.apiKey,
@@ -35,23 +35,48 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = 'Votre code de vrification WapiBei';
+    sendSmtpEmail.subject = 'Votre code de vérification WapiBei';
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #059669;">Vrification de votre compte WapiBei</h2>
-        <p>Bonjour,</p>
-        <p> Merci de vous etre inscrit sur WapiBei. Voici votre code de verification :</p>
-        <div style="background: #f3f4f6; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #111827; border-radius: 8px; margin: 20px 0;">
-          ${otp}
-        </div>
-        <p>Ce code expire dans 10 minutes. Si vous n'avez pas demand ce code, vous pouvez ignorer cet e-mail.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #6b7280; text-align: center;"> 2026 WapiBei. Tous droits rservs.</p>
-      </div>
+      <div style="background-color: #ffffff; color: #1e293b; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: auto;">
+  
+  <div style="margin-bottom: 32px; text-align: left;">
+    <span style="font-size: 20px; font-weight: 800; color: #059669; letter-spacing: -0.5px;">WapiBei</span>
+  </div>
+
+  <h1 style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 16px; letter-spacing: -0.02em;">
+    Vérifiez votre adresse e-mail
+  </h1>
+  
+  <p style="font-size: 15px; line-height: 1.6; color: #475569; margin-bottom: 32px;">
+    Merci de nous avoir rejoint. Pour finaliser la configuration de votre compte, veuillez saisir le code de validation suivant :
+  </p>
+
+  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
+    <div style="font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 32px; font-weight: 700; letter-spacing: 12px; color: #059669;">
+      ${otp}
+    </div>
+    <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;">
+      Valable pendant 10 minutes
+    </p>
+  </div>
+
+  <p style="font-size: 13px; line-height: 1.5; color: #64748b; margin-bottom: 40px;">
+    Si vous n'avez pas créé de compte sur WapiBei, vous pouvez ignorer cet e-mail en toute sécurité.
+  </p>
+
+  <div style="border-top: 1px solid #f1f5f9; padding-top: 24px;">
+    <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+      &copy; 2026 WapiBei. Plateforme de gestion commerciale.
+    </p>
+    <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
+      Besoin d'aide ? <a href="mailto:support@wapibei.com" style="color: #059669; text-decoration: none;">Contactez le support</a>
+    </p>
+  </div>
+</div>
     `;
-    sendSmtpEmail.sender = { 
-      name: 'WapiBei', 
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com' 
+    sendSmtpEmail.sender = {
+      name: 'WapiBei',
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -67,7 +92,7 @@ export class EmailService {
   }
 
   /**
-   * Envoi d'un lien de rinitialisation de mot de passe.
+   * Envoi d'un lien de reninitialisation de mot de passe.
    */
   async sendPasswordReset(email: string, token: string) {
     const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
@@ -87,14 +112,14 @@ export class EmailService {
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetLink}" style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Rinitialiser mon mot de passe</a>
         </div>
-        <p>Ce lien expire dans 1 heure. Si vous n'avez pas demand cette action, aucune mesure n'est ncessaire.</p>
+        <p>Ce lien expire dans 1 heure. Si vous n'avez pas demand cette action, aucune mesure n'est necessaire.</p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
         <p style="font-size: 12px; color: #6b7280; text-align: center;"> 2026 WapiBei. Tous droits rservs.</p>
       </div>
     `;
-    sendSmtpEmail.sender = { 
-      name: 'WapiBei Support', 
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com' 
+    sendSmtpEmail.sender = {
+      name: 'WapiBei Support',
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -131,8 +156,8 @@ export class EmailService {
         <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.productName}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.quantity}</td>
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${(
-          item.price * item.quantity
-        ).toLocaleString()} FC</td>
+            item.price * item.quantity
+          ).toLocaleString()} FC</td>
       </tr>
     `,
       )
@@ -172,9 +197,9 @@ export class EmailService {
         <p style="font-size: 12px; color: #6b7280; text-align: center;"> 2026 WapiBei Market. Votre shopping local en confiance.</p>
       </div>
     `;
-    sendSmtpEmail.sender = { 
-      name: 'WapiBei Market', 
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com' 
+    sendSmtpEmail.sender = {
+      name: 'WapiBei Market',
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: data.customerEmail }];
 
@@ -241,8 +266,8 @@ export class EmailService {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-       this.logger.error(`Failed to send vendor email: ${data.vendorEmail}`, error);
-       return false;
+      this.logger.error(`Failed to send vendor email: ${data.vendorEmail}`, error);
+      return false;
     }
   }
 
@@ -287,8 +312,8 @@ export class EmailService {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-       this.logger.error(`Failed to send admin email: ${data.adminEmail}`, error);
-       return false;
+      this.logger.error(`Failed to send admin email: ${data.adminEmail}`, error);
+      return false;
     }
   }
 }
