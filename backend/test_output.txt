@@ -1,4 +1,8 @@
---- TEST BREVO API ---
-Sender: obedburindi@gmail.com
-API Key present: true
-SUCCESS: 201 MessageId: <202603161510.22700848254@smtp-relay.mailin.fr>
+--- VERIFICATION SMTP BREVO ---
+Host: smtp-relay.brevo.com
+Port: 587
+User: 9dd2a5001@smtp-brevo.com
+V├⌐rification de la connexion...
+Γ¥î ERREUR DE CONNEXION SMTP :
+Invalid login: 535 5.7.8 Authentication failed
+D├⌐tail : Erreur d'authentification. V├⌐rifiez votre SMTP_USER et SMTP_PASSWORD (cl├⌐ API).

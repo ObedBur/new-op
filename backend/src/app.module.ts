@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config'; // Import indispensable
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -16,6 +17,11 @@ import { NotificationsModule } from './common/notifications/notifications.module
 
 @Module({
   imports: [
+    // Configuration pour charger le fichier .env
+    ConfigModule.forRoot({
+      isGlobal: true, // Rend les variables accessibles dans tous les modules sans ré-import
+      envFilePath: '.env',
+    }),
     ThrottlerModule.forRoot([{
       name: 'auth',
       ttl: 900,

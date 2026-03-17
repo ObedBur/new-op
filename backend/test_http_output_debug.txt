@@ -1,0 +1,6 @@
+--- TEST BREVO HTTP API ---
+API Key present: true
+API Key (truncated): xkeysib-d8...Aw0l
+Sender Email: obedburindi@gmail.com
+Envoi de l'email via HTTP...
+Γ£à SUCC├êS : 201

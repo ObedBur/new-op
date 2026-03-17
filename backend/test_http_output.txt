@@ -1,0 +1,10 @@
+--- TEST BREVO HTTP API ---
+API Key present: true
+Sender Email: obedburindi@gmail.com
+Envoi de l'email via HTTP...
+Γ¥î ERREUR HTTP :
+HTTP request failed
+D├⌐tails de la r├⌐ponse : {
+  "message": "Key not found",
+  "code": "unauthorized"
+}

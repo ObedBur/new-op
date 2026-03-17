@@ -12,7 +12,7 @@ export class EmailService {
 
     require('dns').setDefaultResultOrder('ipv4first');
 
-    const apiKey = process.env.BREVO_API_KEY || process.env.SMTP_PASSWORD;
+    const apiKey = process.env.BREVO_API_KEY;
     this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}, Sender: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM}`);
 
     if (apiKey) {
@@ -21,7 +21,7 @@ export class EmailService {
         apiKey,
       );
     } else {
-      this.logger.error('BREVO_API_KEY or SMTP_PASSWORD is not defined!');
+      this.logger.error('BREVO_API_KEY is not defined! HTTP API will fail.');
     }
   }
 

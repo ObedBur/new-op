@@ -189,17 +189,17 @@ export class TokenService {
 
   private async generateAccessToken(
     payload: JwtPayload,
-    expiresIn: string = AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY
+    expiresIn: string = process.env.JWT_ACCESS_EXPIRATION || AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY
   ): Promise<string> {
     return this.jwtService.signAsync({ ...payload }, {
-      secret: this.getSecret('JWT_SECRET'),
+      secret: this.getSecret('JWT_ACCESS_SECRET'),
       expiresIn: expiresIn as any,
     });
   }
 
   private async generateRefreshToken(
     payload: JwtPayload,
-    expiresIn: string = AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY
+    expiresIn: string = process.env.JWT_REFRESH_EXPIRATION || AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY
   ): Promise<string> {
     const enhancedPayload: JwtPayload = {
       ...payload,
@@ -217,7 +217,7 @@ export class TokenService {
     return crypto.createHash('sha256').update(token).digest('hex');
   }
 
-  private getSecret(key: 'JWT_SECRET' | 'JWT_REFRESH_SECRET'): string {
+  private getSecret(key: 'JWT_ACCESS_SECRET' | 'JWT_REFRESH_SECRET'): string {
     const secret = process.env[key];
 
     if (process.env.NODE_ENV === 'production') {
@@ -227,7 +227,9 @@ export class TokenService {
       return secret;
     }
 
-    if (!secret) return AUTH_CONSTANTS.DEV_SECRETS[key];
+    if (!secret) {
+      return key === 'JWT_ACCESS_SECRET' ? AUTH_CONSTANTS.DEV_SECRETS.JWT_SECRET : AUTH_CONSTANTS.DEV_SECRETS.JWT_REFRESH_SECRET;
+    }
     return secret;
   }
 }

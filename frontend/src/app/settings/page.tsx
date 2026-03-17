@@ -86,9 +86,72 @@ function SettingsContent() {
     </div>
   );
 
+  const renderMyStoreContent = () => (
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div>
+        <h3 className="text-2xl font-black text-deep-blue dark:text-white tracking-tight">Ma Boutique</h3>
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Gérez votre identité commerciale sur WapiBei</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Nom de la Boutique</label>
+            <input 
+              type="text" 
+              defaultValue="Force Fashion"
+              className="w-full px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Slogan / Courte bio</label>
+            <input 
+              type="text" 
+              placeholder="Ex: La mode à portée de main"
+              className="w-full px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Numéro WhatsApp Business</label>
+            <div className="relative">
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">+243</span>
+              <input 
+                type="text" 
+                defaultValue="999123456"
+                className="w-full pl-16 pr-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
+              />
+            </div>
+            <p className="text-[10px] text-gray-400 italic font-medium px-2">C&apos;est le numéro que les clients utiliseront pour vous contacter.</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Logo & Image de couverture</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="aspect-square bg-gray-50 dark:bg-white/5 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-all group">
+              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors text-3xl">add_a_photo</span>
+              <span className="text-[9px] font-black uppercase text-gray-400">Changer Logo</span>
+            </div>
+            <div className="aspect-square bg-gray-50 dark:bg-white/5 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-all group">
+              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors text-3xl">add_photo_alternate</span>
+              <span className="text-[9px] font-black uppercase text-gray-400">Couverture</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-6 border-t border-gray-100 dark:border-white/5 flex justify-end">
+        <button className="bg-primary text-white px-10 py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+          Enregistrer les modifications
+        </button>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch(activeTab) {
       case 'profile': return renderProfileContent();
+      case 'my-store': return renderMyStoreContent();
       default:
         return (
           <div className="py-20 text-center opacity-40 animate-in fade-in duration-500">

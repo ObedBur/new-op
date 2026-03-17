@@ -2,11 +2,12 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { mockProducts } from '@/features/products/data/mocks';
 
 export default function SellersPage() {
   const sellers = Array.from(new Set(mockProducts.map(p => p.user?.boutiqueName || p.user?.fullName || 'Vendeur')))
-    .map((name: string) => {
+    .map((name: string, index: number) => {
       const product = mockProducts.find(p => (p.user?.boutiqueName || p.user?.fullName || 'Vendeur') === name);
       const productCount = mockProducts.filter(p => (p.user?.boutiqueName || p.user?.fullName || 'Vendeur') === name).length;
       return {
@@ -16,7 +17,8 @@ export default function SellersPage() {
         productCount,
         image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=200`,
         rating: product?.user?.trustScore ? (product.user.trustScore / 20).toFixed(1) : "4.5", // approximate rating from trustScore
-        verified: product?.user?.isVerified
+        verified: product?.user?.isVerified,
+        id: product?.id || index.toString() // Use product ID as seller ID for mock
       };
     });
 
@@ -78,10 +80,13 @@ export default function SellersPage() {
                           </div>
                       </div>
 
-                      <button className="w-full py-3 bg-gray-50 dark:bg-white/5 text-deep-blue dark:text-white font-bold rounded-xl hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-primary/20">
+                      <Link 
+                        href={`/sellers/${seller.id}`}
+                        className="w-full py-3 bg-gray-50 dark:bg-white/5 text-deep-blue dark:text-white font-bold rounded-xl hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-primary/20"
+                      >
                           Visiter la boutique
                           <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                      </button>
+                      </Link>
                   </div>
               ))}
           </div>

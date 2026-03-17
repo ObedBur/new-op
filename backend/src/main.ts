@@ -64,6 +64,8 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 WapiBei est en ligne sur http://localhost:${port}`);
-  console.log(`🔐 JWT Config: Access (${process.env.JWT_EXPIRES_IN}), Refresh (${process.env.JWT_REFRESH_EXPIRES_IN})`);
+  const accessExpiry = process.env.JWT_ACCESS_EXPIRATION || '1h (default)';
+  const refreshExpiry = process.env.JWT_REFRESH_EXPIRATION || '7d (default)';
+  console.log(`🔐 JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
 bootstrap();
