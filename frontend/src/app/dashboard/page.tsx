@@ -1,82 +1,98 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link'; // Import Link for navigation
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button'; // Assuming Button is available
 
 export default function DashboardPage() {
-    const { user, logout } = useAuth();
-    const router = useRouter();
-
-    const handleLogout = async () => {
-        await logout();
-        router.push('/');
-    };
+    const { user } = useAuth();
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-8 mb-8">
-                    <div className="flex items-center justify-between mb-6">
-                         <div>
-                            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                                Mon Espace
-                            </h1>
-                            <p className="text-slate-500 dark:text-slate-400">
-                                Bienvenue, {user?.fullName || 'Utilisateur'} !
-                            </p>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Welcome Card */}
+            <div className="bg-gradient-to-br from-[#E67E22] via-[#FF9D4D] to-[#F5B041] rounded-3xl lg:rounded-[2rem] p-8 lg:p-10 text-white relative overflow-hidden shadow-2xl shadow-[#E67E22]/20">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/5 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                <div className="relative z-10">
+                    <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.25em] mb-2">Tableau de bord</p>
+                    <h1 className="text-3xl lg:text-4xl font-black mb-2">
+                        Bienvenue, {user?.fullName?.split(' ')[0]}
+                    </h1>
+                    <p className="text-white/80 text-sm max-w-md">
+                        Gérez votre compte, suivez vos commandes et profitez de la meilleure expérience WapiBei.
+                    </p>
+                </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                    { label: 'Commandes', value: '0', icon: 'shopping_bag', color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
+                    { label: 'En cours', value: '0', icon: 'local_shipping', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-500/10' },
+                    { label: 'Favoris', value: '0', icon: 'favorite', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-500/10' },
+                    { label: 'Avis laissés', value: '0', icon: 'reviews', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-500/10' },
+                ].map((stat, idx) => (
+                    <div key={idx} className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/5 p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className={`size-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
+                            <span className={`material-symbols-outlined text-[20px] ${stat.color}`}>{stat.icon}</span>
                         </div>
-                        <Button 
-                            variant="outline" 
-                            onClick={handleLogout}
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                        >
-                            Deconnexion
-                        </Button>
+                        <p className="text-2xl font-black text-deep-blue dark:text-white">{stat.value}</p>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{stat.label}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Account Info */}
+            <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
+                <div className="p-6 lg:p-8 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <div>
+                        <h3 className="text-xl font-black text-deep-blue dark:text-white">Mon Compte</h3>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Informations personnelles</p>
+                    </div>
+                    <Link href="/settings" className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-black border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all">
+                        <span className="material-symbols-outlined text-[16px]">edit</span>
+                        Modifier
+                    </Link>
+                </div>
+                <div className="p-6 lg:p-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+                        {[
+                            { label: 'Nom complet', value: user?.fullName || '—', icon: 'person' },
+                            { label: 'Email', value: user?.email || '—', icon: 'alternate_email' },
+                            { label: 'Rôle', value: user?.role === 'VENDOR' ? 'Vendeur' : 'Client', icon: 'badge' },
+                            { label: 'Statut', value: 'Actif', icon: 'check_circle', color: 'text-green-600' },
+                        ].map((info, idx) => (
+                            <div key={idx} className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{info.label}</label>
+                                <div className={`flex items-center gap-3 text-sm font-bold ${info.color || 'text-deep-blue dark:text-white'}`}>
+                                    <span className="material-symbols-outlined text-gray-300 text-[20px]">{info.icon}</span>
+                                    {info.value}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Carte 1: Statut du compte */}
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Mon Compte</h3>
-                        <div className="space-y-3">
-                            <div className="flex justify-between">
-                                <span className="text-slate-500">Email:</span>
-                                <span className="font-medium text-slate-900 dark:text-white">{user?.email}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-slate-500">Rôle:</span>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                    {user?.role}
-                                </span>
-                            </div>
-                             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                                <Link href="#" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-                                    Modifier mon profil &rarr;
-                                </Link>
-                            </div>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                    { label: 'Parcourir les produits', icon: 'storefront', href: '/', color: 'from-blue-500 to-blue-600' },
+                    { label: 'Suivre mes commandes', icon: 'package_2', href: '/dashboard/orders', color: 'from-orange-500 to-orange-600' },
+                    { label: 'Mes paramètres', icon: 'settings', href: '/settings', color: 'from-gray-500 to-gray-600' },
+                ].map((action, idx) => (
+                    <Link
+                        key={idx}
+                        href={action.href}
+                        className="group bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5"
+                    >
+                        <div className={`size-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                            <span className="material-symbols-outlined text-white text-[24px]">{action.icon}</span>
                         </div>
-                    </div>
-
-                    {/* Carte 2: Actions rapides */}
-                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-                        <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-slate-200">Que souhaitez-vous faire ?</h3>
-                        <div className="space-y-3">
-                            <button className="w-full text-left px-4 py-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors text-sm font-medium text-slate-700 dark:text-slate-200">
-                                🛍️ Parcourir les produits
-                            </button>
-                             <button className="w-full text-left px-4 py-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors text-sm font-medium text-slate-700 dark:text-slate-200">
-                                📦 Suivre mes commandes
-                            </button>
-                             <button className="w-full text-left px-4 py-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors text-sm font-medium text-slate-700 dark:text-slate-200">
-                                💬 Contacter le support
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        <p className="font-bold text-sm text-deep-blue dark:text-white group-hover:text-[#E67E22] transition-colors">{action.label}</p>
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1 block">Accéder →</span>
+                    </Link>
+                ))}
             </div>
         </div>
     );
