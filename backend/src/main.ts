@@ -27,7 +27,8 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter({
       trustProxy: true, // Équivalent de app.set('trust proxy', 1)
-      logger: true      // Active le logger ultra-rapide Pino
+      logger: true,      // Active le logger ultra-rapide Pino
+      bodyLimit: 50 * 1024 * 1024, // 50MB pour supporter les images Base64
     })
   );
 

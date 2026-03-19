@@ -1,103 +1,107 @@
-'use client';
-
 import React from 'react';
+import {
+    LayoutDashboard, ShoppingBag, Box, TrendingUp,
+    Plus, Rocket, Bell, Settings, LogOut
+} from 'lucide-react';
 
-export default function StorePage() {
+export default function HorizontalDashboard() {
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl lg:text-3xl font-black text-deep-blue dark:text-white tracking-tight">Ma Boutique</h2>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Aperçu et performances</p>
-                </div>
-                <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-black border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10 transition-all">
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                    Personnaliser
-                </button>
+        <div className="min-h-screen bg-slate-50 font-sans">
+            {/* --- NOUVEAU HEADER AVEC NAVIGATION --- */}
+            <nav className="bg-white border-b sticky top-0 z-50 px-8 py-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-12">
+                        <div className="flex flex-col">
+                            <h1 className="text-blue-900 font-black text-xl tracking-tight">WapiBei</h1>
+                            <span className="text-[10px] text-blue-500 font-bold uppercase">Business</span>
             </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                    { title: 'Ventes du jour', value: '0.00 $', icon: 'payments', color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-500/10' },
-                    { title: 'Clients', value: '0', icon: 'group', color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-500/10' },
-                    { title: 'Produits', value: '0', icon: 'inventory_2', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-500/10' },
-                    { title: 'Note', value: '—', icon: 'star', color: 'text-yellow-600', bg: 'bg-yellow-50 dark:bg-yellow-500/10' },
-                ].map((stat, idx) => (
-                    <div key={idx} className="bg-white dark:bg-[#1a1a1a] rounded-2xl border border-gray-100 dark:border-white/5 p-5 shadow-sm hover:shadow-md transition-shadow">
-                        <div className={`size-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
-                            <span className={`material-symbols-outlined text-[20px] ${stat.color}`}>{stat.icon}</span>
-                        </div>
-                        <p className="text-2xl font-black text-deep-blue dark:text-white">{stat.value}</p>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{stat.title}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Store Info Card */}
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
-                <div className="p-6 lg:p-8 border-b border-gray-100 dark:border-white/5">
-                    <h3 className="text-lg font-black text-deep-blue dark:text-white">Informations de la boutique</h3>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Profil public de votre boutique</p>
-                </div>
-                <div className="p-6 lg:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Nom de la Boutique</label>
-                        <input
-                            type="text"
-                            placeholder="Ex: Ma Super Boutique"
-                            className="w-full px-5 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#E67E22]/10 focus:border-[#E67E22]/30 transition-all outline-hidden"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Slogan</label>
-                        <input
-                            type="text"
-                            placeholder="Ex: La mode à portée de main"
-                            className="w-full px-5 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#E67E22]/10 focus:border-[#E67E22]/30 transition-all outline-hidden"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">WhatsApp Business</label>
-                        <div className="relative">
-                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">+243</span>
-                            <input
-                                type="text"
-                                placeholder="999 123 456"
-                                className="w-full pl-16 pr-5 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#E67E22]/10 focus:border-[#E67E22]/30 transition-all outline-hidden"
-                            />
+                        {/* Menu Horizontal */}
+                        <div className="flex gap-1 items-center">
+                            <HeaderTab icon={<LayoutDashboard size={18} />} label="Tableau de bord" active />
+                            <HeaderTab icon={<ShoppingBag size={18} />} label="Catalogue" />
+                            <HeaderTab icon={<Box size={18} />} label="Stocks" />
+                            <HeaderTab icon={<TrendingUp size={18} />} label="Ventes" />
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Ville</label>
-                        <input
-                            type="text"
-                            placeholder="Ex: Bukavu"
-                            className="w-full px-5 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-[#E67E22]/10 focus:border-[#E67E22]/30 transition-all outline-hidden"
-                        />
-                    </div>
-                </div>
-                <div className="p-6 lg:p-8 pt-0 flex justify-end">
-                    <button className="bg-[#E67E22] text-white px-8 py-3.5 rounded-2xl font-black text-sm shadow-lg shadow-[#E67E22]/20 hover:scale-[1.02] active:scale-95 transition-all">
-                        Enregistrer
-                    </button>
-                </div>
-            </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white dark:bg-[#1a1a1a] rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
-                <div className="p-6 lg:p-8 border-b border-gray-100 dark:border-white/5">
-                    <h3 className="text-lg font-black text-deep-blue dark:text-white">Activité récente</h3>
-                </div>
-                <div className="p-6 lg:p-8">
-                    <div className="flex flex-col items-center justify-center text-center py-10">
-                        <span className="material-symbols-outlined text-gray-300 text-[40px] mb-3">timeline</span>
-                        <p className="text-sm font-bold text-gray-400">Aucune activité récente</p>
-                        <p className="text-xs text-gray-400 mt-1">L&apos;activité de votre boutique apparaîtra ici</p>
+                    <div className="flex items-center gap-4">
+                        <button className="p-2 text-gray-400 hover:text-blue-900"><Bell size={20} /></button>
+                        <button className="p-2 text-gray-400 hover:text-blue-900"><Settings size={20} /></button>
+                        <div className="h-8 w-[1px] bg-gray-200 mx-2"></div>
+                        <div className="flex items-center gap-3">
+                            <div className="text-right">
+                                <p className="text-sm font-bold text-blue-900 leading-none">Jean Kabulo</p>
+                                <p className="text-[10px] text-green-600 font-medium">Vendeur Vérifié</p>
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm overflow-hidden">
+                                <img src="/api/placeholder/40/40" alt="Avatar" />
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </nav>
+
+            {/* --- CONTENU --- */}
+            <main className="max-w-7xl mx-auto p-8">
+
+                {/* Actions Rapides & Titre */}
+                <header className="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 className="text-3xl font-bold text-blue-900">Tableau de Bord</h2>
+                        <p className="text-gray-500">Bienvenue, Jean. Voici un aperçu de votre activité aujourd'hui.</p>
+                    </div>
+                    <div className="flex gap-3">
+                        <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition shadow-lg shadow-orange-200">
+                            <Plus size={20} /> Produit
+                        </button>
+                        <button className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition">
+                            <Rocket size={20} /> Publier
+                        </button>
+                    </div>
+                </header>
+
+                {/* La bannière bleue reste identique au design précédent... */}
+                <section className="bg-gradient-to-r from-blue-700 to-blue-600 rounded-[2.5rem] p-10 text-white mb-10 relative overflow-hidden shadow-xl shadow-blue-100">
+                    {/* ... contenu de la bannière ... */}
+                </section>
+
+                {/* Grille de Produits */}
+                <section>
+                    <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
+                        <h3 className="text-2xl font-bold text-blue-900">Gestion des Produits</h3>
+                        {/* Filtres de statut */}
+                        <div className="flex gap-6 text-sm font-bold">
+                            <button className="text-blue-700 border-b-2 border-blue-700 pb-4">Tout (120)</button>
+                            <button className="text-gray-400 hover:text-blue-900 pb-4 transition">En ligne (118)</button>
+                            <button className="text-gray-400 hover:text-blue-900 pb-4 transition">Brouillons (2)</button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Composants ProductCard ici... */}
+                    </div>
+                </section>
+            </main>
         </div>
+    );
+}
+
+// Sous-composant pour les onglets du header
+interface HeaderTabProps {
+    icon: React.ReactNode;
+    label: string;
+    active?: boolean;
+}
+
+function HeaderTab({ icon, label, active = false }: HeaderTabProps) {
+    return (
+        <button className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all font-bold text-sm ${active
+            ? 'bg-blue-50 text-blue-700'
+            : 'text-gray-500 hover:bg-gray-50 hover:text-blue-900'
+            }`}>
+            {icon}
+            {label}
+        </button>
     );
 }

@@ -11,6 +11,7 @@ export interface User {
   kycStatus: KycStatus;
   isVerified: boolean;
   trustScore: number;
+  avatarUrl?: string;
   province?: string;
   commune?: string;
   address?: string;
@@ -86,5 +87,19 @@ export interface ResetPasswordDto {
 export interface ResetPasswordResponse {
   success: boolean;
   message: string;
+}
+
+export interface UpdateProfileDto {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  province?: string;
+  commune?: string;
+  address?: string;
+  city?: string;
+  profilePicture?: File | string;
+  password?: string;
+  oldPassword?: string;
+  transactionPin?: string;
 }
 

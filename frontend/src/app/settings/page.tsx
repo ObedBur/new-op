@@ -1,220 +1,252 @@
-'use client';
+"use client";
 
-import React, { Suspense } from 'react';
-import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  User, Store, Heart, Bell, ShieldCheck, Settings as SettingsIcon,
+  ChevronRight, MapPin, BadgeCheck, TrendingDown, TrendingUp,
+  Package, Plus, Hammer, Smartphone, Sprout, Search, Lock
+} from "lucide-react";
+import EditProfileModal from "../modal/EditProfileModal";
 
-type SettingsTab = 'profile' | 'orders' | 'favorites' | 'my-store' | 'notifications' | 'security' | 'preferences';
+import { useAuth } from "@/context/AuthContext";
 
-function SettingsContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const tabParam = searchParams.get('tab') as SettingsTab | null;
-  const activeTab: SettingsTab = tabParam || 'profile';
-
-  const navGroups = [
-    {
-      title: "Compte",
-      items: [
-        { id: 'profile', label: 'Mon Profil', icon: 'person', color: 'bg-blue-100 text-blue-600' },
-        { id: 'orders', label: 'Mes Commandes', icon: 'package_2', color: 'bg-green-100 text-green-600' },
-        { id: 'favorites', label: 'Mes Favoris', icon: 'favorite', color: 'bg-red-100 text-red-600' },
-      ]
-    },
-    {
-      title: "Commerce",
-      items: [
-        { id: 'my-store', label: 'Ma Boutique', icon: 'storefront', color: 'bg-orange-100 text-orange-600' },
-      ]
-    },
-    {
-      title: "Application",
-      items: [
-        { id: 'notifications', label: 'Notifications', icon: 'notifications', color: 'bg-purple-100 text-purple-600' },
-        { id: 'security', label: 'Sécurité', icon: 'lock_person', color: 'bg-green-100 text-green-600' },
-        { id: 'preferences', label: 'Préférences', icon: 'tune', color: 'bg-gray-100 text-gray-600' },
-      ]
-    }
-  ];
-
-  const renderProfileContent = () => (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
-          <div>
-              <h3 className="text-2xl font-black text-deep-blue dark:text-white">Mon Profil</h3>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Informations personnelles et adresses</p>
-          </div>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-black border border-gray-200 dark:border-white/10">
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-              Modifier le profil
-          </button>
-      </div>
-
-      <div className="bg-white dark:bg-white/5 rounded-4xl lg:rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden flex flex-col xl:flex-row">
-          <div className="w-full xl:w-1/3 p-10 flex flex-col items-center justify-center text-center bg-gray-50/50 dark:bg-white/2 border-b xl:border-b-0 xl:border-r border-gray-100 dark:border-white/5">
-              <div className="relative mb-6">
-                  <div className="size-40 lg:size-44 rounded-[3rem] bg-white dark:bg-background-dark border-8 border-white dark:border-[#1a1a1a] shadow-2xl overflow-hidden">
-                      <Image src="https://ui-avatars.com/api/?name=Justin+Kivu&background=f96f06&color=fff&size=200" alt="Justin Kivu" width={176} height={176} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 bg-primary text-white size-12 rounded-2xl flex items-center justify-center shadow-lg border-4 border-white dark:border-[#1a1a1a]">
-                      <span className="material-symbols-outlined text-[24px]">verified</span>
-                  </div>
-              </div>
-              <h4 className="text-2xl font-black text-deep-blue dark:text-white">Justin Kivu</h4>
-              <p className="text-xs text-primary font-black uppercase tracking-widest mt-1">Membre Certifié</p>
-          </div>
-
-          <div className="flex-1 p-8 lg:p-10">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
-                  {[
-                    { label: "Email", val: "justin.k@wapibei.cd", icon: "alternate_email" },
-                    { label: "Téléphone", val: "+243 999 123 456", icon: "call" },
-                    { label: "Membre depuis", val: "Janvier 2024", icon: "calendar_today" },
-                    { label: "Statut", val: "Acheteur Actif", icon: "check_circle", color: "text-green-600" }
-                  ].map((info, idx) => (
-                    <div key={idx} className="space-y-1">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{info.label}</label>
-                        <div className={`flex items-center gap-3 text-sm font-bold ${info.color || 'text-deep-blue dark:text-white'}`}>
-                            <span className="material-symbols-outlined text-gray-300 text-[20px]">{info.icon}</span>
-                            {info.val}
-                        </div>
-                    </div>
-                  ))}
-              </div>
-          </div>
-      </div>
-    </div>
-  );
-
-  const renderMyStoreContent = () => (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h3 className="text-2xl font-black text-deep-blue dark:text-white tracking-tight">Ma Boutique</h3>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Gérez votre identité commerciale sur WapiBei</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Nom de la Boutique</label>
-            <input 
-              type="text" 
-              defaultValue="Force Fashion"
-              className="w-full px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Slogan / Courte bio</label>
-            <input 
-              type="text" 
-              placeholder="Ex: La mode à portée de main"
-              className="w-full px-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Numéro WhatsApp Business</label>
-            <div className="relative">
-              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">+243</span>
-              <input 
-                type="text" 
-                defaultValue="999123456"
-                className="w-full pl-16 pr-6 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-hidden"
-              />
-            </div>
-            <p className="text-[10px] text-gray-400 italic font-medium px-2">C&apos;est le numéro que les clients utiliseront pour vous contacter.</p>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Logo & Image de couverture</label>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="aspect-square bg-gray-50 dark:bg-white/5 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-all group">
-              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors text-3xl">add_a_photo</span>
-              <span className="text-[9px] font-black uppercase text-gray-400">Changer Logo</span>
-            </div>
-            <div className="aspect-square bg-gray-50 dark:bg-white/5 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-all group">
-              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors text-3xl">add_photo_alternate</span>
-              <span className="text-[9px] font-black uppercase text-gray-400">Couverture</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-6 border-t border-gray-100 dark:border-white/5 flex justify-end">
-        <button className="bg-primary text-white px-10 py-4 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-          Enregistrer les modifications
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'profile': return renderProfileContent();
-      case 'my-store': return renderMyStoreContent();
-      default:
-        return (
-          <div className="py-20 text-center opacity-40 animate-in fade-in duration-500">
-            <span className="material-symbols-outlined text-5xl">construction</span>
-            <p className="mt-2 font-black uppercase text-xs tracking-widest">Bientôt disponible: {activeTab}</p>
-          </div>
-        );
-    }
-  };
-
-  return (
-    <main className="flex-1 pt-20">
-      <section className="container mx-auto max-w-7xl md:py-8 lg:py-16">
-        <div className="hidden lg:flex gap-12">
-          <aside className="w-72 shrink-0 space-y-2">
-              <div className="px-4 mb-4">
-                  <h2 className="text-3xl font-black text-deep-blue dark:text-white tracking-tight">Paramètres</h2>
-                  <p className="text-xs text-gray-400 font-black uppercase tracking-widest mt-1">Mon compte WapiBei</p>
-              </div>
-              <nav className="space-y-1">
-                  {navGroups.flatMap(g => g.items).map((item) => (
-                      <button 
-                          key={item.id}
-                          onClick={() => router.push(`/settings?tab=${item.id}`)}
-                          className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold transition-all ${
-                              activeTab === item.id 
-                              ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-[1.02]' 
-                              : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                          }`}
-                      >
-                          <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-                          {item.label}
-                      </button>
-                  ))}
-              </nav>
-          </aside>
-
-          <div className="flex-1 min-w-0">
-              <div className="bg-white dark:bg-[#1a1a1a] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl shadow-black/5 p-12 min-h-[600px]">
-                  {renderContent()}
-              </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
-}
+type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
 
 export default function SettingsPage() {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const navItems = [
+    { id: 'profile', label: 'Mon Profil', icon: User },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'security', label: 'Sécurité', icon: ShieldCheck },
+    { id: 'preferences', label: 'Préférences', icon: SettingsIcon },
+  ];
+
   return (
-    <Suspense fallback={
-      <main className="flex-1 pt-20">
-        <section className="container mx-auto max-w-7xl md:py-8 lg:py-16">
-          <div className="flex items-center justify-center min-h-[600px]">
-            <div className="animate-pulse text-center">
-              <span className="material-symbols-outlined text-5xl text-primary">settings</span>
-              <p className="mt-2 font-black uppercase text-xs tracking-widest text-gray-400">Chargement...</p>
+    <div className="flex flex-col min-h-screen bg-[#f1f4f9] dark:bg-[#0b1221]">
+      {/* Modale d'édition */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
+
+      <main className="flex-grow pt-28 pb-16">
+        <div className="container mx-auto max-w-7xl px-4 lg:px-10">
+          <div className="flex flex-col lg:flex-row gap-8">
+
+            {/* --- SIDEBAR GAUCHE --- */}
+            <aside className="w-full lg:w-72 shrink-0">
+              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-9 shadow-sm shadow-gray-200/50 sticky top-28">
+                <h1 className="text-[28px] font-black text-[#1e293b] dark:text-white leading-none">Paramètres</h1>
+                <p className="text-[10px] font-black text-[#94a3b8] uppercase tracking-[0.15em] mt-3 mb-10">MON COMPTE WAPIBEI</p>
+
+                <nav className="space-y-2">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id as SettingsTab)}
+                      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[15px] font-bold transition-all duration-300 ${activeTab === item.id
+                        ? "bg-[#eef2ff] text-[#4f46e5]"
+                        : "text-[#64748b] hover:bg-gray-50"
+                        }`}
+                    >
+                      <item.icon className={`size-5 ${activeTab === item.id ? "text-[#4f46e5]" : "text-[#94a3b8]"}`} />
+                      {item.label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </aside>
+
+            {/* --- ZONE CENTRALE --- */}
+            <div className="flex-1 space-y-8">
+
+              {/* Header Card Utilisateur */}
+              <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <div className="size-24 rounded-full overflow-hidden border-4 border-white shadow-xl bg-gray-100">
+                      {user?.avatarUrl ? (
+                        <Image
+                          src={user.avatarUrl}
+                          alt={user.fullName || "Avatar"} width={96} height={96} className="object-cover w-full h-full"
+                        />
+                      ) : user?.fullName ? (
+                        <Image
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`}
+                          alt={user.fullName} width={96} height={96} className="object-cover"
+                        />
+                      ) : (
+                        <div className="size-24 flex items-center justify-center">
+                          <User className="size-12 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute bottom-0 -right-1 bg-[#0033ff] text-white size-8 rounded-full flex items-center justify-center border-4 border-white">
+                      <BadgeCheck className="size-4" fill="currentColor" />
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-[26px] font-black text-[#1e293b] dark:text-white leading-tight">
+                      {user?.fullName || "Utilisateur"}
+                    </h2>
+                    <div className="flex items-center gap-2 text-[#64748b] text-sm mt-1">
+                      <MapPin className="size-4" />
+                      <span className="font-semibold">{user?.province || "Goma, RDC"}</span>
+                    </div>
+                    <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 bg-[#eff6ff] text-[#2563eb] rounded-xl text-[10px] font-black uppercase tracking-wider border border-blue-50">
+                      <ShieldCheck className="size-3.5" />
+                      {user?.role === 'VENDOR' ? 'VERIFIED SELLER' : 'VERIFIED CLIENT'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="px-9 py-4 bg-[#002db3] text-white rounded-2xl font-black text-sm hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-blue-500/20 tracking-wide"
+                >
+                  Éditer Profil
+                </button>
+              </section>
+
+              {/* Module Wapi-Bei Tracker */}
+              <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
+                <div className="flex items-center justify-between mb-10">
+                  <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Wapi-Bei Tracker</h3>
+                  <div className="px-3 py-1 bg-[#fff7ed] text-[#ea580c] rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                    <div className="size-1.5 bg-[#ea580c] rounded-full animate-pulse"></div>
+                    LIVE MARKET
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    { name: "Sac de Ciment", location: "PRIX MOYEN GOMA", price: "14.50", icon: Hammer, trend: -2, active: true, trendColor: 'text-[#10b981]' },
+                    { name: "iPhone 15", location: "PRIX IMPORT", price: "890.00", icon: Smartphone, trend: 0, active: false, trendColor: 'text-gray-400' },
+                    { name: "Haricots (Sac 100kg)", location: "MARCHÉ VIRUNGA", price: "75.00", icon: Sprout, trend: 5, active: true, trendColor: 'text-[#f97316]' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-6 bg-[#f8fafc] dark:bg-white/2 rounded-[1.5rem] border border-transparent hover:border-gray-100 transition-all">
+                      <div className="flex items-center gap-5">
+                        <div className="size-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm border border-gray-50">
+                          <item.icon className="size-6 text-[#475569]" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-[16px] text-[#1e293b] dark:text-white leading-tight">{item.name}</h4>
+                          <p className="text-[10px] font-bold text-[#94a3b8] mt-1.5 uppercase tracking-widest">{item.location}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-10">
+                        <div className="text-right">
+                          <div className="text-[20px] font-black text-[#1e293b] dark:text-white tracking-tight">${item.price}</div>
+                          <div className={`flex items-center justify-end gap-1 text-[11px] font-bold ${item.trendColor} mt-0.5`}>
+                            {item.trend !== 0 && (item.trend < 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />)}
+                            {item.trend === 0 ? 'Stable' : `${item.trend > 0 ? '↑' : '↓'} ${Math.abs(item.trend)}%`}
+                          </div>
+                        </div>
+                        {/* Custom Switch Toggle */}
+                        <div className={`w-14 h-7 rounded-full relative transition-all duration-300 cursor-pointer ${item.active ? 'bg-[#002db3]' : 'bg-[#e2e8f0]'}`}>
+                          <div className={`absolute top-1 size-5 rounded-full bg-white shadow-sm transition-all duration-300 ${item.active ? 'left-8' : 'left-1'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-dashed border-gray-100">
+                  <button className="w-full p-5 rounded-[1.5rem] border-2 border-dashed border-[#f97316] flex items-center justify-center gap-3 text-sm font-black text-[#f97316] hover:bg-[#fff7ed] transition-all group">
+                    <div className="size-8 rounded-full bg-[#f97316] flex items-center justify-center text-white">
+                      <Plus className="size-5" />
+                    </div>
+                    Suivre un nouveau produit
+                  </button>
+                </div>
+              </section>
             </div>
+
+            {/* --- STATS ET INFOS DROITE --- */}
+            <aside className="w-full lg:w-80 space-y-8">
+              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50">
+                <h3 className="text-[18px] font-black text-[#1e293b] dark:text-white mb-8 leading-none">Activité</h3>
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between cursor-pointer group">
+                    <div className="flex items-center gap-4">
+                      <div className="size-10 rounded-xl bg-[#eef2ff] flex items-center justify-center">
+                        <Package className="size-5 text-[#4f46e5]" />
+                      </div>
+                      <span className="text-[14px] font-bold text-[#475569] dark:text-gray-300">Mes Annonces</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-[#1e293b] text-[10px] font-black text-white rounded-lg leading-none">12 Active</span>
+                      <ChevronRight className="size-4 text-[#94a3b8] group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between cursor-pointer group">
+                    <div className="flex items-center gap-4">
+                      <div className="size-10 rounded-xl bg-[#fff7ed] flex items-center justify-center">
+                        <Heart className="size-5 text-[#f97316]" />
+                      </div>
+                      <span className="text-[14px] font-bold text-[#475569] dark:text-gray-300">Ma Wishlist</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 bg-[#f97316] text-[10px] font-black text-white rounded-lg leading-none">5 Items</span>
+                      <ChevronRight className="size-4 text-[#94a3b8] group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50">
+                <h3 className="text-[18px] font-black text-[#1e293b] dark:text-white mb-8 leading-none">Sécurité & Confiance</h3>
+                <div className="space-y-8">
+                  <div className="flex gap-4 items-start">
+                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
+                      <ShieldCheck size={20} className="text-[#1e293b]" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Vérification KYC (Identité)</p>
+                      <p className="text-[11px] font-bold text-[#10b981]"> Approuvé</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
+                      <Lock size={18} className="text-[#1e293b]" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Code PIN de transaction</p>
+                      <p className="text-[11px] font-bold text-[#64748b]">Activé pour vos achats</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 items-start">
+                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
+                      <Search size={18} className="text-[#1e293b]" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Zone de recherche</p>
+                      <p className="text-[11px] font-bold text-[#64748b]">Goma & Environs (25km)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
           </div>
-        </section>
+        </div>
       </main>
-    }>
-      <SettingsContent />
-    </Suspense>
+
+      {/* --- FOOTER MINIMAL --- */}
+      <footer className="bg-white dark:bg-[#0b1221] py-16 border-t border-gray-100 text-center">
+        <div className="container mx-auto px-4">
+          <p className="text-sm font-bold text-[#94a3b8] mb-6">WapiBei – La Marketplace de confiance en Afrique</p>
+          <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 mb-10">
+            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Terms of Service</Link>
+            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Privacy Policy</Link>
+            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Contact Support</Link>
+          </div>
+          <p className="text-[10px] font-bold text-[#cbd5e1] uppercase tracking-tighter">© 2024 WapiBei Marketplace. Tous droits réservés.</p>
+        </div>
+      </footer>
+    </div>
   );
 }
