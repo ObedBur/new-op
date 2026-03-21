@@ -37,8 +37,8 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   // Build dynamic navigation based on user role
   const getNavItems = () => {
-    const items = [
-      { label: 'Mon Compte', href: '/dashboard' },
+    let items = [
+      { label: 'Mon Compte', href: '/settings' },
       { label: 'Mes Commandes', href: '/dashboard/orders' },
     ];
 
@@ -55,9 +55,6 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       );
     }
 
-    // Always add Settings at the end
-    items.push({ label: 'Paramètres', href: '/settings' });
-
     return items;
   };
 
@@ -70,7 +67,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="group p-0.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
         >
-          <div className="size-9 rounded-full bg-gradient-to-tr from-[#E67E22] to-[#FF9D4D] flex items-center justify-center text-white text-xs font-black border-2 border-white dark:border-white/10 shadow-sm group-hover:shadow-md transition-all duration-300">
+          <div className="size-9 rounded-full bg-gradient-to-tr from-[#4f46e5] to-[#818cf8] flex items-center justify-center text-white text-xs font-black border-2 border-white dark:border-white/10 shadow-sm group-hover:shadow-md transition-all duration-300">
             {getInitials(user?.fullName || '')}
           </div>
           <div className="hidden xl:flex flex-col items-start pr-2">
@@ -88,7 +85,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       ) : (
         <Link 
           href="/login"
-            className="size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-orange-50 dark:hover:bg-white/5 rounded-full transition-all duration-300"
+            className="size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#4f46e5] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-all duration-300"
             title="Se connecter"
         >
             <span className="material-symbols-outlined text-[24px]">account_circle</span>
@@ -100,7 +97,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent border-b border-gray-100 dark:border-white/5">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-[#E67E22] flex items-center justify-center text-white text-sm font-black shadow-lg shadow-orange-500/20">
+              <div className="size-10 rounded-xl bg-[#4f46e5] flex items-center justify-center text-white text-sm font-black shadow-lg shadow-blue-500/20">
                 {getInitials(user?.fullName || '')}
               </div>
               <div className="min-w-0">
@@ -126,7 +123,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsProfileOpen(false)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold text-gray-600 dark:text-gray-300 hover:bg-[#E67E22]/5 dark:hover:bg-white/5 hover:text-[#E67E22] transition-all group"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold text-gray-600 dark:text-gray-300 hover:bg-[#4f46e5]/5 dark:hover:bg-white/5 hover:text-[#4f46e5] transition-all group"
                 >
                   {item.label}
                 </Link>

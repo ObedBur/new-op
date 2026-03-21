@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
@@ -34,6 +34,30 @@ export class OrdersController {
       success: true,
       message: 'Commandes traitees avec succes',
       data: result,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('vendor')
+  async getOrdersForVendor(@Req() req: JwtRequest) {
+    const vendorId = req.user.id;
+    const orders = await this.ordersService.findOrdersForVendor(vendorId);
+
+    return {
+      success: true,
+      data: orders,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('client')
+  async getOrdersForClient(@Req() req: JwtRequest) {
+    const clientId = req.user.id;
+    const orders = await this.ordersService.findOrdersForClient(clientId);
+
+    return {
+      success: true,
+      data: orders,
     };
   }
 }

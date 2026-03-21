@@ -75,8 +75,8 @@ export const CartView: React.FC = () => {
     <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-8 md:py-16 animate-in fade-in duration-500">
       <div className="mb-8 md:mb-12">
         <div className="flex items-center gap-2 mb-2">
-          <span className="h-0.5 w-6 bg-primary"></span>
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+          <span className="h-0.5 w-6 bg-[#E67E22]"></span>
+          <span className="text-[10px] font-black text-[#E67E22] uppercase tracking-[0.2em]">
             Votre Sélection
           </span>
         </div>
@@ -133,7 +133,7 @@ export const CartView: React.FC = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => updateQuantity(item.product.id, -1)}
-                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-deep-blue dark:text-white"
+                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white"
                     >
                       <span className="material-symbols-outlined text-[18px]">
                         remove
@@ -146,7 +146,7 @@ export const CartView: React.FC = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => updateQuantity(item.product.id, 1)}
-                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-deep-blue dark:text-white"
+                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white"
                     >
                       <span className="material-symbols-outlined text-[18px]">
                         add
@@ -157,7 +157,7 @@ export const CartView: React.FC = () => {
                     <p className="text-xs font-black text-gray-400 uppercase tracking-tighter">
                       Prix total
                     </p>
-                    <p className="text-lg md:text-xl font-black text-primary">
+                    <p className="text-lg md:text-xl font-black text-[#E67E22]">
                       {(item.product.price * item.quantity).toLocaleString()} FC
                     </p>
                   </div>
@@ -187,7 +187,7 @@ export const CartView: React.FC = () => {
                 <span className="font-bold text-gray-500 uppercase text-[11px] tracking-widest">
                   Livraison Standard
                 </span>
-                <span className="font-black text-green-500">
+                <span className="font-black text-[#2D5A27]">
                   {deliveryFee.toLocaleString()} FC
                 </span>
               </div>
@@ -195,7 +195,7 @@ export const CartView: React.FC = () => {
                 <span className="font-black text-deep-blue dark:text-white uppercase text-xs tracking-[0.2em]">
                   Total
                 </span>
-                <span className="text-2xl md:text-3xl font-black text-primary">
+                <span className="text-2xl md:text-3xl font-black text-[#E67E22]">
                   {total.toLocaleString()} FC
                 </span>
               </div>
@@ -203,20 +203,20 @@ export const CartView: React.FC = () => {
 
             <div className="mt-10 space-y-3">
               <Button
-                className="w-full py-5"
+                className="w-full py-6 bg-[#E67E22] hover:bg-orange-600 text-white shadow-lg shadow-orange-500/30 font-black uppercase tracking-widest text-[12px] rounded-2xl border-none"
                 onClick={() => setIsCheckoutModalOpen(true)}
                 leftIcon={
-                  <span className="material-symbols-outlined text-[20px]">
-                    check_circle
+                  <span className="material-symbols-outlined text-[22px]">
+                    payment
                   </span>
                 }
               >
-                Valider
+                Passer au paiement
               </Button>
-              <Link href="/products" className="block">
-                <Button variant="ghost" className="w-full">
+              <Link href="/products" className="block text-center mt-4">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E67E22] hover:underline decoration-2 underline-offset-8 transition-all">
                   Continuer les achats
-                </Button>
+                </span>
               </Link>
             </div>
 

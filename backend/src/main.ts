@@ -47,17 +47,22 @@ async function bootstrap() {
     }),
   );
 
-  // ============ SÉCURITÉ HTTP (Fastify version) ============
-  // On utilise register() avec Fastify au lieu de app.use()
-  await app.register(helmet);
-
   // ============ CONFIGURATION CORS ============
+  const isDev = process.env.NODE_ENV !== 'production';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:5173'],
+    origin: isDev ? true : [frontendUrl, 'http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+  });
+
+  // ============ SÉCURITÉ HTTP (Fastify version) ============
+  // On place helmet APRÈS CORS pour éviter des conflits et on le desserre en dev
+  await app.register(helmet, {
+    contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
   });
 
   // Important : Avec Fastify, il est conseillé d'écouter sur '0.0.0.0'

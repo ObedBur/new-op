@@ -162,4 +162,31 @@ export class OrdersService {
       deliveryAddress: createOrderDto.deliveryAddress,
     }, clientId);
   }
+
+  async findOrdersForVendor(vendorId: string) {
+    return this.prisma.order.findMany({
+      where: { vendorId },
+      include: {
+        product: true,
+        client: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async findOrdersForClient(clientId: string) {
+    return this.prisma.order.findMany({
+      where: { clientId },
+      include: {
+        product: true,
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
 }

@@ -126,35 +126,33 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
                   Menu {user?.role === 'VENDOR' ? 'Vendeur' : 'Personnel'}
                 </span>
                 </div>
-                <Link href="/dashboard" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                <span className="material-symbols-outlined text-[#E67E22] text-[20px]">dashboard</span> Mon Compte
+
+              <Link href="/settings" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
+                <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">person</span> Mon Compte
               </Link>
+
               <Link href="/dashboard/orders" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                <span className="material-symbols-outlined text-[#E67E22] text-[20px]">shopping_bag</span> Mes Commandes
+                <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">shopping_bag</span> Mes Commandes
               </Link>
 
               {user?.role === 'VENDOR' ? (
                 <>
                   <Link href="/dashboard/store" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                    <span className="material-symbols-outlined text-[#E67E22] text-[20px]">storefront</span> Ma Boutique
+                    <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">storefront</span> Ma Boutique
                   </Link>
                   <Link href="/dashboard/products" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                    <span className="material-symbols-outlined text-[#E67E22] text-[20px]">inventory_2</span> Mes Produits
+                    <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">inventory_2</span> Mes Produits
                   </Link>
                 </>
               ) : (
                 <Link href="/dashboard/wishlist" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                  <span className="material-symbols-outlined text-[#E67E22] text-[20px]">favorite</span> Mes Favoris
+                  <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">favorite</span> Mes Favoris
                 </Link>
               )}
 
-              <Link href="/settings" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                <span className="material-symbols-outlined text-[#E67E22] text-[20px]">settings</span> Paramètres
-                </Link>
-
                 {user?.role === 'ADMIN' && (
                   <Link href="/admin" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                    <span className="material-symbols-outlined text-[#E67E22] text-[20px]">admin_panel_settings</span> Administration
+                  <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">admin_panel_settings</span> Administration
                   </Link>
                 )}
 

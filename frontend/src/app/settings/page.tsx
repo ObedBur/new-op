@@ -6,25 +6,53 @@ import Link from "next/link";
 import {
   User, Store, Heart, Bell, ShieldCheck, Settings as SettingsIcon,
   ChevronRight, MapPin, BadgeCheck, TrendingDown, TrendingUp,
-  Package, Plus, Hammer, Smartphone, Sprout, Search, Lock
+  Package, Plus, Hammer, Smartphone, Sprout, Search, Lock,
+  ShoppingBag
 } from "lucide-react";
 import EditProfileModal from "../modal/EditProfileModal";
 
 import { useAuth } from "@/context/AuthContext";
 
+import { useSearchParams } from 'next/navigation';
+import { VendorSidebar } from "@/components/layout/VendorSidebar";
+import { api } from "@/lib/api";
+
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
 
 export default function SettingsPage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const searchParams = useSearchParams();
+  const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const navItems = [
-    { id: 'profile', label: 'Mon Profil', icon: User },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Sécurité', icon: ShieldCheck },
-    { id: 'preferences', label: 'Préférences', icon: SettingsIcon },
-  ];
+  React.useEffect(() => {
+    if (activeTab === 'notifications') {
+      fetchNotifications();
+    }
+  }, [activeTab]);
+
+  const fetchNotifications = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.get('/notifications');
+      setNotifications(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const markAsRead = async (id: string) => {
+    try {
+      await api.patch(`/notifications/${id}/read`);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f1f4f9] dark:bg-[#0b1221]">
@@ -34,33 +62,12 @@ export default function SettingsPage() {
         onClose={() => setIsEditModalOpen(false)}
       />
 
-      <main className="flex-grow pt-28 pb-16">
+      <main className="flex-grow flex-1 pt-10 pb-16">
         <div className="container mx-auto max-w-7xl px-4 lg:px-10">
           <div className="flex flex-col lg:flex-row gap-8">
 
             {/* --- SIDEBAR GAUCHE --- */}
-            <aside className="w-full lg:w-72 shrink-0">
-              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-9 shadow-sm shadow-gray-200/50 sticky top-28">
-                <h1 className="text-[28px] font-black text-[#1e293b] dark:text-white leading-none">Paramètres</h1>
-                <p className="text-[10px] font-black text-[#94a3b8] uppercase tracking-[0.15em] mt-3 mb-10">MON COMPTE WAPIBEI</p>
-
-                <nav className="space-y-2">
-                  {navItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveTab(item.id as SettingsTab)}
-                      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[15px] font-bold transition-all duration-300 ${activeTab === item.id
-                        ? "bg-[#eef2ff] text-[#4f46e5]"
-                        : "text-[#64748b] hover:bg-gray-50"
-                        }`}
-                    >
-                      <item.icon className={`size-5 ${activeTab === item.id ? "text-[#4f46e5]" : "text-[#94a3b8]"}`} />
-                      {item.label}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </aside>
+            <VendorSidebar user={user} />
 
             {/* --- ZONE CENTRALE --- */}
             <div className="flex-1 space-y-8">
@@ -112,58 +119,118 @@ export default function SettingsPage() {
                 </button>
               </section>
 
-              {/* Module Wapi-Bei Tracker */}
-              <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
-                <div className="flex items-center justify-between mb-10">
-                  <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Wapi-Bei Tracker</h3>
-                  <div className="px-3 py-1 bg-[#fff7ed] text-[#ea580c] rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                    <div className="size-1.5 bg-[#ea580c] rounded-full animate-pulse"></div>
-                    LIVE MARKET
+              {/* --- DYNAMIC ZONE BASED ON TAB --- */}
+              {activeTab === 'profile' && (
+                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
+                  <div className="flex items-center justify-between mb-10">
+                    <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Wapi-Bei Tracker</h3>
+                    <div className="px-3 py-1 bg-[#fff7ed] text-[#ea580c] rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                      <div className="size-1.5 bg-[#ea580c] rounded-full animate-pulse"></div>
+                      LIVE MARKET
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-4">
-                  {[
-                    { name: "Sac de Ciment", location: "PRIX MOYEN GOMA", price: "14.50", icon: Hammer, trend: -2, active: true, trendColor: 'text-[#10b981]' },
-                    { name: "iPhone 15", location: "PRIX IMPORT", price: "890.00", icon: Smartphone, trend: 0, active: false, trendColor: 'text-gray-400' },
-                    { name: "Haricots (Sac 100kg)", location: "MARCHÉ VIRUNGA", price: "75.00", icon: Sprout, trend: 5, active: true, trendColor: 'text-[#f97316]' },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-6 bg-[#f8fafc] dark:bg-white/2 rounded-[1.5rem] border border-transparent hover:border-gray-100 transition-all">
-                      <div className="flex items-center gap-5">
-                        <div className="size-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm border border-gray-50">
-                          <item.icon className="size-6 text-[#475569]" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-[16px] text-[#1e293b] dark:text-white leading-tight">{item.name}</h4>
-                          <p className="text-[10px] font-bold text-[#94a3b8] mt-1.5 uppercase tracking-widest">{item.location}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-10">
-                        <div className="text-right">
-                          <div className="text-[20px] font-black text-[#1e293b] dark:text-white tracking-tight">${item.price}</div>
-                          <div className={`flex items-center justify-end gap-1 text-[11px] font-bold ${item.trendColor} mt-0.5`}>
-                            {item.trend !== 0 && (item.trend < 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />)}
-                            {item.trend === 0 ? 'Stable' : `${item.trend > 0 ? '↑' : '↓'} ${Math.abs(item.trend)}%`}
+                  <div className="space-y-4">
+                    {[
+                      { name: "Sac de Ciment", location: "PRIX MOYEN GOMA", price: "14.50", icon: Hammer, trend: -2, active: true, trendColor: 'text-[#10b981]' },
+                      { name: "iPhone 15", location: "PRIX IMPORT", price: "890.00", icon: Smartphone, trend: 0, active: false, trendColor: 'text-gray-400' },
+                      { name: "Haricots (Sac 100kg)", location: "MARCHÉ VIRUNGA", price: "75.00", icon: Sprout, trend: 5, active: true, trendColor: 'text-[#f97316]' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-6 bg-[#f8fafc] dark:bg-white/2 rounded-[1.5rem] border border-transparent hover:border-gray-100 transition-all">
+                        <div className="flex items-center gap-5">
+                          <div className="size-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm border border-gray-50">
+                            <item.icon className="size-6 text-[#475569]" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-[16px] text-[#1e293b] dark:text-white leading-tight">{item.name}</h4>
+                            <p className="text-[10px] font-bold text-[#94a3b8] mt-1.5 uppercase tracking-widest">{item.location}</p>
                           </div>
                         </div>
-                        {/* Custom Switch Toggle */}
-                        <div className={`w-14 h-7 rounded-full relative transition-all duration-300 cursor-pointer ${item.active ? 'bg-[#002db3]' : 'bg-[#e2e8f0]'}`}>
-                          <div className={`absolute top-1 size-5 rounded-full bg-white shadow-sm transition-all duration-300 ${item.active ? 'left-8' : 'left-1'}`} />
+                        <div className="flex items-center gap-10">
+                          <div className="text-right">
+                            <div className="text-[20px] font-black text-[#1e293b] dark:text-white tracking-tight">${item.price}</div>
+                            <div className={`flex items-center justify-end gap-1 text-[11px] font-bold ${item.trendColor} mt-0.5`}>
+                              {item.trend !== 0 && (item.trend < 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />)}
+                              {item.trend === 0 ? 'Stable' : `${item.trend > 0 ? '↑' : '↓'} ${Math.abs(item.trend)}%`}
+                            </div>
+                          </div>
+                          {/* Custom Switch Toggle */}
+                          <div className={`w-14 h-7 rounded-full relative transition-all duration-300 cursor-pointer ${item.active ? 'bg-[#002db3]' : 'bg-[#e2e8f0]'}`}>
+                            <div className={`absolute top-1 size-5 rounded-full bg-white shadow-sm transition-all duration-300 ${item.active ? 'left-8' : 'left-1'}`} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                <div className="mt-8 pt-8 border-t border-dashed border-gray-100">
-                  <button className="w-full p-5 rounded-[1.5rem] border-2 border-dashed border-[#f97316] flex items-center justify-center gap-3 text-sm font-black text-[#f97316] hover:bg-[#fff7ed] transition-all group">
-                    <div className="size-8 rounded-full bg-[#f97316] flex items-center justify-center text-white">
-                      <Plus className="size-5" />
+                  <div className="mt-8 pt-8 border-t border-dashed border-gray-100">
+                    <button className="w-full p-5 rounded-[1.5rem] border-2 border-dashed border-[#f97316] flex items-center justify-center gap-3 text-sm font-black text-[#f97316] hover:bg-[#fff7ed] transition-all group">
+                      <div className="size-8 rounded-full bg-[#f97316] flex items-center justify-center text-white">
+                        <Plus className="size-5" />
+                      </div>
+                      Suivre un nouveau produit
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {activeTab === 'notifications' && (
+                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
+                  <div className="flex items-center justify-between mb-10">
+                    <div>
+                      <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Notifications</h3>
+                      <p className="text-xs text-slate-500 font-bold mt-1">Gérez vos alertes et mises à jour</p>
                     </div>
-                    Suivre un nouveau produit
-                  </button>
-                </div>
-              </section>
+                    <button className="text-[10px] font-black uppercase text-[#E67E22] bg-[#E67E22]/10 px-4 py-2 rounded-xl">TOUT MARQUER COMME LU</button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {isLoading ? (
+                      <div className="py-20 flex justify-center"><div className="animate-spin size-8 border-4 border-[#E67E22] border-t-transparent rounded-full"></div></div>
+                    ) : notifications.length === 0 ? (
+                      <div className="py-20 text-center space-y-4">
+                        <div className="size-20 bg-slate-50 dark:bg-white/5 rounded-3xl mx-auto flex items-center justify-center text-slate-300"><Bell size={32} /></div>
+                        <p className="text-sm font-bold text-slate-400">Aucune notification pour le moment.</p>
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div key={n.id} className={`flex items-start gap-5 p-6 rounded-[1.5rem] border transition-all ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-50' : 'bg-[#fffcf9] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm shadow-orange-500/5'}`}>
+                          <div className={`size-12 rounded-xl flex items-center justify-center shadow-sm ${n.isRead ? 'bg-slate-50 text-slate-400' : 'bg-orange-100 text-[#E67E22]'}`}>
+                            <Bell size={20} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="font-bold text-[15px] dark:text-white">{n.title}</h4>
+                              <span className="text-[10px] font-bold text-slate-400">{new Date(n.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">{n.message}</p>
+                            {!n.isRead && (
+                              <button
+                                onClick={() => markAsRead(n.id)}
+                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-[#E67E22]"
+                              >
+                                Marquer comme lu
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {activeTab !== 'profile' && activeTab !== 'notifications' && (
+                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-20 text-center shadow-sm border border-gray-50 flex flex-col items-center justify-center space-y-6">
+                  <div className="size-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-300">
+                    <Store size={40} />
+                  </div>
+                  <h3 className="text-2xl font-black text-[#1e293b] dark:text-white">Bientôt disponible</h3>
+                  <p className="text-sm font-bold text-slate-500 max-w-sm">
+                    La section <span className="text-[#E67E22]">{activeTab.toUpperCase()}</span> est en cours de développement.
+                  </p>
+                </section>
+              )}
             </div>
 
             {/* --- STATS ET INFOS DROITE --- */}

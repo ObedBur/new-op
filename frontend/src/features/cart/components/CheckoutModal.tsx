@@ -54,7 +54,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               >
                 <X size={20} />
               </button>
-              <div className="mx-auto w-12 h-1 bg-primary/20 rounded-full mb-6" />
+              <div className="mx-auto w-12 h-1 bg-[#E67E22]/20 rounded-full mb-6" />
               <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white tracking-tight">
                 Finalisez votre commande
               </h2>
@@ -94,7 +94,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     placeholder="Numéro, rue, ville et code postal"
                     required
                     rows={3}
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-deep-blue dark:text-white"
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22]/20 focus:border-[#E67E22] transition-all resize-none text-deep-blue dark:text-white"
                   />
                 </div>
               </div>
@@ -103,9 +103,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full h-14 bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/20 text-white font-bold"
+                  className="w-full h-14 bg-[#2D5A27] hover:bg-[#1f3f1b] shadow-lg shadow-[#2D5A27]/20 text-white font-bold"
                 >
-                  Confirmer • {total.toLocaleString()} FC
+                  Confirmer le Panier • {total.toLocaleString()} FC
                 </Button>
               </div>
 
