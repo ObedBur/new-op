@@ -75,28 +75,33 @@ model Category {
 }
 
 model Product {
-  id           String              @id @default(uuid())
-  name         String
-  description  String?
-  price        Float
-  displayPrice String?
-  location     String?
-  image        String?
-  availability ProductAvailability @default(IN_STOCK)
-  market       Market?
-  categoryId   Int
-  userId       String
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  city         String              @default("Goma")
-  country      String              @default("RD Congo")
-  images       String[]            @default([])
-  category     Category            @relation(fields: [categoryId], references: [id])
-  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders       Order[]
+  id            String              @id @default(uuid())
+  name          String
+  description   String?
+  price         Float
+  originalPrice Float?
+  isOnSale      Boolean             @default(false)
+  totalSales    Int                 @default(0)
+  displayPrice  String?
+  location      String?
+  image         String?
+  availability  ProductAvailability @default(IN_STOCK)
+  market        Market?
+  categoryId    Int
+  userId        String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  city          String              @default("Goma")
+  country       String              @default("RD Congo")
+  images        String[]            @default([])
+  category      Category            @relation(fields: [categoryId], references: [id])
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders        Order[]
   @@index([categoryId])
   @@index([userId])
   @@index([market])
+  @@index([isOnSale])
+  @@index([totalSales])
 }
 
 model HeroSlide {

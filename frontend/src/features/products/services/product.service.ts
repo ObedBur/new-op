@@ -45,3 +45,45 @@ export async function getProductById(id: string): Promise<ApiResponse<Product>> 
     throw error;
   }
 }
+
+// ====== GALERIES INTELLIGENTES ======
+
+export async function getDeals(limit = 6): Promise<ApiResponse<Product[]>> {
+  try {
+    const response = await api.get<ApiResponse<Product[]>>('/products/deals', { params: { limit } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching deals:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}
+
+export async function getNewArrivals(limit = 6): Promise<ApiResponse<Product[]>> {
+  try {
+    const response = await api.get<ApiResponse<Product[]>>('/products/new-arrivals', { params: { limit } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching new arrivals:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}
+
+export async function getRecommendations(userId?: string, limit = 6): Promise<ApiResponse<Product[]>> {
+  try {
+    const response = await api.get<ApiResponse<Product[]>>('/products/recommendations', { params: { userId, limit } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recommendations:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}
+
+export async function getBestSellers(limit = 6): Promise<ApiResponse<Product[]>> {
+  try {
+    const response = await api.get<ApiResponse<Product[]>>('/products/best-sellers', { params: { limit } });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching best sellers:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}

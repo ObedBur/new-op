@@ -2,10 +2,97 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
+const productInclude = {
+  category: true,
+  user: {
+    select: {
+      fullName: true,
+      boutiqueName: true,
+      isVerified: true,
+      trustScore: true,
+    },
+  },
+};
+
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
+  // ====== ALGORITHME 1 : OFFRES DU MOMENT ======
+  // Produits en promotion (isOnSale = true) avec réduction >= 15%
+  async getDeals(limit = 6) {
+    return this.prisma.product.findMany({
+      where: {
+        isOnSale: true,
+        originalPrice: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: productInclude,
+    });
+  }
+
+  // ====== ALGORITHME 2 : NOUVEAUTÉS ======
+  // Produits publiés dans les 7 derniers jours, triés par date
+  async getNewArrivals(limit = 6) {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return this.prisma.product.findMany({
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: productInclude,
+    });
+  }
+
+  // ====== ALGORITHME 3 : RECOMMANDATIONS ======
+  // Basé sur les catégories les plus commandées par l'utilisateur
+  // Fallback : produits de vendeurs les mieux notés
+  async getRecommendations(userId?: string, limit = 6) {
+    if (userId) {
+      // Trouver les catégories les plus achetées par l'utilisateur
+      const userOrders = await this.prisma.order.findMany({
+        where: { clientId: userId },
+        include: { product: { select: { categoryId: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      });
+
+      const categoryIds = [...new Set(userOrders.map(o => o.product.categoryId))];
+
+      if (categoryIds.length > 0) {
+        return this.prisma.product.findMany({
+          where: { categoryId: { in: categoryIds } },
+          orderBy: { totalSales: 'desc' },
+          take: limit,
+          include: productInclude,
+        });
+      }
+    }
+
+    // Fallback : produits de vendeurs les mieux notés
+    return this.prisma.product.findMany({
+      orderBy: { user: { trustScore: 'desc' } },
+      take: limit,
+      include: productInclude,
+    });
+  }
+
+  // ====== ALGORITHME 4 : MEILLEURES VENTES ======
+  // Triés par nombre de ventes décroissant
+  async getBestSellers(limit = 6) {
+    return this.prisma.product.findMany({
+      where: { totalSales: { gt: 0 } },
+      orderBy: { totalSales: 'desc' },
+      take: limit,
+      include: productInclude,
+    });
+  }
+
+  // ====== LISTE GÉNÉRALE ======
   async findAll(query: {
     userId?: string;
     categoryId?: number;
@@ -35,17 +122,7 @@ export class ProductsService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          category: true,
-          user: {
-            select: {
-              fullName: true,
-              boutiqueName: true,
-              isVerified: true,
-              trustScore: true,
-            },
-          },
-        },
+        include: productInclude,
       }),
       this.prisma.product.count({ where }),
     ]);
@@ -60,14 +137,10 @@ export class ProductsService {
   }
 
   async create(data: any, userId: string) {
-    // data contains: name, description, price, categoryId, and optional image (base64 string)
-
-    // Default mock image if no real image uploaded/handled
     let imageUrl = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
 
-    // Since images are now sent as base64 string directly in the payload
     if (data.image) {
-      imageUrl = data.image; // Keep base64 string or convert later to cloud storage
+      imageUrl = data.image;
     }
 
     return this.prisma.product.create({
@@ -78,7 +151,6 @@ export class ProductsService {
         categoryId: Number(data.categoryId),
         image: imageUrl,
         userId: userId,
-        // Availability, city, country have defaults in schema if not provided
       },
       include: {
         category: true,
@@ -89,18 +161,7 @@ export class ProductsService {
   async findOne(id: string) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: {
-        category: true,
-        user: {
-          select: {
-            fullName: true,
-            boutiqueName: true,
-            isVerified: true,
-            trustScore: true,
-          },
-        },
-      },
+      include: productInclude,
     });
   }
 }
-

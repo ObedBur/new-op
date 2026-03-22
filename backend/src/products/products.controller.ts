@@ -58,6 +58,38 @@ export class ProductsController {
     };
   }
 
+  // ====== GALERIES INTELLIGENTES ======
+
+  @Get('deals')
+  async getDeals(@Query('limit') limit?: string) {
+    const data = await this.productsService.getDeals(limit ? parseInt(limit) : 6);
+    return { success: true, data };
+  }
+
+  @Get('new-arrivals')
+  async getNewArrivals(@Query('limit') limit?: string) {
+    const data = await this.productsService.getNewArrivals(limit ? parseInt(limit) : 6);
+    return { success: true, data };
+  }
+
+  @Get('recommendations')
+  async getRecommendations(
+    @Query('userId') userId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const data = await this.productsService.getRecommendations(
+      userId,
+      limit ? parseInt(limit) : 6,
+    );
+    return { success: true, data };
+  }
+
+  @Get('best-sellers')
+  async getBestSellers(@Query('limit') limit?: string) {
+    const data = await this.productsService.getBestSellers(limit ? parseInt(limit) : 6);
+    return { success: true, data };
+  }
+
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,
@@ -95,4 +127,5 @@ export class ProductsController {
     };
   }
 }
+
 

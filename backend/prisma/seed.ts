@@ -58,8 +58,16 @@ async function main() {
   const categoriesData = [
     { name: 'Agricole', icon: 'potted_plant', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50' },
     { name: 'High-Tech', icon: 'smartphone', colorClass: 'text-blue-500', bgClass: 'bg-blue-50' },
-    { name: 'Mode', icon: 'checkroom', colorClass: 'text-orange-500', bgClass: 'bg-orange-50' },
+    { name: 'Mode', icon: 'checkroom', colorClass: 'text-pink-500', bgClass: 'bg-pink-50' },
     { name: 'Maison', icon: 'home', colorClass: 'text-purple-500', bgClass: 'bg-purple-50' },
+    { name: 'Alimentation', icon: 'restaurant', colorClass: 'text-orange-500', bgClass: 'bg-orange-50' },
+    { name: 'Beauté & Santé', icon: 'health_and_safety', colorClass: 'text-rose-500', bgClass: 'bg-rose-50' },
+    { name: 'Sport & Loisirs', icon: 'sports_soccer', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-50' },
+    { name: 'Auto & Moto', icon: 'directions_car', colorClass: 'text-slate-500', bgClass: 'bg-slate-50' },
+    { name: 'Boutique Express', icon: 'local_mall', colorClass: 'text-amber-500', bgClass: 'bg-amber-50' },
+    { name: 'Services & Travaux', icon: 'construction', colorClass: 'text-indigo-500', bgClass: 'bg-indigo-50' },
+    { name: 'Bureautique', icon: 'print', colorClass: 'text-zinc-500', bgClass: 'bg-zinc-50' },
+    { name: 'Divers', icon: 'category', colorClass: 'text-gray-500', bgClass: 'bg-gray-50' },
   ];
 
   for (const cat of categoriesData) {
@@ -117,11 +125,27 @@ async function main() {
     const price = parseFloat(faker.commerce.price({ min: 10, max: 2500 }));
     const categoryImgs = productImages[category.name] || productImages['Maison'];
 
+    // ~30% des produits sont en promotion
+    const isOnSale = Math.random() < 0.3;
+    const originalPrice = isOnSale ? Math.round(price * (1 + Math.random() * 0.5 + 0.15)) : undefined;
+
+    // Ventes simulées (certains produits sont très populaires)
+    const totalSales = faker.number.int({ min: 0, max: Math.random() > 0.8 ? 200 : 30 });
+
+    // Dates variées : 40% créés cette semaine (nouveautés), le reste plus ancien
+    const isNew = Math.random() < 0.4;
+    const createdAt = isNew
+      ? faker.date.recent({ days: 7 })
+      : faker.date.past({ years: 1 });
+
     await prisma.product.create({
       data: {
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
         price,
+        originalPrice: originalPrice || null,
+        isOnSale,
+        totalSales,
         displayPrice: `${price}$`,
         location: 'Marché central, Goma',
         city: 'Goma',
@@ -131,6 +155,7 @@ async function main() {
         availability: ProductAvailability.IN_STOCK,
         categoryId: category.id,
         userId: vendor.id,
+        createdAt,
       },
     });
   }

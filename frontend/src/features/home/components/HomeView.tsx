@@ -16,7 +16,10 @@ import { HeroSlide, HowItWorksStep } from "../services/content.service";
 import { Seller } from "../services/seller.service";
 
 interface HomeViewProps {
-  products: Product[];
+  deals: Product[];
+  newArrivals: Product[];
+  recommendations: Product[];
+  bestSellers: Product[];
   categories: Category[];
   heroSlides: HeroSlide[];
   stores: Seller[];
@@ -24,7 +27,10 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  products = [],
+  deals = [],
+  newArrivals = [],
+  recommendations = [],
+  bestSellers = [],
   categories = [],
   heroSlides = [],
   stores = [],
@@ -47,49 +53,53 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 2. CATEGORIES */}
       <CategoriesGrid categories={categories} />
 
-      {/* 3. SECTION PRODUITS - Cadres avec transparence #DDB88C */}
+      {/* 3. GALERIES INTELLIGENTES */}
       <section className="py-10 space-y-12">
         <div className="container mx-auto px-4">
 
-          {/* Cadre 1: Offres du moment - Transparence 30% */}
-          <div className="bg-[#DDB88C]/30 rounded-[2rem] p-6 md:p-10 shadow-sm border border-[#DDB88C]/10">
-            <FeaturedProductStrip
-              title="Offres du moment"
-              subtitle="Les meilleures offres en Afrique aujourd'hui"
-              products={products.slice(0, 6)}
-              onQuickView={openQuickView}
-            />
-          </div>
-
-          {/* Cadre 2: Nouveautés - Transparence 20% (plus léger) */}
-          <div className="bg-[#DDB88C]/20 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-            <FeaturedProductStrip
-              title="Nouveautés"
-              subtitle="Les derniers arrivages en ville"
-              products={products.slice(6, 12)}
-              onQuickView={openQuickView}
-            />
-          </div>
-
-          {/* Cadre 3: Recommandations - Transparence 15% */}
-          {products.length > 12 && (
-            <div className="bg-[#DDB88C]/15 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
+          {/* Galerie 1: Offres du moment (Promotions) */}
+          {deals.length > 0 && (
+            <div className="bg-[#DDB88C]/30 rounded-[2rem] p-6 md:p-10 shadow-sm border border-[#DDB88C]/10">
               <FeaturedProductStrip
-                title="Recommandations"
-                subtitle="Basé sur vos recherches récentes"
-                products={products.slice(12, 18)}
+                title="🔥 Offres du moment"
+                subtitle="Promotions actives — prix réduits de plus de 15%"
+                products={deals}
                 onQuickView={openQuickView}
               />
             </div>
           )}
 
-          {/* Cadre 4: Meilleures ventes - Transparence 10% */}
-          {products.length > 18 && (
+          {/* Galerie 2: Nouveautés (< 7 jours) */}
+          {newArrivals.length > 0 && (
+            <div className="bg-[#DDB88C]/20 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
+              <FeaturedProductStrip
+                title="✨ Nouveautés"
+                subtitle="Publiés ces 7 derniers jours"
+                products={newArrivals}
+                onQuickView={openQuickView}
+              />
+            </div>
+          )}
+
+          {/* Galerie 3: Recommandations (basé sur historique) */}
+          {recommendations.length > 0 && (
+            <div className="bg-[#DDB88C]/15 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
+              <FeaturedProductStrip
+                title="💡 Recommandations"
+                subtitle="Basé sur vos centres d'intérêt"
+                products={recommendations}
+                onQuickView={openQuickView}
+              />
+            </div>
+          )}
+
+          {/* Galerie 4: Meilleures ventes */}
+          {bestSellers.length > 0 && (
             <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
               <FeaturedProductStrip
-                title="Meilleures ventes"
-                subtitle="Ce que tout le monde s'arrache en ce moment"
-                products={products.slice(18, 24)}
+                title="🏆 Meilleures ventes"
+                subtitle="Les articles les plus commandés"
+                products={bestSellers}
                 onQuickView={openQuickView}
               />
             </div>
@@ -97,7 +107,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 4. MEILLEURES ADRESSES - Fond très léger pour le rappel de couleur */}
+      {/* 4. MEILLEURES ADRESSES */}
       <div className="py-16 bg-[#DDB88C]/5">
         <FeaturedStores stores={stores} />
       </div>
