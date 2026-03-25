@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { User } from '@/types/auth';
 
@@ -56,8 +57,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
           </div>
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full bg-[#E67E22] flex items-center justify-center text-white text-base font-black shadow-md border-2 border-white dark:border-white/10">
-                    {getInitials(user?.fullName || '')}
+              <div className="size-12 rounded-full bg-[#E67E22] flex items-center justify-center text-white text-base font-black shadow-md border-2 border-white dark:border-white/10 overflow-hidden relative">
+                {user?.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  getInitials(user?.fullName || '')
+                )}
                 </div>
                 <div className="min-w-0">
                     <p className="text-base font-black text-[#2D5A27] dark:text-white truncate leading-tight">{user?.fullName}</p>
@@ -135,6 +145,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">shopping_bag</span> Mes Commandes
               </Link>
 
+              <Link href="/settings?tab=notifications" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
+                <span className="material-symbols-outlined text-[#4f46e5] text-[20px]">notifications</span> Mes Notifications
+              </Link>
+
               {user?.role === 'VENDOR' ? (
                 <>
                   <Link href="/dashboard/store" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
@@ -185,3 +199,4 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
     document.body
   );
 };
+

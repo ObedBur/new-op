@@ -23,17 +23,19 @@ type OrderStatus = 'À traiter' | 'Expédiées' | 'Livrées' | 'Annulées';
 
 interface OrderCardProps {
     id: string;
+    originalId: string;
     status: OrderStatus;
     total: number;
     date: string;
     count: number;
     customer: string;
     productName: string;
+    onStatusChange?: (newStatus: string) => void;
 }
 
 // --- COMPOSANT DE CARTE (Optimisé) ---
 
-function OrderCard({ id, status, total, date, count, customer, productName }: OrderCardProps) {
+function OrderCard({ id, originalId, status, total, date, count, customer, productName, onStatusChange }: OrderCardProps) {
     const isATraiter = status === 'À traiter';
     const isLivree = status === 'Livrées';
     const isAnnulee = status === 'Annulées';
@@ -123,7 +125,10 @@ function OrderCard({ id, status, total, date, count, customer, productName }: Or
             <div className="grid grid-cols-2 gap-3">
                 {isATraiter ? (
                     <>
-                        <button className="col-span-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-xs uppercase tracking-tight hover:bg-orange-600 dark:hover:bg-orange-500 dark:hover:text-white transition-all shadow-lg shadow-slate-200 dark:shadow-none flex items-center justify-center gap-2">
+                        <button
+                            onClick={() => onStatusChange && onStatusChange('SHIPPED')}
+                            className="col-span-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-xs uppercase tracking-tight hover:bg-orange-600 dark:hover:bg-orange-500 dark:hover:text-white transition-all shadow-lg shadow-slate-200 dark:shadow-none flex items-center justify-center gap-2"
+                        >
                             <Truck size={14} />
                             Expédier
                         </button>
@@ -132,6 +137,14 @@ function OrderCard({ id, status, total, date, count, customer, productName }: Or
                             Chat
                         </button>
                     </>
+                ) : status === 'Expédiées' ? (
+                    <button
+                        onClick={() => onStatusChange && onStatusChange('DELIVERED')}
+                        className="col-span-2 py-3 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl font-bold text-xs uppercase tracking-tight hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                        <CheckCircle size={14} />
+                        Marquer comme livré
+                    </button>
                 ) : (
                     <button className="col-span-2 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs uppercase tracking-tight hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
                         <FileText size={14} />
@@ -152,6 +165,7 @@ export default function OrdersPage() {
 
     const statusLabels: Record<string, OrderStatus> = {
         PENDING: 'À traiter',
+        CONFIRMED: 'À traiter',
         SHIPPED: 'Expédiées',
         DELIVERED: 'Livrées',
         CANCELLED: 'Annulées'
@@ -243,12 +257,23 @@ export default function OrdersPage() {
                                 <OrderCard
                                     key={order.id}
                                     id={order.id.substring(0, 8).toUpperCase()}
+                                    originalId={order.id}
                                     customer={order.customerName || order.client?.fullName || 'Client Anonyme'}
                                     status={statusLabels[order.status] || (order.status as OrderStatus)}
                                     total={order.totalPrice}
                                     date={new Date(order.createdAt).toLocaleDateString()}
                                     productName={order.product?.name || "Produit inconnu"}
                                     count={1}
+                                    onStatusChange={async (newStatus) => {
+                                        try {
+                                            const res = await api.post(`/orders/${order.id}/status`, { status: newStatus });
+                                            if (res.data.success) {
+                                                setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+                                            }
+                                        } catch (error) {
+                                            console.error("Erreur lors de la mise à jour du statut", error);
+                                        }
+                                    }}
                                 />
                             ))}
                         </div>

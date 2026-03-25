@@ -11,6 +11,7 @@ interface CheckoutModalProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   total: number;
+  currency?: string;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -18,6 +19,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   onSubmit,
   total,
+  currency = "$",
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,9 +105,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full h-14 bg-[#2D5A27] hover:bg-[#1f3f1b] shadow-lg shadow-[#2D5A27]/20 text-white font-bold"
+                  className="w-full h-14 bg-[#E67E22] hover:bg-orange-600 shadow-lg shadow-orange-500/20 text-white font-bold"
                 >
-                  Confirmer le Panier • {total.toLocaleString()} FC
+                  Confirmer le Panier • {total.toLocaleString()} {currency}
                 </Button>
               </div>
 
@@ -119,3 +121,4 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     </AnimatePresence>
   );
 };
+

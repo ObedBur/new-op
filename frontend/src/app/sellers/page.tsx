@@ -1,26 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { mockProducts } from '@/features/products/data/mocks';
+import { getActiveSellers, Seller } from '@/features/home/services/seller.service';
 
 export default function SellersPage() {
-  const sellers = Array.from(new Set(mockProducts.map(p => p.user?.boutiqueName || p.user?.fullName || 'Vendeur')))
-    .map((name: string, index: number) => {
-      const product = mockProducts.find(p => (p.user?.boutiqueName || p.user?.fullName || 'Vendeur') === name);
-      const productCount = mockProducts.filter(p => (p.user?.boutiqueName || p.user?.fullName || 'Vendeur') === name).length;
-      return {
-        ...product?.user,
-        name: name,
-        location: product?.location,
-        productCount,
-        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=200`,
-        rating: product?.user?.trustScore ? (product.user.trustScore / 20).toFixed(1) : "4.5", // approximate rating from trustScore
-        verified: product?.user?.isVerified,
-        id: product?.id || index.toString() // Use product ID as seller ID for mock
-      };
-    });
+    const [sellers, setSellers] = useState<Seller[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSellers = async () => {
+            try {
+                const data = await getActiveSellers();
+                setSellers(data);
+            } catch (error) {
+                console.error('Error fetching sellers:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchSellers();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center pt-20">
+                <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full" />
+            </div>
+        );
+    }
 
   return (
     <main className="flex-1 pt-20">
@@ -34,47 +43,47 @@ export default function SellersPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sellers.map((seller, index) => (
-                  <div key={index} className="group bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden">
+                  {sellers.map((seller) => (
+                      <div key={seller.id} className="group bg-white dark:bg-[#1a1a1a] rounded-3xl p-6 border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden">
                       
                       <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-blue-50 to-transparent dark:from-blue-900/10"></div>
                       
                       <div className="relative mb-4">
                           <div className="size-24 rounded-full p-1 bg-white dark:bg-[#1a1a1a] shadow-lg">
                               <Image 
-                                  src={seller.image} 
-                                  alt={seller.name} 
+                                  src={seller.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.boutiqueName)}&background=random&size=200`}
+                                  alt={seller.boutiqueName} 
                                   width={96}
                                   height={96}
                                   className="w-full h-full rounded-full object-cover"
                               />
                           </div>
-                          {seller.verified && (
+                          {seller.isVerified && (
                               <div className="absolute bottom-1 right-1 bg-blue-500 text-white rounded-full p-1 border-2 border-white dark:border-[#1a1a1a]" title="Vendeur vérifié">
                                   <span className="material-symbols-outlined text-[16px] block">verified</span>
                               </div>
                           )}
                       </div>
 
-                      <h3 className="text-xl font-bold text-deep-blue dark:text-white">{seller.name}</h3>
+                      <h3 className="text-xl font-bold text-deep-blue dark:text-white">{seller.boutiqueName}</h3>
                       
                       <div className="flex items-center gap-1 text-sm text-gray-500 mb-4 mt-1">
                           <span className="material-symbols-outlined text-[16px]">location_on</span>
-                          {seller.location}
+                          RD Congo
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 w-full border-t border-b border-gray-100 dark:border-white/10 py-4 mb-6">
                           <div className="flex flex-col">
-                              <span className="font-black text-lg text-deep-blue dark:text-white">{seller.rating}</span>
+                              <span className="font-black text-lg text-deep-blue dark:text-white">{(seller.trustScore / 20).toFixed(1)}</span>
                               <div className="flex justify-center text-orange-400">
                                   <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                   <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                   <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                               </div>
-                              <span className="text-[10px] uppercase text-gray-400 font-bold mt-1">Avis clients</span>
+                              <span className="text-[10px] uppercase text-gray-400 font-bold mt-1">Trust Score</span>
                           </div>
                           <div className="flex flex-col border-l border-gray-100 dark:border-white/10">
-                              <span className="font-black text-lg text-deep-blue dark:text-white">{seller.productCount}</span>
+                              <span className="font-black text-lg text-deep-blue dark:text-white">{seller.productPreviews.length}+</span>
                               <span className="material-symbols-outlined text-gray-400 text-[14px] mt-1">inventory_2</span>
                               <span className="text-[10px] uppercase text-gray-400 font-bold mt-1">Produits</span>
                           </div>

@@ -37,41 +37,44 @@ export class EmailService {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = 'Votre code de vérification WapiBei';
     sendSmtpEmail.htmlContent = `
-      <div style="background-color: #ffffff; color: #1e293b; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: auto;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: auto; padding: 0; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background-color: #ffffff;">
   
-  <div style="margin-bottom: 32px; text-align: left;">
-    <span style="font-size: 20px; font-weight: 800; color: #059669; letter-spacing: -0.5px;">WapiBei</span>
+  <div style="background-color: #E67E22; padding: 24px 20px; text-align: center;">
+    <span style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 1px; text-transform: uppercase;">WapiBei</span>
   </div>
 
-  <h1 style="font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 16px; letter-spacing: -0.02em;">
-    Vérifiez votre adresse e-mail
-  </h1>
-  
-  <p style="font-size: 15px; line-height: 1.6; color: #475569; margin-bottom: 32px;">
-    Merci de nous avoir rejoint. Pour finaliser la configuration de votre compte, veuillez saisir le code de validation suivant :
-  </p>
+  <div style="padding: 32px 24px;">
+    <h1 style="font-size: 22px; font-weight: 700; color: #1a202c; margin-top: 0; margin-bottom: 16px; letter-spacing: -0.02em;">
+      Vérifiez votre adresse e-mail
+    </h1>
 
-  <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
-    <div style="font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 32px; font-weight: 700; letter-spacing: 12px; color: #059669;">
-      ${otp}
+    <p style="font-size: 15px; line-height: 1.6; color: #4a5568; margin-bottom: 32px;">
+      Merci de nous avoir rejoint. Pour finaliser la configuration de votre compte, veuillez saisir le code de validation suivant :
+    </p>
+
+    <div style="background-color: #fffaf0; border: 2px solid #feebc8; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
+      <div style="font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 36px; font-weight: 800; letter-spacing: 12px; color: #E67E22;">
+        ${otp}
+      </div>
+      <p style="font-size: 12px; color: #a0aec0; margin-top: 8px; font-weight: 500;">
+        Valable pendant 10 minutes
+      </p>
     </div>
-    <p style="font-size: 12px; color: #94a3b8; margin-top: 8px; font-weight: 500;">
-      Valable pendant 10 minutes
+
+    <p style="font-size: 13px; line-height: 1.5; color: #718096; margin-bottom: 40px;">
+      Si vous n'avez pas créé de compte sur WapiBei, vous pouvez ignorer cet e-mail en toute sécurité.
     </p>
+
+    <div style="border-top: 1px solid #edf2f7; padding-top: 24px;">
+      <p style="font-size: 12px; color: #a0aec0; margin: 0;">
+        &copy; 2026 WapiBei. Plateforme de shopping local.
+      </p>
+      <p style="font-size: 12px; color: #a0aec0; margin-top: 4px;">
+        Besoin d'aide ? <a href="mailto:support@wapibei.com" style="color: #E67E22; text-decoration: none; font-weight: 600;">Contactez le support</a>
+      </p>
+    </div>
   </div>
 
-  <p style="font-size: 13px; line-height: 1.5; color: #64748b; margin-bottom: 40px;">
-    Si vous n'avez pas créé de compte sur WapiBei, vous pouvez ignorer cet e-mail en toute sécurité.
-  </p>
-
-  <div style="border-top: 1px solid #f1f5f9; padding-top: 24px;">
-    <p style="font-size: 12px; color: #94a3b8; margin: 0;">
-      &copy; 2026 WapiBei. Plateforme de gestion commerciale.
-    </p>
-    <p style="font-size: 12px; color: #94a3b8; margin-top: 4px;">
-      Besoin d'aide ? <a href="mailto:support@wapibei.com" style="color: #059669; text-decoration: none;">Contactez le support</a>
-    </p>
-  </div>
 </div>
     `;
     sendSmtpEmail.sender = {
@@ -105,16 +108,30 @@ export class EmailService {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = 'Rinitialisation de votre mot de passe WapiBei';
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #059669;">Rinitialisation de mot de passe</h2>
-        <p>Bonjour,</p>
-        <p>Vous avez demand la rinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous pour continuer :</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" style="background: #059669; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Rinitialiser mon mot de passe</a>
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; padding: 0; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background-color: #ffffff;">
+        <div style="background-color: #E67E22; padding: 24px 20px; text-align: center;">
+          <span style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 1px; text-transform: uppercase;">WapiBei</span>
         </div>
-        <p>Ce lien expire dans 1 heure. Si vous n'avez pas demand cette action, aucune mesure n'est necessaire.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #6b7280; text-align: center;"> 2026 WapiBei. Tous droits rservs.</p>
+
+        <div style="padding: 32px 24px;">
+          <h2 style="color: #1a202c; margin-top: 0; margin-bottom: 16px; font-size: 20px; font-weight: 700;">Réinitialisation de mot de passe</h2>
+          <p style="font-size: 15px; line-height: 1.6; color: #4a5568;">Bonjour,</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #4a5568;">Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :</p>
+
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${resetLink}" style="background-color: #E67E22; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 700; display: inline-block; box-shadow: 0 4px 6px -1px rgba(230, 126, 34, 0.2);">Réinitialiser mon mot de passe</a>
+          </div>
+          
+          <p style="font-size: 13px; line-height: 1.5; color: #718096; background-color: #f7fafc; padding: 12px; border-radius: 8px;">
+            ⚠️ Ce lien expire dans 1 heure. Si vous n'avez pas demandé cette action, aucune mesure n'est nécessaire.
+          </p>
+
+          <div style="border-top: 1px solid #edf2f7; padding-top: 24px; margin-top: 32px;">
+            <p style="font-size: 11px; color: #a0aec0; text-align: center; margin: 0;">
+              &copy; 2026 WapiBei. Tous droits réservés.
+            </p>
+          </div>
+        </div>
       </div>
     `;
     sendSmtpEmail.sender = {
@@ -140,12 +157,12 @@ export class EmailService {
   async sendBulkOrderConfirmation(data: {
     customerEmail: string;
     customerName: string;
-    items: { productName: string; price: number; quantity: number }[];
+    items: { productName: string; price: number; quantity: number; productImage?: string }[];
     totalPrice: number;
     orderIds: string[];
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
-      this.logger.log(`[SIMULATION] Bulk Order confirmation for ${data.customerEmail}: ${data.items.length} items - ${data.totalPrice} FC`);
+      this.logger.log(`[SIMULATION] Bulk Order confirmation for ${data.customerEmail}: ${data.items.length} items - ${data.totalPrice} $`);
       return true;
     }
 
@@ -153,48 +170,66 @@ export class EmailService {
       .map(
         (item) => `
       <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.productName}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${item.quantity}</td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">${(
+        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; vertical-align: middle;">
+          <table cellpadding="0" cellspacing="0"><tr>
+            ${item.productImage ? `<td style="padding-right: 12px; vertical-align: middle;"><img src="${item.productImage}" alt="${item.productName}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; display: block;" /></td>` : ''}
+            <td style="vertical-align: middle;"><span style="font-weight: 600; color: #2d3748;">${item.productName}</span></td>
+          </tr></table>
+        </td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; text-align: right; color: #4a5568;">${item.quantity}</td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 700; color: #E67E22;">${(
             item.price * item.quantity
-          ).toLocaleString()} FC</td>
+        ).toLocaleString()} $</td>
       </tr>
     `,
       )
       .join('');
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `Confirmation de votre commande WapiBei`;
+    sendSmtpEmail.subject = `🛍️ Votre commande WapiBei est validée !`;
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-        <h2 style="color: #059669;">🛍️ Commande Validée !</h2>
-        <p>Bonjour <strong>${data.customerName}</strong>,</p>
-        <p>Merci pour votre confiance ! Votre commande a bien été reçue. Voici le récapitulatif :</p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-          <thead>
-            <tr style="background: #f9fafb;">
-              <th style="padding: 10px; text-align: left; border-bottom: 2px solid #eee;">Produit</th>
-              <th style="padding: 10px; text-align: right; border-bottom: 2px solid #eee;">Qté</th>
-              <th style="padding: 10px; text-align: right; border-bottom: 2px solid #eee;">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="2" style="padding: 15px 10px; font-weight: bold; text-align: right;">TOTAL :</td>
-              <td style="padding: 15px 10px; font-weight: bold; text-align: right; color: #059669; font-size: 18px;">
-                ${data.totalPrice.toLocaleString()} FC
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 0; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background-color: #ffffff;">
+        <!-- Header -->
+        <div style="background-color: #E67E22; padding: 32px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Commande Confirmée</h1>
+        </div>
 
-        <p>Les vendeurs ont été notifiés et vous contacteront très prochainement pour finaliser la livraison.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-        <p style="font-size: 12px; color: #6b7280; text-align: center;"> 2026 WapiBei Market. Votre shopping local en confiance.</p>
+        <div style="padding: 32px 24px;">
+          <p style="font-size: 16px; color: #4a5568; margin-top: 0;">Bonjour <strong>${data.customerName}</strong>,</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #718096;">Bonne nouvelle ! Votre commande a bien été reçue. Voici le récapitulatif de vos achats sur <strong>WapiBei</strong> :</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+            <thead>
+              <tr style="background-color: #f7fafc;">
+                <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Produit</th>
+                <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Qté</th>
+                <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" style="padding: 24px 10px 0 10px; font-weight: 700; text-align: right; color: #2d3748; font-size: 16px;">MONTANT TOTAL :</td>
+                <td style="padding: 24px 10px 0 10px; font-weight: 800; text-align: right; color: #E67E22; font-size: 22px;">
+                  ${data.totalPrice.toLocaleString()} $
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="background-color: #f0fdf4; border-left: 4px solid #2D5A27; padding: 16px; border-radius: 8px; margin: 32px 0;">
+            <p style="margin: 0; font-size: 14px; color: #166534; line-height: 1.5;">
+              <strong>Note importante :</strong> Les vendeurs ont été notifiés et vous contacteront directement pour organiser les détails de la livraison.
+            </p>
+          </div>
+
+          <p style="font-size: 14px; color: #a0aec0; text-align: center; margin-top: 40px; line-height: 1.5;">
+            Merci d'avoir choisi WapiBei pour votre shopping local !<br/>
+            &copy; 2026 WapiBei Market.
+          </p>
+        </div>
       </div>
     `;
     sendSmtpEmail.sender = {
@@ -233,30 +268,44 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `Nouvelle vente : ${data.productName}`;
+    sendSmtpEmail.subject = `🎉 Nouvelle vente sur WapiBei : ${data.productName}`;
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ef4444; border-radius: 10px;">
-        <h2 style="color: #ef4444;">🎉 Nouvelle commande reçue !</h2>
-        <p>Félicitations <strong>${data.vendorName}</strong>, vous avez une nouvelle vente sur WapiBei.</p>
-        
-        <div style="display: flex; gap: 20px; align-items: start; background: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          ${data.productImage ? `<img src="${data.productImage}" alt="${data.productName}" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px;" />` : ''}
-          <div>
-            <p style="margin: 0 0 5px 0;"><strong>Produit :</strong> ${data.productName}</p>
-            <p style="margin: 0 0 5px 0;"><strong>Prix :</strong> ${data.totalPrice.toLocaleString()} FC</p>
-            <p style="margin: 0;"><strong>ID Commande :</strong> #${data.orderId.slice(0, 8)}</p>
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: auto; padding: 0; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #2D5A27; padding: 24px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800;">🎉 NOUVELLE COMMANDE !</h2>
+        </div>
+
+        <div style="padding: 24px;">
+          <p style="font-size: 16px; color: #2d3748; margin-top: 0;">Félicitations <strong>${data.vendorName}</strong>,</p>
+          <p style="font-size: 15px; color: #4a5568;">Une nouvelle vente vient d'être réalisée dans votre boutique :</p>
+          
+          <table cellpadding="0" cellspacing="0" style="width: 100%; background: #f7fafc; border-radius: 12px; border: 1px solid #edf2f7; margin: 24px 0;">
+            <tr>
+              ${data.productImage ? `<td style="padding: 20px; width: 80px; vertical-align: middle;"><img src="${data.productImage}" alt="${data.productName}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px; display: block;" /></td>` : ''}
+              <td style="padding: 20px; vertical-align: middle;">
+                <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: 700; color: #2d3748;">${data.productName}</p>
+                <p style="margin: 0 0 5px 0; font-size: 18px; font-weight: 800; color: #E67E22;">${data.totalPrice.toLocaleString()} $</p>
+                <p style="margin: 0; font-size: 12px; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px;">Réf: #${data.orderId.slice(0, 8)}</p>
+              </td>
+            </tr>
+          </table>
+
+          <div style="border-top: 2px dashed #edf2f7; padding-top: 24px; margin-top: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #718096; letter-spacing: 1px;">Coordonnées du client</h3>
+            <table cellpadding="0" cellspacing="0" style="width: 100%; background-color: #fffaf0; border: 1px solid #feebc8; border-radius: 10px;">
+              <tr>
+                <td style="padding: 16px;">
+                  <p style="margin: 0 0 8px 0; font-size: 15px; color: #2d3748;"><strong>👤 Nom :</strong> ${data.customerName}</p>
+                  <p style="margin: 0; font-size: 15px; color: #2d3748;"><strong>📞 Tél :</strong> <a href="tel:${data.customerPhone}" style="color: #E67E22; text-decoration: none; font-weight: 700;">${data.customerPhone}</a></p>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background-color: #E67E22; color: #ffffff; padding: 14px; margin-top: 32px; text-align: center; border-radius: 10px; font-weight: 700; font-size: 15px;">
+            Contactez le client pour organiser la livraison.
           </div>
         </div>
-
-        <div style="border-top: 1px solid #fee2e2; padding-top: 15px;">
-          <h3 style="margin-top: 0;">Informations Client :</h3>
-          <p style="margin: 5px 0;">👤 ${data.customerName}</p>
-          <p style="margin: 5px 0;">📞 ${data.customerPhone}</p>
-        </div>
-
-        <p style="background: #ef4444; color: white; padding: 10px; margin-top: 20px; text-align: center; border-radius: 5px; font-weight: bold;">
-          Pensez à contacter le client pour organiser la livraison.
-        </p>
       </div>
     `;
     sendSmtpEmail.sender = { name: 'WapiBei Sales', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'sales@wapibei.com' };
@@ -279,7 +328,7 @@ export class EmailService {
     orderCount: number;
     totalAmount: number;
     customerName: string;
-    items: string[];
+    items: { productName: string; productImage?: string }[];
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
       this.logger.log(`[SIMULATION] Admin Email: New order from ${data.customerName}`);
@@ -287,21 +336,45 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `⚠️ NOUVELLE COMMANDE PLATEFORME : ${data.customerName}`;
+    sendSmtpEmail.subject = `⚠️ ADMIN : Nouvelle vente plateforme - ${data.customerName}`;
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: sans-serif; background: #f3f4f6; padding: 20px;">
-        <div style="background: white; max-width: 600px; margin: auto; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-          <h2 style="color: #111827; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">📊 Rapport de commande Admin</h2>
-          <p>Une nouvelle session d'achat a été complétée sur la plateforme.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li><strong>Client :</strong> ${data.customerName}</li>
-            <li><strong>Nombre d'articles :</strong> ${data.orderCount}</li>
-            <li><strong>Volume total :</strong> ${data.totalAmount.toLocaleString()} FC</li>
-          </ul>
-          <div style="background: #eff6ff; padding: 10px; border-radius: 5px; margin-top: 15px;">
-            <p><strong>Articles :</strong><br/>${data.items.join('<br/>')}</p>
+      <div style="font-family: sans-serif; background: #f8fafc; padding: 40px 20px;">
+        <div style="background: white; max-width: 600px; margin: auto; padding: 32px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+          <h2 style="color: #1a202c; border-bottom: 3px solid #E67E22; padding-bottom: 12px; margin-top: 0;">📊 Tableau de bord Admin</h2>
+          <p style="color: #4a5568; font-size: 15px;">Une nouvelle commande vient d'être passée sur WapiBei.</p>
+
+          <div style="background-color: #edf2f7; padding: 20px; border-radius: 8px; margin: 24px 0;">
+            <table style="width: 100%;">
+              <tr>
+                <td style="color: #718096; font-size: 13px;">Client :</td>
+                <td style="font-weight: 700; color: #2d3748; text-align: right;">${data.customerName}</td>
+              </tr>
+              <tr>
+                <td style="color: #718096; font-size: 13px; padding-top: 8px;">Articles :</td>
+                <td style="font-weight: 700; color: #2d3748; text-align: right; padding-top: 8px;">${data.orderCount}</td>
+              </tr>
+              <tr>
+                <td style="color: #718096; font-size: 13px; padding-top: 8px;">Total :</td>
+                <td style="font-weight: 800; color: #2D5A27; text-align: right; padding-top: 8px; font-size: 18px;">${data.totalAmount.toLocaleString()} $</td>
+              </tr>
+            </table>
           </div>
-          <p style="font-size: 11px; color: #9ca3af; margin-top: 25px; text-align: center;">Système de surveillance WapiBei</p>
+
+          <div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;">
+            <strong style="display: block; margin-bottom: 12px; font-size: 12px; text-transform: uppercase; color: #64748b;">Produits commandés :</strong>
+            <table cellpadding="0" cellspacing="0" style="width: 100%;">
+            ${data.items.map(item => `
+              <tr>
+                ${item.productImage ? `<td style="padding: 4px 10px 4px 0; width: 32px; vertical-align: middle;"><img src="${item.productImage}" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; display: block;" /></td>` : ''}
+                <td style="padding: 4px 0; vertical-align: middle; font-size: 13px; color: #2d3748; font-weight: 500;">${item.productName}</td>
+              </tr>
+            `).join('')}
+            </table>
+          </div>
+          
+          <p style="font-size: 11px; color: #a0aec0; margin-top: 32px; text-align: center; font-style: italic;">
+            Auto-notification WapiBei Engine
+          </p>
         </div>
       </div>
     `;
@@ -315,6 +388,103 @@ export class EmailService {
       this.logger.error(`Failed to send admin email: ${data.adminEmail}`, error);
       return false;
     }
+  }
+
+  /**
+   * Message de bienvenue après inscription réussie.
+   */
+  async sendWelcomeEmail(email: string, name: string) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `Bienvenue chez WapiBei, ${name} ! 🟠`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #E67E22; padding: 40px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px;">WAPIBEI</h1>
+          <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-weight: 600;">Le marché intelligent de Goma</p>
+        </div>
+        <div style="padding: 40px 30px;">
+          <h2 style="color: #1a202c; font-size: 24px; font-weight: 800; margin-top: 0;">Heureux de vous voir parmi nous !</h2>
+          <p style="color: #4a5568; line-height: 1.6; font-size: 16px;">
+            Bonjour <strong>${name}</strong>,<br><br>
+            Votre compte est maintenant actif. Vous faites désormais partie de l'écosystème WapiBei, où vous pouvez comparer les prix, suivre vos vendeurs préférés et dénicher les meilleures offres en un clic.
+          </p>
+          <div style="background-color: #f7fafc; padding: 25px; border-radius: 15px; margin: 30px 0;">
+            <h3 style="color: #2D5A27; font-size: 14px; text-transform: uppercase; margin-top: 0; letter-spacing: 1px;">Ce que vous pouvez faire :</h3>
+            <ul style="color: #4a5568; margin: 15px 0 0 0; padding-left: 20px; font-weight: 500;">
+              <li style="margin-bottom: 10px;">Comparer les prix de Goma en temps réel.</li>
+              <li style="margin-bottom: 10px;">Suivre vos boutiques préférées.</li>
+              <li style="margin-bottom: 10px;">Acheter en toute confiance avec les scores de confiance.</li>
+            </ul>
+          </div>
+          <a href="${process.env.FRONTEND_URL || '#'}" style="display: block; background-color: #E67E22; color: #ffffff; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 16px; margin-top: 20px; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);">EXPLORER LES PRODUITS</a>
+        </div>
+        <div style="padding: 20px; text-align: center; border-top: 1px solid #f1f5f9;">
+          <p style="color: #94a3b8; font-size: 12px;">© 2026 WapiBei Tech. Tous droits réservés.</p>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'no-reply@wapibei.com' };
+    sendSmtpEmail.to = [{ email }];
+
+    try {
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send welcome email to ${email}`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Alerte de Baisse de Prix
+   */
+  async sendPriceDropAlert(data: { email: string, name: string, productName: string, oldPrice: number, newPrice: number, productImage: string, productLink: string }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `🎉 Baisse de prix sur ${data.productName} !`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+        <div style="padding: 30px; text-align: center;">
+          <div style="display: inline-block; background-color: #2D5A27; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase;">Alerte Prix</div>
+          <h2 style="font-size: 22px; font-weight: 900; color: #1a202c; margin-top: 0;">C'est le moment d'acheter !</h2>
+          <img src="${data.productImage}" style="width: 100%; border-radius: 15px; margin: 20px 0; aspect-ratio: 1; object-fit: cover;" />
+          <h3 style="color: #4a5568; margin-bottom: 5px;">${data.productName}</h3>
+          <div style="margin: 20px 0;">
+            <span style="color: #a0aec0; text-decoration: line-through; font-size: 18px; margin-right: 10px;">${data.oldPrice} $</span>
+            <span style="color: #E67E22; font-size: 28px; font-weight: 900;">${data.newPrice} $</span>
+          </div>
+          <a href="${data.productLink}" style="display: block; background-color: #2D5A27; color: #ffffff; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 14px; margin-top: 10px;">VOIR L'OFFRE</a>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.to = [{ email: data.email }];
+    return this.apiInstance.sendTransacEmail(sendSmtpEmail);
+  }
+
+  /**
+   * Rapport de Clôture pour l'Admin
+   */
+  async sendClosureAdminReport(data: { adminEmail: string, orderId: string, clientName: string, vendorName: string, productName: string, amount: number }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `✅ Transaction Clôturée : ${data.orderId}`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: monospace; background: #f1f5f9; padding: 20px;">
+        <div style="background: #ffffff; padding: 30px; border-radius: 5px; border-top: 4px solid #2D5A27;">
+          <h2 style="margin-top: 0;">RAPPORT DE CLÔTURE</h2>
+          <p>La transaction suivante a été marquée comme terminée sur WapiBei.</p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+          <table style="width: 100%; font-size: 14px;">
+            <tr><td style="color: #64748b; padding-bottom: 10px;">N° Commande :</td><td style="font-weight: bold;">${data.orderId}</td></tr>
+            <tr><td style="color: #64748b; padding-bottom: 10px;">Client :</td><td style="font-weight: bold;">${data.clientName}</td></tr>
+            <tr><td style="color: #64748b; padding-bottom: 10px;">Vendeur :</td><td style="font-weight: bold;">${data.vendorName}</td></tr>
+            <tr><td style="color: #64748b; padding-bottom: 10px;">Produit :</td><td style="font-weight: bold;">${data.productName}</td></tr>
+            <tr><td style="color: #64748b; padding-bottom: 10px;">Montant Net :</td><td style="font-weight: bold; color: #2D5A27;">${data.amount} $</td></tr>
+          </table>
+          <p style="margin-top: 30px; font-size: 12px; color: #94a3b8;">WapiBei Monitoring Sys</p>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.to = [{ email: data.adminEmail }];
+    return this.apiInstance.sendTransacEmail(sendSmtpEmail);
   }
 }
 

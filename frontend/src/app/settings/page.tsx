@@ -15,7 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 
 import { useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
-import { api } from "@/lib/api";
+import { api } from "@/lib/axios";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
 
@@ -51,6 +51,21 @@ export default function SettingsPage() {
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    const unread = notifications.filter(n => !n.isRead);
+    if (unread.length === 0) return;
+
+    try {
+      // In a real app, you'd want a bulk update endpoint.
+      // For now, we'll execute sequentially or promise.all
+      await Promise.all(unread.map(n => api.patch(`/notifications/${n.id}/read`)));
+
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error("Erreur lors du marquage en favoris", err);
     }
   };
 
@@ -181,7 +196,14 @@ export default function SettingsPage() {
                       <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Notifications</h3>
                       <p className="text-xs text-slate-500 font-bold mt-1">Gérez vos alertes et mises à jour</p>
                     </div>
-                    <button className="text-[10px] font-black uppercase text-[#E67E22] bg-[#E67E22]/10 px-4 py-2 rounded-xl">TOUT MARQUER COMME LU</button>
+                    {notifications.some(n => !n.isRead) && (
+                      <button
+                        onClick={markAllAsRead}
+                        className="text-[10px] font-black uppercase text-[#E67E22] bg-[#E67E22]/10 px-4 py-2 rounded-xl hover:bg-[#E67E22]/20 transition-colors"
+                      >
+                        TOUT MARQUER COMME LU
+                      </button>
+                    )}
                   </div>
 
                   <div className="space-y-4">

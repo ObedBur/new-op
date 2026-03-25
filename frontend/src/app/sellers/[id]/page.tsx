@@ -1,43 +1,70 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { mockProducts } from '@/features/products/data/mocks';
+import { getProducts } from '@/features/products/services/product.service';
+import { Product } from '@/types';
 
 export default function SellerDetailPage() {
   const { id } = useParams();
   const [activeCategory, setActiveCategory] = useState('Tout');
+  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // En situation réelle, on fetcherait le vendeur par son ID
-  // Pour la démo, on simule à partir du premier produit du vendeur ou d'un mock fixe
-  const seller = {
-    id: id,
-    name: "Force Fashion",
-    location: "Birere, Goma, RDC",
-    rating: "4.8/5",
-    productCount: 120,
-    responseTime: "< 1h",
+  // En situation réelle, on fetcherait le vendeur par son ID via un service
+  // Pour l'instant, on dérive le vendeur du premier produit ou on attend une API dédiée
+  const [seller, setSeller] = useState({
+    id: id as string,
+    name: "Chargement...",
+    location: "RD Congo",
+    rating: "4.5/5",
+    productCount: 0,
+    responseTime: "< 2h",
     isVerified: true,
-    logo: "https://ui-avatars.com/api/?name=Force+Fashion&background=fdf2f2&color=f96f06&size=200",
-    coverImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200",
-    whatsapp: "243999123456"
-  };
+    logo: `https://ui-avatars.com/api/?name=Store&background=random&size=200`,
+    whatsapp: ""
+  });
+
+  useEffect(() => {
+    const fetchSellerData = async () => {
+      try {
+        setIsLoading(true);
+        // On récupère les produits de ce vendeur
+        // Note: l'API devrait supporter le filtrage par boutique (userId)
+        const res = await getProducts({ limit: 20 });
+        if (res.success) {
+          setProducts(res.data);
+          if (res.data.length > 0) {
+            const firstProduct = res.data[0];
+            setSeller(prev => ({
+              ...prev,
+              name: firstProduct.user?.boutiqueName || firstProduct.user?.fullName || "Boutique",
+              logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(firstProduct.user?.boutiqueName || "B")}&background=random&size=200`,
+              productCount: res.data.length,
+              isVerified: firstProduct.user?.isVerified || false
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching seller detail:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSellerData();
+  }, [id]);
 
   const categories = ['Tout', 'Chaussures', 'Chemises', 'Accessoires'];
 
-  // Produits simulés pour ce vendeur spécifique (basé sur le screen)
-  const products = [
-    { id: 'p1', name: "Nike Air Max Speed", price: 45, oldPrice: 55, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p2', name: "Chemise Premium Coton", price: 25, image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p3', name: "Montre Classique Cuir", price: 80, oldPrice: 120, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p4', name: "Veste Denim Force", price: 35, image: "https://images.unsplash.com/photo-1576875054391-70321b7e8151?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p5', name: "Nike React Infinity", price: 55, image: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p6', name: "T-Shirt Noir Essential", price: 12, oldPrice: 18, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p7', name: "Jean Slim Blue Deep", price: 28, image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&q=80&w=600" },
-    { id: 'p8', name: "Portefeuille Cuir Brun", price: 15, image: "https://images.unsplash.com/photo-1627123424574-724738596013?auto=format&fit=crop&q=80&w=600" },
-  ];
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center pt-24">
+        <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <main className="flex-1 bg-gray-50/50 dark:bg-background-dark/50 pt-24 pb-20">
@@ -162,10 +189,7 @@ export default function SellerDetailPage() {
                 <div>
                   <h3 className="text-lg font-black text-deep-blue dark:text-white group-hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-2xl font-black text-primary">{product.price}$</span>
-                    {product.oldPrice && (
-                      <span className="text-sm font-bold text-gray-400 line-through decoration-red-500/50">{product.oldPrice}$</span>
-                    )}
+                    <span className="text-2xl font-black text-primary">{product.displayPrice || `${product.price}$`}</span>
                   </div>
                 </div>
 

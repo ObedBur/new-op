@@ -4,7 +4,7 @@ export const STATS_DATA: StatItem[] = [
     {
         id: '1',
         label: 'Ventes Totales',
-        value: '1.2M FC',
+        value: '1.2M $',
         trend: '+12.5%',
         trendUp: true,
         icon: 'payments',

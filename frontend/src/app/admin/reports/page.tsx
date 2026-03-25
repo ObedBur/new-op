@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function AdminReportsPage() {
   const stats = [
-    { label: 'Revenus du mois', value: '0 FC', icon: 'payments', color: 'from-emerald-500 to-teal-600', change: '+0%' },
+    { label: 'Revenus du mois', value: '0 $', icon: 'payments', color: 'from-emerald-500 to-teal-600', change: '+0%' },
     { label: 'Commandes totales', value: '0', icon: 'shopping_cart', color: 'from-blue-500 to-indigo-600', change: '+0%' },
     { label: 'Nouveaux utilisateurs', value: '0', icon: 'person_add', color: 'from-purple-500 to-violet-600', change: '+0%' },
     { label: 'Taux conversion', value: '0%', icon: 'trending_up', color: 'from-amber-500 to-orange-600', change: '+0%' },

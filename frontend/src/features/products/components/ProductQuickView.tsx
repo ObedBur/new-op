@@ -11,8 +11,11 @@ interface ProductQuickViewProps {
   onClose: () => void;
 }
 
+import { ProductMapper } from '../services/product.mapper';
+
 export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onClose }) => {
   const { addItem } = useCart();
+  const { amount, currency } = ProductMapper.parsePrice(product.displayPrice || product.price);
 
   const handleAddToCart = () => {
     addItem(product);
@@ -78,9 +81,7 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
                     <div className="flex items-center gap-2 mb-3">
                 <span className="px-3 py-1 bg-[#E67E22]/10 text-[#E67E22] text-[10px] font-black uppercase tracking-widest rounded-full">
                   {product.categoryId || 'Produit WapiBei'}
-                         </span>
-                           </span>
-                         )}
+                </span>
                     </div>
                     
               <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-[1.1] mb-4 tracking-tighter">
@@ -88,10 +89,12 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
                     </h2>
                     
                     <div className="flex items-baseline gap-2">
-                         <span className="text-4xl md:text-5xl font-black text-[#E67E22] tracking-tighter">
-                           {product.displayPrice || `${product.price}`}
-                         </span>
-                {!product.displayPrice && <span className="text-xl font-bold text-slate-400 uppercase">FC</span>}
+                <span className="text-4xl md:text-5xl font-black text-[#E67E22] tracking-tighter">
+                  {amount}
+                </span>
+                <span className="text-2xl md:text-3xl font-black text-[#E67E22] uppercase ml-1">
+                  {currency}
+                </span>
                     </div>
                 </div>
 

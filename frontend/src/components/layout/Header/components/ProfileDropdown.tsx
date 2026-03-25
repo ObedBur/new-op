@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { User } from '@/types/auth';
 
 interface ProfileDropdownProps {
@@ -67,8 +68,17 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="group p-0.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
         >
-          <div className="size-9 rounded-full bg-gradient-to-tr from-[#4f46e5] to-[#818cf8] flex items-center justify-center text-white text-xs font-black border-2 border-white dark:border-white/10 shadow-sm group-hover:shadow-md transition-all duration-300">
-            {getInitials(user?.fullName || '')}
+          <div className="size-9 rounded-full bg-gradient-to-tr from-[#4f46e5] to-[#818cf8] flex items-center justify-center text-white text-xs font-black border-2 border-white dark:border-white/10 shadow-sm group-hover:shadow-md transition-all duration-300 overflow-hidden relative">
+            {user?.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={user.fullName}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              getInitials(user?.fullName || '')
+            )}
           </div>
           <div className="hidden xl:flex flex-col items-start pr-2">
             <span className="text-[10px] font-black text-deep-blue dark:text-white uppercase tracking-wider leading-tight">
@@ -97,8 +107,17 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           {/* Header */}
           <div className="p-5 bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent border-b border-gray-100 dark:border-white/5">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-[#4f46e5] flex items-center justify-center text-white text-sm font-black shadow-lg shadow-blue-500/20">
-                {getInitials(user?.fullName || '')}
+              <div className="size-10 rounded-xl bg-[#4f46e5] flex items-center justify-center text-white text-sm font-black shadow-lg shadow-blue-500/20 overflow-hidden relative">
+                {user?.avatarUrl ? (
+                  <Image
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  getInitials(user?.fullName || '')
+                )}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-black text-deep-blue dark:text-white truncate uppercase tracking-tight">
@@ -161,4 +180,5 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     </div>
   );
 };
+
 

@@ -114,6 +114,11 @@ export class AuthService {
       },
     });
 
+    // Envoi du message de bienvenue
+    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
+      this.logger.error(`Failed to send welcome email to ${user.email}`, err)
+    );
+
     return { success: true, message: 'Account verified successfully' };
   }
 

@@ -1,20 +1,61 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { mockProducts } from '@/features/products/data/mocks';
+import { getProducts, getProductById } from '@/features/products/services/product.service';
 import { Product } from '@/types';
 
 export default function ComparePage() {
-  const [selectedIds, setSelectedIds] = useState<string[]>(["1", "4"]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [comparedProducts, setComparedProducts] = useState<Product[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<Product[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
 
   const maxSlots = 4;
 
-  const comparedProducts = useMemo(() => {
-    return selectedIds.map(id => mockProducts.find(p => p.id === id)).filter(Boolean) as Product[];
+    // Load products details when selectedIds change
+    useEffect(() => {
+        const fetchCompared = async () => {
+            if (selectedIds.length === 0) {
+                setComparedProducts([]);
+                return;
+            }
+            try {
+                const promises = selectedIds.map(id => getProductById(id));
+                const results = await Promise.all(promises);
+                setComparedProducts(results.map(res => res.data).filter(Boolean) as Product[]);
+            } catch (error) {
+                console.error('Error fetching compared products:', error);
+            }
+        };
+        fetchCompared();
   }, [selectedIds]);
+
+    // Search logic
+    useEffect(() => {
+        const search = async () => {
+            if (!searchQuery.trim()) {
+                setSearchResults([]);
+                return;
+            }
+            setIsSearching(true);
+            try {
+                const res = await getProducts({ search: searchQuery, limit: 10 });
+                if (res.success) {
+                    setSearchResults(res.data.filter(p => !selectedIds.includes(p.id)));
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+
+        const timer = setTimeout(search, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery, selectedIds]);
 
   const bestPriceId = useMemo(() => {
     if (comparedProducts.length < 2) return null;
@@ -22,11 +63,6 @@ export default function ComparePage() {
     const minPrice = Math.min(...prices);
     return comparedProducts.find(p => p.price === minPrice)?.id;
   }, [comparedProducts]);
-
-  const searchResults = mockProducts.filter(p => 
-    !selectedIds.includes(p.id) && 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const addProduct = (id: string) => {
     if (selectedIds.length < maxSlots) {

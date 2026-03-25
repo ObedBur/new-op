@@ -8,7 +8,7 @@ const StatsSection: React.FC = () => {
         {
             id: '1',
             label: t.dashboard.stats.sales,
-            value: stats ? `${(stats.sales.total / 1000).toFixed(0)}K FC` : '0',
+            value: stats ? `${(stats.sales.total / 1000).toFixed(0)}K $` : '0',
             icon: 'payments',
             bgColor: 'bg-emerald-500/10',
             iconColor: 'text-emerald-600',

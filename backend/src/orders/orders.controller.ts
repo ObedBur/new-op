@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, Get, Param } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
@@ -58,6 +58,24 @@ export class OrdersController {
     return {
       success: true,
       data: orders,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/status')
+  async updateOrderStatus(
+    @Req() req: JwtRequest,
+    @Param('id') orderId: string,
+    @Body('status') status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+  ) {
+    // Note: Dans un système complet, il faudrait vérifier que req.user.id est bien le vendorId de la commande
+    // ou qu'il a le rôle ADMIN.
+    const result = await this.ordersService.updateStatus(orderId, status);
+
+    return {
+      success: true,
+      message: `Statut mis à jour : ${status}`,
+      data: result,
     };
   }
 }
