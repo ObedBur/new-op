@@ -38,11 +38,11 @@ model User {
   avatarUrl           String?
   coverUrl            String?
   isActive            Boolean        @default(true)
+  notifications       Notification[]
+  orders              Order[]        @relation("ClientOrders")
+  sales               Order[]        @relation("VendorOrders")
   products            Product[]
   refreshTokens       RefreshToken[]
-  orders              Order[] @relation("ClientOrders")
-  sales               Order[] @relation("VendorOrders")
-  notifications       Notification[]
 
   @@index([email])
   @@index([phone])
@@ -94,9 +94,11 @@ model Product {
   city          String              @default("Goma")
   country       String              @default("RD Congo")
   images        String[]            @default([])
+  isPublic      Boolean             @default(true)
+  orders        Order[]
   category      Category            @relation(fields: [categoryId], references: [id])
   user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orders        Order[]
+
   @@index([categoryId])
   @@index([userId])
   @@index([market])
@@ -123,31 +125,23 @@ model HowItWorksStep {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
 model Order {
   id              String      @id @default(uuid())
-  
-  // Informations saisies dans le modal (peuvent différer du profil User)
-  customerName    String   
-  customerPhone   String    
-  customerEmail   String      
-  deliveryAddress String      
-  
-  // Relations
+  customerName    String
+  customerPhone   String
+  customerEmail   String
+  deliveryAddress String
   productId       String
-  product         Product     @relation(fields: [productId], references: [id])
-  
   clientId        String
-  client          User        @relation("ClientOrders", fields: [clientId], references: [id])
-  
   vendorId        String
-  vendor          User        @relation("VendorOrders", fields: [vendorId], references: [id])
-
-  // État de la commande
   status          OrderStatus @default(PENDING)
   totalPrice      Float
-  
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+  client          User        @relation("ClientOrders", fields: [clientId], references: [id])
+  product         Product     @relation(fields: [productId], references: [id])
+  vendor          User        @relation("VendorOrders", fields: [vendorId], references: [id])
 
   @@index([vendorId])
   @@index([clientId])
@@ -157,24 +151,25 @@ model Order {
 model Notification {
   id        String           @id @default(uuid())
   userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
   type      NotificationType @default(SYSTEM_ALERT)
   isRead    Boolean          @default(false)
   metadata  Json?
   createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
 
 enum OrderStatus {
-  PENDING      
-  CONFIRMED   
-  SHIPPED    
-  DELIVERED  
-  CANCELLED   
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
+
 enum UserRole {
   CLIENT
   VENDOR
@@ -218,4 +213,3 @@ enum NotificationType {
   PAYMENT_RECEIVED
   SYSTEM_ALERT
 }
-

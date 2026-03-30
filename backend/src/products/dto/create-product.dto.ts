@@ -24,5 +24,8 @@ export class CreateProductDto {
     @IsOptional()
     @IsString()
     image?: string;
+
+    @IsOptional()
+    isPublic?: boolean;
 }
 

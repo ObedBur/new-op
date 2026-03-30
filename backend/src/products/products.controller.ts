@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -124,6 +124,50 @@ export class ProductsController {
     return {
       success: true,
       data: product,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: any,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    const product = await this.productsService.update(id, updateProductDto, userId);
+    return {
+      success: true,
+      message: 'Produit mis à jour avec succès',
+      data: product,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('bulk-publish')
+  async bulkPublish(
+    @Body('ids') ids: string[],
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    await this.productsService.bulkPublish(ids, userId);
+    return {
+      success: true,
+      message: `${ids.length} produits publiés avec succès`,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async remove(
+    @Param('id') id: string,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    await this.productsService.remove(id, userId);
+    return {
+      success: true,
+      message: 'Produit supprimé avec succès',
     };
   }
 }

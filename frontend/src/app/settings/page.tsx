@@ -3,21 +3,35 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Store, Heart, Bell, ShieldCheck, Settings as SettingsIcon,
   ChevronRight, MapPin, BadgeCheck, TrendingDown, TrendingUp,
   Package, Plus, Hammer, Smartphone, Sprout, Search, Lock,
-  ShoppingBag
+  ShoppingBag, CheckCircle2, Clock, MoreVertical, SlidersHorizontal
 } from "lucide-react";
 import EditProfileModal from "../modal/EditProfileModal";
 
 import { useAuth } from "@/context/AuthContext";
-
 import { useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { api } from "@/lib/axios";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as any }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function SettingsPage() {
   const { user } = useAuth();
@@ -59,281 +73,306 @@ export default function SettingsPage() {
     if (unread.length === 0) return;
 
     try {
-      // In a real app, you'd want a bulk update endpoint.
-      // For now, we'll execute sequentially or promise.all
       await Promise.all(unread.map(n => api.patch(`/notifications/${n.id}/read`)));
-
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     } catch (err) {
-      console.error("Erreur lors du marquage en favoris", err);
+      console.error("Erreur lors du marquage des notifications", err);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f1f4f9] dark:bg-[#0b1221]">
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-[#080b14]">
       {/* Modale d'édition */}
       <EditProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
       />
 
-      <main className="flex-grow flex-1 pt-10 pb-16">
-        <div className="container mx-auto max-w-7xl px-4 lg:px-10">
-          <div className="flex flex-col lg:flex-row gap-8">
+      <main className="flex-grow pt-0 md:pt-10 pb-20">
+        <div className="container mx-auto max-w-7xl px-0 sm:px-4 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-0 sm:gap-6 lg:gap-10 items-stretch">
 
-            {/* --- SIDEBAR GAUCHE --- */}
-            <VendorSidebar user={user} />
-
-            {/* --- ZONE CENTRALE --- */}
-            <div className="flex-1 space-y-8">
-
-              {/* Header Card Utilisateur */}
-              <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="relative">
-                    <div className="size-24 rounded-full overflow-hidden border-4 border-white shadow-xl bg-gray-100">
-                      {user?.avatarUrl ? (
-                        <Image
-                          src={user.avatarUrl}
-                          alt={user.fullName || "Avatar"} width={96} height={96} className="object-cover w-full h-full"
-                        />
-                      ) : user?.fullName ? (
-                        <Image
-                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}&background=random`}
-                          alt={user.fullName} width={96} height={96} className="object-cover"
-                        />
-                      ) : (
-                        <div className="size-24 flex items-center justify-center">
-                          <User className="size-12 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="absolute bottom-0 -right-1 bg-[#0033ff] text-white size-8 rounded-full flex items-center justify-center border-4 border-white">
-                      <BadgeCheck className="size-4" fill="currentColor" />
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-[26px] font-black text-[#1e293b] dark:text-white leading-tight">
-                      {user?.fullName || "Utilisateur"}
-                    </h2>
-                    <div className="flex items-center gap-2 text-[#64748b] text-sm mt-1">
-                      <MapPin className="size-4" />
-                      <span className="font-semibold">{user?.province || "Goma, RDC"}</span>
-                    </div>
-                    <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 bg-[#eff6ff] text-[#2563eb] rounded-xl text-[10px] font-black uppercase tracking-wider border border-blue-50">
-                      <ShieldCheck className="size-3.5" />
-                      {user?.role === 'VENDOR' ? 'VERIFIED SELLER' : 'VERIFIED CLIENT'}
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="px-9 py-4 bg-[#002db3] text-white rounded-2xl font-black text-sm hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-blue-500/20 tracking-wide"
-                >
-                  Éditer Profil
-                </button>
-              </section>
-
-              {/* --- DYNAMIC ZONE BASED ON TAB --- */}
-              {activeTab === 'profile' && (
-                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
-                  <div className="flex items-center justify-between mb-10">
-                    <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Wapi-Bei Tracker</h3>
-                    <div className="px-3 py-1 bg-[#fff7ed] text-[#ea580c] rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                      <div className="size-1.5 bg-[#ea580c] rounded-full animate-pulse"></div>
-                      LIVE MARKET
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {[
-                      { name: "Sac de Ciment", location: "PRIX MOYEN GOMA", price: "14.50", icon: Hammer, trend: -2, active: true, trendColor: 'text-[#10b981]' },
-                      { name: "iPhone 15", location: "PRIX IMPORT", price: "890.00", icon: Smartphone, trend: 0, active: false, trendColor: 'text-gray-400' },
-                      { name: "Haricots (Sac 100kg)", location: "MARCHÉ VIRUNGA", price: "75.00", icon: Sprout, trend: 5, active: true, trendColor: 'text-[#f97316]' },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-6 bg-[#f8fafc] dark:bg-white/2 rounded-[1.5rem] border border-transparent hover:border-gray-100 transition-all">
-                        <div className="flex items-center gap-5">
-                          <div className="size-12 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center shadow-sm border border-gray-50">
-                            <item.icon className="size-6 text-[#475569]" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-[16px] text-[#1e293b] dark:text-white leading-tight">{item.name}</h4>
-                            <p className="text-[10px] font-bold text-[#94a3b8] mt-1.5 uppercase tracking-widest">{item.location}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-10">
-                          <div className="text-right">
-                            <div className="text-[20px] font-black text-[#1e293b] dark:text-white tracking-tight">${item.price}</div>
-                            <div className={`flex items-center justify-end gap-1 text-[11px] font-bold ${item.trendColor} mt-0.5`}>
-                              {item.trend !== 0 && (item.trend < 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />)}
-                              {item.trend === 0 ? 'Stable' : `${item.trend > 0 ? '↑' : '↓'} ${Math.abs(item.trend)}%`}
-                            </div>
-                          </div>
-                          {/* Custom Switch Toggle */}
-                          <div className={`w-14 h-7 rounded-full relative transition-all duration-300 cursor-pointer ${item.active ? 'bg-[#002db3]' : 'bg-[#e2e8f0]'}`}>
-                            <div className={`absolute top-1 size-5 rounded-full bg-white shadow-sm transition-all duration-300 ${item.active ? 'left-8' : 'left-1'}`} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 pt-8 border-t border-dashed border-gray-100">
-                    <button className="w-full p-5 rounded-[1.5rem] border-2 border-dashed border-[#f97316] flex items-center justify-center gap-3 text-sm font-black text-[#f97316] hover:bg-[#fff7ed] transition-all group">
-                      <div className="size-8 rounded-full bg-[#f97316] flex items-center justify-center text-white">
-                        <Plus className="size-5" />
-                      </div>
-                      Suivre un nouveau produit
-                    </button>
-                  </div>
-                </section>
-              )}
-
-              {activeTab === 'notifications' && (
-                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-10 shadow-sm shadow-gray-200/50 border border-gray-50">
-                  <div className="flex items-center justify-between mb-10">
-                    <div>
-                      <h3 className="text-xl font-black text-[#1e293b] dark:text-white">Notifications</h3>
-                      <p className="text-xs text-slate-500 font-bold mt-1">Gérez vos alertes et mises à jour</p>
-                    </div>
-                    {notifications.some(n => !n.isRead) && (
-                      <button
-                        onClick={markAllAsRead}
-                        className="text-[10px] font-black uppercase text-[#E67E22] bg-[#E67E22]/10 px-4 py-2 rounded-xl hover:bg-[#E67E22]/20 transition-colors"
-                      >
-                        TOUT MARQUER COMME LU
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    {isLoading ? (
-                      <div className="py-20 flex justify-center"><div className="animate-spin size-8 border-4 border-[#E67E22] border-t-transparent rounded-full"></div></div>
-                    ) : notifications.length === 0 ? (
-                      <div className="py-20 text-center space-y-4">
-                        <div className="size-20 bg-slate-50 dark:bg-white/5 rounded-3xl mx-auto flex items-center justify-center text-slate-300"><Bell size={32} /></div>
-                        <p className="text-sm font-bold text-slate-400">Aucune notification pour le moment.</p>
-                      </div>
-                    ) : (
-                      notifications.map((n) => (
-                        <div key={n.id} className={`flex items-start gap-5 p-6 rounded-[1.5rem] border transition-all ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-50' : 'bg-[#fffcf9] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm shadow-orange-500/5'}`}>
-                          <div className={`size-12 rounded-xl flex items-center justify-center shadow-sm ${n.isRead ? 'bg-slate-50 text-slate-400' : 'bg-orange-100 text-[#E67E22]'}`}>
-                            <Bell size={20} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="font-bold text-[15px] dark:text-white">{n.title}</h4>
-                              <span className="text-[10px] font-bold text-slate-400">{new Date(n.createdAt).toLocaleDateString()}</span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-gray-400 leading-relaxed">{n.message}</p>
-                            {!n.isRead && (
-                              <button
-                                onClick={() => markAsRead(n.id)}
-                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-[#E67E22]"
-                              >
-                                Marquer comme lu
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </section>
-              )}
-
-              {activeTab !== 'profile' && activeTab !== 'notifications' && (
-                <section className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-20 text-center shadow-sm border border-gray-50 flex flex-col items-center justify-center space-y-6">
-                  <div className="size-24 bg-slate-50 rounded-[2.5rem] flex items-center justify-center text-slate-300">
-                    <Store size={40} />
-                  </div>
-                  <h3 className="text-2xl font-black text-[#1e293b] dark:text-white">Bientôt disponible</h3>
-                  <p className="text-sm font-bold text-slate-500 max-w-sm">
-                    La section <span className="text-[#E67E22]">{activeTab.toUpperCase()}</span> est en cours de développement.
-                  </p>
-                </section>
-              )}
+            {/* --- SIDEBAR GAUCHE (Modernized) --- */}
+            <div className="lg:w-72 shrink-0 flex flex-col">
+               <VendorSidebar user={user} />
             </div>
-
-            {/* --- STATS ET INFOS DROITE --- */}
-            <aside className="w-full lg:w-80 space-y-8">
-              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50">
-                <h3 className="text-[18px] font-black text-[#1e293b] dark:text-white mb-8 leading-none">Activité</h3>
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-xl bg-[#eef2ff] flex items-center justify-center">
-                        <Package className="size-5 text-[#4f46e5]" />
+            {/* --- ZONE CENTRALE (Désormais plein écran) --- */}
+            <div className="flex-1 space-y-6">
+              
+              {/* --- DYNAMIC SECTION --- */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  {activeTab === 'notifications' && (
+                    <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-8 md:p-12 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 min-h-[80vh] sm:min-h-0">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-12">
+                        <div className="space-y-1">
+                          <h3 className="text-xl md:text-xl font-black text-deep-blue dark:text-white tracking-tight leading-none">Centre de Notifications</h3>
+                          <p className="text-xs md:text-xs font-semibold text-gray-400">Restez informé de votre activité sur WapiBei</p>
+                        </div>
+                        {notifications.some(n => !n.isRead) && (
+                          <button
+                            onClick={markAllAsRead}
+                            className="group flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/20"
+                          >
+                            <CheckCircle2 size={16} />
+                            Tout marquer comme lu
+                          </button>
+                        )}
                       </div>
-                      <span className="text-[14px] font-bold text-[#475569] dark:text-gray-300">Mes Annonces</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-[#1e293b] text-[10px] font-black text-white rounded-lg leading-none">12 Active</span>
-                      <ChevronRight className="size-4 text-[#94a3b8] group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-xl bg-[#fff7ed] flex items-center justify-center">
-                        <Heart className="size-5 text-[#f97316]" />
-                      </div>
-                      <span className="text-[14px] font-bold text-[#475569] dark:text-gray-300">Ma Wishlist</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-[#f97316] text-[10px] font-black text-white rounded-lg leading-none">5 Items</span>
-                      <ChevronRight className="size-4 text-[#94a3b8] group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white dark:bg-[#151b2c] rounded-[2rem] p-8 shadow-sm shadow-gray-200/50">
-                <h3 className="text-[18px] font-black text-[#1e293b] dark:text-white mb-8 leading-none">Sécurité & Confiance</h3>
-                <div className="space-y-8">
-                  <div className="flex gap-4 items-start">
-                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
-                      <ShieldCheck size={20} className="text-[#1e293b]" />
+                      <div className="space-y-5">
+                        {isLoading ? (
+                          <div className="py-24 flex flex-col items-center justify-center gap-4">
+                            <div className="relative size-16">
+                               <div className="absolute inset-0 rounded-full border-4 border-gray-100 dark:border-white/5"></div>
+                               <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 animate-spin"></div>
+                            </div>
+                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Chargement des alertes...</p>
+                          </div>
+                        ) : notifications.length === 0 ? (
+                          <div className="py-24 text-center space-y-6">
+                            <div className="size-24 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] mx-auto flex items-center justify-center text-gray-200">
+                               <Bell size={40} />
+                            </div>
+                            <div className="space-y-2">
+                               <p className="text-xl font-black text-deep-blue dark:text-white">Aucun nouveau message</p>
+                               <p className="text-sm font-semibold text-gray-400">Nous vous tiendrons au courant dès qu'il y a du nouveau.</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="max-h-[75vh] sm:max-h-[60vh] overflow-y-auto pr-1 sm:pr-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10 hover:scrollbar-thumb-gray-300 transition-colors">
+                            <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-3 sm:space-y-4">
+                              {notifications.map((n) => (
+                                <motion.div 
+                                  variants={fadeUp}
+                                  key={n.id} 
+                                  className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 p-4 md:p-7 rounded-[1.25rem] md:rounded-[2rem] border transition-all duration-300 ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-[#FDF9F6] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm'}`}
+                                >
+                                  {/* Mobile-optimized Header Layout */}
+                                  <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
+                                    <div className={`size-10 md:size-14 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500 group-hover:scale-110 ${n.isRead ? 'bg-gray-50 text-gray-400 border-gray-100 dark:bg-white/5 dark:border-white/10' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
+                                      <Bell size={20} className="md:size-6 shrink-0" />
+                                    </div>
+                                    <div className="flex-1 min-w-0 sm:hidden">
+                                      <div className="flex items-center justify-between mb-1">
+                                        <h4 className={`text-base font-black truncate leading-tight pr-2 ${n.isRead ? 'text-gray-900 dark:text-white' : 'text-orange-950 dark:text-orange-100'}`}>
+                                          {n.title}
+                                        </h4>
+                                        <div className="flex flex-col items-end shrink-0">
+                                            <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">
+                                                {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                            </span>
+                                        </div>
+                                      </div>
+                                      <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-snug line-clamp-2">
+                                        {n.message}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Desktop-optimized Layout */}
+                                  <div className="hidden sm:block flex-1 min-w-0 pr-8">
+                                    <div className="flex items-center justify-between mb-1.5">
+                                      <h4 className="font-black text-base text-deep-blue dark:text-white leading-none pr-4">{n.title}</h4>
+                                      <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
+                                        <Clock size={10} />
+                                        {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                      </div>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                      {n.message}
+                                    </p>
+                                    {!n.isRead && (
+                                      <button
+                                        onClick={() => markAsRead(n.id)}
+                                        className="mt-5 px-5 py-2.5 bg-white dark:bg-white/10 text-orange-600 dark:text-orange-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-500/20 hover:bg-orange-600 hover:text-white transition-all shadow-sm"
+                                      >
+                                        Marquer comme lu
+                                      </button>
+                                    )}
+                                  </div>
+                                  <div className="absolute top-4 right-4 sm:top-7 sm:right-7 p-1 sm:p-2 text-gray-300 hover:text-gray-500 transition-colors cursor-pointer">
+                                    <MoreVertical size={18} className="size-4 sm:size-[18px]" />
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </motion.div>
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  )}
+
+                  {activeTab === 'profile' && (
+                    <div className="space-y-8">
+                      <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 overflow-hidden">
+                        
+                        {/* --- COVER & BANNER --- */}
+                        <div className="h-32 sm:h-48 w-full bg-gradient-to-r from-orange-100 to-green-100 dark:from-orange-900/30 dark:to-green-900/30 relative">
+                            {/* Texture optionnelle */}
+                            <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                            <div className="absolute inset-0 opacity-10 dark:opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,1) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                        </div>
+
+                        <div className="px-6 md:px-12 pb-8 md:pb-12 relative">
+                            
+                            {/* --- AVATAR & ACTIONS HEADER --- */}
+                            <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end -mt-16 sm:-mt-20 mb-4 sm:mb-6 gap-6 sm:gap-0">
+                                <div className="relative group shrink-0 z-10 isolate">
+                                    <div className="absolute -inset-1 bg-gradient-to-br from-orange-400 to-green-600 rounded-[2.5rem] blur-xl opacity-20 sm:opacity-30 transition duration-500"></div>
+                                    <div className="relative size-32 sm:size-40 rounded-[2rem] border-4 border-white dark:border-[#111827] shadow-xl overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                                    {user?.avatarUrl ? (
+                                        <Image src={user.avatarUrl} alt={user.fullName || 'User'} fill className="object-cover" />
+                                    ) : (
+                                        <span className="text-4xl md:text-5xl font-black text-gray-300">
+                                        {user?.fullName?.charAt(0) || 'U'}
+                                        </span>
+                                    )}
+                                    <button
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                                    >
+                                        <span className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                                           <SettingsIcon size={14} /> Éditer
+                                        </span>
+                                    </button>
+                                    </div>
+                                </div>
+
+                                {/* DESKTOP ACTIONS */}
+                                <div className="hidden sm:flex w-full sm:w-auto flex-col sm:flex-row gap-3 sm:pb-2">
+                                    <button
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all sm:shadow-sm"
+                                    >
+                                        Changer Sécurité
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditModalOpen(true)}
+                                        className="w-full sm:w-auto px-6 py-3 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
+                                    >
+                                        Éditer Profil
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* --- USER TITLE & BADGES --- */}
+                            <div className="text-center sm:text-left space-y-2.5 mb-6 sm:mb-10">
+                                <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white capitalize tracking-tight">
+                                    {user?.fullName || 'Utilisateur'}
+                                </h2>
+                                
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-2 mt-1">
+                                    <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
+                                        {user?.email}
+                                    </p>
+                                    <div className="hidden sm:block text-gray-300 dark:text-gray-600 px-1">•</div>
+                                    <div className="flex items-center gap-2">
+                                        {user?.role === 'VENDOR' && (
+                                            <span className="text-[#E67E22] bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                                Vendeur
+                                            </span>
+                                        )}
+                                        <span className="text-[#2D5A27] dark:text-[#52c140] bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                            Actif
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* MOBILE ACTIONS */}
+                            <div className="flex sm:hidden w-full flex-col gap-3 mb-8">
+                                <button
+                                    onClick={() => setIsEditModalOpen(true)}
+                                    className="w-full px-6 py-3.5 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-gray-50 transition-all shadow-sm"
+                                >
+                                    Changer Sécurité
+                                </button>
+                                <button
+                                    onClick={() => setIsEditModalOpen(true)}
+                                    className="w-full px-6 py-3.5 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
+                                >
+                                    Éditer Profil
+                                </button>
+                            </div>
+
+                            {/* --- DETAILED INFO GRID --- */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-6 pt-8 border-t border-gray-100 dark:border-white/5">
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Téléphone</p>
+                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                        <Smartphone size={16} className="text-gray-400" />
+                                        {user?.phone ? user.phone : <span className="text-gray-400 italic">Non renseigné</span>}
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Localisation</p>
+                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                        <MapPin size={16} className="text-gray-400" />
+                                        {user?.province || user?.commune ? `${user.commune || ''}, ${user.province || ''}`.trim().replace(/^,\s*/, '') : <span className="text-gray-400 italic">Non définie</span>}
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nom de la Boutique</p>
+                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                        <Store size={16} className="text-gray-400" />
+                                        {user?.boutiqueName ? user.boutiqueName : <span className="text-gray-400 italic">Aucune boutique associée</span>}
+                                    </p>
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Membre Depuis</p>
+                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                        <Clock size={16} className="text-gray-400" />
+                                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Récemment'}
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                      </section>
                     </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Vérification KYC (Identité)</p>
-                      <p className="text-[11px] font-bold text-[#10b981]"> Approuvé</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
-                      <Lock size={18} className="text-[#1e293b]" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Code PIN de transaction</p>
-                      <p className="text-[11px] font-bold text-[#64748b]">Activé pour vos achats</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 items-start">
-                    <div className="size-11 rounded-xl bg-[#f8fafc] flex items-center justify-center shrink-0 border border-gray-50 shadow-sm">
-                      <Search size={18} className="text-[#1e293b]" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[13px] font-black text-[#1e293b] dark:text-white leading-tight">Zone de recherche</p>
-                      <p className="text-[11px] font-bold text-[#64748b]">Goma & Environs (25km)</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
+                  )}
+
+                  {activeTab !== 'notifications' && activeTab !== 'profile' && (
+                    <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2.5rem] p-12 sm:p-24 text-center border-y sm:border border-gray-100 sm:border-white dark:border-white/5 shadow-xl flex flex-col items-center justify-center space-y-10 min-h-[50vh] sm:min-h-0">
+                      <div className="size-24 sm:size-32 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] flex items-center justify-center text-gray-200">
+                        <ShoppingBag size={48} className="size-10 sm:size-12" />
+                      </div>
+                      <div className="space-y-3 px-4">
+                        <h3 className="text-2xl sm:text-3xl font-black text-deep-blue dark:text-white tracking-tight leading-none">Bientôt Disponible</h3>
+                        <p className="text-sm sm:text-base font-bold text-gray-500 max-w-sm mx-auto">
+                          La section <span className="text-[#E67E22] px-2.5 py-0.5 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 rounded-lg">{activeTab.toUpperCase()}</span> est en cours d'optimisation.
+                        </p>
+                      </div>
+                      <Link href="/">
+                        <button className="px-8 sm:px-10 py-4 sm:py-5 bg-deep-blue hover:bg-black text-white rounded-[1.25rem] sm:rounded-[1.5rem] font-black text-[11px] sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-blue-500/10 active:scale-95">
+                          Retour à la boutique
+                        </button>
+                      </Link>
+                    </section>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </main>
 
-      {/* --- FOOTER MINIMAL --- */}
-      <footer className="bg-white dark:bg-[#0b1221] py-16 border-t border-gray-100 text-center">
-        <div className="container mx-auto px-4">
-          <p className="text-sm font-bold text-[#94a3b8] mb-6">WapiBei – La Marketplace de confiance en Afrique</p>
-          <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 mb-10">
-            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Terms of Service</Link>
-            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Privacy Policy</Link>
-            <Link href="#" className="text-[10px] font-black uppercase text-[#94a3b8] hover:text-[#4f46e5] transition-all tracking-widest">Contact Support</Link>
+      {/* --- FOOTER MINIMAL INLINE --- */}
+      <footer className="bg-white dark:bg-[#0b1221] py-10 border-t border-gray-100 dark:border-white/5">
+        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">© 2026 WapiBei</p>
+          <div className="flex items-center gap-8">
+            <Link href="#" className="text-[10px] font-black uppercase text-gray-300 hover:text-blue-600 transition-all tracking-widest">Terms</Link>
+            <Link href="#" className="text-[10px] font-black uppercase text-gray-300 hover:text-blue-600 transition-all tracking-widest">Privacy</Link>
+            <Link href="#" className="text-[10px] font-black uppercase text-gray-300 hover:text-blue-600 transition-all tracking-widest">Support</Link>
           </div>
-          <p className="text-[10px] font-bold text-[#cbd5e1] uppercase tracking-tighter">© 2024 WapiBei Marketplace. Tous droits réservés.</p>
         </div>
       </footer>
     </div>

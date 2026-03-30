@@ -170,14 +170,15 @@ export class EmailService {
       .map(
         (item) => `
       <tr>
-        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; vertical-align: middle;">
-          <table cellpadding="0" cellspacing="0"><tr>
-            ${item.productImage ? `<td style="padding-right: 12px; vertical-align: middle;"><img src="${item.productImage}" alt="${item.productName}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; display: block;" /></td>` : ''}
-            <td style="vertical-align: middle;"><span style="font-weight: 600; color: #2d3748;">${item.productName}</span></td>
-          </tr></table>
+        <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; vertical-align: middle; width: 60px;">
+          ${item.productImage ? `<img src="${item.productImage}" alt="${item.productName}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; display: block;" />` : `<div style="width: 50px; height: 50px; border-radius: 8px; background: #edf2f7;"></div>`}
         </td>
-        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; text-align: right; color: #4a5568;">${item.quantity}</td>
-        <td style="padding: 12px 10px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 700; color: #E67E22;">${(
+        <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; vertical-align: middle;">
+          <span style="font-weight: 700; color: #1e293b; font-size: 15px; display: block;">${item.productName}</span>
+          <span style="font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">WapiBei Verified</span>
+        </td>
+        <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; color: #64748b; font-weight: 700;">${item.quantity}</td>
+        <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 800; color: #E67E22; font-size: 16px;">${(
             item.price * item.quantity
         ).toLocaleString()} $</td>
       </tr>
@@ -201,9 +202,10 @@ export class EmailService {
           <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
             <thead>
               <tr style="background-color: #f7fafc;">
-                <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Produit</th>
-                <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Qté</th>
-                <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
+                <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 12px; text-transform: uppercase; width: 60px;">Image</th>
+                <th style="padding: 12px 10px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 12px; text-transform: uppercase;">Détails</th>
+                <th style="padding: 12px 10px; text-align: center; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 12px; text-transform: uppercase;">Qté</th>
+                <th style="padding: 12px 10px; text-align: right; border-bottom: 2px solid #e2e8f0; color: #4a5568; font-size: 12px; text-transform: uppercase;">Montant</th>
               </tr>
             </thead>
             <tbody>
@@ -211,7 +213,7 @@ export class EmailService {
             </tbody>
             <tfoot>
               <tr>
-                <td colspan="2" style="padding: 24px 10px 0 10px; font-weight: 700; text-align: right; color: #2d3748; font-size: 16px;">MONTANT TOTAL :</td>
+                <td colspan="3" style="padding: 24px 10px 0 10px; font-weight: 700; text-align: right; color: #2d3748; font-size: 16px;">MONTANT TOTAL :</td>
                 <td style="padding: 24px 10px 0 10px; font-weight: 800; text-align: right; color: #E67E22; font-size: 22px;">
                   ${data.totalPrice.toLocaleString()} $
                 </td>

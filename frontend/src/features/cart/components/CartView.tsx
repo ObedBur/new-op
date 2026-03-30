@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CheckoutModal } from "./CheckoutModal";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/axios";
 import { ProductMapper } from "@/features/products/services/product.mapper";
 
@@ -23,6 +24,7 @@ export const CartView: React.FC = () => {
   } = useCart();
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = React.useState(false);
   const { showToast } = useToast();
+  const { user } = useAuth();
 
   const handleCheckoutSubmit = async (data: any) => {
     try {
@@ -221,7 +223,7 @@ export const CartView: React.FC = () => {
                   </span>
                 }
               >
-                Passer au paiement
+                Commander maintenant
               </Button>
               <Link href="/products" className="block text-center mt-4">
                 <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E67E22] hover:underline decoration-2 underline-offset-8 transition-all">
@@ -245,6 +247,12 @@ export const CartView: React.FC = () => {
         onSubmit={handleCheckoutSubmit}
         total={total}
         currency={currencySymbol}
+        initialData={{
+          fullName: user?.fullName,
+          email: user?.email,
+          phone: user?.phone,
+          address: user?.address || "",
+        }}
       />
     </div>
   );

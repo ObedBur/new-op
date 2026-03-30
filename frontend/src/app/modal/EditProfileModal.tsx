@@ -364,7 +364,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             {loading ? (
                                 <>
                                     <Loader2 className="size-5 animate-spin" />
-                                    Enregistrement...
+                                    Enregistrement en cours...
                                 </>
                             ) : (
                                 'Enregistrer les modifications'
