@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///F:/new-op/frontend/src/proxy.ts"],"sourcesContent":["import { NextResponse } from 'next/server';\r\n\r\nexport default function proxy() {\r\n  // Note: Since tokens are stored in localStorage (as per requirements), \r\n  // the server-side middleware cannot access them directly to verify authentication.\r\n  // Authentication checks must be performed client-side (e.g. in AuthContext or a Guard component).\r\n  \r\n  // If you switch to HttpOnly cookies for the refresh token, you can check for the cookie here:\r\n  // const refreshToken = request.cookies.get('wapibei_refresh_token');\r\n  // if (!refreshToken && request.nextUrl.pathname.startsWith('/dashboard')) {\r\n  //   return NextResponse.redirect(new URL('/login', request.url));\r\n  // }\r\n\r\n  return NextResponse.next();\r\n}\r\n\r\nexport const config = {\r\n  matcher: ['/dashboard/:path*', '/admin/:path*'],\r\n};\r\n"],"names":[],"mappings":";;;;;;AAAA;;AAEe,SAAS;IACtB,wEAAwE;IACxE,mFAAmF;IACnF,kGAAkG;IAElG,8FAA8F;IAC9F,qEAAqE;IACrE,4EAA4E;IAC5E,kEAAkE;IAClE,IAAI;IAEJ,OAAO,6PAAY,CAAC,IAAI;AAC1B;AAEO,MAAM,SAAS;IACpB,SAAS;QAAC;QAAqB;KAAgB;AACjD"}}]
+}

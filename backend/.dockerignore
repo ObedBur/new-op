@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+dist
+.git
+.gitignore
+.env
+.env.local
+.DS_Store
+.jest
+.eslintrc
+.prettierrc
+.vscode
+.idea
+*.log
+pnpm-lock.yaml.*
+.pnpm
+# Keep test folder for build (compile will exclude .spec.ts)
