@@ -7,6 +7,10 @@ import { HomeView } from "@/features/home/components/HomeView";
 import {
   getProducts,
   getCategories,
+  getDeals,
+  getNewArrivals,
+  getRecommendations,
+  getBestSellers,
 } from "@/features/products/services/product.service";
 import {
   getActiveSellers,
@@ -23,12 +27,17 @@ export default function Home() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [stores, setStores] = useState<Seller[]>([]);
   const [howItWorksSteps, setHowItWorksSteps] = useState<HowItWorksStep[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+
+  // Galeries intelligentes
+  const [deals, setDeals] = useState<Product[]>([]);
+  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
+  const [bestSellers, setBestSellers] = useState<Product[]>([]);
 
   // Redirect ADMIN users away from Home to Admin Dashboard
   useEffect(() => {
@@ -41,20 +50,27 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, categoriesRes, sellersRes, contentRes] =
+        const [categoriesRes, sellersRes, contentRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] =
           await Promise.all([
-            getProducts(),
             getCategories(),
             getActiveSellers(),
             getHomepageContent(),
+            getDeals(12),
+            getNewArrivals(12),
+            getRecommendations(user?.id, 12),
+            getBestSellers(12),
           ]);
 
-        if (productsRes.success) setProducts(productsRes.data);
         if (categoriesRes.success) setCategories(categoriesRes.data);
 
         setStores(sellersRes);
         setHeroSlides(contentRes.heroSlides);
         setHowItWorksSteps(contentRes.howItWorksSteps);
+
+        if (dealsRes.success) setDeals(dealsRes.data);
+        if (newArrivalsRes.success) setNewArrivals(newArrivalsRes.data);
+        if (recommendationsRes.success) setRecommendations(recommendationsRes.data);
+        if (bestSellersRes.success) setBestSellers(bestSellersRes.data);
       } catch (error) {
         console.error("Error fetching home data:", error);
       } finally {
@@ -62,7 +78,7 @@ export default function Home() {
       }
     };
     fetchData();
-  }, []);
+  }, [user?.id]);
 
   // Don't render Home content for admins to prevent flash
   if (isAuthenticated && user?.role === "ADMIN") {
@@ -79,7 +95,10 @@ export default function Home() {
 
   return (
     <HomeView
-      products={products}
+      deals={deals}
+      newArrivals={newArrivals}
+      recommendations={recommendations}
+      bestSellers={bestSellers}
       categories={categories}
       heroSlides={heroSlides}
       stores={stores}

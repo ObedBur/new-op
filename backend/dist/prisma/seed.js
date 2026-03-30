@@ -24,9 +24,14 @@ async function main() {
     await prisma.user.deleteMany({});
     await prisma.heroSlide.deleteMany({});
     await prisma.howItWorksStep.deleteMany({});
+    console.log('👤 Création de l\'administrateur...');
     const hashedPassword = await bcrypt.hash('Admin123!', 10);
-    await prisma.user.create({
-        data: {
+    await prisma.user.upsert({
+        where: { email: 'wapibeapp@gmail.com' },
+        update: {
+            password: hashedPassword,
+        },
+        create: {
             email: 'wapibeapp@gmail.com',
             password: hashedPassword,
             fullName: 'WapiBei Admin',
@@ -40,12 +45,21 @@ async function main() {
             country: 'RD Congo',
         },
     });
+    console.log('✅ Administrateur configuré (wapibeapp@gmail.com / Admin123!)');
     console.log('🏷️ Création des catégories...');
     const categoriesData = [
         { name: 'Agricole', icon: 'potted_plant', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50' },
         { name: 'High-Tech', icon: 'smartphone', colorClass: 'text-blue-500', bgClass: 'bg-blue-50' },
-        { name: 'Mode', icon: 'checkroom', colorClass: 'text-orange-500', bgClass: 'bg-orange-50' },
+        { name: 'Mode', icon: 'checkroom', colorClass: 'text-pink-500', bgClass: 'bg-pink-50' },
         { name: 'Maison', icon: 'home', colorClass: 'text-purple-500', bgClass: 'bg-purple-50' },
+        { name: 'Alimentation', icon: 'restaurant', colorClass: 'text-orange-500', bgClass: 'bg-orange-50' },
+        { name: 'Beauté & Santé', icon: 'health_and_safety', colorClass: 'text-rose-500', bgClass: 'bg-rose-50' },
+        { name: 'Sport & Loisirs', icon: 'sports_soccer', colorClass: 'text-cyan-500', bgClass: 'bg-cyan-50' },
+        { name: 'Auto & Moto', icon: 'directions_car', colorClass: 'text-slate-500', bgClass: 'bg-slate-50' },
+        { name: 'Boutique Express', icon: 'local_mall', colorClass: 'text-amber-500', bgClass: 'bg-amber-50' },
+        { name: 'Services & Travaux', icon: 'construction', colorClass: 'text-indigo-500', bgClass: 'bg-indigo-50' },
+        { name: 'Bureautique', icon: 'print', colorClass: 'text-zinc-500', bgClass: 'bg-zinc-50' },
+        { name: 'Divers', icon: 'category', colorClass: 'text-gray-500', bgClass: 'bg-gray-50' },
     ];
     for (const cat of categoriesData) {
         await prisma.category.create({ data: cat });
@@ -96,11 +110,21 @@ async function main() {
         const vendor = faker_1.fakerFR.helpers.arrayElement(vendors);
         const price = parseFloat(faker_1.fakerFR.commerce.price({ min: 10, max: 2500 }));
         const categoryImgs = productImages[category.name] || productImages['Maison'];
+        const isOnSale = Math.random() < 0.3;
+        const originalPrice = isOnSale ? Math.round(price * (1 + Math.random() * 0.5 + 0.15)) : undefined;
+        const totalSales = faker_1.fakerFR.number.int({ min: 0, max: Math.random() > 0.8 ? 200 : 30 });
+        const isNew = Math.random() < 0.4;
+        const createdAt = isNew
+            ? faker_1.fakerFR.date.recent({ days: 7 })
+            : faker_1.fakerFR.date.past({ years: 1 });
         await prisma.product.create({
             data: {
                 name: faker_1.fakerFR.commerce.productName(),
                 description: faker_1.fakerFR.commerce.productDescription(),
                 price,
+                originalPrice: originalPrice || null,
+                isOnSale,
+                totalSales,
                 displayPrice: `${price}$`,
                 location: 'Marché central, Goma',
                 city: 'Goma',
@@ -110,6 +134,7 @@ async function main() {
                 availability: client_1.ProductAvailability.IN_STOCK,
                 categoryId: category.id,
                 userId: vendor.id,
+                createdAt,
             },
         });
     }

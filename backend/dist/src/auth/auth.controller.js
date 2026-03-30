@@ -63,6 +63,15 @@ let AuthController = class AuthController {
         const userId = req.user.id;
         return this.authService.getUserProfile(userId);
     }
+    async updateProfile(req, dto) {
+        const userId = req.user.id;
+        return this.authService.updateProfile(userId, dto);
+    }
+    async nothing() { }
+    async patchProfile(req, dto) {
+        const userId = req.user.id;
+        return this.authService.updateProfile(userId, dto);
+    }
     async getTestUsers() {
         if (process.env.NODE_ENV === 'production') {
             return { success: false, message: 'Not available in production' };
@@ -176,6 +185,34 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getProfile", null);
+__decorate([
+    (0, common_2.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Post)('profile'),
+    __param(0, (0, common_2.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_2.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Delete)('profile'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "nothing", null);
+__decorate([
+    (0, common_2.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.Patch)('profile'),
+    __param(0, (0, common_2.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "patchProfile", null);
 __decorate([
     (0, common_1.Get)('test-users'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

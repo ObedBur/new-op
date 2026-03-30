@@ -13,13 +13,10 @@ export declare class OrdersController {
             orderCount: number;
             orders: ({
                 product: {
-                    city: string;
-                    country: string;
                     name: string;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    userId: string;
                     description: string | null;
                     price: number;
                     displayPrice: string | null;
@@ -28,27 +25,32 @@ export declare class OrdersController {
                     availability: import("@prisma/client").$Enums.ProductAvailability;
                     market: import("@prisma/client").$Enums.Market | null;
                     categoryId: number;
+                    userId: string;
+                    city: string;
+                    country: string;
                     images: string[];
                 };
                 vendor: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    city: string | null;
+                    country: string;
                     email: string;
                     password: string;
                     fullName: string;
                     phone: string;
                     province: string;
                     commune: string;
-                    city: string | null;
-                    country: string;
                     address: string | null;
-                    boutiqueName: string | null;
                     role: import("@prisma/client").$Enums.UserRole;
-                    kycStatus: import("@prisma/client").$Enums.KycStatus;
-                    id: string;
+                    boutiqueName: string | null;
                     isVerified: boolean;
                     otpHash: string | null;
                     otpExpiresAt: Date | null;
                     resetTokenHash: string | null;
                     resetTokenExpiresAt: Date | null;
+                    kycStatus: import("@prisma/client").$Enums.KycStatus;
                     kycSubmittedAt: Date | null;
                     kycApprovedAt: Date | null;
                     kycRejectedAt: Date | null;
@@ -56,8 +58,6 @@ export declare class OrdersController {
                     trustScore: number;
                     dailyPublications: number;
                     lastPublicationDate: Date | null;
-                    createdAt: Date;
-                    updatedAt: Date;
                     otpAttempts: number;
                     avatarUrl: string | null;
                     coverUrl: string | null;
@@ -65,9 +65,6 @@ export declare class OrdersController {
                 };
             } & {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                totalPrice: number;
                 customerName: string;
                 customerPhone: string;
                 customerEmail: string;
@@ -76,6 +73,9 @@ export declare class OrdersController {
                 clientId: string;
                 vendorId: string;
                 status: import("@prisma/client").$Enums.OrderStatus;
+                totalPrice: number;
+                createdAt: Date;
+                updatedAt: Date;
             })[];
         };
     }>;
@@ -87,13 +87,10 @@ export declare class OrdersController {
             orderCount: number;
             orders: ({
                 product: {
-                    city: string;
-                    country: string;
                     name: string;
                     id: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    userId: string;
                     description: string | null;
                     price: number;
                     displayPrice: string | null;
@@ -102,27 +99,32 @@ export declare class OrdersController {
                     availability: import("@prisma/client").$Enums.ProductAvailability;
                     market: import("@prisma/client").$Enums.Market | null;
                     categoryId: number;
+                    userId: string;
+                    city: string;
+                    country: string;
                     images: string[];
                 };
                 vendor: {
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    city: string | null;
+                    country: string;
                     email: string;
                     password: string;
                     fullName: string;
                     phone: string;
                     province: string;
                     commune: string;
-                    city: string | null;
-                    country: string;
                     address: string | null;
-                    boutiqueName: string | null;
                     role: import("@prisma/client").$Enums.UserRole;
-                    kycStatus: import("@prisma/client").$Enums.KycStatus;
-                    id: string;
+                    boutiqueName: string | null;
                     isVerified: boolean;
                     otpHash: string | null;
                     otpExpiresAt: Date | null;
                     resetTokenHash: string | null;
                     resetTokenExpiresAt: Date | null;
+                    kycStatus: import("@prisma/client").$Enums.KycStatus;
                     kycSubmittedAt: Date | null;
                     kycApprovedAt: Date | null;
                     kycRejectedAt: Date | null;
@@ -130,8 +132,6 @@ export declare class OrdersController {
                     trustScore: number;
                     dailyPublications: number;
                     lastPublicationDate: Date | null;
-                    createdAt: Date;
-                    updatedAt: Date;
                     otpAttempts: number;
                     avatarUrl: string | null;
                     coverUrl: string | null;
@@ -139,9 +139,6 @@ export declare class OrdersController {
                 };
             } & {
                 id: string;
-                createdAt: Date;
-                updatedAt: Date;
-                totalPrice: number;
                 customerName: string;
                 customerPhone: string;
                 customerEmail: string;
@@ -150,7 +147,190 @@ export declare class OrdersController {
                 clientId: string;
                 vendorId: string;
                 status: import("@prisma/client").$Enums.OrderStatus;
+                totalPrice: number;
+                createdAt: Date;
+                updatedAt: Date;
             })[];
+        };
+    }>;
+    getOrdersForVendor(req: JwtRequest): Promise<{
+        success: boolean;
+        data: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string | null;
+                price: number;
+                displayPrice: string | null;
+                location: string | null;
+                image: string | null;
+                availability: import("@prisma/client").$Enums.ProductAvailability;
+                market: import("@prisma/client").$Enums.Market | null;
+                categoryId: number;
+                userId: string;
+                city: string;
+                country: string;
+                images: string[];
+            };
+            client: {
+                id: string;
+                email: string;
+                fullName: string;
+            };
+        } & {
+            id: string;
+            customerName: string;
+            customerPhone: string;
+            customerEmail: string;
+            deliveryAddress: string;
+            productId: string;
+            clientId: string;
+            vendorId: string;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            totalPrice: number;
+            createdAt: Date;
+            updatedAt: Date;
+        })[];
+    }>;
+    getOrdersForClient(req: JwtRequest): Promise<{
+        success: boolean;
+        data: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string | null;
+                price: number;
+                displayPrice: string | null;
+                location: string | null;
+                image: string | null;
+                availability: import("@prisma/client").$Enums.ProductAvailability;
+                market: import("@prisma/client").$Enums.Market | null;
+                categoryId: number;
+                userId: string;
+                city: string;
+                country: string;
+                images: string[];
+            };
+        } & {
+            id: string;
+            customerName: string;
+            customerPhone: string;
+            customerEmail: string;
+            deliveryAddress: string;
+            productId: string;
+            clientId: string;
+            vendorId: string;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            totalPrice: number;
+            createdAt: Date;
+            updatedAt: Date;
+        })[];
+    }>;
+    updateOrderStatus(req: JwtRequest, orderId: string, status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'): Promise<{
+        success: boolean;
+        message: string;
+        data: {
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string | null;
+                price: number;
+                displayPrice: string | null;
+                location: string | null;
+                image: string | null;
+                availability: import("@prisma/client").$Enums.ProductAvailability;
+                market: import("@prisma/client").$Enums.Market | null;
+                categoryId: number;
+                userId: string;
+                city: string;
+                country: string;
+                images: string[];
+            };
+            client: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                city: string | null;
+                country: string;
+                email: string;
+                password: string;
+                fullName: string;
+                phone: string;
+                province: string;
+                commune: string;
+                address: string | null;
+                role: import("@prisma/client").$Enums.UserRole;
+                boutiqueName: string | null;
+                isVerified: boolean;
+                otpHash: string | null;
+                otpExpiresAt: Date | null;
+                resetTokenHash: string | null;
+                resetTokenExpiresAt: Date | null;
+                kycStatus: import("@prisma/client").$Enums.KycStatus;
+                kycSubmittedAt: Date | null;
+                kycApprovedAt: Date | null;
+                kycRejectedAt: Date | null;
+                kycRejectionReason: string | null;
+                trustScore: number;
+                dailyPublications: number;
+                lastPublicationDate: Date | null;
+                otpAttempts: number;
+                avatarUrl: string | null;
+                coverUrl: string | null;
+                isActive: boolean;
+            };
+            vendor: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                city: string | null;
+                country: string;
+                email: string;
+                password: string;
+                fullName: string;
+                phone: string;
+                province: string;
+                commune: string;
+                address: string | null;
+                role: import("@prisma/client").$Enums.UserRole;
+                boutiqueName: string | null;
+                isVerified: boolean;
+                otpHash: string | null;
+                otpExpiresAt: Date | null;
+                resetTokenHash: string | null;
+                resetTokenExpiresAt: Date | null;
+                kycStatus: import("@prisma/client").$Enums.KycStatus;
+                kycSubmittedAt: Date | null;
+                kycApprovedAt: Date | null;
+                kycRejectedAt: Date | null;
+                kycRejectionReason: string | null;
+                trustScore: number;
+                dailyPublications: number;
+                lastPublicationDate: Date | null;
+                otpAttempts: number;
+                avatarUrl: string | null;
+                coverUrl: string | null;
+                isActive: boolean;
+            };
+        } & {
+            id: string;
+            customerName: string;
+            customerPhone: string;
+            customerEmail: string;
+            deliveryAddress: string;
+            productId: string;
+            clientId: string;
+            vendorId: string;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            totalPrice: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
 }

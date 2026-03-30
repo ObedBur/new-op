@@ -1,0 +1,18 @@
+### Connexion de l'Administrateur
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "wapibeapp@gmail.com",
+    "password": "Admin123!"
+}
+
+### Test avec l'email contenant une possible erreur (WapiBeiApp)
+# Note : Tes logs indiquaient "wapibeiapp@gmail.com", mais le seed crée "wapibeapp@gmail.com"
+POST http://localhost:4000/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "wapibeiapp@gmail.com",
+    "password": "Admin123!"
+}

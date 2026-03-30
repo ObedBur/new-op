@@ -4,4 +4,5 @@ export declare class SellersService {
     private prisma;
     constructor(prisma: PrismaService);
     findActiveVendors(): Promise<SellerDto[]>;
+    findOneVendor(id: string): Promise<any>;
 }

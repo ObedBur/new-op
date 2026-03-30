@@ -47,15 +47,15 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
       </div>
 
       {/* Grid Container */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
         {stores.map((store) => (
           <div
             key={store.id}
-            className="group bg-white dark:bg-[#1a1a1a] rounded-4xl border border-gray-100 dark:border-white/10 p-5 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col"
+            className="group bg-white dark:bg-[#1a1a1a] rounded-[2rem] sm:rounded-4xl border border-gray-100 dark:border-white/10 p-3 sm:p-5 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col"
           >
             {/* 1. Header: Profile Info */}
-            <div className="flex items-center gap-4 mb-5">
-              <div className="relative size-14 rounded-full p-0.5 bg-linear-to-tr from-primary to-orange-200 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 mb-3 sm:mb-5 text-center sm:text-left">
+              <div className="relative size-12 sm:size-14 rounded-full p-0.5 bg-linear-to-tr from-primary to-orange-200 shadow-lg shrink-0">
                 <Image
                   src={store.avatarUrl || "/images/default-avatar.png"}
                   alt={store.boutiqueName}
@@ -64,18 +64,20 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                   className="rounded-full object-cover border-2 border-white dark:border-[#1a1a1a]"
                 />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-[15px] font-black text-deep-blue dark:text-white truncate">
+              <div className="flex-1 w-full min-w-0">
+                <div className="flex items-center justify-center sm:justify-start gap-1 mb-0.5">
+                  <h4 className="text-[12px] sm:text-[15px] font-black text-deep-blue dark:text-white line-clamp-1 truncate uppercase tracking-tight">
                     {store.boutiqueName}
                   </h4>
                   {store.isVerified && (
-                    <span
-                      className="material-symbols-outlined text-blue-500 text-[18px] font-bold select-none"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      verified
-                    </span>
+                    <div className="shrink-0 flex items-center">
+                      <span
+                        className="material-symbols-outlined text-blue-500 text-[14px] sm:text-[18px] font-bold select-none"
+                        style={{ fontVariationSettings: "'FILL' 1" }}
+                      >
+                        verified
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -95,9 +97,9 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
             </div>
 
             {/* 2. Showcase Gallery */}
-            <div className="grid grid-cols-2 gap-2 h-44 mb-5">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 h-28 sm:h-44 mb-4 sm:mb-5">
               {/* Large Image (Left) */}
-              <div className="relative row-span-2 rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5">
+              <div className="relative row-span-2 rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5">
                 {store.productPreviews[0] ? (
                   <Image
                     src={store.productPreviews[0]}
@@ -111,7 +113,7 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                 )}
               </div>
               {/* Two small images (Right) */}
-              <div className="relative rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+              <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
                 {store.productPreviews[1] ? (
                   <Image
                     src={store.productPreviews[1]}
@@ -124,7 +126,7 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                   <div className="w-full h-full bg-gray-100 dark:bg-white/5" />
                 )}
               </div>
-              <div className="relative rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+              <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
                 {store.productPreviews[2] ? (
                   <Image
                     src={store.productPreviews[2]}
@@ -140,13 +142,13 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
             </div>
 
             {/* 3. Footer Info & Action */}
-            <div className="mt-auto space-y-4">
+            <div className="mt-auto">
               <Link href={`/sellers/${store.id}`} className="block">
                 <Button
                   variant="outline"
-                  className="w-full py-4 border-gray-100 dark:border-white/10 text-deep-blue dark:text-white hover:border-primary"
+                  className="w-full py-2.5 sm:py-4 text-[10px] sm:text-sm border-gray-100 dark:border-white/10 text-deep-blue dark:text-white hover:border-primary rounded-xl sm:rounded-2xl"
                 >
-                  Visiter la boutique
+                  Visiter
                 </Button>
               </Link>
             </div>

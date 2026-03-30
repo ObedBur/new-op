@@ -4,6 +4,7 @@ export interface Seller {
   boutiqueName?: string;
   isVerified?: boolean;
   trustScore?: number;
+  phone?: string;
 }
 
 export interface Product {

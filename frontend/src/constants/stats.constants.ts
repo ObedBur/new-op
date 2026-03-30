@@ -10,7 +10,7 @@ export const STATS_DATA: StatItem[] = [
   {
     id: '1',
     label: 'Paiements',
-    value: '0 FC',
+    value: '0 $',
     trend: '0%',
     trendUp: true,
     icon: CreditCard,

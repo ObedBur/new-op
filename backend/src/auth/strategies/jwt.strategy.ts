@@ -11,9 +11,9 @@ import { AuthenticatedUser } from '../types/auth-request.types';
  * En production, une erreur est leve si le secret n'est pas dfini.
  */
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_ACCESS_SECRET;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('[SECURITY] JWT_SECRET is not defined in production');
+    throw new Error('[SECURITY] JWT_ACCESS_SECRET is not defined in production');
   }
   return secret || 'dev_jwt_secret_wapibei_2026';
 }

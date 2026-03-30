@@ -126,13 +126,13 @@ let TokenService = TokenService_1 = class TokenService {
             throw new common_1.HttpException('Erreur lors du rafrachissement', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async generateAccessToken(payload, expiresIn = auth_constants_1.AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY) {
+    async generateAccessToken(payload, expiresIn = process.env.JWT_ACCESS_EXPIRATION || auth_constants_1.AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY) {
         return this.jwtService.signAsync({ ...payload }, {
-            secret: this.getSecret('JWT_SECRET'),
+            secret: this.getSecret('JWT_ACCESS_SECRET'),
             expiresIn: expiresIn,
         });
     }
-    async generateRefreshToken(payload, expiresIn = auth_constants_1.AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY) {
+    async generateRefreshToken(payload, expiresIn = process.env.JWT_REFRESH_EXPIRATION || auth_constants_1.AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY) {
         const enhancedPayload = {
             ...payload,
             jti: crypto.randomBytes(16).toString('hex'),
@@ -155,8 +155,9 @@ let TokenService = TokenService_1 = class TokenService {
             }
             return secret;
         }
-        if (!secret)
-            return auth_constants_1.AUTH_CONSTANTS.DEV_SECRETS[key];
+        if (!secret) {
+            return key === 'JWT_ACCESS_SECRET' ? auth_constants_1.AUTH_CONSTANTS.DEV_SECRETS.JWT_SECRET : auth_constants_1.AUTH_CONSTANTS.DEV_SECRETS.JWT_REFRESH_SECRET;
+        }
         return secret;
     }
 };

@@ -36,6 +36,39 @@ let SellersService = class SellersService {
             productPreviews: vendor.products.flatMap((p) => p.images).slice(0, 3),
         }));
     }
+    async findOneVendor(id) {
+        const vendor = await this.prisma.user.findUnique({
+            where: { id, role: 'VENDOR' },
+            include: {
+                products: {
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        name: true,
+                        price: true,
+                        image: true,
+                        images: true,
+                        isPublic: true
+                    },
+                },
+            },
+        });
+        if (!vendor)
+            return null;
+        return {
+            id: vendor.id,
+            boutiqueName: vendor.boutiqueName,
+            fullName: vendor.fullName,
+            email: vendor.email,
+            phone: vendor.phone,
+            trustScore: vendor.trustScore,
+            isVerified: vendor.isVerified,
+            avatarUrl: vendor.avatarUrl,
+            products: vendor.products,
+            productCount: (vendor.products || []).length,
+            createdAt: vendor.createdAt,
+        };
+    }
 };
 exports.SellersService = SellersService;
 exports.SellersService = SellersService = __decorate([

@@ -138,10 +138,13 @@ export const DesktopHeader = ({
           <div className="w-px h-6 bg-gray-200 dark:bg-white/10"></div>
 
           {/* Notifications */}
-          <button className="relative size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300">
+          <Link
+            href="/settings?tab=notifications"
+            className="relative size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+          >
               <span className="material-symbols-outlined text-[22px]">notifications</span>
               <span className="absolute top-2.5 right-2.5 size-1.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-black"></span>
-          </button>
+          </Link>
 
           {/* Cart */}
           <Link 

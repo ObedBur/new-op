@@ -159,8 +159,10 @@ describe('AuthService', () => {
         }).compile();
         service = module.get(auth_service_1.AuthService);
         process.env.NODE_ENV = 'test';
-        process.env.JWT_SECRET = 'test_jwt_secret_min_32_chars_here';
+        process.env.JWT_ACCESS_SECRET = 'test_jwt_secret_min_32_chars_here';
         process.env.JWT_REFRESH_SECRET = 'test_refresh_secret_min_32_chars';
+        process.env.JWT_ACCESS_EXPIRATION = '15m';
+        process.env.JWT_REFRESH_EXPIRATION = '7d';
     });
     afterEach(() => {
         jest.clearAllMocks();

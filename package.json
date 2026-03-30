@@ -1,15 +1,29 @@
 {
-    "name": "wapibei-monorepo",
-    "private": true,
-    "packageManager": "pnpm@10.30.3",
-    "scripts": {
-        "dev": "turbo dev",
-        "build": "turbo build",
-        "lint": "turbo lint",
-        "install:all": "pnpm install",
-        "prisma:gen": "turbo prisma:generate"
+  "name": "wapibei-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "install:all": "pnpm install",
+    "prisma:gen": "turbo prisma:generate"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "@nestjs/core": "10.4.22"
     },
-    "devDependencies": {
-        "turbo": "latest"
-    }
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/engines",
+      "bcrypt",
+      "esbuild",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
 }

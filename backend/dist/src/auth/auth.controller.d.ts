@@ -57,21 +57,67 @@ export declare class AuthController {
     getProfile(req: JwtRequest): Promise<{
         success: boolean;
         user: {
+            id: string;
+            createdAt: Date;
+            city: string;
+            country: string;
             email: string;
             fullName: string;
             phone: string;
             province: string;
             commune: string;
+            address: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            boutiqueName: string;
+            isVerified: boolean;
+            kycStatus: import("@prisma/client").$Enums.KycStatus;
+            trustScore: number;
+            avatarUrl: string;
+        };
+    }>;
+    updateProfile(req: JwtRequest, dto: any): Promise<{
+        success: boolean;
+        user: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
             city: string;
             country: string;
+            email: string;
+            fullName: string;
+            phone: string;
+            province: string;
+            commune: string;
             address: string;
-            boutiqueName: string;
             role: import("@prisma/client").$Enums.UserRole;
-            kycStatus: import("@prisma/client").$Enums.KycStatus;
-            id: string;
+            boutiqueName: string;
             isVerified: boolean;
+            kycStatus: import("@prisma/client").$Enums.KycStatus;
             trustScore: number;
+            avatarUrl: string;
+        };
+    }>;
+    nothing(): Promise<void>;
+    patchProfile(req: JwtRequest, dto: any): Promise<{
+        success: boolean;
+        user: {
+            id: string;
             createdAt: Date;
+            updatedAt: Date;
+            city: string;
+            country: string;
+            email: string;
+            fullName: string;
+            phone: string;
+            province: string;
+            commune: string;
+            address: string;
+            role: import("@prisma/client").$Enums.UserRole;
+            boutiqueName: string;
+            isVerified: boolean;
+            kycStatus: import("@prisma/client").$Enums.KycStatus;
+            trustScore: number;
+            avatarUrl: string;
         };
     }>;
     getTestUsers(): Promise<{
@@ -83,20 +129,20 @@ export declare class AuthController {
         success: boolean;
         count: number;
         users: {
+            id: string;
+            createdAt: Date;
+            city: string;
+            country: string;
             email: string;
             fullName: string;
             phone: string;
             province: string;
             commune: string;
-            city: string;
-            country: string;
-            boutiqueName: string;
             role: import("@prisma/client").$Enums.UserRole;
-            kycStatus: import("@prisma/client").$Enums.KycStatus;
-            id: string;
+            boutiqueName: string;
             isVerified: boolean;
+            kycStatus: import("@prisma/client").$Enums.KycStatus;
             trustScore: number;
-            createdAt: Date;
         }[];
         message?: undefined;
     }>;

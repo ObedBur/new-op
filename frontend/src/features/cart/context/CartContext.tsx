@@ -15,7 +15,7 @@ interface CartContextType extends CartState {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const DELIVERY_FEE = 2500; // Mock delivery fee in FC
+const DELIVERY_FEE = 0; // Free for now, terms discussed with seller
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);

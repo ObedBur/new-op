@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.theme-dark *));
 
 :root {
-  /* WapiBei Premium Palette - Emerald & Deep Teal */
+  /* WapiBei Premium Palette - Wapi Orange & Bei Green */
   --background: 210 20% 98%;      
   --foreground: 215 28% 17%;      
 
@@ -15,24 +15,27 @@
   --popover: 0 0% 100%;
   --popover-foreground: 215 28% 17%;
  
-  --primary: 158 64% 52%;         
-  --primary-foreground: 150 100% 98%;
+  --primary: 28 78% 52%;
+    /* Wapi Orange #E67E22 */
+    --primary-foreground: 0 0% 100%;
  
-  --secondary: 155 20% 94%;       
-  --secondary-foreground: 160 60% 20%;
+  --secondary: 113 40% 96%;
+    /* Very light version of Bei Green */
+    --secondary-foreground: 113 40% 25%;
+    /* Bei Green #2D5A27 */
  
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
  
-  --accent: 155 20% 94%;
-  --accent-foreground: 160 60% 20%;
+  --accent: 113 40% 96%;
+    --accent-foreground: 113 40% 25%;
  
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
   --border: 220 13% 91%;          
   --input: 220 13% 91%;
-  --ring: 158 64% 52%;
+  --ring: 28 78% 52%;
  
   --radius: 1rem;                 
 
@@ -44,19 +47,21 @@
   --sidebar-bg-end: 215 40% 10%;     /* Dark gradient end */
   --glass-border: 255 255% 255% / 0.1;
   
-  --chart-1: 158 64% 52%;
-  --chart-2: 170 50% 45%;
+  --chart-1: 28 78% 52%;
+    --chart-2: 113 40% 25%;
   --chart-3: 197 37% 24%;
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
 
   /* E-Commerce Palette */
-  --price: 152 60% 40%;              /* Emerald/Green for prices */
-  --price-foreground: 150 100% 98%;
+  --price: 28 78% 52%;
+    --price-foreground: 0 0% 100%;
   --promo: 38 92% 50%;               /* Amber/Gold for promo badges */
   --promo-foreground: 38 100% 98%;
-  --cta-from: 158 64% 52%;           /* Gradient start (primary) */
-  --cta-to: 25 95% 53%;              /* Gradient end (orange-500) */
+  --cta-from: 28 78% 52%;
+    /* Wapi Orange */
+    --cta-to: 113 40% 25%;
+    /* Bei Green */
   --skeleton: 220 15% 93%;           /* Warm grey for skeletons */
 }
  
@@ -70,24 +75,24 @@
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
  
-  --primary: 158 64% 52%;
-  --primary-foreground: 150 100% 98%;
+  --primary: 28 78% 52%;
+    --primary-foreground: 0 0% 100%;
  
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 113 40% 15%;
+    --secondary-foreground: 113 40% 90%;
  
   --muted: 217.2 32.6% 17.5%;
   --muted-foreground: 215 20.2% 65.1%;
  
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 113 40% 15%;
+    --accent-foreground: 113 40% 90%;
  
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
  
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 158 64% 52%;
+  --ring: 28 78% 52%;
 
   --deep-blue: 210 40% 98%;
   --border-sep: 217.2 32.6% 17.5%;
@@ -96,7 +101,7 @@
   --sidebar-bg-end: 222 47% 5%;
 
   /* E-Commerce Dark */
-  --price: 152 60% 50%;
+  --price: 28 78% 52%;
   --promo: 38 92% 55%;
   --skeleton: 217 33% 15%;
 }
@@ -163,7 +168,7 @@ body {
   font-family: var(--font-sans);
   background: hsl(var(--background));
   background-image: 
-    radial-gradient(at 0% 0%, hsla(158, 64%, 52%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, hsla(28, 78%, 52%, 0.05) 0px, transparent 50%),
     radial-gradient(at 100% 0%, hsla(215, 28%, 17%, 0.03) 0px, transparent 50%);
   background-attachment: fixed;
   min-height: 100dvh;

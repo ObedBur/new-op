@@ -71,7 +71,7 @@ export default function AdminProductsPage() {
                                         </td>
                                         <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">{product.seller}</td>
                                         <td className="px-6 py-4 font-black text-slate-900 dark:text-white">
-                                            {Number(product.price).toLocaleString('fr-FR')} FC
+                                            {Number(product.price).toLocaleString('fr-FR')} $
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${product.market === 'Virunga' ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20' :

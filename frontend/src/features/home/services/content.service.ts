@@ -21,8 +21,8 @@ export interface HomepageContent {
 
 export async function getHomepageContent(): Promise<HomepageContent> {
   try {
-    const data = await api.get('/content/homepage');
-    return data;
+    const response = await api.get('/content/homepage');
+    return response.data;
   } catch (error) {
     console.error('Error fetching homepage content:', error);
     return {

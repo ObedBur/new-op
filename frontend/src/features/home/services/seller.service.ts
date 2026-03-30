@@ -11,10 +11,20 @@ export interface Seller {
 
 export async function getActiveSellers(): Promise<Seller[]> {
   try {
-    const sellers = await api.get('/sellers');
-    return sellers;
+    const response = await api.get('/sellers');
+    return response.data;
   } catch (error) {
     console.error('Error fetching active sellers:', error);
     return [];
+  }
+}
+
+export async function getSellerById(id: string): Promise<any> {
+  try {
+    const response = await api.get(`/sellers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller detail:', error);
+    return null;
   }
 }

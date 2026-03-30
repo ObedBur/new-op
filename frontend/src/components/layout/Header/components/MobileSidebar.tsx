@@ -3,8 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { User } from '@/types/auth';
+import { 
+  X, 
+  LayoutGrid, 
+  Package, 
+  ShoppingCart, 
+  User as UserIcon, 
+  Settings,
+  LogOut, 
+  ArrowRight, 
+  Home,
+  Store as StoreIcon,
+  ArrowLeftRight
+} from 'lucide-react';
 
 interface NavLink {
   id: string;
@@ -20,6 +34,13 @@ interface MobileSidebarProps {
   user: User | null;
   onLogout: () => void;
 }
+
+const IconMap: Record<string, React.ReactNode> = {
+  'home': <Home size={18} />,
+  'inventory_2': <Package size={18} />,
+  'store': <StoreIcon size={18} />,
+  'compare_arrows': <ArrowLeftRight size={18} />,
+};
 
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({ 
   isOpen, 
@@ -37,127 +58,140 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
     setMounted(true);
   }, []);
 
+  if (!mounted) return null;
+
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
   };
 
-  if (!mounted) return null;
+  const sidebarContent = (
+    <div className={`fixed inset-0 z-[99999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
+      <div 
+        className={`absolute inset-0 bg-[#1e293b]/60 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
+        onClick={onClose}
+      ></div>
+      
+      <div 
+        className={`absolute right-0 top-0 bottom-0 w-[300px] max-w-[80vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-[2rem] overflow-hidden`}
+      >
+        {/* Header - Minimalist Profile */}
+        <div className="relative pt-12 pb-6 px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
+          <button 
+            onClick={onClose} 
+            className="absolute top-6 right-6 size-9 flex items-center justify-center rounded-full bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-red-500 transition-all z-10"
+          >
+            <X size={18} />
+          </button>
 
-  return createPortal(
-    <div className={`fixed inset-0 z-[99999] transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-      <div className={`absolute right-0 top-0 bottom-0 w-[300px] max-w-[85vw] bg-white dark:bg-[#111] shadow-2xl transition-transform duration-500 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
-        {/* Header Section */}
-        <div className="p-4 bg-orange-50/50 dark:bg-orange-950/10 border-b border-orange-100/50">
-          <div className="flex justify-end mb-1">
-              <button onClick={onClose} className="size-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                  <span className="material-symbols-outlined text-gray-500 text-[20px]">close</span>
-              </button>
-          </div>
           {isAuthenticated ? (
-            <div className="flex items-center gap-3">
-                <div className="size-12 rounded-full bg-[#E67E22] flex items-center justify-center text-white text-base font-black shadow-md border-2 border-white dark:border-white/10">
-                    {getInitials(user?.fullName || '')}
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-xl bg-[#E67E22] flex items-center justify-center text-white text-lg font-black shadow-lg shadow-orange-500/20 border-2 border-white dark:border-white/10 overflow-hidden relative">
+                {user?.avatarUrl ? (
+                  <Image src={user.avatarUrl} alt={user.fullName} fill className="object-cover" />
+                ) : (
+                  getInitials(user?.fullName || '')
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-[#1e293b] dark:text-white truncate uppercase tracking-tight italic">
+                  {user?.fullName?.split(' ')[0]}
+                </p>
+                <div className="flex items-center gap-1.5 opacity-60">
+                   <div className={`size-1.5 rounded-full ${user?.role === 'VENDOR' ? 'bg-orange-500' : 'bg-emerald-500'}`} />
+                   <span className="text-[9px] font-bold uppercase tracking-widest">{user?.role === 'VENDOR' ? 'Vendeur' : 'Client'}</span>
                 </div>
-                <div className="min-w-0">
-                    <p className="text-base font-black text-[#2D5A27] dark:text-white truncate leading-tight">{user?.fullName}</p>
-                    <p className="text-[10px] text-gray-500 truncate">{user?.email}</p>
-                </div>
+              </div>
             </div>
           ) : (
-            <Link 
-              href="/login"
-              className="w-full py-3.5 flex items-center justify-center gap-3 bg-white dark:bg-white/10 border-2 border-[#E67E22]/20 rounded-xl text-[#E67E22] font-black uppercase text-[10px] tracking-widest hover:bg-orange-50 transition-all shadow-sm"
-              onClick={onClose}
-            >
-              <span className="material-symbols-outlined text-[18px]">account_circle</span>
-              Se connecter
-            </Link>
+            <div className="py-2">
+              <Link 
+                href="/login"
+                className="w-full py-3.5 flex items-center justify-center gap-2 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gray-200 dark:shadow-none"
+                onClick={onClose}
+              >
+                Se connecter <ArrowRight size={12} />
+              </Link>
+            </div>
           )}
         </div>
 
-        {/* Links Section */}
-        <div className="flex-1 overflow-y-auto py-4 px-4 space-y-1.5">
-            <div className="px-2 mb-3">
-               <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Marketplace Navigation</span>
+        {/* Scrollable Navigation */}
+        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6 scrollbar-hide">
+          
+          <div className="space-y-1">
+            <div className="px-4 mb-3 flex items-center justify-between">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Menu Principal</span>
             </div>
 
-           {navLinks && navLinks.length > 0 ? (
-             navLinks.map((link) => (
+            <div className="grid gap-1">
+              {navLinks?.map((link) => (
                 <Link 
                   key={link.id}
                   href={link.id}
                   onClick={onClose}
-                  className={`w-full h-12 flex items-center gap-4 px-4 rounded-xl text-[13px] font-black uppercase tracking-tight transition-all ${
-                    isActive(link.id) 
-                    ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' 
-                    : 'text-[#2D5A27] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'
-                  }`}
+                  className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
-                  <span className={`material-symbols-outlined text-[20px] ${isActive(link.id) ? 'text-white' : 'text-[#E67E22]'}`}>
-                    {link.icon}
-                  </span>
+                  <div className={isActive(link.id) ? 'text-white' : 'text-[#E67E22]'}>
+                    {IconMap[link.icon] || <LayoutGrid size={18} />}
+                  </div>
                   {link.label}
                 </Link>
-              ))
-           ) : null}
-            
-            <div className="h-px bg-gray-100 dark:bg-white/5 my-3 mx-2"></div>
+              ))}
 
-            <Link 
-              href="/cart"
-              onClick={onClose}
-              className={`w-full h-12 flex items-center gap-4 px-4 rounded-xl text-[13px] font-black uppercase tracking-tight transition-all ${
-                isActive('/cart') 
-                ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' 
-                : 'text-[#2D5A27] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'
-              }`}
-            >
-              <span className={`material-symbols-outlined text-[20px] ${isActive('/cart') ? 'text-white' : 'text-[#E67E22]'}`}>
-                shopping_cart
-              </span>
-              Panier
-            </Link>
-
-            {isAuthenticated && (
-              <>
-                <div className="pt-6 px-3 mb-2">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Mon Compte</span>
+              <Link 
+                href="/cart" 
+                onClick={onClose}
+                className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive('/cart') ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+              >
+                <div className={isActive('/cart') ? 'text-white' : 'text-[#E67E22]'}>
+                   <ShoppingCart size={18} />
                 </div>
-                <Link href="/dashboard" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                  <span className="material-symbols-outlined text-[#E67E22] text-[20px]">dashboard</span> Mon Espace
-                </Link>
-                {user?.role === 'ADMIN' && (
-                  <Link href="/admin" onClick={onClose} className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-[#2D5A27] dark:text-gray-300 hover:bg-gray-50 transition-colors">
-                    <span className="material-symbols-outlined text-[#E67E22] text-[20px]">admin_panel_settings</span> Administration
-                  </Link>
-                )}
-                <button 
-                  onClick={() => {
-                    onLogout();
-                    onClose();
-                  }}
-                  className="w-full h-11 flex items-center gap-4 px-4 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-colors text-left"
+                Mon Panier
+              </Link>
+
+              {/* Added Parametres Link */}
+              {isAuthenticated && (
+                <Link 
+                  href="/settings" 
+                  onClick={onClose}
+                  className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
-                  <span className="material-symbols-outlined text-[20px]">logout</span> Quitter
+                  <div className={isActive('/settings') ? 'text-white' : 'text-[#E67E22]'}>
+                     <Settings size={18} />
+                  </div>
+                  Paramètres
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Logout Section at the bottom if authenticated */}
+          {isAuthenticated && (
+            <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
+                <button 
+                  onClick={() => { onLogout(); onClose(); }}
+                  className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-[12px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left"
+                >
+                  <LogOut size={16} /> Se déconnecter
                 </button>
-              </>
-            )}
+            </div>
+          )}
         </div>
 
-        {/* Footer Section */}
-        <div className="p-4 bg-gray-50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5">
+        {/* Brand Footer */}
+        <div className="p-6">
             <Link 
               href="/register?role=VENDOR"
               onClick={onClose}
-              className="w-full py-4 bg-[#E67E22] text-white rounded-xl font-black shadow-lg shadow-[#E67E22]/30 flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
             >
-                <span className="material-symbols-outlined text-[20px]">add_circle</span>
-                Vendre sur WapiBei
+                <StoreIcon size={14} />
+                <span>Vendre sur WapiBei</span>
             </Link>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
+
+  return createPortal(sidebarContent, document.body);
 };

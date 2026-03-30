@@ -11,6 +11,13 @@ interface CheckoutModalProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   total: number;
+  currency?: string;
+  initialData?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -18,6 +25,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   onSubmit,
   total,
+  currency = "$",
+  initialData = {},
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +63,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               >
                 <X size={20} />
               </button>
-              <div className="mx-auto w-12 h-1 bg-primary/20 rounded-full mb-6" />
+              <div className="mx-auto w-12 h-1 bg-[#E67E22]/20 rounded-full mb-6" />
               <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white tracking-tight">
                 Finalisez votre commande
               </h2>
@@ -70,6 +79,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   label="Nom et Prénom"
                   name="fullName"
                   placeholder="Ex: Jean Dupont"
+                  defaultValue={initialData.fullName}
                   required
                 />
                 <Input
@@ -77,12 +87,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   name="email"
                   type="email"
                   placeholder="nom@exemple.com"
+                  defaultValue={initialData.email}
                   required
                 />
                 <Input
                   label="Numéro de téléphone"
                   name="phone"
                   placeholder="06 XX XX XX XX"
+                  defaultValue={initialData.phone}
                   required
                 />
                 <div className="flex flex-col gap-1.5">
@@ -92,9 +104,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   <textarea
                     name="address"
                     placeholder="Numéro, rue, ville et code postal"
+                    defaultValue={initialData.address}
                     required
                     rows={3}
-                    className="w-full px-5 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-deep-blue dark:text-white"
+                    className="w-full px-5 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22]/20 focus:border-[#E67E22] transition-all resize-none text-deep-blue dark:text-white"
                   />
                 </div>
               </div>
@@ -103,9 +116,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full h-14 bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/20 text-white font-bold"
+                  className="w-full h-14 bg-[#E67E22] hover:bg-orange-600 shadow-lg shadow-orange-500/20 text-white font-bold"
                 >
-                  Confirmer • {total.toLocaleString()} FC
+                  Payer à la livraison • {total.toLocaleString()} {currency}
                 </Button>
               </div>
 
@@ -119,3 +132,4 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     </AnimatePresence>
   );
 };
+

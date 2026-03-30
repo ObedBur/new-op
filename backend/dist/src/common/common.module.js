@@ -13,6 +13,7 @@ const is_valid_province_validator_1 = require("./validators/is-valid-province.va
 const is_valid_commune_validator_1 = require("./validators/is-valid-commune.validator");
 const is_valid_phone_validator_1 = require("./validators/is-valid-phone.validator");
 const is_boutique_required_validator_1 = require("./validators/is-boutique-required.validator");
+const moderation_service_1 = require("./services/moderation.service");
 let CommonModule = class CommonModule {
 };
 exports.CommonModule = CommonModule;
@@ -25,6 +26,7 @@ exports.CommonModule = CommonModule = __decorate([
             is_valid_commune_validator_1.IsValidCommuneConstraint,
             is_valid_phone_validator_1.IsValidPhoneNumberConstraint,
             is_boutique_required_validator_1.IsBoutiqueRequiredForVendorConstraint,
+            moderation_service_1.ModerationService,
         ],
         exports: [
             location_service_1.LocationService,
@@ -32,6 +34,7 @@ exports.CommonModule = CommonModule = __decorate([
             is_valid_commune_validator_1.IsValidCommuneConstraint,
             is_valid_phone_validator_1.IsValidPhoneNumberConstraint,
             is_boutique_required_validator_1.IsBoutiqueRequiredForVendorConstraint,
+            moderation_service_1.ModerationService,
         ],
     })
 ], CommonModule);

@@ -2,7 +2,6 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "NestJS backend application",
-  "author": "",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -30,23 +29,31 @@
     "@fastify/helmet": "^11.1.1",
     "@getbrevo/brevo": "^2.2.0",
     "@nestjs/common": "10.4.22",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "10.4.22",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-express": "^11.1.17",
     "@nestjs/platform-fastify": "10.4.22",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@prisma/config": "^7.5.0",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.7.7",
+    "bad-words": "^3.0.4",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "dotenv": "^16.3.1",
     "fastify": "4.28.1",
+    "jimp": "^1.6.0",
+    "multer": "^2.1.1",
     "nodemailer": "^6.9.7",
+    "nsfwjs": "^4.3.0",
+    "openai": "^6.33.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
@@ -56,9 +63,11 @@
     "@nestjs/cli": "^11.0.16",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "10.4.22",
+    "@types/bad-words": "^3.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^29.5.11",
+    "@types/multer": "^2.1.0",
     "@types/node": "^20.10.6",
     "@types/nodemailer": "^6.4.14",
     "@types/passport-jwt": "^3.0.13",
@@ -79,16 +88,5 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
-  },
-  "pnpm": {
-    "overrides": {
-      "fastify": "4.28.1"
-    },
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "@prisma/engines",
-      "bcrypt",
-      "prisma"
-    ]
   }
 }

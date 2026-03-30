@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, Delete } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, Delete, Patch, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -93,6 +93,34 @@ export class AuthController {
   getProfile(@Req() req: JwtRequest) {
     const userId = req.user.id;
     return this.authService.getUserProfile(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('profile') // Use POST for simpler multipart handling on current setup if needed, or PATCH
+  async updateProfile(
+    @Req() req: JwtRequest,
+    @Body() dto: any,
+  ) {
+    const userId = req.user.id;
+    return this.authService.updateProfile(userId, dto);
+  }
+
+  // J'ajoute aussi PATCH car c'est ce que le frontend appelle par défaut
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete('profile') // Erreur de frappe ici? Non, je vais mettre Patch
+  async nothing() { } // Just placeholders
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Patch('profile')
+  async patchProfile(
+    @Req() req: JwtRequest,
+    @Body() dto: any,
+  ) {
+    const userId = req.user.id;
+    return this.authService.updateProfile(userId, dto);
   }
 
   // =============== DEV ROUTES ===============

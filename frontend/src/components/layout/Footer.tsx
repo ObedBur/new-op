@@ -61,38 +61,38 @@ export const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-[#0b1221] text-white pt-24 pb-12 border-t border-white/5 mt-auto relative overflow-hidden">
-      {/* Decorative Overlays */}
-      <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-primary/50 to-transparent"></div>
-      <div className="absolute -top-64 -right-64 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <footer className="bg-slate-50 text-slate-900 pt-24 pb-12 border-t border-slate-200 mt-auto relative overflow-hidden">
+      {/* Subtle patterns for a clean "Light" pro look */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#E67E22]/20 to-transparent"></div>
+      <div className="absolute -top-64 -right-64 w-[500px] h-[500px] bg-[#E67E22]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="container mx-auto max-w-6xl px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 lg:gap-8 mb-20">
           {/* Col 1: Brand & Slogan */}
           <div className="lg:col-span-4 space-y-8">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center size-12 rounded-2xl bg-primary text-white shadow-xl shadow-primary/25">
+              <div className="flex items-center justify-center size-12 rounded-2xl bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/20">
                 <span className="material-symbols-outlined text-[28px]">
                   storefront
                 </span>
               </div>
-              <h2 className="text-3xl font-black tracking-tighter text-white">
-                Wapi<span className="text-primary">Bei</span>
+              <h2 className="text-3xl font-black tracking-tighter text-slate-900">
+                Wapi<span className="text-[#E67E22]">Bei</span>
               </h2>
             </div>
-            <p className="text-gray-400 text-base leading-relaxed font-medium max-w-sm">
+            <p className="text-slate-600 text-base leading-relaxed font-medium max-w-sm">
               La Marketplace de confiance en Afrique. Connectez-vous aux
               meilleurs commerçants du continent et achetez en toute sérénité.
             </p>
 
-            {/* Social Icons */}
+            {/* Social Icons - Clean Light Version */}
             <div className="flex gap-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.url}
                   title={social.name}
-                  className="size-11 rounded-2xl bg-white/5 border border-white/5 hover:border-primary hover:text-primary flex items-center justify-center transition-all duration-300"
+                  className="size-11 rounded-2xl bg-white border border-slate-200 text-slate-500 hover:border-[#E67E22] hover:text-[#E67E22] flex items-center justify-center transition-all duration-300 shadow-sm"
                 >
                   {social.icon}
                 </a>
@@ -102,7 +102,7 @@ export const Footer: React.FC = () => {
 
           {/* Col 2: Navigation */}
           <div className="lg:col-span-2 space-y-8">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">
               Navigation
             </h4>
             <ul className="space-y-4">
@@ -116,9 +116,9 @@ export const Footer: React.FC = () => {
                 <li key={item.label}>
                   <Link
                     href={item.href}
-                    className="text-sm font-bold text-gray-400 hover:text-white transition-colors flex items-center gap-2 group"
+                    className="text-sm font-bold text-slate-600 hover:text-[#E67E22] transition-colors flex items-center gap-2 group"
                   >
-                    <span className="size-1 bg-gray-600 rounded-full group-hover:bg-primary transition-colors"></span>
+                    <span className="size-1 bg-[#E67E22]/30 rounded-full group-hover:bg-[#E67E22] transition-colors"></span>
                     {item.label}
                   </Link>
                 </li>
@@ -128,23 +128,23 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Catégories */}
           <div className="lg:col-span-3 space-y-8">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary">
-              Catégories
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">
+              Secteurs
             </h4>
             <ul className="space-y-4">
               {[
-                "Immobilier & Terrains",
-                "Véhicules & Moto",
-                "High-Tech & Mobile",
+                "Agricole",
+                "High-Tech",
                 "Mode & Style",
-                "Alimentation & Gros",
+                "Boutique Express",
+                "Services & Travaux",
               ].map((item) => (
                 <li key={item}>
                   <Link
                     href={`/products?category=${item}`}
-                    className="text-sm font-bold text-gray-400 hover:text-white transition-colors flex items-center gap-2 group"
+                    className="text-sm font-bold text-slate-600 hover:text-[#E67E22] transition-colors flex items-center gap-2 group"
                   >
-                    <span className="size-1 bg-gray-600 rounded-full group-hover:bg-primary transition-colors"></span>
+                    <span className="size-1 bg-slate-300 rounded-full group-hover:bg-[#E67E22] transition-colors"></span>
                     {item}
                   </Link>
                 </li>
@@ -152,47 +152,47 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 4: Contact Local */}
-          <div className="lg:col-span-3 space-y-8 bg-white/5 p-8 rounded-[2.5rem] border border-white/5 shadow-2xl">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-primary">
+          {/* Col 4: Contact Local - Light Gradient Background */}
+          <div className="lg:col-span-3 space-y-8 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/50">
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">
               Service Client
             </h4>
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-primary">
+                <span className="material-symbols-outlined text-[#E67E22]">
                   call
                 </span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-gray-500 mb-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
                     Téléphone
                   </p>
-                  <p className="text-sm font-black text-white">
+                  <p className="text-sm font-black text-slate-900">
                     +243 999 123 456
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-primary">
+                <span className="material-symbols-outlined text-[#E67E22]">
                   alternate_email
                 </span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-gray-500 mb-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
                     Email Support
                   </p>
-                  <p className="text-sm font-black text-white">
+                  <p className="text-sm font-black text-slate-900">
                     contact@wapibei.cd
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <span className="material-symbols-outlined text-primary">
+                <span className="material-symbols-outlined text-[#E67E22]">
                   location_on
                 </span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-gray-500 mb-1">
+                  <p className="text-[10px] font-black uppercase text-slate-400 mb-1">
                     Bureau Local
                   </p>
-                  <p className="text-sm font-black text-white">
+                  <p className="text-sm font-bold text-slate-800 leading-tight">
                     Siège : Goma, RD Congo • Présent dans toute l&apos;Afrique
                   </p>
                 </div>
@@ -202,23 +202,23 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-xs font-bold text-gray-500">
+        <div className="pt-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-xs font-medium text-slate-500">
             © 2026 WapiBei Marketplace. Tous droits réservés. Fait en Afrique,
             pour l&apos;Afrique. 🌍
           </p>
           <div className="flex items-center gap-8">
             <Link
               href="/privacy"
-              className="text-[10px] font-black uppercase text-gray-500 hover:text-white tracking-widest transition-colors"
+              className="text-[10px] font-black uppercase text-slate-400 hover:text-[#E67E22] tracking-widest transition-colors"
             >
-              Politique de confidentialité
+              Légal
             </Link>
             <Link
               href="/terms"
-              className="text-[10px] font-black uppercase text-gray-500 hover:text-white tracking-widest transition-colors"
+              className="text-[10px] font-black uppercase text-slate-400 hover:text-[#E67E22] tracking-widest transition-colors"
             >
-              Conditions d&apos;utilisation
+              Conditions
             </Link>
           </div>
         </div>

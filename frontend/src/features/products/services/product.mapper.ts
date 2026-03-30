@@ -11,9 +11,12 @@ export const ProductMapper = {
     // Handle "45$" or "45 $" or "78000 FC"
     const match = price.match(/^([\d.,]+)\s?(.+)?$/);
     if (match) {
+      let detectedCurrency = (match[2] || '$').trim();
+      if (detectedCurrency.toUpperCase() === 'FC') detectedCurrency = '$';
+      
       return {
         amount: match[1],
-        currency: match[2] || '$'
+        currency: detectedCurrency
       };
     }
 

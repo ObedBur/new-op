@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CheckoutModal } from "./CheckoutModal";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/axios";
+import { ProductMapper } from "@/features/products/services/product.mapper";
 
 export const CartView: React.FC = () => {
   const {
@@ -22,6 +24,7 @@ export const CartView: React.FC = () => {
   } = useCart();
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = React.useState(false);
   const { showToast } = useToast();
+  const { user } = useAuth();
 
   const handleCheckoutSubmit = async (data: any) => {
     try {
@@ -49,6 +52,10 @@ export const CartView: React.FC = () => {
     }
   };
 
+  // Get currency from the first item if available, default to $
+  const firstItemPriceInfo = items.length > 0 ? ProductMapper.parsePrice(items[0].product.displayPrice || items[0].product.price) : { currency: '$' };
+  const currencySymbol = firstItemPriceInfo.currency;
+
   if (items.length === 0) {
     return (
       <div className="container mx-auto max-w-5xl px-4 py-20 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
@@ -75,8 +82,8 @@ export const CartView: React.FC = () => {
     <div className="container mx-auto max-w-5xl px-3 sm:px-4 py-8 md:py-16 animate-in fade-in duration-500">
       <div className="mb-8 md:mb-12">
         <div className="flex items-center gap-2 mb-2">
-          <span className="h-0.5 w-6 bg-primary"></span>
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+          <span className="h-0.5 w-6 bg-[#E67E22]"></span>
+          <span className="text-[10px] font-black text-[#E67E22] uppercase tracking-[0.2em]">
             Votre Sélection
           </span>
         </div>
@@ -88,83 +95,88 @@ export const CartView: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-10">
         {/* ITEMS LIST */}
         <div className="flex-1 space-y-4">
-          {items.map((item) => (
-            <Card
-              key={item.product.id}
-              className="p-4 md:p-6 flex items-center gap-4 md:gap-6 group"
-              padding="none"
-            >
-              <div className="size-20 md:size-28 rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 shrink-0 border border-gray-100 dark:border-white/5 relative">
-                <Image
-                  src={item.product.image}
-                  className="object-cover"
-                  alt={item.product.name}
-                  fill
-                  sizes="(max-width: 768px) 80px, 112px"
-                />
-              </div>
-              <div className="flex-1 min-w-0 py-1">
-                <div className="flex justify-between items-start gap-2">
-                  <div>
-                    <h4 className="text-sm md:text-lg font-black text-deep-blue dark:text-white line-clamp-1">
-                      {item.product.name}
-                    </h4>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
-                      {item.product.user?.boutiqueName ||
-                        item.product.user?.fullName ||
-                        "Vendeur WapiBei"}{" "}
-                      • {item.product.city}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeItem(item.product.id)}
-                    className="text-gray-300 hover:text-red-500 hover:bg-transparent"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">
-                      delete
-                    </span>
-                  </Button>
+          {items.map((item) => {
+            const { amount, currency } = ProductMapper.parsePrice(item.product.displayPrice || item.product.price);
+            const itemTotal = item.product.price * item.quantity;
+
+            return (
+              <Card
+                key={item.product.id}
+                className="p-4 md:p-6 flex items-center gap-4 md:gap-6 group"
+                padding="none"
+              >
+                <div className="size-20 md:size-28 rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 shrink-0 border border-gray-100 dark:border-white/5 relative">
+                  <Image
+                    src={item.product.image}
+                    className="object-cover"
+                    alt={item.product.name}
+                    fill
+                    sizes="(max-width: 768px) 80px, 112px"
+                  />
                 </div>
-                <div className="flex items-end justify-between mt-4">
-                  <div className="flex items-center gap-1 bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-white/10">
+                <div className="flex-1 min-w-0 py-1">
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <h4 className="text-sm md:text-lg font-black text-deep-blue dark:text-white line-clamp-1">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">
+                        {item.product.user?.boutiqueName ||
+                          item.product.user?.fullName ||
+                          "Vendeur WapiBei"}{" "}
+                        • {item.product.city}
+                      </p>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => updateQuantity(item.product.id, -1)}
-                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-deep-blue dark:text-white"
+                      onClick={() => removeItem(item.product.id)}
+                      className="text-gray-300 hover:text-red-500 hover:bg-transparent"
                     >
-                      <span className="material-symbols-outlined text-[18px]">
-                        remove
-                      </span>
-                    </Button>
-                    <span className="w-8 text-center text-xs font-black text-deep-blue dark:text-white">
-                      {item.quantity}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => updateQuantity(item.product.id, 1)}
-                      className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-deep-blue dark:text-white"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">
-                        add
+                      <span className="material-symbols-outlined text-[20px]">
+                        delete
                       </span>
                     </Button>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-tighter">
-                      Prix total
-                    </p>
-                    <p className="text-lg md:text-xl font-black text-primary">
-                      {(item.product.price * item.quantity).toLocaleString()} FC
-                    </p>
+                  <div className="flex items-end justify-between mt-4">
+                    <div className="flex items-center gap-1 bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-white/10">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateQuantity(item.product.id, -1)}
+                        className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">
+                          remove
+                        </span>
+                      </Button>
+                      <span className="w-8 text-center text-xs font-black text-deep-blue dark:text-white">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => updateQuantity(item.product.id, 1)}
+                        className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">
+                          add
+                        </span>
+                      </Button>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-black text-gray-400 uppercase tracking-tighter">
+                        Prix total
+                      </p>
+                      <p className="text-lg md:text-xl font-black text-[#E67E22]">
+                        {itemTotal.toLocaleString()} {currency}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
 
         {/* SUMMARY CARD */}
@@ -180,43 +192,43 @@ export const CartView: React.FC = () => {
                   Sous-total
                 </span>
                 <span className="font-black text-deep-blue dark:text-white">
-                  {subtotal.toLocaleString()} FC
+                  {subtotal.toLocaleString()} {currencySymbol}
                 </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="font-bold text-gray-500 uppercase text-[11px] tracking-widest">
                   Livraison Standard
                 </span>
-                <span className="font-black text-green-500">
-                  {deliveryFee.toLocaleString()} FC
+                <span className="font-black text-[#2D5A27] text-[10px] uppercase tracking-wider">
+                  À discuter
                 </span>
               </div>
               <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
                 <span className="font-black text-deep-blue dark:text-white uppercase text-xs tracking-[0.2em]">
                   Total
                 </span>
-                <span className="text-2xl md:text-3xl font-black text-primary">
-                  {total.toLocaleString()} FC
+                <span className="text-2xl md:text-3xl font-black text-[#E67E22]">
+                  {total.toLocaleString()} {currencySymbol}
                 </span>
               </div>
             </div>
 
             <div className="mt-10 space-y-3">
               <Button
-                className="w-full py-5"
+                className="w-full py-6 bg-[#E67E22] hover:bg-orange-600 text-white shadow-lg shadow-orange-500/30 font-black uppercase tracking-widest text-[12px] rounded-2xl border-none"
                 onClick={() => setIsCheckoutModalOpen(true)}
                 leftIcon={
-                  <span className="material-symbols-outlined text-[20px]">
-                    check_circle
+                  <span className="material-symbols-outlined text-[22px]">
+                    payment
                   </span>
                 }
               >
-                Valider
+                Commander maintenant
               </Button>
-              <Link href="/products" className="block">
-                <Button variant="ghost" className="w-full">
+              <Link href="/products" className="block text-center mt-4">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#E67E22] hover:underline decoration-2 underline-offset-8 transition-all">
                   Continuer les achats
-                </Button>
+                </span>
               </Link>
             </div>
 
@@ -234,7 +246,15 @@ export const CartView: React.FC = () => {
         onClose={() => setIsCheckoutModalOpen(false)}
         onSubmit={handleCheckoutSubmit}
         total={total}
+        currency={currencySymbol}
+        initialData={{
+          fullName: user?.fullName,
+          email: user?.email,
+          phone: user?.phone,
+          address: user?.address || "",
+        }}
       />
     </div>
   );
 };
+

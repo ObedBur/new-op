@@ -40,6 +40,30 @@ let OrdersController = class OrdersController {
             data: result,
         };
     }
+    async getOrdersForVendor(req) {
+        const vendorId = req.user.id;
+        const orders = await this.ordersService.findOrdersForVendor(vendorId);
+        return {
+            success: true,
+            data: orders,
+        };
+    }
+    async getOrdersForClient(req) {
+        const clientId = req.user.id;
+        const orders = await this.ordersService.findOrdersForClient(clientId);
+        return {
+            success: true,
+            data: orders,
+        };
+    }
+    async updateOrderStatus(req, orderId, status) {
+        const result = await this.ordersService.updateStatus(orderId, status);
+        return {
+            success: true,
+            message: `Statut mis à jour : ${status}`,
+            data: result,
+        };
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -62,6 +86,32 @@ __decorate([
     __metadata("design:paramtypes", [create_bulk_order_dto_1.CreateBulkOrderDto, Object]),
     __metadata("design:returntype", Promise)
 ], OrdersController.prototype, "createBulk", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('vendor'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getOrdersForVendor", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('client'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "getOrdersForClient", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)(':id/status'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "updateOrderStatus", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

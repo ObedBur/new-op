@@ -91,6 +91,7 @@ let AuthService = AuthService_1 = class AuthService {
                 trustScore: this.userValidationService.calculateScoreAfterVerification(user.trustScore),
             },
         });
+        this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err => this.logger.error(`Failed to send welcome email to ${user.email}`, err));
         return { success: true, message: 'Account verified successfully' };
     }
     async login(dto) {
@@ -98,10 +99,14 @@ let AuthService = AuthService_1 = class AuthService {
             where: { email: dto.email },
         });
         if (!user) {
-            throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
+            this.logger.debug(`Utilisateur non trouvé: ${dto.email}`);
+            throw new common_1.HttpException('Identifiants invalides', common_1.HttpStatus.UNAUTHORIZED);
         }
-        if (!(await this.passwordService.compare(dto.password, user.password))) {
-            throw new common_1.HttpException('Invalid password', common_1.HttpStatus.UNAUTHORIZED);
+        this.logger.debug(`Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`);
+        const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
+        this.logger.debug(`Mot de passe valide: ${isPasswordValid}`);
+        if (!isPasswordValid) {
+            throw new common_1.HttpException('Identifiants invalides', common_1.HttpStatus.UNAUTHORIZED);
         }
         this.userValidationService.validateLoginEligibility(user);
         const tokens = await this.tokenService.generateTokenPair(user);
@@ -207,6 +212,7 @@ let AuthService = AuthService_1 = class AuthService {
                 kycStatus: true,
                 trustScore: true,
                 isVerified: true,
+                avatarUrl: true,
                 createdAt: true,
             },
         });
@@ -224,6 +230,70 @@ let AuthService = AuthService_1 = class AuthService {
         }
         await this.otpService.generateAndSend(user.id, user.email);
         return { success: true, message: 'New OTP sent' };
+    }
+    async updateProfile(userId, dto) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (!user) {
+            throw new common_1.HttpException('Utilisateur non trouvé', common_1.HttpStatus.NOT_FOUND);
+        }
+        const data = {};
+        if (dto.fullName)
+            data.fullName = dto.fullName;
+        if (dto.email)
+            data.email = dto.email;
+        if (dto.phone)
+            data.phone = dto.phone;
+        if (dto.province)
+            data.province = dto.province;
+        if (dto.commune)
+            data.commune = dto.commune;
+        if (dto.address)
+            data.address = dto.address;
+        if (dto.city)
+            data.city = dto.city;
+        if (dto.boutiqueName)
+            data.boutiqueName = dto.boutiqueName;
+        if (dto.avatarUrl)
+            data.avatarUrl = dto.avatarUrl;
+        if (dto.profilePicture && typeof dto.profilePicture === 'string') {
+            data.avatarUrl = dto.profilePicture;
+        }
+        if (dto.password) {
+            if (!dto.oldPassword) {
+                throw new common_1.HttpException('L\'ancien mot de passe est requis', common_1.HttpStatus.BAD_REQUEST);
+            }
+            const isOldPasswordValid = await this.passwordService.compare(dto.oldPassword, user.password);
+            if (!isOldPasswordValid) {
+                throw new common_1.HttpException('L\'ancien mot de passe est incorrect', common_1.HttpStatus.UNAUTHORIZED);
+            }
+            data.password = await this.passwordService.hash(dto.password);
+        }
+        const updatedUser = await this.prisma.user.update({
+            where: { id: userId },
+            data,
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                phone: true,
+                role: true,
+                province: true,
+                commune: true,
+                city: true,
+                country: true,
+                address: true,
+                boutiqueName: true,
+                kycStatus: true,
+                trustScore: true,
+                isVerified: true,
+                avatarUrl: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+        return { success: true, user: updatedUser };
     }
     async getUsersForTesting() {
         return this.prisma.user.findMany({

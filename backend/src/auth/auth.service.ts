@@ -114,6 +114,11 @@ export class AuthService {
       },
     });
 
+    // Envoi du message de bienvenue
+    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
+      this.logger.error(`Failed to send welcome email to ${user.email}`, err)
+    );
+
     return { success: true, message: 'Account verified successfully' };
   }
 
@@ -125,11 +130,16 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      this.logger.debug(`Utilisateur non trouvé: ${dto.email}`);
+      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
     }
 
-    if (!(await this.passwordService.compare(dto.password, user.password))) {
-      throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
+    this.logger.debug(`Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`);
+    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
+    this.logger.debug(`Mot de passe valide: ${isPasswordValid}`);
+
+    if (!isPasswordValid) {
+      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
     }
 
     this.userValidationService.validateLoginEligibility(user);
@@ -269,6 +279,7 @@ export class AuthService {
         kycStatus: true,
         trustScore: true,
         isVerified: true,
+        avatarUrl: true,
         createdAt: true,
       },
     });
@@ -294,6 +305,70 @@ export class AuthService {
   }
 
   // ========================= DEV METHODS =========================
+
+  async updateProfile(userId: string, dto: any) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new HttpException('Utilisateur non trouvé', HttpStatus.NOT_FOUND);
+    }
+
+    const data: any = {};
+
+    if (dto.fullName) data.fullName = dto.fullName;
+    if (dto.email) data.email = dto.email;
+    if (dto.phone) data.phone = dto.phone;
+    if (dto.province) data.province = dto.province;
+    if (dto.commune) data.commune = dto.commune;
+    if (dto.address) data.address = dto.address;
+    if (dto.city) data.city = dto.city;
+    if (dto.boutiqueName) data.boutiqueName = dto.boutiqueName;
+    if (dto.avatarUrl) data.avatarUrl = dto.avatarUrl;
+    if (dto.profilePicture && typeof dto.profilePicture === 'string') {
+      data.avatarUrl = dto.profilePicture;
+    }
+
+    // Gestion du mot de passe
+    if (dto.password) {
+      if (!dto.oldPassword) {
+        throw new HttpException('L\'ancien mot de passe est requis', HttpStatus.BAD_REQUEST);
+      }
+      const isOldPasswordValid = await this.passwordService.compare(dto.oldPassword, user.password);
+      if (!isOldPasswordValid) {
+        throw new HttpException('L\'ancien mot de passe est incorrect', HttpStatus.UNAUTHORIZED);
+      }
+      data.password = await this.passwordService.hash(dto.password);
+    }
+
+    // Mise à jour (Prisma)
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        role: true,
+        province: true,
+        commune: true,
+        city: true,
+        country: true,
+        address: true,
+        boutiqueName: true,
+        kycStatus: true,
+        trustScore: true,
+        isVerified: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return { success: true, user: updatedUser };
+  }
 
   async getUsersForTesting() {
     return this.prisma.user.findMany({

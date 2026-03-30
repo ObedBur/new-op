@@ -15,9 +15,9 @@ const passport_1 = require("@nestjs/passport");
 const passport_jwt_1 = require("passport-jwt");
 const prisma_service_1 = require("../../prisma/prisma.service");
 function getJwtSecret() {
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env.JWT_ACCESS_SECRET;
     if (!secret && process.env.NODE_ENV === 'production') {
-        throw new Error('[SECURITY] JWT_SECRET is not defined in production');
+        throw new Error('[SECURITY] JWT_ACCESS_SECRET is not defined in production');
     }
     return secret || 'dev_jwt_secret_wapibei_2026';
 }

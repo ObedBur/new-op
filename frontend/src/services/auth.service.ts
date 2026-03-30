@@ -76,5 +76,11 @@ export const authService = {
   async resetPassword(data: ResetPasswordDto): Promise<ResetPasswordResponse> {
     const response = await api.post<ResetPasswordResponse>('/auth/reset-password', data);
     return response.data;
+  },
+
+  async updateProfile(data: any): Promise<{ success: boolean; user: User }> {
+    // On envoie tout en JSON par défaut pour éviter l'erreur 415 Multipart sur Fastify sans plugin
+    const response = await api.patch<{ success: boolean; user: User }>('/auth/profile', data);
+    return response.data;
   }
 };
