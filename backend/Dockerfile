@@ -44,5 +44,7 @@ COPY prisma ./prisma
 # Expose port (default 3000 for NestJS)
 EXPOSE 3000
 
-# Export DATABASE_URL as env var and run app
-CMD ["sh", "-c", "node dist/main"]
+# Start app (migrations run automatically if AppModule has onModuleInit)
+# Or uncomment below to run migrations explicitly before starting
+# CMD ["sh", "-c", "pnpm run prisma:migrate:prod && node dist/main"]
+CMD ["node", "dist/main"]
