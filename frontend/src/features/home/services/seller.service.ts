@@ -18,3 +18,13 @@ export async function getActiveSellers(): Promise<Seller[]> {
     return [];
   }
 }
+
+export async function getSellerById(id: string): Promise<any> {
+  try {
+    const response = await api.get(`/sellers/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching seller detail:', error);
+    return null;
+  }
+}

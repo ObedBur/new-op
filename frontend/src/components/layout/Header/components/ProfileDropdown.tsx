@@ -39,6 +39,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   // Build dynamic navigation based on user role
   const getNavItems = () => {
     let items = [
+      { label: 'Accueil', href: '/' },
       { label: 'Mon Compte', href: '/settings' },
       { label: 'Mes Commandes', href: '/dashboard/orders' },
     ];
@@ -62,7 +63,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   const navItems = getNavItems();
 
   return (
-    <div className="hidden md:block relative" ref={profileMenuRef}>
+    <div className="relative" ref={profileMenuRef}>
       {isAuthenticated ? (
         <button 
           onClick={() => setIsProfileOpen(!isProfileOpen)}

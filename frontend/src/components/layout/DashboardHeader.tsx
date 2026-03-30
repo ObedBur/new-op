@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { Store } from 'lucide-react';
 import { ProfileDropdown } from './Header/components/ProfileDropdown';
 
 export const DashboardHeader = () => {
@@ -31,15 +30,6 @@ export const DashboardHeader = () => {
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-2 sm:gap-6">
-                    <Link
-                        href="/"
-                        className="flex items-center px-3 sm:px-5 py-2 text-[9px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-widest text-[#2D5A27] dark:text-[#52c140] hover:bg-green-50 dark:hover:bg-white/5 rounded-lg sm:rounded-xl transition-all border border-green-100 dark:border-white/5 whitespace-nowrap"
-                    >
-                        Retour au site
-                    </Link>
-                    
-                    <div className="w-px h-6 bg-gray-200 dark:bg-white/10 hidden sm:block"></div>
-
                     <ProfileDropdown
                         isAuthenticated={isAuthenticated}
                         user={user}

@@ -90,6 +90,12 @@ export class ProductsController {
     return { success: true, data };
   }
 
+  @Get('compare')
+  async compare(@Query('search') search: string) {
+    const data = await this.productsService.compareProducts(search || '');
+    return { success: true, ...data };
+  }
+
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,

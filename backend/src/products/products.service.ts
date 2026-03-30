@@ -243,4 +243,57 @@ export class ProductsService {
       where: { id },
     });
   }
+
+  // ====== COMPARATEUR DE PRIX ======
+  // Recherche tous les produits ayant un nom "similaire" + regroupe par différents vendeurs
+  async compareProducts(search: string) {
+    if (!search || search.trim().length < 2) {
+      return { query: search, products: [] };
+    }
+
+    const products = await this.prisma.product.findMany({
+      where: {
+        isPublic: true,
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ],
+      } as any,
+      orderBy: { price: 'asc' },
+      take: 20,
+      include: {
+        category: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            boutiqueName: true,
+            isVerified: true,
+            trustScore: true,
+            phone: true,
+            city: true,
+            province: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+
+    // Calcul statistiques
+    const prices = products.map((p) => p.price);
+    const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+    const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+
+    return {
+      query: search,
+      stats: {
+        count: products.length,
+        avgPrice: Math.round(avgPrice * 100) / 100,
+        minPrice,
+        maxPrice,
+      },
+      products,
+    };
+  }
 }

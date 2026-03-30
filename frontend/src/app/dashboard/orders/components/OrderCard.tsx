@@ -54,16 +54,17 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                     </div>
                 </div>
 
-                <div className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide border flex items-center gap-1.5 ${statusStyles[status]}`}>
+                <div className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${statusStyles[status]}`}>
                     {isATraiter && (
                         <span className="flex size-1.5 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full size-1.5 bg-orange-500"></span>
                         </span>
                     )}
+                    {status === 'Expédiées' && <Truck size={12} />}
                     {isLivree && <CheckCircle size={12} />}
                     {isAnnulee && <AlertCircle size={12} />}
-                    {status}
+                    <span className="hidden sm:inline-block">{status}</span>
                 </div>
             </div>
 
