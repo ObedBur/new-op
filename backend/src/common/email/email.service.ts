@@ -84,12 +84,15 @@ export class EmailService {
     sendSmtpEmail.to = [{ email: email }];
 
     try {
-      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      this.logger.log(`Email OTP sent to ${email} via Brevo`);
+      const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      this.logger.log(`Email OTP sent to ${email} via Brevo - Response: ${JSON.stringify(result)}`);
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const fullError = error instanceof Error ? error.stack : String(error);
       this.logger.error(`Failed to send email to ${email}: ${message}`);
+      this.logger.error(`Full error details: ${fullError}`);
+      this.logger.error(`Email config - From: ${process.env.BREVO_SENDER_EMAIL}, Has API Key: ${!!process.env.BREVO_API_KEY}`);
       return false;
     }
   }

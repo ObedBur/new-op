@@ -1,5 +1,12 @@
 import { Suspense } from 'react';
-import { getProducts, getCategories } from '@/features/products/services/product.service';
+import { 
+  getProducts, 
+  getCategories,
+  getDeals,
+  getNewArrivals,
+  getRecommendations,
+  getBestSellers
+} from '@/features/products/services/product.service';
 import { ProductsView } from '@/features/products/components/ProductsView';
 
 // Metadata for SEO
@@ -10,13 +17,21 @@ export const metadata = {
 
 export default async function ProductsPage() {
   // Parallel fetching in Server Component
-  const [productsRes, categoriesRes] = await Promise.all([
+  const [productsRes, categoriesRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] = await Promise.all([
     getProducts(),
-    getCategories()
+    getCategories(),
+    getDeals(12),
+    getNewArrivals(12),
+    getRecommendations(undefined, 12),
+    getBestSellers(12)
   ]);
 
   const products = productsRes.success ? productsRes.data : [];
   const categories = categoriesRes.success ? categoriesRes.data : [];
+  const deals = dealsRes.success ? dealsRes.data : [];
+  const newArrivals = newArrivalsRes.success ? newArrivalsRes.data : [];
+  const recommendations = recommendationsRes.success ? recommendationsRes.data : [];
+  const bestSellers = bestSellersRes.success ? bestSellersRes.data : [];
 
   return (
     <main className="min-h-screen pt-20">
@@ -27,7 +42,11 @@ export default async function ProductsPage() {
       }>
         <ProductsView 
           initialProducts={products} 
-          categories={categories} 
+          categories={categories}
+          deals={deals}
+          newArrivals={newArrivals}
+          recommendations={recommendations}
+          bestSellers={bestSellers}
         />
       </Suspense>
     </main>

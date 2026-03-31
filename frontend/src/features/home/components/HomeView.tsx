@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Hero } from "./Hero";
 import { CategoriesGrid } from "./CategoriesGrid";
 import { FeaturedProductStrip } from "./FeaturedProductStrip";
@@ -37,13 +37,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   howItWorksSteps = [],
 }) => {
   const { selectedProduct, openQuickView, closeQuickView } = useQuickView();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-white">

@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, X, Package, DollarSign, Database, Tag, Image as ImageIcon, Loader2, AlignLeft, CheckCircle2, Edit2, Globe, Save } from 'lucide-react';
+import { Plus, X, Package, DollarSign, Database, Tag, Image as ImageIcon, Loader2, AlignLeft, CheckCircle2, Edit2, Globe, Save, ChevronDown, Banknote } from 'lucide-react';
+
+
 import { api } from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -30,6 +32,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isPublic, setIsPublic] = useState(true);
+    const [currency, setCurrency] = useState<'USD' | 'FC'>('USD');
+    const EXCHANGE_RATE = 2850; // Taux de change moyen local
+
 
     // Populate form if editing
     useEffect(() => {
@@ -85,10 +90,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             const payload: any = {
                 name,
                 description,
-                price: Number(price),
+                price: currency === 'USD' ? Number(price) : Number(price) / EXCHANGE_RATE,
                 categoryId: Number(categoryId),
                 isPublic,
             };
+
 
             if (base64Image) {
                 payload.image = base64Image as string;
@@ -210,8 +216,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Titre de l'annonce</label>
                                 <div className="relative">
-                                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hidden sm:block" size={16} />
-                                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="ex: Basket Nike Air Max..." className="w-full sm:pl-12 pl-6 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 focus:ring-4 focus:ring-[#E67E22]/5 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" required />
+                                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="ex: Basket Nike Air Max..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 focus:ring-4 focus:ring-[#E67E22]/5 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" required />
                                 </div>
                             </div>
 
@@ -219,29 +225,75 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Description (Optionnel)</label>
                                 <div className="relative">
-                                    <AlignLeft className="absolute left-4 top-4 text-slate-400 hidden sm:block" size={16} />
-                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre produit..." className="w-full sm:pl-12 pl-6 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-slate-800 dark:text-white" />
+                                    <AlignLeft className="absolute left-4 top-4 text-slate-400" size={16} />
+                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre produit..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-slate-800 dark:text-white" />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Price */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Prix ($)</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hidden sm:block" size={16} />
-                                        <input value={price} onChange={(e) => setPrice(e.target.value)} type="number" placeholder="0.00" className="w-full sm:pl-12 pl-6 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" required />
+                                    <div className="flex items-center justify-between ml-1">
+                                        <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest">Prix ({currency})</label>
+                                        <div className="flex gap-1">
+                                            {(['USD', 'FC'] as const).map((curr) => (
+                                                <button
+                                                    key={curr}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        // Convert existing value when switching currency
+                                                        if (price) {
+                                                            const val = Number(price);
+                                                            if (curr === 'FC' && currency === 'USD') setPrice((val * EXCHANGE_RATE).toFixed(0));
+                                                            if (curr === 'USD' && currency === 'FC') setPrice((val / EXCHANGE_RATE).toFixed(2));
+                                                        }
+                                                        setCurrency(curr);
+                                                    }}
+                                                    className={`px-2 py-0.5 rounded-md text-[8px] font-black transition-all ${currency === curr ? 'bg-[#E67E22] text-white shadow-sm' : 'bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-slate-600'}`}
+                                                >
+                                                    {curr}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="relative group/price">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within/price:text-[#E67E22]">
+                                            {currency === 'USD' ? <DollarSign size={16} /> : <Banknote size={16} />}
+                                        </div>
+                                        <input 
+                                            value={price} 
+                                            onChange={(e) => setPrice(e.target.value)} 
+                                            type="number" 
+                                            placeholder="0.00" 
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" 
+                                            required 
+                                        />
+                                        {price && (
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none animate-in fade-in slide-in-from-right-2">
+                                                <span className="text-[9px] font-black text-[#E67E22] uppercase tracking-tighter bg-[#E67E22]/5 px-2 py-1 rounded-lg border border-[#E67E22]/10">
+                                                    ≈ {currency === 'USD' 
+                                                        ? `${(Number(price) * EXCHANGE_RATE).toLocaleString()} FC` 
+                                                        : `${(Number(price) / EXCHANGE_RATE).toFixed(2)} $`}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 {/* Category */}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Catégorie</label>
-                                    <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-slate-800 dark:text-white" required>
-                                        <option value="">...</option>
-                                        {categories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
+                                    <div className="relative">
+                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                        <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-slate-800 dark:text-white" required>
+                                            <option value="" className="bg-white dark:bg-[#0f172a]">...</option>
+                                            {categories.map((cat) => (
+                                                <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#0f172a]">
+                                                    {cat.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                    </div>
                                 </div>
                             </div>
 

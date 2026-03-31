@@ -16,13 +16,20 @@ export function useProductFilters() {
     maxPrice: searchParams.get('maxPrice') || '',
     sortBy: (searchParams.get('sortBy') as SortOption) || 'relevance',
     page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
+    currency: (searchParams.get('currency') as 'USD' | 'FRF') || 'USD',
+    vendorAssurance: searchParams.get('vendorAssurance') === 'true',
+    vendorVerified: searchParams.get('vendorVerified') === 'true',
+    productReadyToShip: searchParams.get('productReadyToShip') === 'true',
+    productSamples: searchParams.get('productSamples') === 'true',
+    conditionNew: searchParams.get('conditionNew') === 'true',
+    conditionUsed: searchParams.get('conditionUsed') === 'true',
   }), [searchParams]);
 
   const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
     const params = new URLSearchParams(searchParams.toString());
     
     Object.entries(newFilters).forEach(([key, value]) => {
-      if (value === null || value === '' || (key === 'page' && value === 1)) {
+      if (value === null || value === '' || (key === 'page' && value === 1) || (typeof value === 'boolean' && !value)) {
         params.delete(key === 'categoryId' ? 'category' : key);
       } else {
         params.set(key === 'categoryId' ? 'category' : key, String(value));

@@ -282,11 +282,16 @@ export default function ProductsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-baseline gap-1.5 sm:gap-2 mb-2 sm:mb-4">
-                                <span className="text-[16px] sm:text-xl font-black text-[#1e293b] dark:text-white tracking-tight">{product.price}$</span>
-                                {product.oldPrice && (
-                                    <span className="text-[10px] sm:text-[12px] font-bold text-gray-400 line-through decoration-orange-500/40">{product.oldPrice}$</span>
-                                )}
+                            <div className="flex flex-col mb-2 sm:mb-4">
+                                <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                    <span className="text-[16px] sm:text-xl font-black text-[#E67E22] tracking-tight">{product.price}$</span>
+                                    {product.oldPrice && (
+                                        <span className="text-[10px] sm:text-[12px] font-bold text-gray-400 line-through decoration-orange-500/40">{product.oldPrice}$</span>
+                                    )}
+                                </div>
+                                <span className="text-[9px] font-black text-[#64748b] uppercase tracking-widest mt-0.5">
+                                    ≈ {(product.price * 2850).toLocaleString()} FC
+                                </span>
                             </div>
 
                             {/* Dashboard Stats - Discrete */}

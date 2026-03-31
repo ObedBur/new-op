@@ -1,1 +1,11 @@
-[00:00:03.094] Server  LOG     ✓ Ready in 2.3s
+[00:00:03.789] Server  LOG     ✓ Ready in 3s
+[00:00:26.342] Browser ERROR   Failed to init auth session: {"code":"ERR_NETWORK","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"baseURL":"http://127.0.0.1:4000/api","env":{},"headers":{"Accept":"application/json, text/plain, */*","Content-Type":"application/json"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","timeout":0,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"legacyInterceptorReqResOrdering":true,"silentJSONParsing":true},"url":"/auth/profile","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Network Error","name":"AxiosError","stack":"AxiosError: Network Error\n    at XMLHttpRequest.handleError (http://localhost:3000/_next/static/chunks/node_modules__pnpm_1779efe6._.js:10171:25)\n    at Axios.request (http://localhost:3000/_next/static/chunks/node_modules__pnpm_1779efe6._.js:10931:49)\n    at async Object.initAuth (http://localhost:3000/_next/static/chunks/frontend_src_03948389._.js:273:30)\n    at async AuthProvider.useCallback[initAuth] (http://localhost:3000/_next/static/chunks/frontend_src_03948389._.js:332:34)"}
+[00:00:27.337] Browser WARN    Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+[00:00:58.681] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:58.681] Browser LOG      401 sur : /auth/profile
+[00:00:58.681] Browser LOG     🔄 Tentative de refresh...
+[00:00:58.681] Browser LOG      Refresh réussi, relecture de la requête initiale
+[00:00:58.775] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=800" 404
+[00:00:58.919] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=800" 404
+[00:00:59.333] Browser LOG      Profil chargé
+[00:00:59.566] Server  ERROR   ⨯ "upstream image response failed for" "https://images.unsplash.com/photo-1566385101042-1a010c1274cc?w=800" 404

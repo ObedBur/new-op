@@ -17,27 +17,37 @@ export declare class ProductsController {
                 bgClass: string | null;
             };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         };
     }>;
     findMyProducts(req: any, categoryId?: string, search?: string, market?: string, page?: string, limit?: string): Promise<{
         success: boolean;
         data: ({
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
             category: {
                 name: string;
                 id: number;
@@ -47,29 +57,27 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
-            user: {
-                fullName: string;
-                boutiqueName: string;
-                isVerified: boolean;
-                trustScore: number;
-            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         })[];
         pagination: {
             total: number;
@@ -81,6 +89,12 @@ export declare class ProductsController {
     getDeals(limit?: string): Promise<{
         success: boolean;
         data: ({
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
             category: {
                 name: string;
                 id: number;
@@ -90,34 +104,38 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
-            user: {
-                fullName: string;
-                boutiqueName: string;
-                isVerified: boolean;
-                trustScore: number;
-            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         })[];
     }>;
     getNewArrivals(limit?: string): Promise<{
         success: boolean;
         data: ({
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
             category: {
                 name: string;
                 id: number;
@@ -127,72 +145,110 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
+        } & {
+            city: string;
+            country: string;
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            description: string | null;
+            price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
+            displayPrice: string | null;
+            location: string | null;
+            image: string | null;
+            availability: import("@prisma/client").$Enums.ProductAvailability;
+            market: import("@prisma/client").$Enums.Market | null;
+            categoryId: number;
+            images: string[];
+            isPublic: boolean;
+        })[];
+    }>;
+    getRecommendations(userId?: string, limit?: string): Promise<{
+        success: boolean;
+        data: ({
             user: {
                 fullName: string;
                 boutiqueName: string;
                 isVerified: boolean;
                 trustScore: number;
             };
+            category: {
+                name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                colorClass: string | null;
+                bgClass: string | null;
+            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         })[];
-    }>;
-    getRecommendations(userId?: string, limit?: string): Promise<{
-        success: boolean;
-        data: {
-            name: string;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string | null;
-            price: number;
-            displayPrice: string | null;
-            location: string | null;
-            image: string | null;
-            availability: import("@prisma/client").$Enums.ProductAvailability;
-            market: import("@prisma/client").$Enums.Market | null;
-            categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
-            images: string[];
-        }[];
     }>;
     getBestSellers(limit?: string): Promise<{
         success: boolean;
-        data: {
+        data: ({
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
+            category: {
+                name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                icon: string | null;
+                colorClass: string | null;
+                bgClass: string | null;
+            };
+        } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
-        }[];
+            isPublic: boolean;
+        })[];
     }>;
     compare(search: string): Promise<{
         query: string;
@@ -208,6 +264,17 @@ export declare class ProductsController {
             maxPrice: number;
         };
         products: ({
+            user: {
+                fullName: string;
+                phone: string;
+                province: string;
+                city: string;
+                boutiqueName: string;
+                id: string;
+                isVerified: boolean;
+                trustScore: number;
+                avatarUrl: string;
+            };
             category: {
                 name: string;
                 id: number;
@@ -217,40 +284,39 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
-            user: {
-                id: string;
-                city: string;
-                fullName: string;
-                phone: string;
-                province: string;
-                boutiqueName: string;
-                isVerified: boolean;
-                trustScore: number;
-                avatarUrl: string;
-            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         })[];
         success: boolean;
     }>;
     findAll(categoryId?: string, search?: string, market?: string, page?: string, limit?: string): Promise<{
         success: boolean;
         data: ({
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
             category: {
                 name: string;
                 id: number;
@@ -260,29 +326,27 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
-            user: {
-                fullName: string;
-                boutiqueName: string;
-                isVerified: boolean;
-                trustScore: number;
-            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         })[];
         pagination: {
             total: number;
@@ -294,6 +358,12 @@ export declare class ProductsController {
     findOne(id: string): Promise<{
         success: boolean;
         data: {
+            user: {
+                fullName: string;
+                boutiqueName: string;
+                isVerified: boolean;
+                trustScore: number;
+            };
             category: {
                 name: string;
                 id: number;
@@ -303,29 +373,27 @@ export declare class ProductsController {
                 colorClass: string | null;
                 bgClass: string | null;
             };
-            user: {
-                fullName: string;
-                boutiqueName: string;
-                isVerified: boolean;
-                trustScore: number;
-            };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         };
     }>;
     update(id: string, updateProductDto: any, req: any): Promise<{
@@ -342,22 +410,26 @@ export declare class ProductsController {
                 bgClass: string | null;
             };
         } & {
+            city: string;
+            country: string;
             name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
             availability: import("@prisma/client").$Enums.ProductAvailability;
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
-            userId: string;
-            city: string;
-            country: string;
             images: string[];
+            isPublic: boolean;
         };
     }>;
     bulkPublish(ids: string[], req: any): Promise<{

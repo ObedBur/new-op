@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 node_modules
-=======
+
 # Dependances
 node_modules/
 .pnp
@@ -40,4 +39,3 @@ Thumbs.db
 # IDE (VS Code / WebStorm)
 .vscode/
 .idea/
->>>>>>> 2604748180a830d4ccd3fa7bfe04ba711b0a14bd

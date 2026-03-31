@@ -1,6 +1,10 @@
 {
-  "app": {},
-  "appUsingSizeAdjust": false,
+  "app": {
+    "[project]/frontend/src/app/(auth)/login/page": [],
+    "[project]/frontend/src/app/admin/page": [],
+    "[project]/frontend/src/app/products/page": []
+  },
+  "appUsingSizeAdjust": true,
   "pages": {},
   "pagesUsingSizeAdjust": false
 }

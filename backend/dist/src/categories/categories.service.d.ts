@@ -26,6 +26,9 @@ export declare class CategoriesService {
             userId: string;
             description: string | null;
             price: number;
+            originalPrice: number | null;
+            isOnSale: boolean;
+            totalSales: number;
             displayPrice: string | null;
             location: string | null;
             image: string | null;
@@ -33,6 +36,7 @@ export declare class CategoriesService {
             market: import("@prisma/client").$Enums.Market | null;
             categoryId: number;
             images: string[];
+            isPublic: boolean;
         }[];
     } & {
         name: string;

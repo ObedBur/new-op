@@ -112,6 +112,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
+              aria-label={`Aller au slide ${index + 1}`}
               className="group relative"
             >
               <div
@@ -271,7 +272,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
           </div>
         </div>
 
-        <div className="relative w-full animate-in zoom-in fade-in duration-1000">
+        <div className="relative w-full hidden lg:block animate-in zoom-in fade-in duration-1000">
           <HeroSlideshow slides={activeSlides} />
           <div className="absolute -z-10 -top-6 -right-6 size-48 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -z-10 -bottom-10 -left-10 size-64 bg-blue-500/10 rounded-full blur-3xl"></div>

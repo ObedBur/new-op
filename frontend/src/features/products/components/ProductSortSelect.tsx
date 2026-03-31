@@ -1,19 +1,22 @@
 'use client';
 
 import React from 'react';
-import { SortOption } from '../types';
+import { SortOption, CurrencyType } from '../types';
 import { Button } from '@/components/ui/Button';
+import { CurrencySelector } from './CurrencySelector';
 
 interface SortSelectProps {
   value: SortOption;
   onChange: (value: SortOption) => void;
   count: number;
   onOpenMobileFilters: () => void;
+  currency?: CurrencyType;
+  onCurrencyChange?: (currency: CurrencyType) => void;
 }
 
-export const ProductSortSelect: React.FC<SortSelectProps> = ({ value, onChange, count, onOpenMobileFilters }) => {
+export const ProductSortSelect: React.FC<SortSelectProps> = ({ value, onChange, count, onOpenMobileFilters, currency = 'USD', onCurrencyChange }) => {
   return (
-    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
+    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-white/5 flex-wrap gap-3">
         <div className="flex items-center gap-2.5">
             <Button 
                 variant="outline"
@@ -30,7 +33,9 @@ export const ProductSortSelect: React.FC<SortSelectProps> = ({ value, onChange, 
         </div>
 
         <div className="flex items-center gap-3">
-            <div className="bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-xl border border-transparent flex items-center">
+            {onCurrencyChange && <CurrencySelector value={currency} onChange={onCurrencyChange} />}
+            
+            <div className="bg-white dark:bg-white/10 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/20 flex items-center">
                 <select 
                     value={value}
                     onChange={(e) => onChange(e.target.value as SortOption)}

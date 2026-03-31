@@ -1,7 +1,24 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { storage } from '@/utils/storage';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+// Détecter l'URL du backend selon l'hôte
+const getApiUrl = () => {
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+  }
+  
+  const hostname = window.location.hostname;
+  
+  // Si accédé via localhost, utiliser localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+  }
+  
+  // Si accédé via une IP réseau, utiliser la même IP pour le backend
+  return process.env.NEXT_PUBLIC_API_URL || `http://${hostname}:4000/api`;
+};
+
+const API_URL = getApiUrl();
 
 export const api = axios.create({
   baseURL: API_URL,

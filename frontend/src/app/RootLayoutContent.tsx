@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -9,6 +10,11 @@ export default function RootLayoutContent({ children }: { children: React.ReactN
   const pathname = usePathname();
   const isAdminPage = pathname?.startsWith('/admin');
   const isDashboardPage = pathname?.startsWith('/dashboard') || pathname?.startsWith('/settings');
+
+  // Reset scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   if (isAdminPage) {
     return <>{children}</>;

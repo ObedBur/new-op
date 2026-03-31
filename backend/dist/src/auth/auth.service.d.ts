@@ -60,21 +60,21 @@ export declare class AuthService {
     getUserProfile(userId: string): Promise<{
         success: boolean;
         user: {
-            id: string;
-            createdAt: Date;
-            city: string;
-            country: string;
             email: string;
             fullName: string;
             phone: string;
             province: string;
             commune: string;
+            city: string;
+            country: string;
             address: string;
-            role: import("@prisma/client").$Enums.UserRole;
             boutiqueName: string;
-            isVerified: boolean;
+            role: import("@prisma/client").$Enums.UserRole;
             kycStatus: import("@prisma/client").$Enums.KycStatus;
+            id: string;
+            isVerified: boolean;
             trustScore: number;
+            createdAt: Date;
             avatarUrl: string;
         };
     }>;
@@ -88,40 +88,40 @@ export declare class AuthService {
     updateProfile(userId: string, dto: any): Promise<{
         success: boolean;
         user: {
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            city: string;
-            country: string;
             email: string;
             fullName: string;
             phone: string;
             province: string;
             commune: string;
+            city: string;
+            country: string;
             address: string;
-            role: import("@prisma/client").$Enums.UserRole;
             boutiqueName: string;
-            isVerified: boolean;
+            role: import("@prisma/client").$Enums.UserRole;
             kycStatus: import("@prisma/client").$Enums.KycStatus;
+            id: string;
+            isVerified: boolean;
             trustScore: number;
+            createdAt: Date;
+            updatedAt: Date;
             avatarUrl: string;
         };
     }>;
     getUsersForTesting(): Promise<{
-        id: string;
-        createdAt: Date;
-        city: string;
-        country: string;
         email: string;
         fullName: string;
         phone: string;
         province: string;
         commune: string;
-        role: import("@prisma/client").$Enums.UserRole;
+        city: string;
+        country: string;
         boutiqueName: string;
-        isVerified: boolean;
+        role: import("@prisma/client").$Enums.UserRole;
         kycStatus: import("@prisma/client").$Enums.KycStatus;
+        id: string;
+        isVerified: boolean;
         trustScore: number;
+        createdAt: Date;
     }[]>;
     clearUsersForTesting(): Promise<void>;
 }

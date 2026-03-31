@@ -114,13 +114,15 @@ const HeaderOverlays = ({
               </span>
             </button>
 
-            <ProfileDropdown
-              isAuthenticated={isAuthenticated}
-              user={user}
-              onLogout={logout}
-              isProfileOpen={isProfileOpen}
-              setIsProfileOpen={setIsProfileOpen}
-            />
+            <div className="hidden md:flex">
+              <ProfileDropdown
+                isAuthenticated={isAuthenticated}
+                user={user}
+                onLogout={logout}
+                isProfileOpen={isProfileOpen}
+                setIsProfileOpen={setIsProfileOpen}
+              />
+            </div>
 
             {/* Cart Icon */}
             <Link
@@ -143,7 +145,7 @@ const HeaderOverlays = ({
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
               aria-label="Ouvrir le menu mobile"
-              aria-expanded={isSidebarOpen}
+              aria-expanded={isSidebarOpen ? "true" : "false"}
             >
               <span className="material-symbols-outlined text-[24px] md:text-[28px] font-bold">
                 menu
