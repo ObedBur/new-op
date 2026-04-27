@@ -82,11 +82,7 @@ const HeaderOverlays = ({
             href="/"
             className={`flex items-center gap-1.5 md:gap-2 cursor-pointer shrink-0 animate-in fade-in duration-300 ${isAuthPage ? "mx-auto" : ""}`}
           >
-            <div className="flex items-center justify-center size-8 md:size-11 rounded-lg md:rounded-xl bg-[#E67E22] shadow-lg shadow-[#E67E22]/20">
-              <span className="material-symbols-outlined text-white text-[20px] md:text-[26px]">
-                storefront
-              </span>
-            </div>
+
             <h1 className="text-[18px] md:text-2xl font-black tracking-tighter uppercase">
               <span className="text-[#E67E22]">Wapi</span><span className="text-[#2D5A27]">Bei</span>
             </h1>
@@ -114,31 +110,17 @@ const HeaderOverlays = ({
               </span>
             </button>
 
-            <div className="hidden md:flex">
-              <ProfileDropdown
-                isAuthenticated={isAuthenticated}
-                user={user}
-                onLogout={logout}
-                isProfileOpen={isProfileOpen}
-                setIsProfileOpen={setIsProfileOpen}
-              />
-            </div>
-
-            {/* Cart Icon */}
-            <Link
-              href="/cart"
-              className={`relative p-2 rounded-full transition-colors ${isActive("/cart") ? "text-[#E67E22] bg-[#E67E22]/5" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"}`}
-              aria-label={`Panier, ${totalItems} articles`}
-            >
-              <span className="material-symbols-outlined text-[22px] md:text-[24px]">
-                shopping_cart
-              </span>
-              {totalItems > 0 && (
-                <span className="absolute top-1 right-1 size-3.5 md:size-4 bg-[#E67E22] text-white text-[8px] md:text-[9px] font-black flex items-center justify-center rounded-full ring-2 ring-white dark:ring-[#111]">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            {pathname === "/settings" && (
+              <div className="hidden md:flex">
+                <ProfileDropdown
+                  isAuthenticated={isAuthenticated}
+                  user={user}
+                  onLogout={logout}
+                  isProfileOpen={isProfileOpen}
+                  setIsProfileOpen={setIsProfileOpen}
+                />
+              </div>
+            )}
 
             {/* Burger Menu Button */}
             <button

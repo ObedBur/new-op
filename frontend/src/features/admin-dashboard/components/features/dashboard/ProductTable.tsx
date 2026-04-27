@@ -1,5 +1,5 @@
 import { useAdminTranslation, useProducts } from '@/features/admin-dashboard/hooks';
-import { Product } from '@/features/admin-dashboard/types';
+import { AdminProduct } from '@/features/admin-dashboard/types';
 import { useAdminSearch } from '@/features/admin-dashboard/context';
 
 const ProductTable: React.FC = () => {
@@ -71,7 +71,7 @@ const ProductTable: React.FC = () => {
     );
 };
 
-const ProductRow: React.FC<{ product: Product; editLabel: string }> = ({ product, editLabel }) => (
+const ProductRow: React.FC<{ product: AdminProduct; editLabel: string }> = ({ product, editLabel }) => (
     <tr key={product.id} className="hover:bg-slate-50/80 dark:hover:bg-white/5 transition-all group">
         <td className="px-8 py-5 whitespace-nowrap">
             <div className="flex items-center gap-4">

@@ -87,3 +87,45 @@ export async function getBestSellers(limit = 6): Promise<ApiResponse<Product[]>>
     return { success: false, data: [], message: 'Erreur' };
   }
 }
+
+// ====== ACTIONS VENDEUR ======
+
+export async function getMyProducts(): Promise<ApiResponse<Product[]>> {
+  try {
+    const response = await api.get<ApiResponse<Product[]>>('/products/my-products');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching my products:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}
+
+export async function deleteProduct(id: string): Promise<ApiResponse<unknown>> {
+  try {
+    const response = await api.delete<ApiResponse<unknown>>(`/products/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting product ${id}:`, error);
+    throw error;
+  }
+}
+
+export async function addProduct(payload: any): Promise<ApiResponse<unknown>> {
+  try {
+    const response = await api.post<ApiResponse<unknown>>('/products', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding product:', error);
+    throw error;
+  }
+}
+
+export async function updateProduct(id: string, payload: any): Promise<ApiResponse<unknown>> {
+  try {
+    const response = await api.patch<ApiResponse<unknown>>(`/products/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating product ${id}:`, error);
+    throw error;
+  }
+}

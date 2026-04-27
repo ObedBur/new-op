@@ -273,7 +273,7 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `🎉 Nouvelle vente sur WapiBei : ${data.productName}`;
+    sendSmtpEmail.subject = ` Nouvelle vente sur WapiBei : ${data.productName}`;
     sendSmtpEmail.htmlContent = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: auto; padding: 0; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
         <div style="background-color: #2D5A27; padding: 24px; text-align: center;">
@@ -341,7 +341,7 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `⚠️ ADMIN : Nouvelle vente plateforme - ${data.customerName}`;
+    sendSmtpEmail.subject = ` ADMIN : Nouvelle vente plateforme - ${data.customerName}`;
     sendSmtpEmail.htmlContent = `
       <div style="font-family: sans-serif; background: #f8fafc; padding: 40px 20px;">
         <div style="background: white; max-width: 600px; margin: auto; padding: 32px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
@@ -445,7 +445,7 @@ export class EmailService {
    */
   async sendPriceDropAlert(data: { email: string, name: string, productName: string, oldPrice: number, newPrice: number, productImage: string, productLink: string }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `🎉 Baisse de prix sur ${data.productName} !`;
+    sendSmtpEmail.subject = ` Baisse de prix sur ${data.productName} !`;
     sendSmtpEmail.htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
         <div style="padding: 30px; text-align: center;">
@@ -470,7 +470,7 @@ export class EmailService {
    */
   async sendClosureAdminReport(data: { adminEmail: string, orderId: string, clientName: string, vendorName: string, productName: string, amount: number }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = `✅ Transaction Clôturée : ${data.orderId}`;
+    sendSmtpEmail.subject = ` Transaction Clôturée : ${data.orderId}`;
     sendSmtpEmail.htmlContent = `
       <div style="font-family: monospace; background: #f1f5f9; padding: 20px;">
         <div style="background: #ffffff; padding: 30px; border-radius: 5px; border-top: 4px solid #2D5A27;">

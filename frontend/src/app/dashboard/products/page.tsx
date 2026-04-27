@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { api } from '@/lib/axios'; // Direct API access for vendor-specific route
+import { getMyProducts, deleteProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
 import {
     Search, MapPin, MessageCircle, UserPlus, Heart,
@@ -42,10 +42,10 @@ export default function ProductsPage() {
         setIsLoading(true);
         try {
             // Appeler spécifiquement l'endpoint des produits du vendeur (basé sur son Token)
-            const response = await api.get('/products/my-products');
+            const response = await getMyProducts();
 
-            if (response.data?.success) {
-                const data = response.data.data || [];
+            if (response?.success) {
+                const data = response.data || [];
                 // Map API data to our UI format
                 const mappedProducts = data.map((p: any) => ({
                     id: p.id,
@@ -97,8 +97,8 @@ export default function ProductsPage() {
         setIsDeleting(true);
 
         try {
-            const response = await api.delete(`/products/${productToDelete.id}`);
-            if (response.data?.success) {
+            const response = await deleteProduct(productToDelete.id);
+            if (response?.success) {
                 toast.success('Produit supprimé !', {
                     style: { background: '#1e293b', color: 'white', border: 'none' },
                 });
@@ -176,26 +176,26 @@ export default function ProductsPage() {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-3">
-                          {/* add product button */}
-                    <button
-                        onClick={() => {
-                            setEditingProduct(null);
-                            setDefaultPublicStatus(false);
-                            setIsAddModalOpen(true);
-                        }}
-                        className="flex items-center justify-center gap-2 sm:gap-3 bg-[#E67E22] text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all active:scale-95"
-                    >
-                        <Plus size={18} />
-                        <span className="truncate">Nouveau</span>
-                    </button>
-                      {/* add product button */}
-                    <button
-                        onClick={() => setIsPublishModalOpen(true)}
-                        className="flex items-center justify-center gap-2 sm:gap-3 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
-                    >
-                        <Globe size={18} />
-                        <span className="truncate">Publier</span>
-                    </button>
+                {/* add product button */}
+                <button
+                    onClick={() => {
+                        setEditingProduct(null);
+                        setDefaultPublicStatus(false);
+                        setIsAddModalOpen(true);
+                    }}
+                    className="flex items-center justify-center gap-2 sm:gap-3 bg-[#E67E22] text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all active:scale-95"
+                >
+                    <Plus size={18} />
+                    <span className="truncate">Nouveau</span>
+                </button>
+                {/* add product button */}
+                <button
+                    onClick={() => setIsPublishModalOpen(true)}
+                    className="flex items-center justify-center gap-2 sm:gap-3 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
+                >
+                    <Globe size={18} />
+                    <span className="truncate">Publier</span>
+                </button>
             </div>
             {/* --- PRODUCTS GRID --- */}
             <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 relative ${filteredProducts.length === 0 ? 'min-h-[300px]' : ''}`}>
@@ -215,7 +215,7 @@ export default function ProductsPage() {
                         className={`group bg-white dark:bg-[#151b2c] rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col border-2 transition-all duration-500 relative ${selectedItems.includes(product.id) ? 'border-[#E67E22] ring-2 ring-[#E67E22]/10 scale-[0.98]' : 'border-transparent hover:shadow-xl'
                             }`}
                     >
-                        
+
                         {/* Selector */}
                         <div className="absolute top-6 left-6 z-20">
                             <button
@@ -227,7 +227,7 @@ export default function ProductsPage() {
                                 {!selectedItems.includes(product.id) && <div className="size-2 rounded-sm border border-[#1e293b]/20" />}
                             </button>
                         </div>
-                                    
+
                         {/* Image Unit - Compact Aspect Ratio */}
                         <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f1f5f9] dark:bg-white/5 mb-4">
                             <img
@@ -248,7 +248,7 @@ export default function ProductsPage() {
 
                             {/* Floating Context Toolbar - Optimized for 2-column mobile */}
                             <div className="absolute inset-x-2 sm:inset-x-3 bottom-2 sm:bottom-3 flex items-center gap-1.5 sm:gap-2 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                                <button 
+                                <button
                                     onClick={() => handleEdit(product)}
                                     className="flex-1 bg-white dark:bg-[#151b2c] text-[#1e293b] dark:text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-black text-[8px] sm:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1 sm:gap-2 hover:bg-[#E67E22] hover:text-white transition-all shadow-lg border border-transparent"
                                 >
@@ -256,7 +256,7 @@ export default function ProductsPage() {
                                     <span className="sm:inline hidden">Éditer</span>
                                     <span className="sm:hidden">Edit</span>
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => handleDelete(product)}
                                     className="size-8 sm:size-10 bg-white/10 backdrop-blur-xl text-white rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-red-500 transition-all border border-white/20 shadow-lg"
                                 >
@@ -267,7 +267,7 @@ export default function ProductsPage() {
 
                         {/* Meta Content - Balanced Sizes */}
                         <div className="flex flex-col flex-1 px-1">
-                            
+
                             <div className="flex items-start justify-between gap-1 mb-1">
                                 <div className="space-y-0.5 flex-1 min-w-0">
                                     <div className="flex items-center gap-1 sm:gap-1.5">

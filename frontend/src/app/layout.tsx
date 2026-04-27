@@ -17,12 +17,35 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: 'WapiBei - Marketplace N&deg;1 en Afrique',
+    default: 'WapiBei - Marketplace N°1 en Afrique',
     template: '%s | WapiBei'
   },
-  description: 'La Marketplace de confiance en Afrique. Comparez les prix des produits agricoles, high-tech et mode &agrave; travers tout le continent.',
+  description: 'La Marketplace de confiance en Afrique. Comparez les prix des produits agricoles, high-tech et mode à travers tout le continent.',
   icons: {
     icon: '/icon.svg',
+  },
+  metadataBase: new URL('https://wapibei.com'),
+  openGraph: {
+    title: 'WapiBei - Marketplace N°1 en Afrique',
+    description: 'La Marketplace de confiance en Afrique. Comparez les prix des produits agricoles, high-tech et mode à travers tout le continent.',
+    url: 'https://wapibei.com',
+    siteName: 'WapiBei',
+    images: [
+      {
+        url: '/shopping-cart.png',
+        width: 1200,
+        height: 630,
+        alt: 'WapiBei Shopping Cart Logo',
+      },
+    ],
+    type: 'website',
+    locale: 'fr_FR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WapiBei - Marketplace N°1 en Afrique',
+    description: 'La Marketplace de confiance en Afrique.',
+    images: ['/shopping-cart.png'],
   },
 };
 

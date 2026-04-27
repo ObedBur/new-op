@@ -20,6 +20,7 @@
       "@nestjs/core",
       "@prisma/engines",
       "bcrypt",
+      "core-js",
       "esbuild",
       "prisma",
       "sharp",

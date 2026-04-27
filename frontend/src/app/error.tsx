@@ -20,7 +20,7 @@ export default function Error({
         <div className="size-24 bg-red-100 dark:bg-red-900/30 rounded-4xl flex items-center justify-center mx-auto text-red-600 dark:text-red-400 shadow-inner">
           <span className="material-symbols-outlined text-5xl">warning</span>
         </div>
-        
+
         <div className="space-y-3">
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             Une erreur critique est survenue
@@ -38,12 +38,12 @@ export default function Error({
             <span className="material-symbols-outlined">restart_alt</span>
             Tenter de recharger
           </button>
-          
+
           <button
             onClick={() => window.location.href = '/'}
             className="w-full h-16 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-black rounded-2xl border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-sm"
           >
-            Retour à l&apos;accueil
+            Retour à lapage accueil
 
           </button>
         </div>

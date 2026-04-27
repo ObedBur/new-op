@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useLoading } from "@/context/LoadingContext";
 import { HomeView } from "@/features/home/components/HomeView";
 import {
   getProducts,
@@ -25,6 +26,7 @@ import { Product, Category } from "@/types";
 
 export default function Home() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
+  const { setAppReady } = useLoading();
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -80,17 +82,21 @@ export default function Home() {
     fetchData();
   }, [user?.id]);
 
+  // Signal that app is ready when both auth and home data are loaded
+  useEffect(() => {
+    if (!authLoading && !dataLoading) {
+      setAppReady(true);
+    }
+  }, [authLoading, dataLoading, setAppReady]);
+
   // Don't render Home content for admins to prevent flash
   if (isAuthenticated && user?.role === "ADMIN") {
     return null;
   }
 
+  // If loading, we render null because the SplashScreen is covering the screen
   if (authLoading || dataLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+    return null;
   }
 
   return (

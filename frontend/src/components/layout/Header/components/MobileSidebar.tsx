@@ -35,13 +35,6 @@ interface MobileSidebarProps {
   onLogout: () => void;
 }
 
-const IconMap: Record<string, React.ReactNode> = {
-  'home': <Home size={18} />,
-  'inventory_2': <Package size={18} />,
-  'store': <StoreIcon size={18} />,
-  'compare_arrows': <ArrowLeftRight size={18} />,
-};
-
 export const MobileSidebar: React.FC<MobileSidebarProps> = ({ 
   isOpen, 
   onClose, 
@@ -75,13 +68,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
         className={`absolute right-0 top-0 bottom-0 w-[300px] max-w-[80vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-[2rem] overflow-hidden`}
       >
         {/* Header - Minimalist Profile */}
-        <div className="relative pt-12 pb-6 px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
-          <button 
-            onClick={onClose} 
-            className="absolute top-6 right-6 size-9 flex items-center justify-center rounded-full bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-400 hover:text-red-500 transition-all z-10"
-          >
-            <X size={18} />
-          </button>
+        <div className="relative pt-6 pb-6 px-6 sm:px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
+          
+          <div className="flex justify-between items-center mb-6">
+            <span className="text-[10px] font-black tracking-widest text-[#E67E22] uppercase">Menu</span>
+            <button 
+              onClick={onClose} 
+              className="size-9 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 border border-transparent dark:border-white/10 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+            >
+              <X size={18} />
+            </button>
+          </div>
 
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
@@ -103,10 +100,10 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
               </div>
             </div>
           ) : (
-            <div className="py-2">
+            <div>
               <Link 
                 href="/login"
-                className="w-full py-3.5 flex items-center justify-center gap-2 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gray-200 dark:shadow-none"
+                className="w-full py-3 flex items-center justify-center gap-2 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gray-200 dark:shadow-none"
                 onClick={onClose}
               >
                 Se connecter <ArrowRight size={12} />
@@ -115,25 +112,22 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
           )}
         </div>
 
-        {/* Scrollable Navigation */}
-        <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6 scrollbar-hide">
+        {/* Scrollable Navigation - Minimal Textual List */}
+        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-4 scrollbar-hide">
           
           <div className="space-y-1">
-            <div className="px-4 mb-3 flex items-center justify-between">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Menu Principal</span>
+            <div className="px-6 mb-2">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Navigation</span>
             </div>
 
-            <div className="grid gap-1">
+            <div className="grid gap-1 px-2">
               {navLinks?.map((link) => (
                 <Link 
                   key={link.id}
                   href={link.id}
                   onClick={onClose}
-                  className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
-                  <div className={isActive(link.id) ? 'text-white' : 'text-[#E67E22]'}>
-                    {IconMap[link.icon] || <LayoutGrid size={18} />}
-                  </div>
                   {link.label}
                 </Link>
               ))}
@@ -141,51 +135,43 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
               <Link 
                 href="/cart" 
                 onClick={onClose}
-                className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive('/cart') ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all mt-2 ${isActive('/cart') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
               >
-                <div className={isActive('/cart') ? 'text-white' : 'text-[#E67E22]'}>
-                   <ShoppingCart size={18} />
-                </div>
                 Mon Panier
               </Link>
 
-              {/* Added Parametres Link */}
               {isAuthenticated && (
                 <Link 
                   href="/settings" 
                   onClick={onClose}
-                  className={`w-full group flex items-center gap-4 px-4 py-3 rounded-xl text-[13px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
-                  <div className={isActive('/settings') ? 'text-white' : 'text-[#E67E22]'}>
-                     <Settings size={18} />
-                  </div>
                   Paramètres
                 </Link>
               )}
             </div>
           </div>
 
-          {/* Logout Section at the bottom if authenticated */}
+          {/* Logout Section */}
           {isAuthenticated && (
-            <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
+            <div className="pt-2 mt-2 px-2 border-t border-gray-100 dark:border-white/5">
                 <button 
                   onClick={() => { onLogout(); onClose(); }}
-                  className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-[12px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left"
+                  className="w-full block px-4 py-2.5 rounded-xl text-[11px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left uppercase tracking-wider"
                 >
-                  <LogOut size={16} /> Se déconnecter
+                  Se déconnecter
                 </button>
             </div>
           )}
         </div>
 
         {/* Brand Footer */}
-        <div className="p-6">
+        <div className="p-4 px-6 border-t border-gray-100 dark:border-white/5">
             <Link 
               href="/register?role=VENDOR"
               onClick={onClose}
-              className="w-full py-4 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
             >
-                <StoreIcon size={14} />
                 <span>Vendre sur WapiBei</span>
             </Link>
         </div>

@@ -1,38 +1,55 @@
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useLoading } from '@/context/LoadingContext';
 
 export const SplashScreen: React.FC = () => {
+  const { isAppReady } = useLoading();
   const [isVisible, setIsVisible] = useState(true);
   const [messageIndex, setMessageIndex] = useState(0);
+
+  const startTimeRef = useRef<number>(Date.now());
+  const MIN_DISPLAY_TIME = 1500;
 
   const messages = [
     "Bienvenue sur WapiBei",
     "Chargement du marketplace Africain",
-    "Préparation des vendeurs du continent",
-    "Sécurisation de vos achats",
     "Prêt dans un instant..."
   ];
 
+  // Logic to hide splash when app is ready AND minimum time has elapsed
   useEffect(() => {
-    const splashTimer = setTimeout(() => {
-      setIsVisible(false);
-    }, 3000); // 3 seconds splash
+    if (isAppReady) {
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - startTimeRef.current;
+      const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsedTime);
+
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, remainingTime);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isAppReady]);
+
+  // Messages animation loop
+  useEffect(() => {
+    if (!isVisible) return;
 
     const messageInterval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % messages.length);
+      setMessageIndex((prev) => {
+        const nextIndex = prev + 1;
+        return nextIndex >= messages.length ? messages.length - 1 : nextIndex;
+      });
     }, 600);
 
-    return () => {
-      clearTimeout(splashTimer);
-      clearInterval(messageInterval);
-    };
-  }, [messages.length]);
+    return () => clearInterval(messageInterval);
+  }, [isVisible, messages.length]);
 
   return (
-    <div 
+    <div
       className={`fixed inset-0 z-9999 flex flex-col items-center justify-center bg-white 
       transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]
       ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -48,18 +65,19 @@ export const SplashScreen: React.FC = () => {
         <div className="relative mb-12 animate-in fade-in zoom-in-95 duration-1000">
           {/* Subtle Outer Glow */}
           <div className="absolute -inset-4 bg-primary/20 rounded-[3rem] blur-2xl animate-pulse"></div>
-          
+
           {/* Main Logo Card */}
           <div className="relative flex items-center justify-center size-24 md:size-32 rounded-[2.5rem] bg-white p-6 shadow-[0_20px_50px_rgba(255,107,0,0.15)] border border-primary/10 animate-float">
-            <Image 
-              src="/favicon.ico" 
-              alt="WapiBei Logo" 
-              width={128} 
-              height={128} 
-              className="w-full h-full object-contain" 
+            <Image
+              src="/shopping-cart.png"
+              alt="WapiBei Shopping Cart"
+              width={128}
+              height={128}
+              className="w-full h-full object-contain"
+              priority
             />
           </div>
-          
+
           {/* Decorative Ring */}
           <div className="absolute -inset-2 border-2 border-primary/5 rounded-[3.5rem] animate-[spin_8s_linear_infinite]"></div>
         </div>
@@ -70,26 +88,26 @@ export const SplashScreen: React.FC = () => {
               Wapi<span className="text-primary italic">Bei</span>
             </h1>
           </div>
-          
+
           <div className="h-8 relative flex justify-center w-72 mx-auto">
-             {messages.map((msg, idx) => (
-                <p 
-                  key={idx}
-                  className={`absolute inset-0 text-center text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-[0.3em] transition-all duration-700 ease-in-out
+            {messages.map((msg, idx) => (
+              <p
+                key={idx}
+                className={`absolute inset-0 text-center text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-[0.3em] transition-all duration-700 ease-in-out
                   ${idx === messageIndex ? 'opacity-100 blur-none scale-100' : 'opacity-0 blur-sm scale-90 translate-y-2'}`}
-                >
-                  {msg}
-                </p>
-             ))}
+              >
+                {msg}
+              </p>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Modern Progress Bar */}
       <div className="absolute bottom-16 w-48 h-[2px] bg-gray-100 rounded-full overflow-hidden">
-        <div 
+        <div
           className="h-full bg-primary transition-all duration-500 ease-out"
-          style={{ width: `${((messageIndex + 1) / messages.length) * 100}%` }}
+          style={{ width: `${(messageIndex / messages.length) * 100}%` }}
         ></div>
       </div>
 

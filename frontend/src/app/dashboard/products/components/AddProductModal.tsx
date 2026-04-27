@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, X, Package, DollarSign, Database, Tag, Image as ImageIcon, Loader2, AlignLeft, CheckCircle2, Edit2, Globe, Save, ChevronDown, Banknote } from 'lucide-react';
 
 
-import { api } from '@/lib/axios';
+import { getCategories, addProduct, updateProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
 
 interface AddProductModalProps {
@@ -60,9 +60,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await api.get('/categories');
-                if (response.data?.success) {
-                    setCategories(response.data.data);
+                const response = await getCategories();
+                if (response?.success) {
+                    setCategories(response.data || []);
                 }
             } catch (err) {
                 console.error('Failed to fetch categories:', err);
@@ -101,10 +101,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             }
 
             const response = product 
-                ? await api.patch(`/products/${product.id}`, payload)
-                : await api.post('/products', payload);
+                ? await updateProduct(product.id, payload)
+                : await addProduct(payload);
 
-            if (response.data?.success) {
+            if (response?.success) {
                 toast.success(product ? 'Produit mis à jour ! 🛠️' : 'Produit lancé avec succès ! 🎉', {
                     description: product ? 'Les modifications ont été enregistrées.' : 'Votre produit est maintenant visible dans votre boutique.',
                     style: { background: '#1e293b', color: 'white', border: 'none' },

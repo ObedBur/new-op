@@ -37,15 +37,14 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
 
   return (
     <div
-      className={`relative bg-white dark:bg-[#1a1a1a] border ${
-        isBestPrice
+      className={`relative bg-white dark:bg-[#1a1a1a] border ${isBestPrice
           ? 'border-emerald-500 shadow-2xl scale-[1.02] z-10'
           : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
-      } rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
+        } rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
     >
       {isBestPrice && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-600 text-[8px] font-black uppercase tracking-widest text-white rounded-full shadow-lg z-20 whitespace-nowrap">
-          🏆 Meilleur Prix
+          Meilleur Prix
         </div>
       )}
 
@@ -102,39 +101,37 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
 
       {/* Prix */}
       <div
-        className={`mb-4 p-3 rounded-2xl text-center ${
-          isBestPrice
+        className={`mb-4 p-3 rounded-2xl text-center ${isBestPrice
             ? 'bg-emerald-50 dark:bg-emerald-500/5'
             : 'bg-gray-50 dark:bg-white/5'
-        }`}
+          }`}
       >
         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
           Prix
         </p>
         <span
-          className={`text-2xl font-black tracking-tighter ${
-            isBestPrice
+          className={`text-2xl font-black tracking-tighter ${isBestPrice
               ? 'text-emerald-600 dark:text-emerald-400'
               : 'text-deep-blue dark:text-white'
-          }`}
+            }`}
         >
           {product.displayPrice || `${product.price} $`}
         </span>
       </div>
 
       {/* Boutons */}
-      <div className="grid grid-cols-1 gap-2 mt-auto">
+      <div className="grid grid-cols-2 gap-2 mt-auto">
         <Link href={waLink} target="_blank" className="block">
           <Button
             variant="outline"
-            className="w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-gray-100 dark:border-white/5"
+            className="w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-gray-100 dark:border-white/5 px-0"
           >
-            <Phone className="w-3 h-3 mr-2 text-emerald-600" /> WhatsApp
+            <Phone className="w-3 h-3 md:mr-2 text-emerald-600" /> <span className="hidden md:inline">WhatsApp</span>
           </Button>
         </Link>
         <Link href={`/products/${product.id}`} className="block">
-          <Button className="w-full h-9 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95">
-            <ShoppingCart className="w-3 h-3 mr-2" /> Voir l'offre
+          <Button className="w-full h-9 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95 px-0">
+            <ShoppingCart className="w-3 h-3 md:mr-2" /> <span className="hidden md:inline">Voir l'offre</span>
           </Button>
         </Link>
       </div>
@@ -146,8 +143,8 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
 // PAGE PRINCIPALE
 // ─────────────────────────────────────────────
 export default function ComparePage() {
-  const [searchQuery, setSearchQuery] = useState('riz');
-  const [inputValue, setInputValue] = useState('riz');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [sortBy, setSortBy] = useState('price_asc');
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Toutes');
@@ -239,11 +236,10 @@ export default function ComparePage() {
                 <button
                   key={city}
                   onClick={() => setSelectedCity(city)}
-                  className={`whitespace-nowrap text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-xl transition-all ${
-                    selectedCity === city
+                  className={`whitespace-nowrap text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-xl transition-all ${selectedCity === city
                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
                       : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
+                    }`}
                 >
                   {city}
                 </button>
@@ -263,25 +259,12 @@ export default function ComparePage() {
                 <option value="rating">Mieux notés</option>
               </select>
             </div>
-
-            {/* Vérifiés */}
-            <button
-              onClick={() => setOnlyVerified(!onlyVerified)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl border transition-all text-[9px] font-black uppercase tracking-widest ${
-                onlyVerified
-                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-green-900/10'
-                  : 'bg-white dark:bg-[#1a1a1a] border-gray-100 dark:border-white/5 text-gray-400 hover:border-emerald-500/30'
-              }`}
-            >
-              <CheckCircle className={`w-3.5 h-3.5 ${onlyVerified ? 'text-white' : 'text-emerald-600'}`} />
-              Vérifiés
-            </button>
           </div>
         </div>
 
         {/* ─── HERO PRODUIT ─── */}
-        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-[2.5rem] p-6 lg:p-10 mb-16 shadow-sm overflow-hidden flex flex-col lg:flex-row gap-10 items-center">
-          <div className="relative size-40 lg:size-56 shrink-0 rounded-[2rem] overflow-hidden shadow-xl border-4 border-gray-50 dark:border-white/5">
+        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-3xl lg:rounded-[2.5rem] p-5 lg:p-10 mb-8 lg:mb-16 shadow-sm overflow-hidden flex flex-col lg:flex-row gap-6 lg:gap-10 items-center">
+          <div className="relative size-32 lg:size-56 shrink-0 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl border-4 border-gray-50 dark:border-white/5">
             {featured?.image ? (
               <Image src={featured.image} alt={featured.name} fill className="object-cover" />
             ) : (
@@ -337,7 +320,7 @@ export default function ComparePage() {
             <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
             {filtered.map((product, idx) => (
               <div
                 key={product.id}
@@ -360,15 +343,6 @@ export default function ComparePage() {
             <p className="text-gray-300 font-medium text-xs mt-2">Essayez &ldquo;riz&rdquo;, &ldquo;tomate&rdquo;, &ldquo;huile&rdquo;...</p>
           </div>
         )}
-
-        {/* ─── FOOTER ─── */}
-        <div className="mt-20 py-10 border-t border-gray-100 dark:border-white/5 flex flex-col items-center gap-3 text-center">
-          <Info className="w-5 h-5 text-gray-200 dark:text-white/10" />
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest max-w-sm">
-            WapiBei audite systématiquement les prix listés pour garantir la transparence du marché.
-          </p>
-        </div>
-
       </div>
     </main>
   );
