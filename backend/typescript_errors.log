@@ -1,1 +1,0 @@
-src/products/products.controller.ts(17,36): error TS2694: Namespace 'global.Express' has no exported member 'Multer'.

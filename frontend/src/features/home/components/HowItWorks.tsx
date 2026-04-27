@@ -48,16 +48,6 @@ export const HowItWorks: React.FC = () => {
               <p className="text-lg text-gray-500 dark:text-gray-400 font-medium mt-6 leading-relaxed max-w-xl">
                 Oubliez les processus complexes. Nous avons digitalisé le "bouche-à-oreille" pour vous offrir la simplicité du marché traditionnel avec la puissance du numérique.
               </p>
-
-              <div className="mt-10 flex items-center gap-6 p-6 rounded-3xl bg-white dark:bg-white/5 border border-[#DDB88C]/30 dark:border-white/10 shadow-sm">
-                <div className="size-14 rounded-full bg-[#2D5A27]/10 dark:bg-[#2D5A27]/20 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-[#2D5A27] font-bold">verified_user</span>
-                </div>
-                <div>
-                  <h4 className="font-black text-[#2D5A27] dark:text-white text-sm uppercase">100% Confiance</h4>
-                  <p className="text-xs text-gray-400 mt-1 font-medium">Vous ne payez que le vendeur en face-à-face après avoir validé votre article.</p>
-                </div>
-              </div>
             </motion.div>
           </div>
 
@@ -65,7 +55,7 @@ export const HowItWorks: React.FC = () => {
           <div className="w-full lg:w-1/2 relative">
             <div className="space-y-12">
               {STEPS.map((step, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -75,8 +65,8 @@ export const HowItWorks: React.FC = () => {
                 >
                   <div className="flex flex-col items-center">
                     <div className={`size-16 md:size-20 rounded-2xl bg-white dark:bg-white/5 border border-[#DDB88C]/50 dark:border-white/10 shadow-lg shadow-black/5 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-500`}>
-                      <span className={`material-symbols-outlined text-3xl md:text-4xl bg-linear-to-br ${step.color} bg-clip-text text-transparent`}>
-                        {step.icon}
+                      <span className={`text-3xl md:text-4xl font-black bg-linear-to-br ${step.color} bg-clip-text text-transparent`}>
+                        {String(index + 1).padStart(2, '0')}
                       </span>
                     </div>
                     {index !== STEPS.length - 1 && (
@@ -95,7 +85,7 @@ export const HowItWorks: React.FC = () => {
               ))}
 
               {/* Third human step (Handshake) */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -104,7 +94,7 @@ export const HowItWorks: React.FC = () => {
               >
                 <div className="flex flex-col items-center">
                   <div className={`size-16 md:size-20 rounded-2xl bg-[#E67E22] text-white shadow-xl shadow-[#E67E22]/20 flex items-center justify-center relative z-10 group-hover:scale-110 transition-transform duration-500`}>
-                    <span className="material-symbols-outlined text-3xl md:text-4xl">handshake</span>
+                    <span className="text-3xl md:text-4xl font-black">03</span>
                   </div>
                 </div>
 

@@ -1,7 +1,8 @@
-/*
+/**
  * Interface Product pour l'affichage dans le dashboard admin.
+ * Distincte du Product global car elle contient des champs spécifiques à l'admin.
  */
-export interface Product {
+export interface AdminProduct {
     id: string;
     name: string;
     seller: string;      

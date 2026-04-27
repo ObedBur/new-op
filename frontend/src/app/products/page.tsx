@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { 
-  getProducts, 
+import {
+  getProducts,
   getCategories,
   getDeals,
   getNewArrivals,
@@ -10,10 +10,7 @@ import {
 import { ProductsView } from '@/features/products/components/ProductsView';
 
 // Metadata for SEO
-export const metadata = {
-  title: 'Nos Articles | Marketplace Africain',
-  description: 'Découvrez les meilleurs deals et produits locaux en Afrique. Alimentation, High-Tech, Mode et plus.',
-};
+
 
 export default async function ProductsPage() {
   // Parallel fetching in Server Component
@@ -40,8 +37,8 @@ export default async function ProductsPage() {
           <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full mx-auto" />
         </div>
       }>
-        <ProductsView 
-          initialProducts={products} 
+        <ProductsView
+          initialProducts={products}
           categories={categories}
           deals={deals}
           newArrivals={newArrivals}

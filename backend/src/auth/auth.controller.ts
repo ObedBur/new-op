@@ -49,6 +49,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
+    
   }
 
   @Post('reset-password')

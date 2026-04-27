@@ -5,105 +5,106 @@
 @custom-variant dark (&:is(.theme-dark *));
 
 :root {
-  /* WapiBei Premium Palette - Wapi Orange & Bei Green */
-  --background: 210 20% 98%;      
-  --foreground: 215 28% 17%;      
+  /* WapiBei Strict 4-Color Palette: Orange, Vert Foncé, Blanc, Noir */
+  
+  --wapi-orange: 28 78% 52%;   /* #E67E22 */
+  --wapi-green: 113 40% 25%;   /* #2D5A27 */
+  --wapi-white: 0 0% 100%;     /* #FFFFFF */
+  --wapi-black: 0 0% 0%;       /* #000000 */
 
-  --card: 0 0% 100%;
-  --card-foreground: 215 28% 17%;
- 
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 28% 17%;
- 
-  --primary: 28 78% 52%;
-    /* Wapi Orange #E67E22 */
-    --primary-foreground: 0 0% 100%;
- 
-  --secondary: 113 40% 96%;
-    /* Very light version of Bei Green */
-    --secondary-foreground: 113 40% 25%;
-    /* Bei Green #2D5A27 */
- 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
- 
-  --accent: 113 40% 96%;
-    --accent-foreground: 113 40% 25%;
- 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --background: var(--wapi-white);      
+  --foreground: var(--wapi-black);      
 
-  --border: 220 13% 91%;          
-  --input: 220 13% 91%;
-  --ring: 28 78% 52%;
+  --card: var(--wapi-white);
+  --card-foreground: var(--wapi-black);
+ 
+  --popover: var(--wapi-white);
+  --popover-foreground: var(--wapi-black);
+ 
+  --primary: var(--wapi-orange);
+  --primary-foreground: var(--wapi-white);
+ 
+  --secondary: var(--wapi-green);
+  --secondary-foreground: var(--wapi-white);
+ 
+  --muted: var(--wapi-white);
+  --muted-foreground: var(--wapi-black);
+ 
+  --accent: var(--wapi-green);
+  --accent-foreground: var(--wapi-white);
+ 
+  --destructive: var(--wapi-orange);
+  --destructive-foreground: var(--wapi-white);
+
+  --border: var(--wapi-black);          
+  --input: var(--wapi-black);
+  --ring: var(--wapi-orange);
  
   --radius: 1rem;                 
 
-  /* Custom helper variables */
-  --deep-blue: 215 28% 17%;
-  --border-sep: 220 13% 91%;
-  --background-alt: 210 20% 99%;
-  --sidebar-bg-start: 215 28% 13%;   /* Dark gradient start */
-  --sidebar-bg-end: 215 40% 10%;     /* Dark gradient end */
-  --glass-border: 255 255% 255% / 0.1;
+  /* Custom helper variables mapped to the 4 colors */
+  --deep-blue: var(--wapi-black);
+  --border-sep: var(--wapi-black);
+  --background-alt: var(--wapi-white);
+  --sidebar-bg-start: var(--wapi-green);
+  --sidebar-bg-end: var(--wapi-green);
+  --glass-border: 0 0% 0% / 0.1;
   
-  --chart-1: 28 78% 52%;
-    --chart-2: 113 40% 25%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --chart-1: var(--wapi-orange);
+  --chart-2: var(--wapi-green);
+  --chart-3: var(--wapi-black);
+  --chart-4: var(--wapi-orange);
+  --chart-5: var(--wapi-green);
 
-  /* E-Commerce Palette */
-  --price: 28 78% 52%;
-    --price-foreground: 0 0% 100%;
-  --promo: 38 92% 50%;               /* Amber/Gold for promo badges */
-  --promo-foreground: 38 100% 98%;
-  --cta-from: 28 78% 52%;
-    /* Wapi Orange */
-    --cta-to: 113 40% 25%;
-    /* Bei Green */
-  --skeleton: 220 15% 93%;           /* Warm grey for skeletons */
+  /* E-Commerce Palette mapped to the 4 colors */
+  --price: var(--wapi-orange);
+  --price-foreground: var(--wapi-white);
+  --promo: var(--wapi-orange);
+  --promo-foreground: var(--wapi-white);
+  --cta-from: var(--wapi-orange);
+  --cta-to: var(--wapi-green);
+  --skeleton: var(--wapi-black);
 }
  
 .dark, .theme-dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  --background: var(--wapi-black);
+  --foreground: var(--wapi-white);
  
-  --card: 217 33% 10%;            
-  --card-foreground: 210 40% 98%;
+  --card: var(--wapi-black);            
+  --card-foreground: var(--wapi-white);
  
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
+  --popover: var(--wapi-black);
+  --popover-foreground: var(--wapi-white);
  
-  --primary: 28 78% 52%;
-    --primary-foreground: 0 0% 100%;
+  --primary: var(--wapi-orange);
+  --primary-foreground: var(--wapi-black);
  
-  --secondary: 113 40% 15%;
-    --secondary-foreground: 113 40% 90%;
+  --secondary: var(--wapi-green);
+  --secondary-foreground: var(--wapi-white);
  
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  --muted: var(--wapi-black);
+  --muted-foreground: var(--wapi-white);
  
-  --accent: 113 40% 15%;
-    --accent-foreground: 113 40% 90%;
+  --accent: var(--wapi-green);
+  --accent-foreground: var(--wapi-white);
  
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: var(--wapi-orange);
+  --destructive-foreground: var(--wapi-white);
  
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 28 78% 52%;
+  --border: var(--wapi-white);
+  --input: var(--wapi-white);
+  --ring: var(--wapi-orange);
 
-  --deep-blue: 210 40% 98%;
-  --border-sep: 217.2 32.6% 17.5%;
-  --background-alt: 222.2 84% 2%;
-  --sidebar-bg-start: 222 47% 7%;
-  --sidebar-bg-end: 222 47% 5%;
+  --deep-blue: var(--wapi-white);
+  --border-sep: var(--wapi-white);
+  --background-alt: var(--wapi-black);
+  --sidebar-bg-start: var(--wapi-black);
+  --sidebar-bg-end: var(--wapi-black);
 
-  /* E-Commerce Dark */
-  --price: 28 78% 52%;
-  --promo: 38 92% 55%;
-  --skeleton: 217 33% 15%;
+  /* E-Commerce Dark mapped to the 4 colors */
+  --price: var(--wapi-orange);
+  --promo: var(--wapi-orange);
+  --skeleton: var(--wapi-white);
 }
 
 @theme inline {

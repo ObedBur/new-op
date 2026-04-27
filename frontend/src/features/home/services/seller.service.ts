@@ -1,6 +1,6 @@
-import { api } from '@/lib/api';
+import { api } from '@/lib/axios';
 
-export interface Seller {
+export interface HomeSeller {
   id: string;
   boutiqueName: string;
   trustScore: number;
@@ -9,9 +9,9 @@ export interface Seller {
   productPreviews: string[];
 }
 
-export async function getActiveSellers(): Promise<Seller[]> {
+export async function getActiveSellers(): Promise<HomeSeller[]> {
   try {
-    const response = await api.get('/sellers');
+    const response = await api.get<HomeSeller[]>('/sellers');
     return response.data;
   } catch (error) {
     console.error('Error fetching active sellers:', error);

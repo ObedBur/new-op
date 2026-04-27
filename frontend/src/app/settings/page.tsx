@@ -15,7 +15,7 @@ import EditProfileModal from "../modal/EditProfileModal";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
-import { api } from "@/lib/axios";
+import { useAppNotifications } from "@/hooks/useAppNotifications";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
 
@@ -38,47 +38,13 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  React.useEffect(() => {
-    if (activeTab === 'notifications') {
-      fetchNotifications();
-    }
-  }, [activeTab]);
-
-  const fetchNotifications = async () => {
-    setIsLoading(true);
-    try {
-      const response = await api.get('/notifications');
-      setNotifications(response.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const markAsRead = async (id: string) => {
-    try {
-      await api.patch(`/notifications/${id}/read`);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    const unread = notifications.filter(n => !n.isRead);
-    if (unread.length === 0) return;
-
-    try {
-      await Promise.all(unread.map(n => api.patch(`/notifications/${n.id}/read`)));
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    } catch (err) {
-      console.error("Erreur lors du marquage des notifications", err);
-    }
-  };
+  const {
+    notifications,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+  } = useAppNotifications();
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-[#080b14]">

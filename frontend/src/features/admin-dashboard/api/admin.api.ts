@@ -17,6 +17,12 @@ export const adminService = {
     return response.data;
   },
 
+  // Get test users (used in admin users list)
+  async getTestUsers() {
+    const response = await api.get<{ success?: boolean; users?: User[]; data?: User[] } | User[]>('/auth/test-users');
+    return response.data;
+  },
+
   // Get users with pending KYC
   async getPendingKyc() {
     const response = await api.get<ApiResponse<User[]>>('/admin/kyc/pending');

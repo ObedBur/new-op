@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { api } from '@/lib/axios';
+import { getVendorOrders, updateOrderStatus } from '@/features/vendors/services/orders.service';
 import { Search, Filter, Package } from 'lucide-react';
 import { OrderCard, OrderStatus } from './components/OrderCard';
 import { OrderDetailsModal } from './components/OrderDetailsModal';
@@ -26,9 +26,9 @@ export default function OrdersPage() {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await api.get('/orders/vendor');
-                if (response.data.success) {
-                    setOrders(response.data.data);
+                const response = await getVendorOrders();
+                if (response?.success) {
+                    setOrders(response.data || []);
                 }
             } catch (error) {
                 console.error("Erreur de récupération des commandes:", error);
@@ -136,8 +136,8 @@ export default function OrdersPage() {
                                         onViewDetails={() => setSelectedOrder(order)}
                                         onStatusChange={async (newStatus) => {
                                             try {
-                                                const res = await api.post(`/orders/${order.id}/status`, { status: newStatus });
-                                                if (res.data.success) {
+                                                const res = await updateOrderStatus(order.id, newStatus);
+                                                if (res?.success) {
                                                     setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
                                                 }
                                             } catch (error) {

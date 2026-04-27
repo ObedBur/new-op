@@ -189,7 +189,7 @@ const Header: React.FC<HeaderProps> = ({
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-bold text-deep-blue truncate">{n.title}</p>
                                                     <p className="text-xs text-muted line-clamp-1">{n.message}</p>
-                                                    <p className="text-[10px] text-muted/60 mt-1 font-bold">{n.time}</p>
+                                                    <p className="text-[10px] text-muted/60 mt-1 font-bold">{new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
                                                 </div>
                                             </div>
                                         </div>

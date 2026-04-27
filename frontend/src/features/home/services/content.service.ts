@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api } from '@/lib/axios';
 
 export interface HeroSlide {
   id: string;
@@ -21,7 +21,7 @@ export interface HomepageContent {
 
 export async function getHomepageContent(): Promise<HomepageContent> {
   try {
-    const response = await api.get('/content/homepage');
+    const response = await api.get<HomepageContent>('/content/homepage');
     return response.data;
   } catch (error) {
     console.error('Error fetching homepage content:', error);
