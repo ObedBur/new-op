@@ -2,12 +2,15 @@
     "$schema": "https://turbo.build/schema.json",
     "tasks": {
         "build": {
-            "dependsOn": ["^build", "prisma:generate"],
+            "dependsOn": ["^build"],
             "outputs": [
                 "dist/**",
                 ".next/**",
                 "!.next/cache/**"
             ]
+        },
+        "backend#build": {
+            "dependsOn": ["backend#prisma:generate"]
         },
         "prisma:generate": {
             "cache": false,
@@ -15,8 +18,7 @@
         },
         "dev": {
             "cache": false,
-            "persistent": true,
-            "dependsOn": ["prisma:generate"]
+            "persistent": true
         },
         "lint": {
             "dependsOn": ["^lint"]

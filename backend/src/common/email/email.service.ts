@@ -183,7 +183,7 @@ export class EmailService {
         <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; color: #64748b; font-weight: 700;">${item.quantity}</td>
         <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 800; color: #E67E22; font-size: 16px;">${(
             item.price * item.quantity
-        ).toLocaleString()} $</td>
+          ).toLocaleString()} $</td>
       </tr>
     `,
       )

@@ -1,5 +1,3 @@
-node_modules
-
 # Dependances
 node_modules/
 .pnp
@@ -7,6 +5,10 @@ node_modules/
 
 # Testing
 coverage/
+
+# Build artifacts (monorepo)
+frontend/.next/
+backend/dist/
 
 # Next.js build
 .next/

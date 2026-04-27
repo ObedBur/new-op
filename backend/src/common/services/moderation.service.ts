@@ -1,28 +1,55 @@
-import { Injectable, BadRequestException, OnModuleInit } from '@nestjs/common';
-import * as nsfw from 'nsfwjs';
-import * as tf from '@tensorflow/tfjs';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { Jimp } from 'jimp';
 import Filter = require('bad-words');
 
 @Injectable()
-export class ModerationService implements OnModuleInit {
+export class ModerationService {
+  private readonly logger = new Logger(ModerationService.name);
   private filter: any;
-  private model: nsfw.NSFWJS | null = null;
+  private model: import('nsfwjs').NSFWJS | null = null;
+  private tfModule: typeof import('@tensorflow/tfjs') | null = null;
+  private jimpModule: typeof import('jimp') | null = null;
+  private modelLoadPromise: Promise<import('nsfwjs').NSFWJS | null> | null = null;
 
   constructor() {
     this.filter = new Filter();
     this.filter.addWords('tramadol', 'viagra', 'arnaque', 'argent facile', 'investir vite');
   }
 
-  async onModuleInit() {
-    console.error(" Initialisation du modèle de modération d'image (NSFWJS)...");
-    try {
-      this.model = await nsfw.load();
-      console.error(' Modèle de modération d\'image chargé avec succès.');
-    } catch (error) {
-      console.error(' Erreur lors du chargement du modèle NSFWJS:', error);
+  private async ensureModelLoaded(): Promise<import('nsfwjs').NSFWJS | null> {
+    if (this.model) {
+      return this.model;
     }
+
+    if (!this.modelLoadPromise) {
+      this.modelLoadPromise = (async () => {
+        this.logger.log("Chargement à la demande du modèle de modération d'image...");
+
+        try {
+          const [nsfwModule, tfModule, jimpModule] = await Promise.all([
+            import('nsfwjs'),
+            import('@tensorflow/tfjs'),
+            import('jimp'),
+          ]);
+
+          this.tfModule = tfModule;
+          this.jimpModule = jimpModule;
+          this.model = await nsfwModule.load();
+          this.logger.log("Modèle de modération d'image prêt.");
+          return this.model;
+        } catch (error) {
+          const message = error instanceof Error ? error.stack || error.message : String(error);
+          this.logger.error('Impossible de charger le modèle NSFWJS', message);
+          return null;
+        } finally {
+          if (!this.model) {
+            this.modelLoadPromise = null;
+          }
+        }
+      })();
+    }
+
+    return this.modelLoadPromise;
   }
 
   validateText(title: string, description: string): boolean {
@@ -45,9 +72,17 @@ export class ModerationService implements OnModuleInit {
    */
   async validateImage(imageUrl: string): Promise<boolean> {
     if (!imageUrl || imageUrl.includes('unsplash.com')) return true;
-    if (!this.model) return true;
 
-    let imageTensor: tf.Tensor3D | null = null;
+    const model = await this.ensureModelLoaded();
+    const tf = this.tfModule;
+    const Jimp = this.jimpModule?.Jimp;
+
+    if (!model || !tf || !Jimp) {
+      this.logger.warn('Modération image indisponible, validation ignorée.');
+      return true;
+    }
+
+    let imageTensor: import('@tensorflow/tfjs').Tensor3D | null = null;
 
     try {
       let buffer: Buffer;
@@ -79,7 +114,7 @@ export class ModerationService implements OnModuleInit {
 
       imageTensor = tf.tensor3d(values, [height, width, numChannels], 'int32');
 
-      const predictions = await this.model.classify(imageTensor);
+      const predictions = await model.classify(imageTensor);
       console.log(`[Moderation] Image predictions for ${imageUrl}:`, predictions);
 
       const nsfwThreshold = 0.30;
