@@ -491,5 +491,59 @@ export class EmailService {
     sendSmtpEmail.to = [{ email: data.adminEmail }];
     return this.apiInstance.sendTransacEmail(sendSmtpEmail);
   }
+
+  /**
+   * Notification de nouveau produit pour les abonnés.
+   */
+  async sendNewProductNotification(data: {
+    email: string;
+    customerName: string;
+    vendorName: string;
+    productName: string;
+    productImage: string;
+    price: number;
+    productLink: string;
+  }) {
+    if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
+      this.logger.log(`[SIMULATION] New product email for ${data.email}: ${data.productName}`);
+      return true;
+    }
+
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `🌟 Nouveau chez ${data.vendorName} : ${data.productName}`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #E67E22; padding: 24px; text-align: center;">
+          <h2 style="color: #ffffff; margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase;">Nouveauté !</h2>
+        </div>
+        <div style="padding: 30px; text-align: center;">
+          <p style="color: #4a5568; font-size: 15px;">Bonjour <strong>${data.customerName}</strong>,</p>
+          <p style="color: #718096; font-size: 14px; margin-bottom: 25px;">Une boutique que vous suivez, <strong>${data.vendorName}</strong>, vient de publier un nouvel article :</p>
+          
+          <div style="border: 1px solid #edf2f7; border-radius: 15px; padding: 15px; background: #fcfcfc;">
+            <img src="${data.productImage}" style="width: 100%; border-radius: 12px; aspect-ratio: 1; object-fit: cover; margin-bottom: 15px;" />
+            <h3 style="color: #1a202c; margin: 0; font-size: 18px; font-weight: 800;">${data.productName}</h3>
+            <p style="color: #E67E22; font-size: 24px; font-weight: 900; margin: 10px 0;">${data.price.toLocaleString()} $</p>
+          </div>
+
+          <a href="${data.productLink}" style="display: block; background-color: #E67E22; color: #ffffff; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 14px; margin-top: 25px; box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);">VOIR LE PRODUIT</a>
+          
+          <p style="color: #a0aec0; font-size: 11px; margin-top: 30px;">
+            Vous recevez cet email car vous suivez cette boutique sur WapiBei.
+          </p>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.sender = { name: 'WapiBei Nouveautés', email: process.env.BREVO_SENDER_EMAIL || 'no-reply@wapibei.com' };
+    sendSmtpEmail.to = [{ email: data.email }];
+
+    try {
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send new product email to ${data.email}`, error);
+      return false;
+    }
+  }
 }
 

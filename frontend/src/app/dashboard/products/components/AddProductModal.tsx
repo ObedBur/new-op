@@ -29,11 +29,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [quantity, setQuantity] = useState('');
+    const [unit, setUnit] = useState('Pièce');
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isPublic, setIsPublic] = useState(true);
     const [currency, setCurrency] = useState<'USD' | 'FC'>('USD');
     const EXCHANGE_RATE = 2850; // Taux de change moyen local
+    const UNITS = ['Pièce', 'Kg', 'Litre', 'Sac', 'Boîte', 'Douzaine', 'Mètre', 'Gramme'];
 
 
     // Populate form if editing
@@ -43,6 +46,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             setDescription(product.description || '');
             setPrice(product.price?.toString() || '');
             setCategoryId(product.categoryId?.toString() || '');
+            setQuantity(product.stockQuantity?.toString() || '');
+            setUnit(product.unit || 'Pièce');
             setImagePreview(product.image || null);
             setIsPublic(product.isPublic !== undefined ? product.isPublic : true);
         } else {
@@ -51,6 +56,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             setDescription('');
             setPrice('');
             setCategoryId('');
+            setQuantity('');
+            setUnit('Pièce');
             setImagePreview(null);
             setIsPublic(defaultPublic !== undefined ? defaultPublic : true);
         }
@@ -92,6 +99,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 description,
                 price: currency === 'USD' ? Number(price) : Number(price) / EXCHANGE_RATE,
                 categoryId: Number(categoryId),
+                stockQuantity: Number(quantity) || 0,
+                unit: unit,
                 isPublic,
             };
 
@@ -119,6 +128,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                         setDescription('');
                         setPrice('');
                         setCategoryId('');
+                        setQuantity('');
+                        setUnit('Pièce');
                         setImage(null);
                         setImagePreview(null);
                     }
@@ -289,6 +300,44 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                             {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#0f172a]">
                                                     {cat.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Quantity */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Quantité en stock</label>
+                                    <div className="relative">
+                                        <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                        <input 
+                                            value={quantity} 
+                                            onChange={(e) => setQuantity(e.target.value)} 
+                                            type="number" 
+                                            placeholder="ex: 100" 
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" 
+                                            required 
+                                        />
+                                    </div>
+                                </div>
+                                {/* Unit */}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Unité de mesure</label>
+                                    <div className="relative">
+                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                        <select 
+                                            value={unit} 
+                                            onChange={(e) => setUnit(e.target.value)} 
+                                            className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-slate-800 dark:text-white" 
+                                            required
+                                        >
+                                            {UNITS.map((u) => (
+                                                <option key={u} value={u} className="bg-white dark:bg-[#0f172a]">
+                                                    {u}
                                                 </option>
                                             ))}
                                         </select>

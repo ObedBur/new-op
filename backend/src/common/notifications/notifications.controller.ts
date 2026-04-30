@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { JwtRequest } from '../../auth/types/auth-request.types';
@@ -18,5 +18,17 @@ export class NotificationsController {
   @Patch(':id/read')
   async markAsRead(@Param('id') id: string) {
     return this.notificationsService.markAsRead(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('read-all')
+  async markAllAsRead(@Req() req: JwtRequest) {
+    // Logique pour marquer tout comme lu si nécessaire
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('subscribe')
+  async subscribeToPush(@Req() req: JwtRequest, @Body() subscription: any) {
+    return this.notificationsService.savePushSubscription(req.user.id, subscription);
   }
 }

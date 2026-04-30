@@ -27,5 +27,15 @@ export class CreateProductDto {
 
     @IsOptional()
     isPublic?: boolean;
+
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(0)
+    stockQuantity?: number;
+
+    @IsOptional()
+    @IsString()
+    unit?: string;
 }
 

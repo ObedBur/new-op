@@ -43,6 +43,9 @@ model User {
   sales               Order[]        @relation("VendorOrders")
   products            Product[]
   refreshTokens       RefreshToken[]
+  follows             Follow[]       @relation("UserFollows")
+  followers           Follow[]       @relation("UserFollowers")
+  pushSubscriptions   PushSubscription[]
 
   @@index([email])
   @@index([phone])
@@ -95,6 +98,8 @@ model Product {
   country       String              @default("RD Congo")
   images        String[]            @default([])
   isPublic      Boolean             @default(true)
+  stockQuantity Int?                @default(0)
+  unit          String?             @default("Pièce")
   orders        Order[]
   category      Category            @relation(fields: [categoryId], references: [id])
   user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -212,4 +217,34 @@ enum NotificationType {
   ORDER_CONFIRMED
   PAYMENT_RECEIVED
   SYSTEM_ALERT
+  NEW_PRODUCT
+  PROMOTION
+}
+
+model Follow {
+  id        String   @id @default(uuid())
+  followerId String
+  vendorId   String
+  createdAt  DateTime @default(now())
+
+  follower  User @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  vendor    User @relation("UserFollowers", fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, vendorId])
+  @@index([followerId])
+  @@index([vendorId])
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

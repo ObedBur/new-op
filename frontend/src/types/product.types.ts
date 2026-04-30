@@ -21,6 +21,7 @@ export interface Product {
   images?: string[];
   updatedAt: string;
   availability?: 'IN_STOCK' | 'LIMITED_STOCK' | 'ON_ORDER';
-  market: string;
+  stockQuantity?: number;
+  unit?: string;
   user?: Seller;
 }

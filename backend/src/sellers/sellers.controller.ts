@@ -1,5 +1,7 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Req, NotFoundException } from '@nestjs/common';
 import { SellersService } from './sellers.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtRequest } from '../auth/types/auth-request.types';
 
 @Controller('sellers')
 export class SellersController {
@@ -17,5 +19,11 @@ export class SellersController {
       throw new NotFoundException('Vendeur non trouvé');
     }
     return seller;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/follow')
+  async toggleFollow(@Param('id') vendorId: string, @Req() req: JwtRequest) {
+    return this.sellersService.toggleFollow(req.user.id, vendorId);
   }
 }

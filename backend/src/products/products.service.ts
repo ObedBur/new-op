@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { ModerationService } from '../common/services/moderation.service';
+import { NotificationsService } from '../common/notifications/notifications.service';
 
 const productInclude = {
   category: true,
@@ -20,6 +21,7 @@ export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private moderationService: ModerationService,
+    private notificationsService: NotificationsService,
   ) {}
 
   // ====== ALGORITHME 1 : OFFRES DU MOMENT ======
@@ -165,7 +167,7 @@ export class ProductsService {
       imageUrl
     );
 
-    return this.prisma.product.create({
+    const product = await this.prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
@@ -174,11 +176,21 @@ export class ProductsService {
         image: imageUrl,
         userId: userId,
         isPublic: data.isPublic !== undefined ? data.isPublic : true,
+        stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : 0,
+        unit: data.unit || 'Pièce',
       } as any,
       include: {
         category: true,
       }
     });
+
+    // 2. Notifier les abonnés si le produit est public
+    if (product.isPublic) {
+      // On le fait de manière asynchrone pour ne pas bloquer la réponse API
+      this.notificationsService.broadcastNewProduct(product.id);
+    }
+
+    return product;
   }
 
   async findOne(id: string) {
@@ -211,7 +223,8 @@ export class ProductsService {
         ...(data.price && { price: Number(data.price) }),
         ...(data.categoryId && { categoryId: Number(data.categoryId) }),
         ...(data.image && { image: data.image }),
-        ...(data.stock !== undefined && { stock: Number(data.stock) }),
+        ...(data.stockQuantity !== undefined && { stockQuantity: Number(data.stockQuantity) }),
+        ...(data.unit && { unit: data.unit }),
         ...(data.availability && { availability: data.availability }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
       } as any,
