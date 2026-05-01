@@ -30,7 +30,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly userValidationService: UserValidationService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   // ========================= REGISTER =========================
 
@@ -52,11 +52,9 @@ export class AuthService {
       );
     }
 
-    // Validation du mot de passe (Production Ready)
-    if (process.env.NODE_ENV === 'production') {
-      this.passwordService.validateComplexity(dto.password);
-    }
-    
+    // Validation du mot de passe
+    this.passwordService.validateComplexity(dto.password);
+
     const passwordHash = await this.passwordService.hash(dto.password);
 
     const trustScore = this.userValidationService.getInitialTrustScore(dto.role);
@@ -222,6 +220,9 @@ export class AuthService {
       throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
     }
 
+    // Validation de la complexité du nouveau mot de passe
+    this.passwordService.validateComplexity(dto.newPassword);
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -339,6 +340,10 @@ export class AuthService {
       if (!isOldPasswordValid) {
         throw new HttpException('L\'ancien mot de passe est incorrect', HttpStatus.UNAUTHORIZED);
       }
+
+      // Validation de la complexité du nouveau mot de passe
+      this.passwordService.validateComplexity(dto.password);
+
       data.password = await this.passwordService.hash(dto.password);
     }
 

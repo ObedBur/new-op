@@ -21,10 +21,11 @@ export const VendorSidebar: React.FC<VendorSidebarProps> = ({ user }) => {
     const navItems = [
         { id: 'profile', label: 'Mon Profil', href: '/settings', icon: User },
         ...(user?.role === 'VENDOR' ? [
-            { id: 'orders', label: 'Mes Commandes', href: '/dashboard/orders', icon: Package },
+            { id: 'orders', label: 'Mes Ventes', href: '/dashboard/orders', icon: Package },
             { id: 'products', label: 'Mes Produits', href: '/dashboard/products', icon: ShoppingBag },
+            { id: 'analytics', label: 'Analytiques', href: '/dashboard/analytics', icon: TrendingUp },
         ] : [
-            { id: 'favorites', label: 'Mes Favoris', href: '/dashboard/wishlist', icon: Heart },
+            { id: 'orders', label: 'Mes Commandes', href: '/settings?tab=orders', icon: Package },
         ]),
         { id: 'notifications', label: 'Notifications', href: '/settings?tab=notifications', icon: Bell },
         { id: 'security', label: 'Sécurité', href: '/settings?tab=security', icon: ShieldCheck },
@@ -60,8 +61,8 @@ export const VendorSidebar: React.FC<VendorSidebarProps> = ({ user }) => {
                                 <Link
                                     key={item.id}
                                     href={item.href}
-                                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-[15px] font-bold transition-all duration-300 ${isActive
-                                        ? "bg-orange-50 dark:bg-orange-500/10 text-[#E67E22]"
+                                    className={`relative w-full flex items-center gap-5 px-6 py-4 rounded-2xl text-[15px] font-bold transition-all duration-300 overflow-hidden ${isActive
+                                        ? "bg-orange-50 dark:bg-orange-500/10 text-[#E67E22] before:absolute before:left-0 before:top-0 before:h-full before:w-1.5 before:bg-[#E67E22]"
                                         : "text-[#64748b] hover:bg-green-50 dark:hover:bg-green-500/10 hover:text-[#2D5A27] dark:hover:text-[#52c140]"
                                         }`}
                                 >

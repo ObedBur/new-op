@@ -2,6 +2,11 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import axios from 'axios';
 import Filter = require('bad-words');
 
+/**
+ * Service de modération automatique du contenu.
+ * Valide les textes (mots interdits), les images (NSFW via TensorFlow/NSFWJS)
+ * et la qualité globale d'une annonce avant sa publication.
+ */
 @Injectable()
 export class ModerationService {
   private readonly logger = new Logger(ModerationService.name);
@@ -16,6 +21,10 @@ export class ModerationService {
     this.filter.addWords('tramadol', 'viagra', 'arnaque', 'argent facile', 'investir vite');
   }
 
+  /**
+   * Charge le modèle NSFWJS de manière paresseuse (lazy-loading).
+   * Évite de charger TensorFlow au démarrage de l'application (impact mémoire).
+   */
   private async ensureModelLoaded(): Promise<import('nsfwjs').NSFWJS | null> {
     if (this.model) {
       return this.model;
@@ -52,11 +61,12 @@ export class ModerationService {
     return this.modelLoadPromise;
   }
 
+  /**
+   * Filtre les contenus textuels inadéquats (mots profanes, produits interdits).
+   */
   validateText(title: string, description: string): boolean {
     const isBadTitle = this.filter.isProfane(title);
     const isBadDesc = this.filter.isProfane(description || '');
-
-    console.log(`[Moderation] Text validation: title profane=${isBadTitle}, desc profane=${isBadDesc}`);
 
     if (isBadTitle || isBadDesc) {
       throw new BadRequestException({
@@ -68,7 +78,9 @@ export class ModerationService {
   }
 
   /**
-   * Modération d'image locale via TensorFlow/NSFWJS
+   * Analyse une image via TensorFlow/NSFWJS pour détecter du contenu explicite.
+   * Supporte les URLs distantes et les images encodées en Base64.
+   * En cas d'indisponibilité du modèle, la validation est ignorée (fail-open).
    */
   async validateImage(imageUrl: string): Promise<boolean> {
     if (!imageUrl || imageUrl.includes('unsplash.com')) return true;
@@ -87,20 +99,18 @@ export class ModerationService {
     try {
       let buffer: Buffer;
 
-      // 1. Détecter si c'est une image Base64 ou une URL distante
       if (imageUrl.startsWith('data:')) {
         const base64Data = imageUrl.split(';base64,').pop();
-        if (!base64Data) throw new Error('Invalid Base64 data');
+        if (!base64Data) throw new Error('Données Base64 invalides');
         buffer = Buffer.from(base64Data, 'base64');
       } else {
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
         buffer = Buffer.from(response.data);
       }
 
-      // 2. Décoder l'image
       const image = await Jimp.read(buffer);
       const { width, height, data } = image.bitmap;
-      
+
       const numChannels = 3;
       const numPixels = width * height;
       const values = new Int32Array(numPixels * numChannels);
@@ -115,27 +125,24 @@ export class ModerationService {
       imageTensor = tf.tensor3d(values, [height, width, numChannels], 'int32');
 
       const predictions = await model.classify(imageTensor);
-      console.log(`[Moderation] Image predictions for ${imageUrl}:`, predictions);
+      this.logger.log(`Analyse NSFW pour ${imageUrl}: ${JSON.stringify(predictions)}`);
 
       const nsfwThreshold = 0.30;
       const dangerousClasses = ['Porn', 'Hentai', 'Sexy'];
-
       const topPrediction = predictions.find(p => dangerousClasses.includes(p.className));
 
       if (topPrediction && topPrediction.probability > nsfwThreshold) {
-        console.warn(`[Moderation] Image REJECTED: ${topPrediction.className} (${topPrediction.probability})`);
+        this.logger.warn(`Image rejetée: ${topPrediction.className} (${topPrediction.probability})`);
         throw new BadRequestException({
           message: `L'image a été rejetée car elle contient du contenu ${topPrediction.className.toLowerCase()}.`,
           error: 'LOCAL_IMAGE_ERROR'
         });
       }
 
-      console.log(`[Moderation] Image ACCEPTED`);
-
       return true;
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
-      console.error("NSFW Analysis error:", error);
+      this.logger.error("Erreur d'analyse NSFW:", error);
       return true;
     } finally {
       if (imageTensor) {
@@ -144,14 +151,21 @@ export class ModerationService {
     }
   }
 
+  /**
+   * Vérifie la qualité minimale d'une annonce (longueur du titre, description, cohérence du prix).
+   */
   validateQuality(title: string, description: string, price: number): boolean {
     const titleWords = title.trim().split(/\s+/).filter(w => w.length > 1);
     if (titleWords.length < 2) throw new BadRequestException({ message: "Titre trop court (min 2 mots).", error: 'QUALITY_ERROR' });
-    if (!description || description.trim().length < 10) throw new BadRequestException({ message: "Description trop courte (min 10 car.).", error: 'QUALITY_ERROR' });
+    if (!description || description.trim().length < 10) throw new BadRequestException({ message: "Description trop courte (min 10 caractères).", error: 'QUALITY_ERROR' });
     if (price <= 0 || price > 100000) throw new BadRequestException({ message: "Prix invalide ou incohérent.", error: 'PRICE_ERROR' });
     return true;
   }
 
+  /**
+   * Validation complète d'un produit avant publication.
+   * Enchaîne les vérifications texte, qualité et image.
+   */
   async fullValidation(title: string, description: string, price: number, imageUrl?: string) {
     this.validateText(title, description);
     this.validateQuality(title, description, price);

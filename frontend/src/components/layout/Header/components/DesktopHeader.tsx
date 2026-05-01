@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { User } from '@/types/auth';
 import { ProfileDropdown } from './ProfileDropdown';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
@@ -29,6 +29,7 @@ export const DesktopHeader = ({
   totalItems,
 }: DesktopHeaderProps) => {
   const pathname = usePathname();
+  const router = useRouter();
   const isActive = (path: string) => pathname === path;
   const { unreadCount } = useAppNotifications();
   
@@ -74,7 +75,7 @@ export const DesktopHeader = ({
                   px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs font-bold tracking-widest[0.1em] uppercase transition-all duration-300
                   ${isActive(link.id) 
                     ? 'bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25' 
-                    : 'text-gray-500 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20'}
+                    : 'text-black/50 dark:text-white/50 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20'}
                 `}
               >
                 {link.label}
@@ -113,22 +114,33 @@ export const DesktopHeader = ({
           {/* Search */}
           <div className="relative flex items-center">
               {isSearchOpen ? (
-                  <div className="flex items-center animate-in zoom-in-95 fade-in duration-300 bg-white/50 dark:bg-white/5 rounded-full px-4 py-1.5 border border-white/20">
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const query = (e.currentTarget.elements.namedItem('search') as HTMLInputElement).value;
+                      if (query.trim()) {
+                        router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+                        setIsSearchOpen(false);
+                      }
+                    }}
+                    className="flex items-center animate-in zoom-in-95 fade-in duration-300 bg-white/50 dark:bg-white/5 rounded-full px-4 py-1.5 border border-white/20"
+                  >
                       <input 
+                          name="search"
                           type="text" 
                           placeholder="RECHERCHER..." 
-                          className="bg-transparent border-none outline-none text-[10px] font-bold tracking-wider w-40 text-deep-blue dark:text-white placeholder-gray-400"
+                          className="bg-transparent border-none outline-none text-[10px] font-bold tracking-wider w-40 text-black dark:text-white placeholder-black/40 dark:placeholder-white/40"
                           autoFocus
                           onBlur={(e) => !e.target.value && setIsSearchOpen(false)}
                       />
-                      <button onClick={() => setIsSearchOpen(false)} className="ml-2 text-gray-400 hover:text-red-500 transition-colors">
+                      <button type="button" onClick={() => setIsSearchOpen(false)} className="ml-2 text-black/40 dark:text-white/40 hover:text-red-500 transition-colors">
                           <span className="material-symbols-outlined text-[16px]">close</span>
                       </button>
-                  </div>
+                  </form>
               ) : (
                   <button 
                       onClick={() => setIsSearchOpen(true)}
-                      className="size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+                      className="size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
                       title="Rechercher"
                   >
                       <span className="material-symbols-outlined text-[22px]">search</span>
@@ -137,12 +149,12 @@ export const DesktopHeader = ({
           </div>
 
           {/* Separator */}
-          <div className="w-px h-6 bg-gray-200 dark:bg-white/10"></div>
+          <div className="w-px h-6 bg-black/10 dark:bg-white/10"></div>
 
           {/* Notifications */}
           <Link
             href="/settings?tab=notifications"
-            className="relative size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+            className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
           >
               <span className="material-symbols-outlined text-[22px]">notifications</span>
               {unreadCount > 0 && (
@@ -153,7 +165,7 @@ export const DesktopHeader = ({
           {/* Cart */}
           <Link 
               href="/cart"
-              className="relative size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+              className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
           >
               <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
               {totalItems > 0 && (

@@ -17,7 +17,9 @@ import { useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
 
-type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences';
+import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
+
+type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -38,6 +40,18 @@ export default function SettingsPage() {
   const searchParams = useSearchParams();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [clientOrders, setClientOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'orders') {
+      setIsLoadingOrders(true);
+      getClientOrders().then(res => {
+        if (res.success) setClientOrders(res.data || []);
+        setIsLoadingOrders(false);
+      });
+    }
+  }, [activeTab]);
 
   const {
     notifications,
@@ -45,6 +59,18 @@ export default function SettingsPage() {
     markAsRead,
     markAllAsRead,
   } = useAppNotifications();
+
+  const handleNotificationClick = (n: any) => {
+    if (!n.isRead) {
+      markAsRead(n.id);
+    }
+
+    if (n.type === 'NEW_PRODUCT' && n.metadata?.productId) {
+      window.location.href = `/products/${n.metadata.productId}`;
+    } else if (n.type === 'ORDER_CREATED' || n.type === 'ORDER_CONFIRMED') {
+      window.location.href = user?.role === 'VENDOR' ? '/dashboard/orders' : '/settings?tab=preferences'; // adjust as needed
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-[#080b14]">
@@ -83,7 +109,7 @@ export default function SettingsPage() {
                         </div>
                         {notifications.some(n => !n.isRead) && (
                           <button
-                            onClick={markAllAsRead}
+                            onClick={() => markAllAsRead()}
                             className="group flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/20"
                           >
                             <CheckCircle2 size={16} />
@@ -118,7 +144,8 @@ export default function SettingsPage() {
                                 <motion.div 
                                   variants={fadeUp}
                                   key={n.id} 
-                                  className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 p-4 md:p-7 rounded-[1.25rem] md:rounded-[2rem] border transition-all duration-300 ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-[#FDF9F6] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm'}`}
+                                  onClick={() => handleNotificationClick(n)}
+                                  className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 p-4 md:p-7 rounded-[1.25rem] md:rounded-[2rem] border transition-all duration-300 cursor-pointer hover:shadow-md ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-[#FDF9F6] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm'}`}
                                 >
                                   {/* Mobile-optimized Header Layout */}
                                   <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
@@ -175,6 +202,57 @@ export default function SettingsPage() {
                     </section>
                   )}
 
+                  {activeTab === 'orders' && (
+                    <motion.div variants={fadeUp} className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-8 md:p-12 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 min-h-[80vh] sm:min-h-0">
+                      <div className="mb-10">
+                        <h3 className="text-xl md:text-xl font-black text-deep-blue dark:text-white tracking-tight leading-none">Mes Commandes</h3>
+                        <p className="text-xs md:text-xs font-semibold text-gray-400 mt-2">Suivez vos achats et contactez les vendeurs</p>
+                      </div>
+
+                      {isLoadingOrders ? (
+                        <div className="flex justify-center py-20">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div>
+                        </div>
+                      ) : clientOrders.length === 0 ? (
+                        <div className="text-center py-20">
+                          <Package className="size-16 text-gray-200 mx-auto mb-4" />
+                          <p className="text-lg font-black text-deep-blue dark:text-white">Aucune commande pour le moment</p>
+                          <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
+                            Découvrir les produits
+                          </Link>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {clientOrders.map((order) => (
+                            <div key={order.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl border border-gray-100 dark:border-white/5 hover:border-orange-200 dark:hover:border-orange-500/20 transition-all bg-gray-50/30 dark:bg-white/5">
+                              <div className="size-20 rounded-2xl overflow-hidden bg-white shrink-0">
+                                <Image src={order.product?.image || ""} alt={order.product?.name || ""} width={80} height={80} className="object-cover h-full w-full" />
+                              </div>
+                              <div className="flex-1 text-center sm:text-left">
+                                <h4 className="font-black text-deep-blue dark:text-white text-lg leading-tight mb-1">{order.product?.name}</h4>
+                                <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2">
+                                  <span className="px-3 py-1 bg-white dark:bg-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-100 dark:border-white/5">
+                                    ID: {order.id.substring(0, 8)}
+                                  </span>
+                                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                    order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
+                                    order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                    'bg-orange-100 text-orange-700'
+                                  }`}>
+                                    {order.status}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="text-xl font-black text-[#E67E22]">{order.totalPrice.toLocaleString()} $</p>
+                                <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
                   {activeTab === 'profile' && (
                     <div className="space-y-8">
                       <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 overflow-hidden">
@@ -305,7 +383,7 @@ export default function SettingsPage() {
                     </div>
                   )}
 
-                  {activeTab !== 'notifications' && activeTab !== 'profile' && (
+                  {activeTab !== 'notifications' && activeTab !== 'profile' && activeTab !== 'orders' && (
                     <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2.5rem] p-12 sm:p-24 text-center border-y sm:border border-gray-100 sm:border-white dark:border-white/5 shadow-xl flex flex-col items-center justify-center space-y-10 min-h-[50vh] sm:min-h-0">
                       <div className="size-24 sm:size-32 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] flex items-center justify-center text-gray-200">
                         <ShoppingBag size={48} className="size-10 sm:size-12" />

@@ -545,5 +545,123 @@ export class EmailService {
       return false;
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────
+  // STATUT COMMANDE : CONFIRMÉE
+  // ─────────────────────────────────────────────────────────────────
+  async sendOrderConfirmed(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `✅ Commande confirmée — ${data.productName}`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:auto;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+        <div style="background:#1a1a1a;padding:24px 20px;text-align:center;">
+          <span style="font-size:22px;font-weight:800;color:#E67E22;letter-spacing:1px;">WapiBei</span>
+        </div>
+        <div style="padding:32px 24px;background:#fff;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:32px;">✅</div>
+          </div>
+          <h1 style="font-size:22px;font-weight:800;color:#1a202c;margin:0 0 8px;">Commande confirmée !</h1>
+          <p style="color:#4a5568;font-size:15px;line-height:1.6;">Bonjour <strong>${data.customerName}</strong>,<br/>Bonne nouvelle ! Le vendeur <strong>${data.vendorName}</strong> a confirmé votre commande.</p>
+          <div style="background:#f7f7f7;border-radius:12px;padding:20px;margin:24px 0;">
+            <p style="margin:0;font-size:13px;color:#718096;text-transform:uppercase;letter-spacing:1px;">Produit commandé</p>
+            <p style="margin:6px 0 0;font-size:17px;font-weight:700;color:#1a202c;">${data.productName}</p>
+            <p style="margin:4px 0 0;font-size:12px;color:#a0aec0;">Réf. #${data.orderId.slice(0, 8).toUpperCase()}</p>
+          </div>
+          <p style="color:#4a5568;font-size:14px;">Votre commande est en cours de préparation. Vous recevrez une notification dès qu'elle sera expédiée.</p>
+        </div>
+        <div style="background:#f7fafc;padding:16px;text-align:center;">
+          <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
+        </div>
+      </div>`;
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
+    try {
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send order confirmed email to ${data.customerEmail}`, error);
+      return false;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // STATUT COMMANDE : EXPÉDIÉE
+  // ─────────────────────────────────────────────────────────────────
+  async sendOrderShipped(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string; deliveryAddress: string }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `📦 Votre colis est en route — ${data.productName}`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:auto;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+        <div style="background:#1a1a1a;padding:24px 20px;text-align:center;">
+          <span style="font-size:22px;font-weight:800;color:#E67E22;letter-spacing:1px;">WapiBei</span>
+        </div>
+        <div style="padding:32px 24px;background:#fff;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:64px;height:64px;background:#fffbeb;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:32px;">📦</div>
+          </div>
+          <h1 style="font-size:22px;font-weight:800;color:#1a202c;margin:0 0 8px;">Votre colis est en route !</h1>
+          <p style="color:#4a5568;font-size:15px;line-height:1.6;">Bonjour <strong>${data.customerName}</strong>,<br/><strong>${data.vendorName}</strong> vient d'expédier votre commande. Elle est maintenant en chemin vers vous !</p>
+          <div style="background:#f7f7f7;border-radius:12px;padding:20px;margin:24px 0;">
+            <p style="margin:0;font-size:13px;color:#718096;text-transform:uppercase;letter-spacing:1px;">Produit expédié</p>
+            <p style="margin:6px 0 0;font-size:17px;font-weight:700;color:#1a202c;">${data.productName}</p>
+            <p style="margin:8px 0 0;font-size:13px;color:#718096;text-transform:uppercase;letter-spacing:1px;">Adresse de livraison</p>
+            <p style="margin:4px 0 0;font-size:15px;font-weight:600;color:#1a202c;">${data.deliveryAddress}</p>
+          </div>
+          <p style="color:#4a5568;font-size:14px;">En cas de problème avec votre livraison, contactez le vendeur directement via la plateforme.</p>
+        </div>
+        <div style="background:#f7fafc;padding:16px;text-align:center;">
+          <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
+        </div>
+      </div>`;
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
+    try {
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send order shipped email to ${data.customerEmail}`, error);
+      return false;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // STATUT COMMANDE : ANNULÉE
+  // ─────────────────────────────────────────────────────────────────
+  async sendOrderCancelled(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = `❌ Commande annulée — ${data.productName}`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:auto;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
+        <div style="background:#1a1a1a;padding:24px 20px;text-align:center;">
+          <span style="font-size:22px;font-weight:800;color:#E67E22;letter-spacing:1px;">WapiBei</span>
+        </div>
+        <div style="padding:32px 24px;background:#fff;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="width:64px;height:64px;background:#fff5f5;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:32px;">❌</div>
+          </div>
+          <h1 style="font-size:22px;font-weight:800;color:#1a202c;margin:0 0 8px;">Commande annulée</h1>
+          <p style="color:#4a5568;font-size:15px;line-height:1.6;">Bonjour <strong>${data.customerName}</strong>,<br/>Nous sommes désolés. Votre commande auprès de <strong>${data.vendorName}</strong> a été annulée.</p>
+          <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:12px;padding:20px;margin:24px 0;">
+            <p style="margin:0;font-size:13px;color:#718096;text-transform:uppercase;letter-spacing:1px;">Commande annulée</p>
+            <p style="margin:6px 0 0;font-size:17px;font-weight:700;color:#1a202c;">${data.productName}</p>
+            <p style="margin:4px 0 0;font-size:12px;color:#a0aec0;">Réf. #${data.orderId.slice(0, 8).toUpperCase()}</p>
+          </div>
+          <p style="color:#4a5568;font-size:14px;">Si vous pensez qu'il s'agit d'une erreur, contactez notre support ou cherchez un autre vendeur proposant ce produit sur WapiBei.</p>
+        </div>
+        <div style="background:#f7fafc;padding:16px;text-align:center;">
+          <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
+        </div>
+      </div>`;
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
+    try {
+      await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send order cancelled email to ${data.customerEmail}`, error);
+      return false;
+    }
+  }
 }
 

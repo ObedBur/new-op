@@ -1,41 +1,70 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, Min, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
+/**
+ * DTO pour la création d'un nouveau produit.
+ * Définit les règles de validation strictes pour les données entrantes.
+ */
 export class CreateProductDto {
-    @IsNotEmpty()
-    @IsString()
-    name: string;
+  /**
+   * Nom commercial du produit.
+   */
+  @IsNotEmpty({ message: 'Le nom du produit est obligatoire.' })
+  @IsString()
+  name: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+  /**
+   * Description détaillée du produit.
+   */
+  @IsOptional()
+  @IsString()
+  description?: string;
 
-    @IsNotEmpty()
-    @Type(() => Number)
-    @IsNumber()
-    @Min(0)
-    price: number;
+  /**
+   * Prix unitaire du produit. 
+   * Doit être un nombre positif.
+   */
+  @IsNotEmpty({ message: 'Le prix est obligatoire.' })
+  @Type(() => Number)
+  @IsNumber({}, { message: 'Le prix doit être un nombre valide.' })
+  @Min(0, { message: 'Le prix ne peut pas être inférieur à 0.' })
+  price: number;
 
-    @IsNotEmpty()
-    @Type(() => Number)
-    @IsNumber()
-    categoryId: number;
+  /**
+   * Identifiant de la catégorie à laquelle appartient le produit.
+   */
+  @IsNotEmpty({ message: 'La catégorie est obligatoire.' })
+  @Type(() => Number)
+  @IsNumber({}, { message: 'L\'identifiant de catégorie doit être un nombre.' })
+  categoryId: number;
 
-    @IsOptional()
-    @IsString()
-    image?: string;
+  /**
+   * URL de l'image représentative du produit.
+   */
+  @IsOptional()
+  @IsString()
+  image?: string;
 
-    @IsOptional()
-    isPublic?: boolean;
+  /**
+   * Définit si le produit est visible par le public ou reste en brouillon.
+   */
+  @IsOptional()
+  @IsBoolean()
+  isPublic?: boolean;
 
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    @Min(0)
-    stockQuantity?: number;
+  /**
+   * Quantité disponible en stock au moment de la création.
+   */
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  stockQuantity?: number;
 
-    @IsOptional()
-    @IsString()
-    unit?: string;
+  /**
+   * Unité de mesure (ex: Pièce, Kg, Litre).
+   */
+  @IsOptional()
+  @IsString()
+  unit?: string;
 }
-

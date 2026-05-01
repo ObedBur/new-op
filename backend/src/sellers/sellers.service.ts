@@ -61,6 +61,7 @@ export class SellersService {
       productCount: (vendor.products || []).length,
       createdAt: vendor.createdAt,
     };
+  }
 
   async toggleFollow(followerId: string, vendorId: string) {
     const existing = await this.prisma.follow.findUnique({

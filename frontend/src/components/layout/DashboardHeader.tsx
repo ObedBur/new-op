@@ -10,8 +10,8 @@ export const DashboardHeader = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-md border-b border-gray-100/50 dark:border-white/5 h-16 md:h-20 shrink-0">
-            <div className="container mx-auto max-w-7xl h-full px-4 lg:px-10 flex items-center justify-between">
+        <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-md border-b border-black/[0.03] dark:border-white/5 h-16 md:h-20 shrink-0">
+            <div className="container mx-auto max-w-7xl h-full px-6 md:px-12 lg:px-16 flex items-center justify-between">
                 {/* Logo & Go Back */}
                 <div className="flex items-center gap-6">
                     <Link

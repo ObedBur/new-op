@@ -27,7 +27,6 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
           className="flex items-center gap-2 group text-slate-400 hover:text-white transition-all duration-300"
         >
           <span className="text-[10px] font-bold uppercase tracking-widest hidden md:inline">Voir tout</span>
-          <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
         </Link>
       </div>
 
@@ -48,9 +47,6 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
             href="/products"
             className="w-full min-h-[160px] flex flex-col items-center justify-center gap-2 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#E67E22]/50 hover:bg-white transition-all group lg:hidden"
           >
-            <div className="size-10 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:bg-[#E67E22] group-hover:text-white transition-colors">
-              <span className="material-symbols-outlined text-2xl">add</span>
-            </div>
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tight group-hover:text-[#E67E22]">Tout voir</span>
           </Link>
         </div>

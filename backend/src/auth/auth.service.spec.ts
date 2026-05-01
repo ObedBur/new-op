@@ -40,6 +40,7 @@ const createMockEmailService = () => ({
   sendOtp: jest.fn().mockResolvedValue(undefined),
   sendPasswordReset: jest.fn().mockResolvedValue(undefined),
   sendWelcome: jest.fn().mockResolvedValue(undefined),
+  sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
 });
 
 const createMockTokenService = () => ({
@@ -368,6 +369,8 @@ describe('AuthService', () => {
           fullName: user.fullName,
           role: user.role,
           trustScore: user.trustScore,
+          city: user.city,
+          country: user.country,
         },
       });
     });
@@ -390,7 +393,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.login({ email: 'nonexistent@example.com', password: 'any' }))
-        .rejects.toThrow(new HttpException('User not found', HttpStatus.NOT_FOUND));
+        .rejects.toThrow(new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED));
     });
 
     it('should reject wrong password', async () => {
@@ -398,7 +401,7 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(user);
 
       await expect(service.login({ email: user.email, password: 'wrongpassword' }))
-        .rejects.toThrow(new HttpException('Invalid password', HttpStatus.UNAUTHORIZED));
+        .rejects.toThrow(new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED));
     });
 
     it('should reject unverified user', async () => {

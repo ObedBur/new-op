@@ -1,9 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
 import { ModerationService } from '../common/services/moderation.service';
 import { NotificationsService } from '../common/notifications/notifications.service';
 
+/**
+ * Configuration des inclusions par défaut pour les requêtes de produits.
+ */
 const productInclude = {
   category: true,
   user: {
@@ -16,6 +18,10 @@ const productInclude = {
   },
 };
 
+/**
+ * Service gérant le catalogue de produits, les algorithmes de recommandation,
+ * la modération automatique et la gestion des stocks.
+ */
 @Injectable()
 export class ProductsService {
   constructor(
@@ -24,8 +30,10 @@ export class ProductsService {
     private notificationsService: NotificationsService,
   ) {}
 
-  // ====== ALGORITHME 1 : OFFRES DU MOMENT ======
-  // Produits en promotion (isOnSale = true) avec réduction >= 15%
+  /**
+   * Récupère les offres promotionnelles du moment.
+   * Filtre les produits marqués explicitement comme étant en solde.
+   */
   async getDeals(limit = 6) {
     return this.prisma.product.findMany({
       where: {
@@ -39,8 +47,9 @@ export class ProductsService {
     });
   }
 
-  // ====== ALGORITHME 2 : NOUVEAUTÉS ======
-  // Produits publiés dans les 7 derniers jours, triés par date
+  /**
+   * Récupère les nouveautés publiées au cours des 7 derniers jours.
+   */
   async getNewArrivals(limit = 6) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -56,12 +65,13 @@ export class ProductsService {
     });
   }
 
-  // ====== ALGORITHME 3 : RECOMMANDATIONS ======
-  // Basé sur les catégories les plus commandées par l'utilisateur
-  // Fallback : produits de vendeurs les mieux notés
+  /**
+   * Algorithme de recommandation personnalisé.
+   * 1. Analyse les catégories les plus achetées par l'utilisateur.
+   * 2. Si l'historique est vide, propose les produits des vendeurs les mieux notés (TrustScore).
+   */
   async getRecommendations(userId?: string, limit = 6) {
     if (userId) {
-      // Trouver les catégories les plus achetées par l'utilisateur
       const userOrders = await this.prisma.order.findMany({
         where: { clientId: userId },
         include: { product: { select: { categoryId: true } } },
@@ -84,7 +94,7 @@ export class ProductsService {
       }
     }
 
-    // Fallback : produits de vendeurs les mieux notés
+    // Stratégie de repli : Excellence des vendeurs (TrustScore élevé)
     return this.prisma.product.findMany({
       where: { isPublic: true } as any,
       orderBy: { user: { trustScore: 'desc' } },
@@ -93,8 +103,9 @@ export class ProductsService {
     });
   }
 
-  // ====== ALGORITHME 4 : MEILLEURES VENTES ======
-  // Triés par nombre de ventes décroissant
+  /**
+   * Récupère les produits les plus vendus sur la plateforme.
+   */
   async getBestSellers(limit = 6) {
     return this.prisma.product.findMany({
       where: { 
@@ -107,7 +118,9 @@ export class ProductsService {
     });
   }
 
-  // ====== LISTE GÉNÉRALE ======
+  /**
+   * Recherche multicritère avec pagination et filtres géographiques (marché).
+   */
   async findAll(query: {
     userId?: string;
     categoryId?: number;
@@ -153,13 +166,13 @@ export class ProductsService {
     };
   }
 
+  /**
+   * Crée un nouveau produit après validation complète par les services de modération (IA).
+   * Déclenche une notification broadcast aux abonnés si le produit est public.
+   */
   async create(data: any, userId: string) {
-    let imageUrl = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
-    if (data.image) {
-      imageUrl = data.image;
-    }
+    const imageUrl = data.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
 
-    // 1. Modération automatique complète (IA Texte + IA Image + Qualité)
     await this.moderationService.fullValidation(
       data.name, 
       data.description || '', 
@@ -179,20 +192,20 @@ export class ProductsService {
         stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : 0,
         unit: data.unit || 'Pièce',
       } as any,
-      include: {
-        category: true,
-      }
+      include: { category: true }
     });
 
-    // 2. Notifier les abonnés si le produit est public
     if (product.isPublic) {
-      // On le fait de manière asynchrone pour ne pas bloquer la réponse API
+      // Exécution asynchrone pour ne pas ralentir la création
       this.notificationsService.broadcastNewProduct(product.id);
     }
 
     return product;
   }
 
+  /**
+   * Récupère un produit unique par son identifiant.
+   */
   async findOne(id: string) {
     return this.prisma.product.findUnique({
       where: { id },
@@ -200,10 +213,14 @@ export class ProductsService {
     });
   }
 
+  /**
+   * Met à jour les informations d'un produit existant.
+   * Une nouvelle validation de modération est déclenchée si l'image est modifiée.
+   */
   async update(id: string, data: any, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException({ message: "Produit non trouvé ou non autorisé." });
+      throw new BadRequestException('Produit introuvable ou vous n\'êtes pas autorisé à le modifier.');
     }
 
     if (data.image) {
@@ -228,37 +245,57 @@ export class ProductsService {
         ...(data.availability && { availability: data.availability }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
       } as any,
-      include: {
-        category: true,
-      }
+      include: { category: true }
     });
   }
 
+  /**
+   * Publie un ensemble de produits en une seule opération.
+   */
   async bulkPublish(ids: string[], userId: string) {
     return this.prisma.product.updateMany({
-      where: {
-        id: { in: ids },
-        userId: userId,
-      },
-      data: {
-        isPublic: true,
-      } as any,
+      where: { id: { in: ids }, userId },
+      data: { isPublic: true } as any,
     });
   }
 
+  /**
+   * Supprime un produit du catalogue.
+   */
   async remove(id: string, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException({ message: "Produit non trouvé ou non autorisé." });
+      throw new BadRequestException('Produit introuvable ou accès non autorisé.');
     }
 
-    return this.prisma.product.delete({
-      where: { id },
-    });
+    return this.prisma.product.delete({ where: { id } });
   }
 
-  // ====== COMPARATEUR DE PRIX ======
-  // Recherche tous les produits ayant un nom "similaire" + regroupe par différents vendeurs
+  /**
+   * Fournit des suggestions de recherche basées sur les noms de produits publics.
+   */
+  async getSuggestions(query: string) {
+    const products = await this.prisma.product.findMany({
+      where: {
+        isPublic: true,
+        OR: [ { name: { contains: query, mode: 'insensitive' } } ],
+      } as any,
+      select: { name: true, category: { select: { name: true } } },
+      take: 8,
+      distinct: ['name']
+    });
+
+    return products.map(p => ({
+      text: p.name,
+      category: p.category.name,
+      type: 'product'
+    }));
+  }
+
+  /**
+   * Algorithme de comparaison de prix.
+   * Analyse les produits similaires pour fournir des statistiques de marché (moyenne, min, max).
+   */
   async compareProducts(search: string) {
     if (!search || search.trim().length < 2) {
       return { query: search, products: [] };
@@ -292,19 +329,16 @@ export class ProductsService {
       },
     });
 
-    // Calcul statistiques
     const prices = products.map((p) => p.price);
     const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
-    const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-    const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
 
     return {
       query: search,
       stats: {
         count: products.length,
         avgPrice: Math.round(avgPrice * 100) / 100,
-        minPrice,
-        maxPrice,
+        minPrice: prices.length > 0 ? Math.min(...prices) : 0,
+        maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
       },
       products,
     };

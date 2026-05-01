@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -43,6 +43,8 @@ const GoogleIcon = () => (
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
   const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,13 +55,17 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === "ADMIN") {
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else if (user.role === "ADMIN") {
         router.push("/admin");
+      } else if (user.role === "VENDOR") {
+        router.push("/dashboard");
       } else {
         router.push("/");
       }
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,8 +76,12 @@ export default function LoginPage() {
       const response = await login({ email, password });
       showToast("Connexion réussie", "success");
 
-      if (response.user.role === "ADMIN") {
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else if (response.user.role === "ADMIN") {
         router.push("/admin");
+      } else if (response.user.role === "VENDOR") {
+        router.push("/dashboard");
       } else {
         router.push("/");
       }

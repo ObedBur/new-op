@@ -3,14 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { getSellerById } from '@/features/home/services/seller.service';
+import { useParams, useRouter } from 'next/navigation';
+import { getSellerById, toggleFollowVendor } from '@/features/home/services/seller.service';
+import { useAuth } from '@/context/AuthContext';
 
 export default function SellerDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [activeCategory, setActiveCategory] = useState('Tout');
   const [isLoading, setIsLoading] = useState(true);
   const [sellerData, setSellerData] = useState<any>(null);
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 
   useEffect(() => {
     const fetchFullData = async () => {
@@ -28,6 +33,25 @@ export default function SellerDetailPage() {
     };
     fetchFullData();
   }, [id]);
+
+  const handleToggleFollow = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    
+    setIsTogglingFollow(true);
+    try {
+      const result = await toggleFollowVendor(id as string);
+      if (result) {
+        setIsFollowed(result.followed);
+      }
+    } catch (error) {
+      console.error('Failed to toggle follow:', error);
+    } finally {
+      setIsTogglingFollow(false);
+    }
+  };
 
   const categories = ['Tout', 'Chaussures', 'Chemises', 'Accessoires'];
 
@@ -94,7 +118,22 @@ export default function SellerDetailPage() {
               </div>
 
               {/* ACTIONS */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
+                <button
+                  onClick={handleToggleFollow}
+                  disabled={isTogglingFollow}
+                  className={`flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-sm shadow-xl transition-all hover:translate-y-[-2px] active:scale-95 ${
+                    isFollowed 
+                      ? 'bg-gray-200 dark:bg-gray-800 text-deep-blue dark:text-white border border-gray-300 dark:border-gray-700 shadow-none' 
+                      : 'bg-[#E67E22] text-white shadow-orange-900/20'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isFollowed ? "'FILL' 1" : "'FILL' 0" }}>
+                    {isFollowed ? 'person_remove' : 'person_add'}
+                  </span>
+                  {isTogglingFollow ? '...' : (isFollowed ? 'Ne plus suivre' : 'Suivre')}
+                </button>
+
                 <Link 
                   href={`https://wa.me/${sellerData.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(`Bonjour ${sellerData.boutiqueName}, je suis intéressé par vos produits sur WapiBei.`)}`}
                   target="_blank"
@@ -103,12 +142,6 @@ export default function SellerDetailPage() {
                   <span className="material-symbols-outlined text-[20px]">chat</span>
                   WhatsApp
                 </Link>
-              {/* 
-                <button className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-deep-blue dark:bg-white/5 text-white dark:text-white rounded-2xl font-black text-sm shadow-xl transition-all hover:translate-y-[-2px] active:scale-95">
-                  <span className="material-symbols-outlined text-[20px]">person_add</span>
-                  Suivre
-                </button>
-              */}
               </div>
             </div>
           </div>
@@ -128,7 +161,7 @@ export default function SellerDetailPage() {
 
           {/* TABS */}
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 no-scrollbar">
-            {categories.map((cat) => (
+            {['Tout'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}

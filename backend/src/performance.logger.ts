@@ -1,10 +1,13 @@
-// performance.logger.ts
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('Performance');
+
 export function logPerformance(moduleName: string) {
   const start = Date.now();
   return {
     done: () => {
       const duration = Date.now() - start;
-      console.log(` Module ${moduleName} charg en ${duration}ms`);
+      logger.log(`Module ${moduleName} chargé en ${duration}ms`);
     }
   };
 }

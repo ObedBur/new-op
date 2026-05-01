@@ -59,33 +59,18 @@ export const CategoriesGrid: React.FC<{ categories: Category[] }> = ({ categorie
         {/* GRILLE DYNAMIQUE : Scroll horizontal sur mobile/tablette, Grille sur Desktop */}
         <div className="flex lg:grid lg:grid-cols-4 flex-nowrap lg:flex-wrap overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 gap-3 scrollbar-hide snap-x snap-mandatory">
           {displayedCategories.map((cat) => {
-            // Utilisation des icônes et couleurs venant de la base de données
-            const icon = cat.icon || 'category';
-            const colorClass = cat.colorClass || 'text-orange-600';
-            const bgClass = cat.bgClass || 'bg-orange-50';
-
             return (
               <Link
                 key={cat.id}
                 href={`/products?category=${cat.id}`}
                 className="group min-w-[190px] sm:min-w-[220px] lg:min-w-0 bg-white rounded-xl p-3 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 snap-start"
               >
-                {/* Icône à gauche, plus petite */}
-                <div className={`size-10 shrink-0 rounded-lg ${bgClass} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <span className={`material-symbols-outlined text-xl ${colorClass}`}>
-                    {icon}
-                  </span>
-                </div>
-
                 {/* Texte à droite, compact */}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-slate-800 truncate leading-none mb-1.5">{cat.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100">
                       {cat.productCount || 0} Art.
-                    </span>
-                    <span className="material-symbols-outlined text-[10px] text-slate-300 group-hover:text-[#E67E22] group-hover:translate-x-0.5 transition-all">
-                      arrow_forward
                     </span>
                   </div>
                 </div>

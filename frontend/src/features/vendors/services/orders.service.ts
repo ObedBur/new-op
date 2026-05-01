@@ -36,3 +36,27 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
     throw error;
   }
 }
+
+// ====== COMMANDES CLIENTS ======
+
+export async function getClientOrders(): Promise<ApiResponse<Order[]>> {
+  try {
+    const response = await api.get<ApiResponse<Order[]>>('/orders/client');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching client orders:', error);
+    return { success: false, data: [], message: 'Erreur' };
+  }
+}
+
+// ====== STATISTIQUES VENDEURS ======
+
+export async function getVendorStats(): Promise<ApiResponse<any>> {
+  try {
+    const response = await api.get<ApiResponse<any>>('/orders/stats');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching vendor stats:', error);
+    return { success: false, data: null, message: 'Erreur' };
+  }
+}

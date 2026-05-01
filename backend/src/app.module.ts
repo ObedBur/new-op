@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'; // Import indispensable
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -7,26 +7,41 @@ import { CommonModule } from './common/common.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
 import { EmailModule } from './common/email/email.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { SellersModule } from './sellers/sellers.module';
 import { ContentModule } from './content/content.module';
 import { OrdersModule } from './orders/orders.module';
+import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationsModule } from './common/notifications/notifications.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
-    // Configuration pour charger le fichier .env
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
-      isGlobal: true, // Rend les variables accessibles dans tous les modules sans ré-import
+      isGlobal: true,
       envFilePath: '.env',
     }),
-    ThrottlerModule.forRoot([{
-      name: 'auth',
-      ttl: 900,
-      limit: 5,
-    }]),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 600, 
+      max: 1000,
+    }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'global',
+        ttl: 60000,
+        limit: 100,
+      },
+      {
+        name: 'auth',
+        ttl: 900000,
+        limit: 5,
+      }
+    ]),
     PrismaModule,
     CommonModule,
     EmailModule,
@@ -40,7 +55,12 @@ import { NotificationsModule } from './common/notifications/notifications.module
     OrdersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
-

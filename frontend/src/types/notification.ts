@@ -1,14 +1,10 @@
-/**
- * Unified Notification Types
- * 
- * Single source of truth for notification typing across the entire app.
- * Used by both the user-facing Settings page and the Admin Dashboard.
- * 
- * Named "AppNotification" to avoid conflict with the browser's native
- * Notification API (Web Notifications).
- */
-
-export type NotificationType = 'info' | 'warning' | 'success' | 'error';
+export type NotificationType =
+  | 'ORDER_CREATED'
+  | 'ORDER_CONFIRMED'
+  | 'PAYMENT_RECEIVED'
+  | 'SYSTEM_ALERT'
+  | 'NEW_PRODUCT'
+  | 'PROMOTION';
 
 export interface AppNotification {
   id: string;
@@ -16,5 +12,6 @@ export interface AppNotification {
   message: string;
   type: NotificationType;
   isRead: boolean;
-  createdAt: string; // ISO 8601 date string from the backend
+  metadata?: any;
+  createdAt: string;
 }

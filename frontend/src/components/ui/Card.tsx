@@ -18,7 +18,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({
   onClick,
   ...props
 }, ref) => {
-  const baseStyles = "bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden transition-all duration-300";
+  const baseStyles = "bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-[2rem] overflow-hidden transition-all duration-300 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.02)]";
   const hoverStyles = hoverable ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer" : "";
   
   const paddings = {

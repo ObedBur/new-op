@@ -28,3 +28,13 @@ export async function getSellerById(id: string): Promise<any> {
     return null;
   }
 }
+
+export async function toggleFollowVendor(id: string): Promise<{ followed: boolean } | null> {
+  try {
+    const response = await api.post(`/sellers/${id}/follow`);
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling follow:', error);
+    return null;
+  }
+}

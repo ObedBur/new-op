@@ -41,13 +41,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [items]);
 
   const addItem = (product: Product, quantity: number = 1) => {
+    // P2 FIX (frontend) — Vérification du stock avant l'ajout
+    if (
+      product.stockQuantity !== null &&
+      product.stockQuantity !== undefined &&
+      product.stockQuantity === 0
+    ) {
+      toast.error(`"${product.name}" est en rupture de stock.`);
+      return;
+    }
+
     setItems(prev => {
       const existingItem = prev.find(item => item.product.id === product.id);
       if (existingItem) {
+        const newQty = existingItem.quantity + quantity;
+        // Vérifier si on dépasse le stock disponible
+        if (
+          product.stockQuantity !== null &&
+          product.stockQuantity !== undefined &&
+          newQty > product.stockQuantity
+        ) {
+          toast.warning(`Stock maximum atteint pour "${product.name}" (${product.stockQuantity} dispo).`);
+          return prev;
+        }
         toast.success(`Quantité mise à jour pour ${product.name}`);
         return prev.map(item =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: newQty }
             : item
         );
       }
@@ -65,11 +85,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setItems(prev => prev.map(item =>
-      item.product.id === productId
-        ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-        : item
-    ));
+    setItems(prev => prev.map(item => {
+      if (item.product.id !== productId) return item;
+      const newQty = item.quantity + delta;
+      // Bloquer la hausse si on dépasse le stock
+      if (
+        delta > 0 &&
+        item.product.stockQuantity !== null &&
+        item.product.stockQuantity !== undefined &&
+        newQty > item.product.stockQuantity
+      ) {
+        toast.warning(`Stock max atteint pour "${item.product.name}" (${item.product.stockQuantity} dispo).`);
+        return item; // On ne change pas la quantité
+      }
+      return { ...item, quantity: Math.max(1, newQty) };
+    }));
   };
 
   const clearCart = () => {

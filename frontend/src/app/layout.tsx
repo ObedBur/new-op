@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { CartProvider } from "@/features/cart/context/CartContext";
@@ -7,13 +6,11 @@ import { Toaster } from "@/components/ui/Toaster";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import RootLayoutContent from "./RootLayoutContent";
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  display: "swap",
+// Utilisation d'une pile de polices système moderne pour éviter les délais de téléchargement Google Fonts
+const outfit = {
   variable: "--font-outfit",
-  preload: false,
-});
+  className: "font-sans",
+};
 
 export const metadata: Metadata = {
   title: {

@@ -13,7 +13,7 @@ import type { JwtRequest, RefreshRequest } from './types/auth-request.types';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   // =============== PUBLIC ROUTES ===============
 
@@ -40,7 +40,7 @@ export class AuthController {
   @UseGuards(AuthThrottlerGuard)
   @Post('resend-otp')
   @HttpCode(HttpStatus.OK)
-  resendOtp(@Body('email') email: string) { //  SIMPLIFI
+  resendOtp(@Body('email') email: string) {
     return this.authService.resendOtp(email);
   }
 
@@ -49,7 +49,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
-    
+
   }
 
   @Post('reset-password')
@@ -65,7 +65,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout(
     @Req() req: JwtRequest,
-    @Body('refreshToken') refreshToken: string, //  SIMPLIFI
+    @Body('refreshToken') refreshToken: string,
   ) {
     const userId = req.user.id;
     return this.authService.logout(userId, refreshToken);
@@ -98,7 +98,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('profile') // Use POST for simpler multipart handling on current setup if needed, or PATCH
+  @Post('profile')
   async updateProfile(
     @Req() req: JwtRequest,
     @Body() dto: any,
@@ -106,12 +106,6 @@ export class AuthController {
     const userId = req.user.id;
     return this.authService.updateProfile(userId, dto);
   }
-
-  // J'ajoute aussi PATCH car c'est ce que le frontend appelle par défaut
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Delete('profile') // Erreur de frappe ici? Non, je vais mettre Patch
-  async nothing() { } // Just placeholders
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)

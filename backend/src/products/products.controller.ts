@@ -1,23 +1,25 @@
-import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
+/**
+ * Contrôleur gérant les opérations sur les produits.
+ * Intègre la mise en cache pour les routes de lecture intensive.
+ */
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  /**
+   * Crée un nouveau produit pour le vendeur authentifié.
+   */
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(
-    @Body() createProductDto: CreateProductDto,
-    @Req() req: any,
-  ) {
+  async create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
     const userId = req.user.id;
-
-    const product = await this.productsService.create({
-      ...createProductDto,
-    }, userId);
+    const product = await this.productsService.create({ ...createProductDto }, userId);
 
     return {
       success: true,
@@ -26,6 +28,9 @@ export class ProductsController {
     };
   }
 
+  /**
+   * Récupère les produits appartenant au vendeur authentifié.
+   */
   @UseGuards(JwtAuthGuard)
   @Get('my-products')
   async findMyProducts(
@@ -58,44 +63,79 @@ export class ProductsController {
     };
   }
 
-  // ====== GALERIES INTELLIGENTES ======
-
+  /**
+   * Récupère les offres promotionnelles.
+   * Cache de 5 minutes pour limiter les requêtes DB sur la page d'accueil.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300)
   @Get('deals')
   async getDeals(@Query('limit') limit?: string) {
     const data = await this.productsService.getDeals(limit ? parseInt(limit) : 6);
     return { success: true, data };
   }
 
+  /**
+   * Récupère les nouveautés.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300)
   @Get('new-arrivals')
   async getNewArrivals(@Query('limit') limit?: string) {
     const data = await this.productsService.getNewArrivals(limit ? parseInt(limit) : 6);
     return { success: true, data };
   }
 
+  /**
+   * Récupère les recommandations personnalisées.
+   * Pas de cache global ici car les recommandations peuvent être spécifiques à l'utilisateur.
+   */
   @Get('recommendations')
-  async getRecommendations(
-    @Query('userId') userId?: string,
-    @Query('limit') limit?: string,
-  ) {
-    const data = await this.productsService.getRecommendations(
-      userId,
-      limit ? parseInt(limit) : 6,
-    );
+  async getRecommendations(@Query('userId') userId?: string, @Query('limit') limit?: string) {
+    const data = await this.productsService.getRecommendations(userId, limit ? parseInt(limit) : 6);
     return { success: true, data };
   }
 
+  /**
+   * Récupère les meilleures ventes.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300)
   @Get('best-sellers')
   async getBestSellers(@Query('limit') limit?: string) {
     const data = await this.productsService.getBestSellers(limit ? parseInt(limit) : 6);
     return { success: true, data };
   }
 
+  /**
+   * Fournit des suggestions de recherche en temps réel.
+   * Cache de 15 minutes pour optimiser l'expérience de saisie.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(900)
+  @Get('suggestions')
+  async getSuggestions(@Query('q') query: string) {
+    if (!query || query.length < 2) return { success: true, data: [] };
+    const suggestions = await this.productsService.getSuggestions(query);
+    return { success: true, data: suggestions };
+  }
+
+  /**
+   * Compare les prix des produits sur différents vendeurs.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(900)
   @Get('compare')
   async compare(@Query('search') search: string) {
     const data = await this.productsService.compareProducts(search || '');
     return { success: true, ...data };
   }
 
+  /**
+   * Liste publique des produits avec filtres.
+   */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(900)
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,
@@ -124,22 +164,21 @@ export class ProductsController {
     };
   }
 
+  /**
+   * Récupère les détails d'un produit spécifique.
+   */
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const product = await this.productsService.findOne(id);
-    return {
-      success: true,
-      data: product,
-    };
+    return { success: true, data: product };
   }
 
+  /**
+   * Met à jour un produit. Seul le propriétaire peut effectuer cette action.
+   */
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateProductDto: any,
-    @Req() req: any,
-  ) {
+  async update(@Param('id') id: string, @Body() updateProductDto: any, @Req() req: any) {
     const userId = req.user.id;
     const product = await this.productsService.update(id, updateProductDto, userId);
     return {
@@ -149,12 +188,12 @@ export class ProductsController {
     };
   }
 
+  /**
+   * Publication en masse de plusieurs produits.
+   */
   @UseGuards(JwtAuthGuard)
   @Patch('bulk-publish')
-  async bulkPublish(
-    @Body('ids') ids: string[],
-    @Req() req: any,
-  ) {
+  async bulkPublish(@Body('ids') ids: string[], @Req() req: any) {
     const userId = req.user.id;
     await this.productsService.bulkPublish(ids, userId);
     return {
@@ -163,12 +202,12 @@ export class ProductsController {
     };
   }
 
+  /**
+   * Supprime un produit du catalogue.
+   */
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(
-    @Param('id') id: string,
-    @Req() req: any,
-  ) {
+  async remove(@Param('id') id: string, @Req() req: any) {
     const userId = req.user.id;
     await this.productsService.remove(id, userId);
     return {
@@ -177,5 +216,3 @@ export class ProductsController {
     };
   }
 }
-
-

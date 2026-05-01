@@ -9,13 +9,17 @@ import {
 } from '@/features/products/services/product.service';
 import { ProductsView } from '@/features/products/components/ProductsView';
 
-// Metadata for SEO
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: { search?: string; categoryId?: string };
+}) {
+  const search = searchParams.search;
+  const categoryId = searchParams.categoryId ? parseInt(searchParams.categoryId) : undefined;
 
-
-export default async function ProductsPage() {
   // Parallel fetching in Server Component
   const [productsRes, categoriesRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] = await Promise.all([
-    getProducts(),
+    getProducts({ search, categoryId }),
     getCategories(),
     getDeals(12),
     getNewArrivals(12),
@@ -40,10 +44,11 @@ export default async function ProductsPage() {
         <ProductsView
           initialProducts={products}
           categories={categories}
-          deals={deals}
-          newArrivals={newArrivals}
-          recommendations={recommendations}
-          bestSellers={bestSellers}
+          deals={search ? [] : deals}
+          newArrivals={search ? [] : newArrivals}
+          recommendations={search ? [] : recommendations}
+          bestSellers={search ? [] : bestSellers}
+          searchTerm={search}
         />
       </Suspense>
     </main>

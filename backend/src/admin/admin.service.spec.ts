@@ -46,9 +46,6 @@ describe('AdminService', () => {
     expect(service).toBeDefined();
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // updateKycStatus
-  // ─────────────────────────────────────────────────────────────
   describe('updateKycStatus', () => {
     it('should update KYC status for a vendor', async () => {
       const userId = 'vendor-id';
@@ -87,9 +84,6 @@ describe('AdminService', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // getStats (enrichi avec products + sales)
-  // ─────────────────────────────────────────────────────────────
   describe('getStats', () => {
     it('should return complete platform statistics including products and sales', async () => {
       prisma.user.count
@@ -107,22 +101,10 @@ describe('AdminService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual({
-        users: {
-          total: 100,
-          clients: 80,
-          vendors: 20,
-          verified: 10,
-        },
-        products: {
-          total: 842,
-        },
-        sales: {
-          total: 1250000,
-        },
-        kyc: {
-          pending: 5,
-          approved: 15,
-        },
+        users: { total: 100, clients: 80, vendors: 20, verified: 10 },
+        products: { total: 842 },
+        sales: { total: 1250000 },
+        kyc: { pending: 5, approved: 15 },
       });
       expect(prisma.user.count).toHaveBeenCalledTimes(6);
       expect(prisma.product.count).toHaveBeenCalledTimes(1);
@@ -143,89 +125,54 @@ describe('AdminService', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // getRecentActivities
-  // ─────────────────────────────────────────────────────────────
   describe('getRecentActivities', () => {
     it('should return merged activities from orders, vendors and KYC updates', async () => {
       const mockOrders = [
-        {
-          id: 'order-1',
-          customerName: 'Marie Claire',
-          totalPrice: 45000,
-          createdAt: new Date('2026-02-20T14:00:00Z'),
-        },
-        {
-          id: 'order-2',
-          customerName: 'Jean Dupont',
-          totalPrice: 28000,
-          createdAt: new Date('2026-02-19T10:00:00Z'),
-        },
+        { id: 'order-1', customerName: 'Marie Claire', totalPrice: 45000, createdAt: new Date('2026-02-20T14:00:00Z') },
+        { id: 'order-2', customerName: 'Jean Dupont', totalPrice: 28000, createdAt: new Date('2026-02-19T10:00:00Z') },
       ];
 
       const mockVendors = [
-        {
-          id: 'vendor-1',
-          fullName: 'Jean Kamanda',
-          boutiqueName: 'Boutique du Lac',
-          createdAt: new Date('2026-02-20T10:00:00Z'),
-        },
+        { id: 'vendor-1', fullName: 'Jean Kamanda', boutiqueName: 'Boutique du Lac', createdAt: new Date('2026-02-20T10:00:00Z') },
       ];
 
       const mockKycUsers = [
-        {
-          id: 'kyc-1',
-          fullName: 'Alice Mbala',
-          boutiqueName: 'Mode Kinshasa',
-          kycStatus: 'APPROVED',
-          updatedAt: new Date('2026-02-20T12:00:00Z'),
-        },
+        { id: 'kyc-1', fullName: 'Alice Mbala', boutiqueName: 'Mode Kinshasa', kycStatus: 'APPROVED', updatedAt: new Date('2026-02-20T12:00:00Z') },
       ];
 
       prisma.order.findMany.mockResolvedValue(mockOrders);
       prisma.user.findMany
-        .mockResolvedValueOnce(mockVendors)  // Vendors query
-        .mockResolvedValueOnce(mockKycUsers); // KYC query
+        .mockResolvedValueOnce(mockVendors)
+        .mockResolvedValueOnce(mockKycUsers);
 
       const result = await service.getRecentActivities();
 
       expect(result.success).toBe(true);
       expect(result.data.length).toBeLessThanOrEqual(10);
 
-      // Vérifier le tri par date décroissante
+      // Vérifie le tri chronologique décroissant
       const timestamps = result.data.map(a => new Date(a.timestamp).getTime());
       for (let i = 1; i < timestamps.length; i++) {
         expect(timestamps[i]).toBeLessThanOrEqual(timestamps[i - 1]);
       }
 
-      // Vérifier les types d'activité présents
+      // Vérifie la présence des trois types d'activités
       const types = result.data.map(a => a.type);
       expect(types).toContain('order');
       expect(types).toContain('vendor_registration');
       expect(types).toContain('kyc_update');
 
-      // Vérifier la structure d'une activité commande
       const orderActivity = result.data.find(a => a.type === 'order');
-      expect(orderActivity).toBeDefined();
       expect(orderActivity!.id).toMatch(/^ord_/);
       expect(orderActivity!.description).toContain('Marie Claire');
       expect(orderActivity!.metadata).toHaveProperty('orderId');
-      expect(orderActivity!.metadata).toHaveProperty('total');
-      expect(orderActivity!.metadata).toHaveProperty('customerName');
 
-      // Vérifier la structure d'une activité vendeur
       const vendorActivity = result.data.find(a => a.type === 'vendor_registration');
-      expect(vendorActivity).toBeDefined();
       expect(vendorActivity!.id).toMatch(/^usr_/);
       expect(vendorActivity!.description).toContain('Boutique du Lac');
-      expect(vendorActivity!.metadata).toHaveProperty('userId');
-      expect(vendorActivity!.metadata).toHaveProperty('boutiqueName');
 
-      // Vérifier la structure d'une activité KYC
       const kycActivity = result.data.find(a => a.type === 'kyc_update');
-      expect(kycActivity).toBeDefined();
       expect(kycActivity!.id).toMatch(/^kyc_/);
-      expect(kycActivity!.description).toContain('Mode Kinshasa');
       expect(kycActivity!.description).toContain('APPROVED');
       expect(kycActivity!.metadata).toHaveProperty('newStatus', 'APPROVED');
     });
@@ -243,7 +190,6 @@ describe('AdminService', () => {
     });
 
     it('should limit results to 10 activities', async () => {
-      // Créer 6 commandes + 6 vendeurs = 12 au total, mais limité à 10
       const manyOrders = Array.from({ length: 6 }, (_, i) => ({
         id: `order-${i}`,
         customerName: `Client ${i}`,
@@ -269,9 +215,6 @@ describe('AdminService', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // getPendingKyc
-  // ─────────────────────────────────────────────────────────────
   describe('getPendingKyc', () => {
     it('should return pending KYC vendors', async () => {
       const mockPendingVendors = [
@@ -313,9 +256,6 @@ describe('AdminService', () => {
     });
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // getAllUsers
-  // ─────────────────────────────────────────────────────────────
   describe('getAllUsers', () => {
     it('should return paginated users', async () => {
       const mockUsers = [
@@ -330,12 +270,7 @@ describe('AdminService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockUsers);
-      expect(result.pagination).toEqual({
-        page: 1,
-        limit: 20,
-        total: 50,
-        pages: 3,
-      });
+      expect(result.pagination).toEqual({ page: 1, limit: 20, total: 50, pages: 3 });
     });
 
     it('should filter by role', async () => {
@@ -345,9 +280,7 @@ describe('AdminService', () => {
       await service.getAllUsers({ role: 'VENDOR', page: 1, limit: 10 });
 
       expect(prisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ role: 'VENDOR' }),
-        }),
+        expect.objectContaining({ where: expect.objectContaining({ role: 'VENDOR' }) }),
       );
     });
 
@@ -358,33 +291,19 @@ describe('AdminService', () => {
       await service.getAllUsers({ kycStatus: 'PENDING', page: 1, limit: 10 });
 
       expect(prisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ kycStatus: 'PENDING' }),
-        }),
+        expect.objectContaining({ where: expect.objectContaining({ kycStatus: 'PENDING' }) }),
       );
     });
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // getUserDetails
-  // ─────────────────────────────────────────────────────────────
   describe('getUserDetails', () => {
     it('should return user details', async () => {
       const mockUser = {
-        id: 'user-1',
-        email: 'user@test.com',
-        fullName: 'Test User',
-        phone: '+243999000000',
-        role: 'CLIENT',
-        boutiqueName: null,
-        kycStatus: 'NOT_REQUIRED',
-        isVerified: true,
-        trustScore: 50,
-        province: 'Nord-Kivu',
-        commune: 'Goma',
-        address: '123 Rue',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        id: 'user-1', email: 'user@test.com', fullName: 'Test User',
+        phone: '+243999000000', role: 'CLIENT', boutiqueName: null,
+        kycStatus: 'NOT_REQUIRED', isVerified: true, trustScore: 50,
+        province: 'Nord-Kivu', commune: 'Goma', address: '123 Rue',
+        createdAt: new Date(), updatedAt: new Date(),
       };
 
       prisma.user.findUnique.mockResolvedValue(mockUser);

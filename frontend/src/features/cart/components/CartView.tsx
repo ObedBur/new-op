@@ -41,11 +41,8 @@ export const CartView: React.FC = () => {
       });
 
       setIsCheckoutModalOpen(false);
-      showToast(
-        "Commande validée ! Un seul e-mail de confirmation vous a été envoyé.",
-        "success",
-      );
       clearCart();
+      window.location.href = "/cart/success";
     } catch (error) {
       console.error("Checkout failed:", error);
       showToast("Erreur lors de la commande. Veuillez réessayer.", "error");
@@ -139,7 +136,7 @@ export const CartView: React.FC = () => {
                     </Button>
                   </div>
                   <div className="flex items-end justify-between mt-4">
-                    <div className="flex items-center gap-1 bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-white/10">
+                    <div className="flex items-center gap-1 bg-black/5 dark:bg-white/5 rounded-xl p-1 border border-black/10 dark:border-white/10">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -150,14 +147,20 @@ export const CartView: React.FC = () => {
                           remove
                         </span>
                       </Button>
-                      <span className="w-8 text-center text-xs font-black text-deep-blue dark:text-white">
+                      <span className="w-8 text-center text-xs font-black text-black dark:text-white">
                         {item.quantity}
                       </span>
+                      {/* P4 FIX — Désactiver le + si stock max atteint */}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => updateQuantity(item.product.id, 1)}
-                        className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white"
+                        disabled={
+                          item.product.stockQuantity !== null &&
+                          item.product.stockQuantity !== undefined &&
+                          item.quantity >= item.product.stockQuantity
+                        }
+                        className="size-8 rounded-lg hover:bg-white dark:hover:bg-white/10 text-[#E67E22] dark:text-white disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <span className="material-symbols-outlined text-[18px]">
                           add
@@ -165,12 +168,22 @@ export const CartView: React.FC = () => {
                       </Button>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-black text-gray-400 uppercase tracking-tighter">
+                      <p className="text-xs font-black text-black/40 uppercase tracking-tighter">
                         Prix total
                       </p>
                       <p className="text-lg md:text-xl font-black text-[#E67E22]">
                         {itemTotal.toLocaleString()} {currency}
                       </p>
+                      {/* P3 FIX — Avertissement stock presque épuisé */}
+                      {item.product.stockQuantity !== null &&
+                        item.product.stockQuantity !== undefined &&
+                        item.product.stockQuantity > 0 &&
+                        item.quantity >= item.product.stockQuantity && (
+                        <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mt-1 flex items-center gap-1 justify-end">
+                          <span className="material-symbols-outlined text-[11px]">warning</span>
+                          Stock max ({item.product.stockQuantity})
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -5,6 +5,9 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('Seeder');
 
 // 1. Configuration de l'environnement
 const envPath = path.join(__dirname, '../.env');
@@ -16,10 +19,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
-  console.log('🚀 Démarrage du Seeding (150 produits)...');
+  logger.log('🚀 Démarrage du Seeding (150 produits)...');
 
   // Nettoyage des données existantes
-  console.log('🧹 Nettoyage de la base de données...');
+  logger.log('🧹 Nettoyage de la base de données...');
   await prisma.notification.deleteMany({});
   await prisma.order.deleteMany({});
   await prisma.refreshToken.deleteMany({});
@@ -30,7 +33,7 @@ async function main() {
   await prisma.howItWorksStep.deleteMany({});
 
   // 1. Setup Admin
-  console.log('👤 Création de l\'administrateur...');
+  logger.log('👤 Création de l\'administrateur...');
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
   await prisma.user.upsert({
     where: { email: 'wapibeapp@gmail.com' },
@@ -51,10 +54,10 @@ async function main() {
       country: 'RD Congo',
     },
   });
-  console.log('✅ Administrateur configuré (wapibeapp@gmail.com / Admin123!)');
+  logger.log('✅ Administrateur configuré (wapibeapp@gmail.com / Admin123!)');
 
   // 2. Setup Categories avec l'icône corrigée pour Agricole
-  console.log('🏷️ Création des catégories...');
+  logger.log('🏷️ Création des catégories...');
   const categoriesData = [
     { name: 'Agricole', icon: 'potted_plant', colorClass: 'text-emerald-500', bgClass: 'bg-emerald-50' },
     { name: 'High-Tech', icon: 'smartphone', colorClass: 'text-blue-500', bgClass: 'bg-blue-50' },
@@ -76,7 +79,7 @@ async function main() {
   const dbCategories = await prisma.category.findMany();
 
   // 3. Setup Vendeurs (12 vendeurs pour varier les boutiques)
-  console.log('📦 Création des vendeurs...');
+  logger.log('📦 Création des vendeurs...');
   const vendors = [];
   for (let i = 0; i < 12; i++) {
     const v = await prisma.user.create({
@@ -98,7 +101,7 @@ async function main() {
   }
 
   // 4. Setup Produits (150 articles)
-  console.log('🛍️ Création de 150 produits...');
+  logger.log('🛍️ Création de 150 produits...');
   const productImages: Record<string, string[]> = {
     'Agricole': [
       'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=800',
@@ -161,7 +164,7 @@ async function main() {
   }
 
   // 5. Hero Slides & Steps (Inchangés)
-  console.log('🎬 Finalisation des éléments visuels...');
+  logger.log('🎬 Finalisation des éléments visuels...');
   const heroSlides = [
     { title: "L'excellence à portée de main", imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200', label: 'PREMIUM', order: 1 },
     { title: "L'élégance du détail", imageUrl: 'https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=1200', label: 'LUXE', order: 2 },
@@ -180,9 +183,9 @@ async function main() {
     await prisma.howItWorksStep.create({ data: { ...step, id: faker.string.uuid() } });
   }
 
-  console.log('✅ Base de données remplie avec succès !');
+  logger.log('✅ Base de données remplie avec succès !');
 }
 
 main()
-  .catch((e) => { console.error('❌ Erreur:', e); process.exit(1); })
+  .catch((e) => { logger.error('❌ Erreur:', e); process.exit(1); })
   .finally(async () => { await prisma.$disconnect(); await pool.end(); });

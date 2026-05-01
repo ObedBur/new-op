@@ -38,7 +38,6 @@ export function usePushNotifications() {
       
       // Envoyer au backend
       await api.post('/notifications/subscribe', subscription);
-      console.log('User is subscribed to Push Notifications');
     } catch (error) {
       console.error('Failed to subscribe user to Push', error);
     }

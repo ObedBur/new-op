@@ -1,5 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, IsArray, ValidateNested, IsInt, Min } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsArray, ValidateNested, IsInt, Min, Validate } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsValidPhoneNumber } from '../../common/validators/is-valid-phone.validator';
 
 class OrderItemDto {
   @IsString()
@@ -21,7 +22,7 @@ export class CreateBulkOrderDto {
   @IsNotEmpty()
   customerName: string;
 
-  @IsString()
+  @Validate(IsValidPhoneNumber)
   @IsNotEmpty()
   customerPhone: string;
 

@@ -152,10 +152,17 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
               {/* Panier */}
               <button
                 onClick={handleAddToCart}
-                className="w-full sm:flex-[1.5] h-14 bg-[#E67E22] hover:bg-[#d6721b] text-white rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg shadow-[#E67E22]/20 transition-all active:scale-95"
+                disabled={product.stockQuantity === 0}
+                className={`w-full sm:flex-[1.5] h-14 rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 ${
+                  product.stockQuantity === 0 
+                    ? 'bg-slate-100 dark:bg-white/5 text-slate-400 cursor-not-allowed shadow-none' 
+                    : 'bg-[#E67E22] hover:bg-[#d6721b] text-white shadow-[#E67E22]/20'
+                }`}
               >
-                <span className="material-symbols-outlined text-[24px]">shopping_cart</span>
-                AJOUTER AU PANIER
+                <span className="material-symbols-outlined text-[24px]">
+                  {product.stockQuantity === 0 ? 'block' : 'shopping_cart'}
+                </span>
+                {product.stockQuantity === 0 ? 'PRODUIT ÉPUISÉ' : 'AJOUTER AU PANIER'}
               </button>
 
               {/* WhatsApp */}

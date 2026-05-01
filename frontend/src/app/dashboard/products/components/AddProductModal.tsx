@@ -153,16 +153,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="relative bg-white dark:bg-[#0f172a] rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] border border-slate-200 dark:border-white/10 w-full max-w-5xl animate-in zoom-in-95 duration-500">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="relative bg-white dark:bg-black rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] border border-black/10 dark:border-white/10 w-full max-w-5xl animate-in zoom-in-95 duration-500">
 
                 <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-y-auto scrollbar-hide">
 
                     {/* --- LEFT SIDE: IMAGE PREVIEW --- */}
-                    <div className="w-full md:w-5/12 bg-slate-50 dark:bg-white/5 p-8 flex flex-col border-b md:border-b-0 md:border-r border-slate-100 dark:border-white/5">
+                    <div className="w-full md:w-5/12 bg-white/50 dark:bg-white/5 p-8 flex flex-col border-b md:border-b-0 md:border-r border-black/10 dark:border-white/5">
                         <div className="space-y-4 mb-6">
-                            <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Visuel Produit</h3>
-                            <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">Aperçu de l'image principale</p>
+                            <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">Visuel Produit</h3>
+                            <p className="text-xs font-medium text-black/50 uppercase tracking-widest">Aperçu de l'image principale</p>
                         </div>
 
                         <div className="relative group aspect-[4/3] md:aspect-square mb-4 md:mb-8">
@@ -173,7 +173,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 }
                             }} className="hidden" />
 
-                            <label htmlFor="image" className="relative flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl sm:rounded-[2rem] cursor-pointer group-hover:border-[#E67E22] group-hover:bg-[#E67E22]/5 transition-all overflow-hidden bg-white dark:bg-slate-900/50">
+                            <label htmlFor="image" className="relative flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-black/20 dark:border-white/10 rounded-2xl sm:rounded-[2rem] cursor-pointer group-hover:border-[#E67E22] group-hover:bg-[#E67E22]/5 transition-all overflow-hidden bg-white dark:bg-black/50">
                                 {imagePreview ? (
                                     <>
                                         <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
@@ -183,10 +183,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                     </>
                                 ) : (
                                     <div className="text-center p-4 sm:p-6">
-                                        <div className="size-10 sm:size-16 bg-slate-100 dark:bg-white/5 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4 text-slate-400 group-hover:text-[#E67E22] transition-colors">
+                                        <div className="size-10 sm:size-16 bg-black/5 dark:bg-white/5 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4 text-black/40 group-hover:text-[#E67E22] transition-colors">
                                             <Plus size={24} />
                                         </div>
-                                        <p className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">Ajouter une photo</p>
+                                        <p className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-black/40">Ajouter une photo</p>
                                     </div>
                                 )}
                             </label>
@@ -202,16 +202,16 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                     {/* --- RIGHT SIDE: FORM FIELDS --- */}
                     <div className="w-full md:w-7/12 p-8 md:p-12 relative flex flex-col">
-                        <button onClick={onClose} className="absolute top-6 right-6 size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:bg-red-500 hover:text-white transition-all z-20">
+                        <button onClick={onClose} className="absolute top-6 right-6 size-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-black/50 hover:bg-red-500 hover:text-white transition-all z-20">
                             <X size={20} />
                         </button>
 
                         <div className="mb-6 md:mb-8">
-                            <h3 className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter italic mb-1 uppercase">
+                            <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white tracking-tighter italic mb-1 uppercase">
                                 {product ? 'Modifier l\'annonce' : defaultPublic ? 'Publier l\'annonce' : 'Nouveau Brouillon'}
                             </h3>
                             <div className="h-1 w-12 bg-[#E67E22] rounded-full" />
-                            <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-[0.2em]">
+                            <p className="text-[10px] font-bold text-black/40 mt-2 uppercase tracking-[0.2em]">
                                 {product ? 'Mis à jour de vos stocks' : defaultPublic ? 'Visible sur la page d\'accueil' : 'Enregistré dans votre inventaire privé'}
                             </p>
                         </div>
@@ -225,19 +225,19 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                             {/* Name */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Titre de l'annonce</label>
+                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Titre de l'annonce</label>
                                 <div className="relative">
-                                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="ex: Basket Nike Air Max..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 focus:ring-4 focus:ring-[#E67E22]/5 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" required />
+                                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
+                                    <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="ex: Basket Nike Air Max..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 focus:ring-4 focus:ring-[#E67E22]/5 outline-none transition-all text-sm font-bold text-black dark:text-white" required />
                                 </div>
                             </div>
 
                             {/* Description */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Description (Optionnel)</label>
+                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Description (Optionnel)</label>
                                 <div className="relative">
-                                    <AlignLeft className="absolute left-4 top-4 text-slate-400" size={16} />
-                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre produit..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-slate-800 dark:text-white" />
+                                    <AlignLeft className="absolute left-4 top-4 text-black/40" size={16} />
+                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre produit..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-black dark:text-white" />
                                 </div>
                             </div>
 
@@ -245,7 +245,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 {/* Price */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">
-                                        <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest">Prix ({currency})</label>
+                                        <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest">Prix ({currency})</label>
                                         <div className="flex gap-1">
                                             {(['USD', 'FC'] as const).map((curr) => (
                                                 <button
@@ -260,7 +260,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                                         }
                                                         setCurrency(curr);
                                                     }}
-                                                    className={`px-2 py-0.5 rounded-md text-[8px] font-black transition-all ${currency === curr ? 'bg-[#E67E22] text-white shadow-sm' : 'bg-slate-100 dark:bg-white/5 text-slate-400 hover:text-slate-600'}`}
+                                                    className={`px-2 py-0.5 rounded-md text-[8px] font-black transition-all ${currency === curr ? 'bg-[#E67E22] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/40 hover:text-black'}`}
                                                 >
                                                     {curr}
                                                 </button>
@@ -268,7 +268,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                         </div>
                                     </div>
                                     <div className="relative group/price">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within/price:text-[#E67E22]">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 transition-colors group-focus-within/price:text-[#E67E22]">
                                             {currency === 'USD' ? <DollarSign size={16} /> : <Banknote size={16} />}
                                         </div>
                                         <input 
@@ -276,7 +276,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                             onChange={(e) => setPrice(e.target.value)} 
                                             type="number" 
                                             placeholder="0.00" 
-                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" 
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" 
                                             required 
                                         />
                                         {price && (
@@ -292,18 +292,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 </div>
                                 {/* Category */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Catégorie</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Catégorie</label>
                                     <div className="relative">
-                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                        <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-slate-800 dark:text-white" required>
-                                            <option value="" className="bg-white dark:bg-[#0f172a]">...</option>
+                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
+                                        <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-black dark:text-white" required>
+                                            <option value="" className="bg-white dark:bg-black">...</option>
                                             {categories.map((cat) => (
-                                                <option key={cat.id} value={cat.id} className="bg-white dark:bg-[#0f172a]">
+                                                <option key={cat.id} value={cat.id} className="bg-white dark:bg-black">
                                                     {cat.name}
                                                 </option>
                                             ))}
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none" size={16} />
                                     </div>
                                 </div>
                             </div>
@@ -311,48 +311,48 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Quantity */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Quantité en stock</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Quantité en stock</label>
                                     <div className="relative">
-                                        <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                        <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                         <input 
                                             value={quantity} 
                                             onChange={(e) => setQuantity(e.target.value)} 
                                             type="number" 
                                             placeholder="ex: 100" 
-                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-slate-800 dark:text-white" 
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" 
                                             required 
                                         />
                                     </div>
                                 </div>
                                 {/* Unit */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 dark:text-gray-500 uppercase tracking-widest ml-1">Unité de mesure</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Unité de mesure</label>
                                     <div className="relative">
-                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                        <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                         <select 
                                             value={unit} 
                                             onChange={(e) => setUnit(e.target.value)} 
-                                            className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-slate-800 dark:text-white" 
+                                            className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-black dark:text-white" 
                                             required
                                         >
                                             {UNITS.map((u) => (
-                                                <option key={u} value={u} className="bg-white dark:bg-[#0f172a]">
+                                                <option key={u} value={u} className="bg-white dark:bg-black">
                                                     {u}
                                                 </option>
                                             ))}
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none" size={16} />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Visibility Toggle */}
-                            <div className="flex items-center justify-between p-4 sm:p-5 bg-slate-50 dark:bg-white/5 rounded-2xl border border-transparent hover:border-[#E67E22]/20 transition-all cursor-pointer group/toggle" onClick={() => setIsPublic(!isPublic)}>
+                            <div className="flex items-center justify-between p-4 sm:p-5 bg-black/5 dark:bg-white/5 rounded-2xl border border-transparent hover:border-[#E67E22]/20 transition-all cursor-pointer group/toggle" onClick={() => setIsPublic(!isPublic)}>
                                 <div className="space-y-0.5 sm:space-y-1">
                                     <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#E67E22]">Visibilité publique</p>
-                                    <p className="text-[10px] sm:text-[11px] font-bold text-slate-500">Rendre ce produit visible sur la page d'accueil</p>
+                                    <p className="text-[10px] sm:text-[11px] font-bold text-black/40">Rendre ce produit visible sur la page d'accueil</p>
                                 </div>
-                                <div className={`w-10 sm:w-12 h-5 sm:h-6 rounded-full relative transition-all duration-300 ${isPublic ? 'bg-[#E67E22]' : 'bg-slate-300 dark:bg-white/10'}`}>
+                                <div className={`w-10 sm:w-12 h-5 sm:h-6 rounded-full relative transition-all duration-300 ${isPublic ? 'bg-[#E67E22]' : 'bg-black/20 dark:bg-white/10'}`}>
                                     <div className={`absolute top-0.5 bottom-0.5 w-4 bg-white rounded-full transition-all duration-300 ${isPublic ? 'right-0.5 sm:right-1' : 'left-0.5 sm:left-1'}`} />
                                 </div>
                             </div>

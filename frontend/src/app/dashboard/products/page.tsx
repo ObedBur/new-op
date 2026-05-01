@@ -176,7 +176,6 @@ export default function ProductsPage() {
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-3">
-                {/* add product button */}
                 <button
                     onClick={() => {
                         setEditingProduct(null);
@@ -186,15 +185,15 @@ export default function ProductsPage() {
                     className="flex items-center justify-center gap-2 sm:gap-3 bg-[#E67E22] text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all active:scale-95"
                 >
                     <Plus size={18} />
-                    <span className="truncate">Nouveau</span>
+                    <span className="truncate">Nouveau Produit</span>
                 </button>
-                {/* add product button */}
+
                 <button
                     onClick={() => setIsPublishModalOpen(true)}
                     className="flex items-center justify-center gap-2 sm:gap-3 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
                 >
                     <Globe size={18} />
-                    <span className="truncate">Publier</span>
+                    <span className="truncate">Publier les Brouillons</span>
                 </button>
             </div>
             {/* --- PRODUCTS GRID --- */}

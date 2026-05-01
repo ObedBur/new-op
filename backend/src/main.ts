@@ -16,9 +16,9 @@ if (!process.env.DATABASE_URL) {
 }
 
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { ValidationPipe } from '@nestjs/common';
 import helmet from '@fastify/helmet'; // Changement ici : version Fastify de helmet
 
 async function bootstrap() {
@@ -65,13 +65,16 @@ async function bootstrap() {
     crossOriginResourcePolicy: { policy: 'cross-origin' }
   });
 
-  // Important : Avec Fastify, il est conseillé d'écouter sur '0.0.0.0'
+  // ============ SHUTDOWN HOOKS ============
+  app.enableShutdownHooks();
+
+  const logger = new Logger('Bootstrap');
   const port = process.env.PORT || 4000;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 WapiBei est en ligne sur http://localhost:${port}`);
+  logger.log(`🚀 WapiBei est en ligne sur http://localhost:${port}`);
   const accessExpiry = process.env.JWT_ACCESS_EXPIRATION || '1h (default)';
   const refreshExpiry = process.env.JWT_REFRESH_EXPIRATION || '7d (default)';
-  console.log(`🔐 JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
+  logger.log(`🔐 JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
 bootstrap();

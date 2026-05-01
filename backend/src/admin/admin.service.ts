@@ -1,18 +1,22 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, UserRole, KycStatus } from '@prisma/client';
 import { ActivityDto } from './dto/activity.dto';
 
+/**
+ * Service d'administration de la plateforme.
+ * Responsable de la gestion des utilisateurs, de la validation KYC,
+ * du calcul des statistiques globales et du suivi de l'activité.
+ */
 @Injectable()
 export class AdminService {
-  /**
-   * Le service Admin gre les oprations rserves aux administrateurs :
-   * gestion des utilisateurs, validation KYC et statistiques globales.
-   */
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(AdminService.name);
+
+  constructor(private prisma: PrismaService) { }
 
   /**
-   * Rcupre la liste pagine et filtre de tous les utilisateurs
+   * Récupère la liste paginée et filtrée de tous les utilisateurs.
+   * Permet de filtrer par rôle (CLIENT, VENDOR) et statut KYC.
    */
   async getAllUsers(filters: {
     role?: string;
@@ -69,7 +73,7 @@ export class AdminService {
   }
 
   /**
-   * Rcupre les dtails complets d'un utilisateur spcifique par son ID
+   * Récupère les détails complets d'un utilisateur par son identifiant unique.
    */
   async getUserDetails(userId: string) {
     const user = await this.prisma.user.findUnique({
@@ -93,7 +97,7 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur introuvable');
     }
 
     return {
@@ -103,75 +107,71 @@ export class AdminService {
   }
 
   /**
-   * Supprime compltement un utilisateur et toutes ses donnes associes
+   * Supprime un utilisateur et purge toutes ses données associées de manière atomique.
+   * Gère la suppression des produits, commandes (en tant que client ou vendeur), 
+   * notifications et tokens de session.
    */
   async deleteUser(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur introuvable');
     }
 
     try {
       await this.prisma.$transaction(async (tx) => {
-        // 1. Delete RefreshTokens and Notifications
+        // Suppression des données de session et notifications
         await tx.refreshToken.deleteMany({ where: { userId } });
         await tx.notification.deleteMany({ where: { userId } });
 
-        // 2. Identify products owned by this user
+        // Identification et suppression des dépendances liées aux produits
         const userProducts = await tx.product.findMany({
           where: { userId },
           select: { id: true }
         });
         const productIds = userProducts.map((p) => p.id);
 
-        // 3. Delete Orders associated with user's products
         if (productIds.length > 0) {
           await tx.order.deleteMany({ where: { productId: { in: productIds } } });
         }
 
-        // 4. Delete Orders where user is client or vendor directly
+        // Suppression des commandes où l'utilisateur est impliqué directement
         await tx.order.deleteMany({
           where: { OR: [{ clientId: userId }, { vendorId: userId }] }
         });
 
-        // 5. Delete Products owned by this user
         await tx.product.deleteMany({ where: { userId } });
-
-        // 6. Delete the User
         await tx.user.delete({ where: { id: userId } });
       });
 
-      return { success: true, message: 'User and associated data deleted successfully' };
+      return { success: true, message: 'Utilisateur et données associées supprimés avec succès' };
     } catch (error) {
-      console.error('Error deleting user:', error);
-      throw new BadRequestException('Failed to delete user due to a database constraint or error');
+      this.logger.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
+      throw new BadRequestException('Impossible de supprimer l\'utilisateur à cause d\'une contrainte de base de données.');
     }
   }
 
   /**
-   * Approuve ou rejette le dossier KYC d'un vendeur
+   * Valide ou rejette un dossier KYC.
+   * L'approbation augmente le score de confiance initial du vendeur (+30 points).
    */
   async updateKycStatus(userId: string, status: string, rejectionReason?: string) {
-    // Valider le statut
     const validStatuses: string[] = Object.values(KycStatus);
     if (!validStatuses.includes(status)) {
-      throw new BadRequestException(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+      throw new BadRequestException(`Statut invalide. Doit être parmi : ${validStatuses.join(', ')}`);
     }
 
-    // Vrifier que l'utilisateur existe et est un vendeur
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur introuvable');
     }
 
     if (user.role !== 'VENDOR') {
-      throw new BadRequestException('Only vendors require KYC approval');
+      throw new BadRequestException('Seuls les vendeurs nécessitent une approbation KYC.');
     }
 
-    // Mettre  jour le statut
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -180,11 +180,11 @@ export class AdminService {
       },
     });
 
-    console.log(` KYC ${status} for vendor: ${user.email}`);
+    this.logger.log(`Statut KYC mis à jour (${status}) pour le vendeur : ${user.email}`);
 
     return {
       success: true,
-      message: `KYC status updated to ${status}`,
+      message: `Statut KYC mis à jour : ${status}`,
       data: {
         id: updatedUser.id,
         email: updatedUser.email,
@@ -195,7 +195,7 @@ export class AdminService {
   }
 
   /**
-   * Rcupre la liste des vendeurs dont le KYC est en attente
+   * Récupère la liste des vendeurs en attente de validation KYC.
    */
   async getPendingKyc() {
     const pendingVendors = await this.prisma.user.findMany({
@@ -224,8 +224,8 @@ export class AdminService {
   }
 
   /**
-   * Calcule les statistiques globales de la plateforme
-   * (utilisateurs, vendeurs, KYC, produits, ventes)
+   * Calcule les indicateurs clés de performance (KPI) de la plateforme.
+   * Agrège les données des utilisateurs, produits, ventes et dossiers KYC.
    */
   async getStats() {
     const [
@@ -273,20 +273,15 @@ export class AdminService {
   }
 
   /**
-   * Récupère les activités récentes de la plateforme.
-   * Les résultats sont fusionnés, triés par timestamp décroissant, et limités à 10.
+   * Analyse et agrège les activités récentes sur la plateforme.
+   * Fusionne les nouvelles commandes, inscriptions de vendeurs et validations KYC.
    */
   async getRecentActivities(): Promise<{ success: boolean; data: ActivityDto[] }> {
-    // ── 1. Dernières commandes ──────────────────────────────────────
+    // Collecte des commandes récentes
     const recentOrders = await this.prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        customerName: true,
-        totalPrice: true,
-        createdAt: true,
-      },
+      select: { id: true, customerName: true, totalPrice: true, createdAt: true },
     });
 
     const orderActivities: ActivityDto[] = recentOrders.map((order) => ({
@@ -294,55 +289,34 @@ export class AdminService {
       type: 'order' as const,
       description: `Nouvelle commande de ${order.customerName}`,
       timestamp: order.createdAt.toISOString(),
-      metadata: {
-        orderId: order.id,
-        total: order.totalPrice,
-        customerName: order.customerName,
-      },
+      metadata: { orderId: order.id, total: order.totalPrice, customerName: order.customerName },
     }));
 
-    // ── 2. Derniers vendeurs inscrits ───────────────────────────────
+    // Collecte des nouveaux vendeurs
     const recentVendors = await this.prisma.user.findMany({
       where: { role: UserRole.VENDOR },
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        fullName: true,
-        boutiqueName: true,
-        createdAt: true,
-      },
+      select: { id: true, fullName: true, boutiqueName: true, createdAt: true },
     });
 
     const vendorActivities: ActivityDto[] = recentVendors.map((vendor) => ({
       id: `usr_${vendor.id}`,
       type: 'vendor_registration' as const,
-      description: `Nouveau vendeur : ${vendor.boutiqueName || vendor.fullName} (${vendor.fullName})`,
+      description: `Nouveau vendeur : ${vendor.boutiqueName || vendor.fullName}`,
       timestamp: vendor.createdAt.toISOString(),
-      metadata: {
-        userId: vendor.id,
-        boutiqueName: vendor.boutiqueName || '',
-        fullName: vendor.fullName,
-      },
+      metadata: { userId: vendor.id, boutiqueName: vendor.boutiqueName || '', fullName: vendor.fullName },
     }));
 
-    // ── 3. Dernières mises à jour KYC ──────────────────────────────
+    // Collecte des mises à jour KYC récentes
     const recentKycUpdates = await this.prisma.user.findMany({
       where: {
         role: UserRole.VENDOR,
-        kycStatus: {
-          notIn: [KycStatus.PENDING, KycStatus.NOT_REQUIRED],
-        },
+        kycStatus: { notIn: [KycStatus.PENDING, KycStatus.NOT_REQUIRED] },
       },
       take: 5,
       orderBy: { updatedAt: 'desc' },
-      select: {
-        id: true,
-        fullName: true,
-        boutiqueName: true,
-        kycStatus: true,
-        updatedAt: true,
-      },
+      select: { id: true, fullName: true, boutiqueName: true, kycStatus: true, updatedAt: true },
     });
 
     const kycActivities: ActivityDto[] = recentKycUpdates.map((vendor) => ({
@@ -350,14 +324,10 @@ export class AdminService {
       type: 'kyc_update' as const,
       description: `Statut KYC de ${vendor.boutiqueName || vendor.fullName} passé à ${vendor.kycStatus}`,
       timestamp: vendor.updatedAt.toISOString(),
-      metadata: {
-        userId: vendor.id,
-        boutiqueName: vendor.boutiqueName || '',
-        newStatus: vendor.kycStatus,
-      },
+      metadata: { userId: vendor.id, boutiqueName: vendor.boutiqueName || '', newStatus: vendor.kycStatus },
     }));
 
-    // ── Fusion + tri par date décroissante + limite à 10 ───────────
+    // Fusion, tri chronologique et limitation du flux d'activité
     const allActivities: ActivityDto[] = [
       ...orderActivities,
       ...vendorActivities,

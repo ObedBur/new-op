@@ -14,6 +14,16 @@ export const authService = {
     return response.data;
   },
 
+  handleAuthResponse(data: AuthResponse) {
+    setAccessToken(data.access_token);
+    storage.setRefreshToken(data.refresh_token);
+    
+    // Ajout d'un cookie de rôle pour le middleware (proxy.ts)
+    if (typeof window !== 'undefined') {
+      document.cookie = `wapibei_role=${data.user.role}; path=/; max-age=604800; samesite=lax`;
+    }
+  },
+
   async logout(): Promise<void> {
     try {
       const refreshToken = storage.getRefreshToken();
@@ -23,17 +33,11 @@ export const authService = {
     } finally {
       setAccessToken(null);
       storage.removeRefreshToken();
+      // Supprimer le cookie de rôle
+      if (typeof window !== 'undefined') {
+        document.cookie = 'wapibei_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      }
     }
-  },
-
-  async getProfile(): Promise<User> {
-    const response = await api.get<{ success: boolean; user: User }>('/auth/profile');
-    return response.data.user;
-  },
-
-  handleAuthResponse(data: AuthResponse) {
-    setAccessToken(data.access_token);
-    storage.setRefreshToken(data.refresh_token);
   },
 
   /**

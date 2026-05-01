@@ -24,6 +24,7 @@ interface ProductsViewProps {
   newArrivals?: Product[];
   recommendations?: Product[];
   bestSellers?: Product[];
+  searchTerm?: string;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ 
@@ -32,7 +33,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   deals = [],
   newArrivals = [],
   recommendations = [],
-  bestSellers = []
+  bestSellers = [],
+  searchTerm
 }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { filters, updateFilters } = useProductFilters();
@@ -47,7 +49,9 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                 <span className="h-1 w-8 bg-[#E67E22] rounded-full"></span>
                 <span className="bg-[#E67E22]/10 text-[#E67E22] border border-[#E67E22]/20 text-xs font-black uppercase px-2.5 py-0.5 rounded-md tracking-widest">Marketplace Afrique</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight leading-none">Nos Articles</h2>
+            <h2 className="text-3xl md:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight leading-none">
+              {searchTerm ? `Résultats pour "${searchTerm}"` : "Nos Articles"}
+            </h2>
         </div>
       </section>
 

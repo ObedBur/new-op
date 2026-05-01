@@ -6,14 +6,14 @@ const getApiUrl = () => {
   if (typeof window === 'undefined') {
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
   }
-  
+
   const hostname = window.location.hostname;
-  
+
   // Si accédé via localhost, utiliser localhost
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
   }
-  
+
   // Si accédé via une IP réseau, utiliser la même IP pour le backend
   return process.env.NEXT_PUBLIC_API_URL || `http://${hostname}:4000/api`;
 };
@@ -64,15 +64,10 @@ const onRefreshed = (token: string) => {
 
 // Intercepteur de RÉPONSE
 api.interceptors.response.use(
-  (response) => {
-    if (response.config.url?.includes('/auth/profile')) {
-      console.log(" Profil chargé");
-    }
-    return response;
-  },
+  (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
-    
+
     // Si pas 401, déjà réessayé, ou si c'est une tentative de login, on arrête là
     if (
       error.response?.status !== 401 ||
@@ -82,7 +77,7 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    console.log(" 401 sur :", originalRequest.url);
+    // Log 401 removed for production
 
     if (isRefreshing) {
       return new Promise((resolve) => {
@@ -100,14 +95,14 @@ api.interceptors.response.use(
 
     try {
       const refreshToken = storage.getRefreshToken();
-      console.log("🔄 Tentative de refresh...");
+      // Tentative de refresh automatique
 
       if (!refreshToken) throw new Error('No refresh token');
 
       const response = await axios.post(
-        `${API_URL}/auth/refresh`, 
-        {}, 
-        {   
+        `${API_URL}/auth/refresh`,
+        {},
+        {
           headers: {
             Authorization: `Bearer ${refreshToken}`
           }
@@ -116,9 +111,9 @@ api.interceptors.response.use(
 
       // On récupère les nouveaux tokens (snake_case venant de NestJS)
       const { access_token: newAccessToken, refresh_token: newRefreshToken } = response.data;
-      
+
       setAccessToken(newAccessToken);
-      
+
       // Si le backend renvoie un nouveau refresh token (Rotation), on le stocke
       if (newRefreshToken) {
         storage.setRefreshToken(newRefreshToken);
@@ -131,7 +126,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       }
 
-      console.log(" Refresh réussi, relecture de la requête initiale");
+      // Refresh réussi, relecture de la requête initiale
       return api(originalRequest);
 
     } catch (refreshError) {
@@ -139,10 +134,8 @@ api.interceptors.response.use(
       refreshSubscribers = [];
       setAccessToken(null);
       storage.removeRefreshToken();
-      console.error(" Refresh échoué, session expirée");
-      
-      // Tu peux décommenter ceci si tu veux rediriger vers login automatiquement
-      // if (typeof window !== 'undefined') window.location.href = '/login';
+
+      if (typeof window !== 'undefined') window.location.href = '/login';
 
       return Promise.reject(refreshError);
     }

@@ -23,10 +23,10 @@ export class WebPushService {
     try {
       await webpush.sendNotification(subscription, JSON.stringify(payload));
       return true;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Error sending WebPush notification', error);
       // Si l'abonnement n'est plus valide (404 ou 410), on devrait le supprimer en base
-      if (error.statusCode === 404 || error.statusCode === 410) {
+      if (error?.statusCode === 404 || error?.statusCode === 410) {
         return false; // Indique que l'abonnement doit être supprimé
       }
       return true;

@@ -61,6 +61,10 @@ export class OrdersController {
     };
   }
 
+  /**
+   * P1 FIX — Seuls le vendeur propriétaire ou un ADMIN peuvent
+   * modifier le statut d'une commande.
+   */
   @UseGuards(JwtAuthGuard)
   @Post(':id/status')
   async updateOrderStatus(
@@ -68,14 +72,29 @@ export class OrdersController {
     @Param('id') orderId: string,
     @Body('status') status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
   ) {
-    // Note: Dans un système complet, il faudrait vérifier que req.user.id est bien le vendorId de la commande
-    // ou qu'il a le rôle ADMIN.
-    const result = await this.ordersService.updateStatus(orderId, status);
+    const result = await this.ordersService.updateStatus(
+      orderId,
+      status,
+      req.user.id,    // ← ID de l'utilisateur connecté
+      req.user.role,  // ← Rôle : VENDOR, ADMIN ou CLIENT
+    );
 
     return {
       success: true,
       message: `Statut mis à jour : ${status}`,
       data: result,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stats')
+  async getVendorStats(@Req() req: JwtRequest) {
+    const vendorId = req.user.id;
+    const stats = await this.ordersService.getVendorStats(vendorId);
+
+    return {
+      success: true,
+      data: stats,
     };
   }
 }
