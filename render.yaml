@@ -62,4 +62,4 @@ services:
       
       # ============ FRONTEND ============
       - key: FRONTEND_URL
-        value: https://wapibei.vercel.app # À adapter à ton domaine
+        value: https://wapibei.vercel.app # À adapter à mon domaine

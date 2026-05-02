@@ -75,9 +75,9 @@ async function bootstrap() {
   const port = process.env.PORT || 4000;
   await app.listen(port, '0.0.0.0');
 
-  logger.log(`🚀 WapiBei est en ligne sur http://localhost:${port}`);
+  logger.log(`WapiBei est en ligne sur http://localhost:${port}`);
   const accessExpiry = process.env.JWT_ACCESS_EXPIRATION || '1h (default)';
   const refreshExpiry = process.env.JWT_REFRESH_EXPIRATION || '7d (default)';
-  logger.log(`🔐 JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
+  logger.log(`JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
 bootstrap();
