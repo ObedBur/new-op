@@ -16,6 +16,10 @@ export const authErrors = {
   INVALID_OTP: "Le code est incorrect. Veuillez vérifier le code reçu.",
   EXPIRED_OTP: "Le code a expiré. Veuillez en demander un nouveau.",
   
+  // Server Errors
+  SERVER_ERROR: "Une erreur interne est survenue. Veuillez réessayer plus tard.",
+  DATABASE_ERROR: "Une erreur de base de données est survenue.",
+
   // General
   UNKNOWN_ERROR: "Oups ! Quelque chose s'est mal passé. Veuillez réessayer dans un instant.",
   NETWORK_ERROR: "Erreur de connexion. Vérifiez votre accès internet.",
@@ -28,15 +32,31 @@ export const mapBackendError = (error: any): string => {
   const status = error.response.status;
   const message = error.response.data?.message;
 
+  // ============ ERREURS 5XX (Erreurs serveur) ============
+  if (status >= 500) {
+    // En production, afficher un message générique amical
+    if (process.env.NODE_ENV === 'production') {
+      return authErrors.SERVER_ERROR;
+    }
+    // En dev, afficher le message du serveur pour déboguer
+    return message || authErrors.SERVER_ERROR;
+  }
+
+  // ============ ERREURS 4XX (Erreurs client) ============
   // Gestion spécifique des erreurs de connexion
   if (status === 404 && message === 'User not found') {
     return authErrors.USER_NOT_FOUND;
   }
   
   if (status === 401) {
+    // Messages spécifiques en développement
+    if (message === 'Email not found') return authErrors.USER_NOT_FOUND;
     if (message === 'Invalid password') return authErrors.WRONG_PASSWORD;
-    if (message === 'Invalid credentials') return authErrors.INVALID_CREDENTIALS;
-    return authErrors.INVALID_CREDENTIALS;
+    // Messages génériques en production ou par défaut
+    if (message === 'Identifiants invalides' || message === 'Invalid credentials') {
+      return authErrors.INVALID_CREDENTIALS;
+    }
+    return message || authErrors.INVALID_CREDENTIALS;
   }
 
   if (status === 403) return authErrors.ACCOUNT_NOT_VERIFIED;

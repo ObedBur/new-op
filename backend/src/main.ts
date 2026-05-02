@@ -20,20 +20,23 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import helmet from '@fastify/helmet'; // Changement ici : version Fastify de helmet
-
+import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
+// 
 async function bootstrap() {
-  // Changement de NestExpressApplication vers NestFastifyApplication
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
-      trustProxy: true, // Équivalent de app.set('trust proxy', 1)
-      logger: true,      // Active le logger ultra-rapide Pino
-      bodyLimit: 50 * 1024 * 1024, // 50MB pour supporter les images Base64
+      trustProxy: true,
+      logger: true,
+      bodyLimit: 50 * 1024 * 1024,
     })
   );
 
   // ============ PREFIXE GLOBAL ============
   app.setGlobalPrefix('api');
+
+  // ============ FILTRE D'EXCEPTIONS GLOBAL ============
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // ============ VALIDATION GLOBALE ============
   app.useGlobalPipes(
@@ -50,7 +53,7 @@ async function bootstrap() {
   // ============ CONFIGURATION CORS ============
   const isDev = process.env.NODE_ENV !== 'production';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-  
+
   app.enableCors({
     origin: isDev ? true : [frontendUrl, 'http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,

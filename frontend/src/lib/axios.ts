@@ -9,13 +9,19 @@ const getApiUrl = () => {
 
   const hostname = window.location.hostname;
 
-  // Si accédé via localhost, utiliser localhost
+  // Si accédé via localhost, utiliser Render en PROD ou localhost en DEV
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // Utiliser l'URL du backend Render si définie, sinon localhost
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
   }
 
-  // Si accédé via une IP réseau, utiliser la même IP pour le backend
-  return process.env.NEXT_PUBLIC_API_URL || `http://${hostname}:4000/api`;
+  // Si accédé via internet (prod), utiliser le backend Render
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Si accédé via une IP réseau locale, utiliser la même IP pour le backend
+  return `http://${hostname}:4000/api`;
 };
 
 const API_URL = getApiUrl();

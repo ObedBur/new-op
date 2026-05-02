@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
+// 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll() {
     const categories = await this.prisma.category.findMany({
@@ -14,7 +14,7 @@ export class CategoriesService {
       }
     });
 
-    // To match frontend expected type 'productCount'
+    //  On transforme le nombre de produits en productCount pour que le frontend l'affiche
     return categories.map(cat => ({
       ...cat,
       productCount: cat._count.products

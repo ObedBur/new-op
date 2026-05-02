@@ -129,7 +129,11 @@ export class AuthService {
 
     if (!user) {
       this.logger.debug(`Utilisateur non trouvé: ${dto.email}`);
-      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
+      // En prod, message générique pour sécurité. En dev, message spécifique
+      const message = process.env.NODE_ENV === 'production'
+        ? 'Identifiants invalides'
+        : 'Email not found';
+      throw new HttpException(message, HttpStatus.UNAUTHORIZED);
     }
 
     this.logger.debug(`Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`);
@@ -137,7 +141,12 @@ export class AuthService {
     this.logger.debug(`Mot de passe valide: ${isPasswordValid}`);
 
     if (!isPasswordValid) {
-      throw new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED);
+      this.logger.debug(`Mot de passe incorrect pour: ${dto.email}`);
+      // En prod, message générique pour sécurité. En dev, message spécifique
+      const message = process.env.NODE_ENV === 'production'
+        ? 'Identifiants invalides'
+        : 'Invalid password';
+      throw new HttpException(message, HttpStatus.UNAUTHORIZED);
     }
 
     this.userValidationService.validateLoginEligibility(user);

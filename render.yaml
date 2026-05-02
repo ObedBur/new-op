@@ -4,25 +4,62 @@ services:
     name: wapibei-backend
     env: docker
     rootDir: backend
-    plan: free # ou 'starter' pour la prod
-    healthCheckPath: /api/categories # Endpoint pour vérifier que le serveur est en ligne
+    plan: starter # Minimum recommandé pour prod (pas gratuit mais $7/mois)
+    healthCheckPath: /api/health # Endpoint pour vérifier que le serveur est en ligne
     envVars:
-      # L'URL de votre base de données Neon (à configurer dans le Dashboard Render ou via un secret)
+      # ============ BASE DE DONNÉES ============
       - key: DATABASE_URL
-        sync: false
+        sync: false # À configurer dans Render Dashboard -> Secrets
       
-      # Variables d'environnement standard
+      # ============ ENVIRONNEMENT ============
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 4000
       
-      # Variables de sécurité (générées automatiquement ou à remplacer dans le dashboard)
-      - key: JWT_ACCESS_SECRET
-        generateValue: true
+      # ============ JWT (SÉCURITÉ) ============
+      - key: JWT_SECRET
+        sync: false # À configurer dans Render Dashboard -> Secrets
       - key: JWT_REFRESH_SECRET
-        generateValue: true
+        sync: false # À configurer dans Render Dashboard -> Secrets
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
       
-      # URL du Frontend
+      # ============ EMAIL (BREVO) ============
+      - key: BREVO_API_KEY
+        sync: false # À configurer dans Render Dashboard -> Secrets
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        value: noreply@wapibei.com
+      
+      # ============ NOTIFICATIONS PUSH ============
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_EMAIL
+        value: mailto:support@wapibei.com
+      
+      # ============ REDIS (Cache & Sessions) ============
+      # Sur Render, utiliser un service Redis séparé (Render Redis ou RedisGreen)
+      - key: REDIS_HOST
+        sync: false # URL du Redis (ex: redis-xxxxx.render.com)
+      - key: REDIS_PORT
+        value: 6379
+      - key: REDIS_PASSWORD
+        sync: false # Token d'authentification Redis
+      - key: REDIS_TTL
+        value: 600
+      
+      # ============ FRONTEND ============
       - key: FRONTEND_URL
-        value: https://wapibei.com
+        value: https://wapibei.vercel.app # À adapter à ton domaine
