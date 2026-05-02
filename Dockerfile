@@ -1,24 +1,21 @@
-# Étape 1 : Build
 FROM node:20-alpine AS builder
 WORKDIR /app
-
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# On copie les fichiers de config qui sont au même niveau que ce Dockerfile
+# 1. On copie les fichiers de configuration du monorepo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+
+# 2. On copie les fichiers nécessaires du package backend
 COPY backend/package.json ./backend/
 COPY backend/prisma ./backend/prisma/
 
-# Installation des dépendances
+# 3. Installation des dépendances
 RUN pnpm install --no-frozen-lockfile
 
-# Copie du code source du backend
+# 4. Copie du reste du code et build
 COPY backend ./backend
-
-# Build du backend
 RUN pnpm --filter backend build
 
-# Étape 2 : Production
 FROM node:20-alpine AS production
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
