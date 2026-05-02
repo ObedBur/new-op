@@ -2,8 +2,8 @@ services:
   - type: web
     name: wapibei-backend
     runtime: docker
-    dockerfilePath: backend/Dockerfile
-    dockerContext: . # Permet d'accéder au pnpm-lock.yaml à la racine
+    dockerfilePath: Dockerfile # On a supprimé "backend/" devant
+    dockerContext: .    
     plan: starter
     healthCheckPath: /api/health
     envVars:
