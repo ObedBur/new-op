@@ -1,35 +1,28 @@
 services:
-  # Le Serveur Backend (NestJS)
   - type: web
     name: wapibei-backend
-    env: docker
-    rootDir: backend
-    plan: starter # Minimum recommandé pour prod (pas gratuit mais $7/mois)
-    healthCheckPath: /api/health # Endpoint pour vérifier que le serveur est en ligne
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: . # Permet d'accéder au pnpm-lock.yaml à la racine
+    plan: starter
+    healthCheckPath: /api/health
     envVars:
-      # ============ BASE DE DONNÉES ============
       - key: DATABASE_URL
-        sync: false # À configurer dans Render Dashboard -> Secrets
-      
-      # ============ ENVIRONNEMENT ============
+        sync: false 
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 4000
-      
-      # ============ JWT (SÉCURITÉ) ============
       - key: JWT_SECRET
-        sync: false # À configurer dans Render Dashboard -> Secrets
+        sync: false 
       - key: JWT_REFRESH_SECRET
-        sync: false # À configurer dans Render Dashboard -> Secrets
+        sync: false 
       - key: JWT_EXPIRES_IN
         value: 15m
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
-      
-      # ============ EMAIL (BREVO) ============
       - key: BREVO_API_KEY
-        sync: false # À configurer dans Render Dashboard -> Secrets
+        sync: false 
       - key: SMTP_HOST
         value: smtp-relay.brevo.com
       - key: SMTP_PORT
@@ -39,27 +32,18 @@ services:
       - key: SMTP_PASS
         sync: false
       - key: MAIL_FROM
-        value: noreply@wapibei.com
-      
-      # ============ NOTIFICATIONS PUSH ============
+        value: obedburindi@gmail.com
       - key: VAPID_PUBLIC_KEY
         sync: false
       - key: VAPID_PRIVATE_KEY
         sync: false
       - key: VAPID_EMAIL
-        value: mailto:support@wapibei.com
-      
-      # ============ REDIS (Cache & Sessions) ============
-      # Sur Render, utiliser un service Redis séparé (Render Redis ou RedisGreen)
+        value: mailto:obedburindi@gmail.com
       - key: REDIS_HOST
-        sync: false # URL du Redis (ex: redis-xxxxx.render.com)
+        sync: false 
       - key: REDIS_PORT
         value: 6379
-      - key: REDIS_PASSWORD
-        sync: false # Token d'authentification Redis
       - key: REDIS_TTL
         value: 600
-      
-      # ============ FRONTEND ============
       - key: FRONTEND_URL
-        value: https://wapibei.vercel.app # À adapter à mon domaine
+        value: http://localhost:3000

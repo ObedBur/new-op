@@ -1,52 +1,41 @@
-# Étape 1 : Build de l'application
+# Étape 1 : Build
 FROM node:20-alpine AS builder
-
 WORKDIR /app
 
 # Installation de pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copier uniquement les fichiers nécessaires pour l'installation des dépendances
-COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma/
+# Copie des fichiers de configuration depuis la racine (grâce au dockerContext: .)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY backend/package.json ./backend/
+COPY backend/prisma ./backend/prisma/
 
-# Installation des dépendances (y compris devDependencies pour le build)
-RUN pnpm install --frozen-lockfile
+# Installation des dépendances pour le monorepo
+RUN pnpm install --no-frozen-lockfile
 
-# Générer le client Prisma
-RUN pnpm prisma generate
+# Copie du code source du backend
+COPY backend ./backend
 
-# Copier le reste du code
-COPY . .
-
-# Compiler l'application NestJS
-RUN pnpm build
+# Build du backend uniquement
+RUN pnpm --filter backend build
 
 # Étape 2 : Image de production légère
 FROM node:20-alpine AS production
-
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma/
+# Copie des fichiers nécessaires au runtime
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/backend/package.json ./backend/
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/prisma ./backend/prisma
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
 
-# Installer uniquement les dépendances de production
-RUN pnpm install --prod --frozen-lockfile
-
-# Générer Prisma (requis pour la prod)
-RUN pnpm prisma generate
-
-# Copier les fichiers compilés depuis le builder
-COPY --from=builder /app/dist ./dist
-
-# Définir l'environnement de production
 ENV NODE_ENV=production
 ENV PORT=4000
-
-# Exposer le port de l'application
 EXPOSE 4000
 
-# Démarrage de l'application via le dossier compilé
-CMD ["node", "dist/main.js"]
+# Démarrage du backend
+CMD ["node", "backend/dist/main.js"]
