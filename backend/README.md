@@ -18,7 +18,6 @@ A NestJS-based backend application for managing products, orders, sellers, and a
 - Node.js v18+ 
 - PostgreSQL
 - npm or pnpm
-- Test CI
 ## Installation
 
 1. Install dependencies:
