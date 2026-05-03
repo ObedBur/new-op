@@ -189,7 +189,7 @@ Key variables:
 - Check Prisma schema syntax
 
 ### JWT Token Issues
-- Verify `JWT_SECRET` is se oka
+- Verify `JWT_SECRET` is se 
 - Check token expiration in `.env`
 
 ## Contributing
