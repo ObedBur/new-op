@@ -45,3 +45,4 @@ Thumbs.db
 # IDE (VS Code / WebStorm)
 .vscode/
 .idea/
+*.tsbuildinfo
