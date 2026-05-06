@@ -12,6 +12,12 @@ export interface AppNotification {
   message: string;
   type: NotificationType;
   isRead: boolean;
-  metadata?: any;
+  metadata?: {
+    productId?: string;
+    orderId?: string;
+    orderIds?: string[];
+    productImage?: string;
+    [key: string]: unknown;
+  };
   createdAt: string;
 }

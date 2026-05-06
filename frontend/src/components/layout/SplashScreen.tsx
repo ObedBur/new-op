@@ -5,6 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useLoading } from '@/context/LoadingContext';
 
+const MAX_DISPLAY_TIME = 3000; // Safety fallback: always hide after 3s
+
 export const SplashScreen: React.FC = () => {
   const { isAppReady } = useLoading();
   const [isVisible, setIsVisible] = useState(true);
@@ -19,7 +21,16 @@ export const SplashScreen: React.FC = () => {
     "Prêt dans un instant..."
   ];
 
-  // Logic to hide splash when app is ready AND minimum time has elapsed
+  // Safety fallback: always dismiss after MAX_DISPLAY_TIME
+  // This prevents the splash screen from getting stuck on pages that never call setAppReady
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      setIsVisible(false);
+    }, MAX_DISPLAY_TIME);
+    return () => clearTimeout(fallback);
+  }, []);
+
+  // Normal logic: hide splash when app is ready AND minimum time has elapsed
   useEffect(() => {
     if (isAppReady) {
       const currentTime = Date.now();

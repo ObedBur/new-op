@@ -178,12 +178,12 @@ const Header: React.FC<HeaderProps> = ({
                                     {notifications.map((n) => (
                                         <div key={n.id} className="p-4 hover:bg-slate-50 transition-colors cursor-pointer group">
                                             <div className="flex gap-3">
-                                                <div className={`size-8 rounded-full shrink-0 flex items-center justify-center ${n.type === 'warning' ? 'bg-emerald-50 text-primary' :
-                                                    n.type === 'success' ? 'bg-green-50 text-green-500' :
+                                                <div className={`size-8 rounded-full shrink-0 flex items-center justify-center ${n.type === 'SYSTEM_ALERT' ? 'bg-emerald-50 text-primary' :
+                                                    n.type === 'ORDER_CONFIRMED' || n.type === 'PAYMENT_RECEIVED' ? 'bg-green-50 text-green-500' :
                                                         'bg-blue-50 text-blue-500'
                                                     }`}>
                                                     <span className="material-symbols-outlined text-lg">
-                                                        {n.type === 'warning' ? 'warning' : n.type === 'success' ? 'check_circle' : 'info'}
+                                                        {n.type === 'SYSTEM_ALERT' ? 'warning' : n.type === 'ORDER_CONFIRMED' || n.type === 'PAYMENT_RECEIVED' ? 'check_circle' : 'info'}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -209,5 +209,4 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
-
 

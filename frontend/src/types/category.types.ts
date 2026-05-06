@@ -1,9 +1,9 @@
 
 export interface Category {
-  id: string;
+  id: number;
   name: string;
-  icon: string;
-  colorClass: string;
-  bgClass: string;
+  icon?: string;
+  colorClass?: string;
+  bgClass?: string;
   productCount?: number;
 }

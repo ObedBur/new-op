@@ -27,11 +27,15 @@ export function usePushNotifications() {
         return;
       }
 
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        console.warn('NEXT_PUBLIC_VAPID_PUBLIC_KEY is missing. Push subscription skipped.');
+        return;
+      }
+
       const subscribeOptions = {
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(
-          process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'VAPID_PUBLIC_KEY_PLACEHOLDER'
-        )
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
       };
 
       const subscription = await registration.pushManager.subscribe(subscribeOptions);

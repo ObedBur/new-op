@@ -13,7 +13,7 @@ import {
 import EditProfileModal from "../modal/EditProfileModal";
 
 import { useAuth } from "@/context/AuthContext";
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
 
@@ -37,6 +37,7 @@ const staggerContainer = {
 
 function SettingsPageContent() {
   const { user } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -66,9 +67,9 @@ function SettingsPageContent() {
     }
 
     if (n.type === 'NEW_PRODUCT' && n.metadata?.productId) {
-      window.location.href = `/products/${n.metadata.productId}`;
+      router.push(`/products/${n.metadata.productId}`);
     } else if (n.type === 'ORDER_CREATED' || n.type === 'ORDER_CONFIRMED') {
-      window.location.href = user?.role === 'VENDOR' ? '/dashboard/orders' : '/settings?tab=preferences'; // adjust as needed
+      router.push(user?.role === 'VENDOR' ? '/dashboard/orders' : '/settings?tab=orders');
     }
   };
 

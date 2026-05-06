@@ -6,6 +6,7 @@ import { Plus, X, Package, DollarSign, Database, Tag, Image as ImageIcon, Loader
 
 import { getCategories, addProduct, updateProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
+import { Category } from '@/types/category.types';
 
 interface AddProductModalProps {
     isOpen: boolean;
@@ -13,11 +14,6 @@ interface AddProductModalProps {
     onProductAdded: () => void;
     product?: any;
     defaultPublic?: boolean;
-}
-
-interface Category {
-    id: number;
-    name: string;
 }
 
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onProductAdded, product, defaultPublic }) => {
@@ -136,7 +132,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                     setIsSuccess(false);
                 }, 1500);
             } else {
-                const errorMsg = response.data?.message || 'Erreur lors de l\'ajout du produit.';
+                const errorMsg = response?.message || 'Erreur lors de l\'ajout du produit.';
                 setError(errorMsg);
                 toast.error(errorMsg);
             }

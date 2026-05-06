@@ -13,7 +13,7 @@ export class EmailService {
     require('dns').setDefaultResultOrder('ipv4first');
 
     const apiKey = process.env.BREVO_API_KEY;
-    this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}, Sender: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM}`);
+    this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}, Sender: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM}`);
 
     if (apiKey) {
       this.apiInstance.setApiKey(
@@ -79,7 +79,7 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -92,7 +92,7 @@ export class EmailService {
       const fullError = error instanceof Error ? error.stack : String(error);
       this.logger.error(`Failed to send email to ${email}: ${message}`);
       this.logger.error(`Full error details: ${fullError}`);
-      this.logger.error(`Email config - From: ${process.env.BREVO_SENDER_EMAIL}, Has API Key: ${!!process.env.BREVO_API_KEY}`);
+      this.logger.error(`Email config - From: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM}, Has API Key: ${!!process.env.BREVO_API_KEY}`);
       return false;
     }
   }
@@ -139,7 +139,7 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei Support',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -239,7 +239,7 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei Market',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'noreply@wapibei.com'
+      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
     };
     sendSmtpEmail.to = [{ email: data.customerEmail }];
 
@@ -313,7 +313,7 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Sales', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'sales@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei Sales', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'sales@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.vendorEmail }];
 
     try {
@@ -383,7 +383,7 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Monitoring', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || 'admin@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei Monitoring', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'admin@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.adminEmail }];
 
     try {
@@ -428,7 +428,7 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'no-reply@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'no-reply@wapibei.com' };
     sendSmtpEmail.to = [{ email }];
 
     try {
@@ -534,7 +534,7 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Nouveautés', email: process.env.BREVO_SENDER_EMAIL || 'no-reply@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei Nouveautés', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'no-reply@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.email }];
 
     try {
@@ -574,7 +574,7 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
@@ -614,7 +614,7 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
@@ -653,7 +653,7 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);

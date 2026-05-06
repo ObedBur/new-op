@@ -1,5 +1,17 @@
 import { api } from '@/lib/axios';
 import { AppNotification } from '@/types/notification';
+import axios from 'axios';
+
+interface NotificationsResponse {
+  items: AppNotification[];
+  unreadCount?: number;
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
 
 /**
  * Centralized Notification API Service
@@ -10,8 +22,15 @@ import { AppNotification } from '@/types/notification';
 
 /** Fetch all notifications for the authenticated user */
 export async function fetchNotifications(): Promise<AppNotification[]> {
-  const { data } = await api.get<AppNotification[]>('/notifications');
-  return data;
+  try {
+    const { data } = await api.get<AppNotification[] | NotificationsResponse>('/notifications');
+    return Array.isArray(data) ? data : data.items ?? [];
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 /** Mark a single notification as read */

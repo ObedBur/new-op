@@ -38,7 +38,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   // Build dynamic navigation based on user role
   const getNavItems = () => {
-    let items = [
+    const items = [
       { label: 'Accueil', href: '/' },
       { label: 'Mon Compte', href: '/settings' },
       { label: 'Mes Commandes', href: '/dashboard/orders' },

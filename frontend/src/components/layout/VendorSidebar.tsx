@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
     User, Store, Package, ShoppingBag,
-    Bell, ShieldCheck, Settings as SettingsIcon, Heart
+    Bell, ShieldCheck, Settings as SettingsIcon, Heart, TrendingUp
 } from 'lucide-react';
 import { User as UserType } from '@/types/auth';
 

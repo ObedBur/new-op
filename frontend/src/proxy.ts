@@ -16,11 +16,6 @@ export function proxy(request: NextRequest) {
 
     // CAS A : Non connecté -> Direction Login avec Callback
     if (!isAuthenticated) {
-      // EXCEPTION TEMPORAIRE : On laisse passer pour voir la page de test Analytics
-      if (pathname === '/dashboard/analytics') {
-        return NextResponse.next();
-      }
-
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
