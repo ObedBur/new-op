@@ -5,15 +5,19 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
+    "backend#build": {
+      "dependsOn": ["backend#prisma:generate"]
+    },
+    "prisma:generate": {
+      "cache": false,
+      "inputs": ["prisma/schema.prisma"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
     },
     "lint": {
       "dependsOn": ["^lint"]
-    },
-    "prisma:generate": {
-      "cache": false
     }
   }
 }

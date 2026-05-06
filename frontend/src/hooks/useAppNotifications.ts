@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppNotification } from '@/types/notification';
+import { useAuth } from '@/context/AuthContext';
 import {
   fetchNotifications,
   markNotificationAsRead,
@@ -21,6 +22,7 @@ const NOTIFICATIONS_KEY = ['app', 'notifications'] as const;
  */
 export function useAppNotifications() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // ── Fetch ──────────────────────────────────────────
   const {
@@ -30,6 +32,7 @@ export function useAppNotifications() {
   } = useQuery<AppNotification[]>({
     queryKey: NOTIFICATIONS_KEY,
     queryFn: fetchNotifications,
+    enabled: isAuthenticated && !authLoading,
     staleTime: 30_000,      // consider data fresh for 30s
     refetchInterval: 60_000, // background refetch every 60s
   });

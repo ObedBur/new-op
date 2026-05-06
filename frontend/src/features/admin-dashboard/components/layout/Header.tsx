@@ -169,7 +169,7 @@ const Header: React.FC<HeaderProps> = ({
                         <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                             <h4 className="font-bold text-deep-blue">{t.header.notifications}</h4>
                             {notifications.length > 0 && (
-                                <button onClick={markAllAsRead} className="text-[10px] font-bold text-primary uppercase tracking-wider hover:underline">{t.header.mark_read}</button>
+                                <button onClick={() => markAllAsRead()} className="text-[10px] font-bold text-primary uppercase tracking-wider hover:underline">{t.header.mark_read}</button>
                             )}
                         </div>
                         <div className="max-h-80 overflow-y-auto no-scrollbar">

@@ -7,7 +7,8 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "install:all": "pnpm install",
-    "prisma:gen": "turbo prisma:generate"
+    "prisma:gen": "turbo prisma:generate",
+    "db:setup": "pnpm --filter backend prisma:migrate:prod && pnpm --filter backend prisma:seed"
   },
   "devDependencies": {
     "turbo": "latest"

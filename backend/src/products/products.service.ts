@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ModerationService } from '../common/services/moderation.service';
+import { AppCacheService } from '../common/services/app-cache.service';
 import { NotificationsService } from '../common/notifications/notifications.service';
 
 /**
@@ -18,15 +19,13 @@ const productInclude = {
   },
 };
 
-/**
- * Service gérant le catalogue de produits, les algorithmes de recommandation,
- * la modération automatique et la gestion des stocks.
- */
+const HOME_PRODUCTS_TTL_MS = 3 * 60 * 1000;
 @Injectable()
 export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private moderationService: ModerationService,
+    private cache: AppCacheService,
     private notificationsService: NotificationsService,
   ) {}
 
@@ -35,15 +34,17 @@ export class ProductsService {
    * Filtre les produits marqués explicitement comme étant en solde.
    */
   async getDeals(limit = 6) {
-    return this.prisma.product.findMany({
-      where: {
-        isOnSale: true,
-        originalPrice: { not: null },
-        isPublic: true,
-      } as any,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      include: productInclude,
+    return this.cache.getOrSet(`products:deals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product.findMany({
+        where: {
+          isOnSale: true,
+          originalPrice: { not: null },
+          isPublic: true,
+        } as any,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        include: productInclude,
+      });
     });
   }
 
@@ -54,14 +55,16 @@ export class ProductsService {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    return this.prisma.product.findMany({
-      where: {
-        createdAt: { gte: sevenDaysAgo },
-        isPublic: true,
-      } as any,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      include: productInclude,
+    return this.cache.getOrSet(`products:new-arrivals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product.findMany({
+        where: {
+          createdAt: { gte: sevenDaysAgo },
+          isPublic: true,
+        } as any,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        include: productInclude,
+      });
     });
   }
 
@@ -71,35 +74,40 @@ export class ProductsService {
    * 2. Si l'historique est vide, propose les produits des vendeurs les mieux notés (TrustScore).
    */
   async getRecommendations(userId?: string, limit = 6) {
-    if (userId) {
-      const userOrders = await this.prisma.order.findMany({
-        where: { clientId: userId },
-        include: { product: { select: { categoryId: true } } },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      });
+    const cacheKey = `products:recommendations:${userId ?? 'guest'}:${limit}`;
 
-      const categoryIds = [...new Set(userOrders.map(o => o.product.categoryId))];
-
-      if (categoryIds.length > 0) {
-        return this.prisma.product.findMany({
-          where: { 
-            categoryId: { in: categoryIds },
-            isPublic: true,
-          } as any,
-          orderBy: { totalSales: 'desc' },
-          take: limit,
-          include: productInclude,
+    return this.cache.getOrSet(cacheKey, HOME_PRODUCTS_TTL_MS, async () => {
+      if (userId) {
+        // Trouver les catégories les plus achetées par l'utilisateur
+        const userOrders = await this.prisma.order.findMany({
+          where: { clientId: userId },
+          include: { product: { select: { categoryId: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 20,
         });
-      }
-    }
 
-    // Stratégie de repli : Excellence des vendeurs (TrustScore élevé)
-    return this.prisma.product.findMany({
-      where: { isPublic: true } as any,
-      orderBy: { user: { trustScore: 'desc' } },
-      take: limit,
-      include: productInclude,
+        const categoryIds = [...new Set(userOrders.map((o) => o.product.categoryId))];
+
+        if (categoryIds.length > 0) {
+          return this.prisma.product.findMany({
+            where: {
+              categoryId: { in: categoryIds },
+              isPublic: true,
+            } as any,
+            orderBy: { totalSales: 'desc' },
+            take: limit,
+            include: productInclude,
+          });
+        }
+      }
+
+      // Fallback : produits de vendeurs les mieux notés
+      return this.prisma.product.findMany({
+        where: { isPublic: true } as any,
+        orderBy: { user: { trustScore: 'desc' } },
+        take: limit,
+        include: productInclude,
+      });
     });
   }
 
@@ -107,14 +115,16 @@ export class ProductsService {
    * Récupère les produits les plus vendus sur la plateforme.
    */
   async getBestSellers(limit = 6) {
-    return this.prisma.product.findMany({
-      where: { 
-        totalSales: { gt: 0 },
-        isPublic: true,
-      } as any,
-      orderBy: { totalSales: 'desc' },
-      take: limit,
-      include: productInclude,
+    return this.cache.getOrSet(`products:best-sellers:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product.findMany({
+        where: { 
+          totalSales: { gt: 0 },
+          isPublic: true,
+        } as any,
+        orderBy: { totalSales: 'desc' },
+        take: limit,
+        include: productInclude,
+      });
     });
   }
 

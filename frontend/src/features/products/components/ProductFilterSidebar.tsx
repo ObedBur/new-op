@@ -9,7 +9,7 @@ interface SidebarProps {
   onUpdate: (updates: Partial<ProductFilters>) => void;
 }
 
-export const ProductFilterSidebar: React.FC<SidebarProps> = ({ _categories, filters, onUpdate }) => {
+export const ProductFilterSidebar: React.FC<SidebarProps> = ({ categories: _categories, filters, onUpdate }) => {
   const [minPrice, setMinPrice] = useState<string>(filters.minPrice || '');
 
   const handlePriceChange = (value: string) => {

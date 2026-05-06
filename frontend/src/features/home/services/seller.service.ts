@@ -9,6 +9,9 @@ export interface HomeSeller {
   productPreviews: string[];
 }
 
+// Backward-compatible alias used across older UI modules
+export type Seller = HomeSeller;
+
 export async function getActiveSellers(): Promise<HomeSeller[]> {
   try {
     const response = await api.get<HomeSeller[]>('/sellers');

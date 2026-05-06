@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useLoading } from "@/context/LoadingContext";
 import { HomeView } from "@/features/home/components/HomeView";
 import {
-  getProducts,
   getCategories,
   getDeals,
   getNewArrivals,
@@ -15,14 +14,23 @@ import {
 } from "@/features/products/services/product.service";
 import {
   getActiveSellers,
-  Seller,
+  HomeSeller,
 } from "@/features/home/services/seller.service";
 import {
   getHomepageContent,
-  HeroSlide,
-  HowItWorksStep,
 } from "@/features/home/services/content.service";
 import { Product, Category } from "@/types";
+
+type HomeSectionKey =
+  | "categories"
+  | "content"
+  | "stores"
+  | "deals"
+  | "newArrivals"
+  | "recommendations"
+  | "bestSellers";
+
+type HomeLoadingState = Record<HomeSectionKey, boolean>;
 
 export default function Home() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
@@ -30,10 +38,22 @@ export default function Home() {
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
-  const [stores, setStores] = useState<Seller[]>([]);
-  const [howItWorksSteps, setHowItWorksSteps] = useState<HowItWorksStep[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [heroSlides, setHeroSlides] = useState<Awaited<ReturnType<typeof getHomepageContent>>["heroSlides"]>([]);
+  const [stores, setStores] = useState<HomeSeller[]>([]);
+  const [howItWorksSteps, setHowItWorksSteps] = useState<Awaited<ReturnType<typeof getHomepageContent>>["howItWorksSteps"]>([]);
+  const [sectionLoading, setSectionLoading] = useState<HomeLoadingState>({
+    categories: true,
+    content: true,
+    stores: true,
+    deals: true,
+    newArrivals: true,
+    recommendations: true,
+    bestSellers: true,
+  });
+
+  const setSectionLoaded = (key: HomeSectionKey) => {
+    setSectionLoading((prev) => ({ ...prev, [key]: false }));
+  };
 
   // Galeries intelligentes
   const [deals, setDeals] = useState<Product[]>([]);
@@ -48,54 +68,104 @@ export default function Home() {
     }
   }, [authLoading, isAuthenticated, user, router]);
 
-  // Fetch data
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [categoriesRes, sellersRes, contentRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] =
-          await Promise.all([
-            getCategories(),
-            getActiveSellers(),
-            getHomepageContent(),
-            getDeals(12),
-            getNewArrivals(12),
-            getRecommendations(user?.id, 12),
-            getBestSellers(12),
-          ]);
+    setSectionLoading({
+      categories: true,
+      content: true,
+      stores: true,
+      deals: true,
+      newArrivals: true,
+      recommendations: true,
+      bestSellers: true,
+    });
 
-        if (categoriesRes.success) setCategories(categoriesRes.data);
+    void getCategories()
+      .then((response) => {
+        if (response.success) {
+          setCategories(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      })
+      .finally(() => setSectionLoaded("categories"));
 
-        setStores(sellersRes);
-        setHeroSlides(contentRes.heroSlides);
-        setHowItWorksSteps(contentRes.howItWorksSteps);
+    void getActiveSellers()
+      .then((response) => {
+        setStores(response);
+      })
+      .catch((error) => {
+        console.error("Error fetching sellers:", error);
+      })
+      .finally(() => setSectionLoaded("stores"));
 
-        if (dealsRes.success) setDeals(dealsRes.data);
-        if (newArrivalsRes.success) setNewArrivals(newArrivalsRes.data);
-        if (recommendationsRes.success) setRecommendations(recommendationsRes.data);
-        if (bestSellersRes.success) setBestSellers(bestSellersRes.data);
-      } catch (error) {
-        console.error("Error fetching home data:", error);
-      } finally {
-        setDataLoading(false);
-      }
-    };
-    fetchData();
+    void getHomepageContent()
+      .then((response) => {
+        setHeroSlides(response.heroSlides);
+        setHowItWorksSteps(response.howItWorksSteps);
+      })
+      .catch((error) => {
+        console.error("Error fetching homepage content:", error);
+      })
+      .finally(() => setSectionLoaded("content"));
+
+    void getDeals(12)
+      .then((response) => {
+        if (response.success) {
+          setDeals(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching deals:", error);
+      })
+      .finally(() => setSectionLoaded("deals"));
+
+    void getNewArrivals(12)
+      .then((response) => {
+        if (response.success) {
+          setNewArrivals(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching new arrivals:", error);
+      })
+      .finally(() => setSectionLoaded("newArrivals"));
+
+    void getRecommendations(user?.id, 12)
+      .then((response) => {
+        if (response.success) {
+          setRecommendations(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching recommendations:", error);
+      })
+      .finally(() => setSectionLoaded("recommendations"));
+
+    void getBestSellers(12)
+      .then((response) => {
+        if (response.success) {
+          setBestSellers(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching best sellers:", error);
+      })
+      .finally(() => setSectionLoaded("bestSellers"));
   }, [user?.id]);
 
-  // Signal that app is ready when both auth and home data are loaded
   useEffect(() => {
-    if (!authLoading && !dataLoading) {
+    if (!authLoading) {
       setAppReady(true);
     }
-  }, [authLoading, dataLoading, setAppReady]);
+  }, [authLoading, setAppReady]);
 
   // Don't render Home content for admins to prevent flash
   if (isAuthenticated && user?.role === "ADMIN") {
     return null;
   }
 
-  // If loading, we render null because the SplashScreen is covering the screen
-  if (authLoading || dataLoading) {
+  if (authLoading) {
     return null;
   }
 
@@ -109,6 +179,7 @@ export default function Home() {
       heroSlides={heroSlides}
       stores={stores}
       howItWorksSteps={howItWorksSteps}
+      loading={sectionLoading}
     />
   );
 }

@@ -110,6 +110,10 @@ model Product {
   @@index([market])
   @@index([isOnSale])
   @@index([totalSales])
+  @@index([isPublic, createdAt])
+  @@index([isOnSale, isPublic, createdAt])
+  @@index([isPublic, totalSales])
+  @@index([categoryId, isPublic, createdAt])
 }
 
 model HeroSlide {

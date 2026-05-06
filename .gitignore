@@ -9,6 +9,10 @@ coverage/
 # Build artifacts (monorepo)
 frontend/.next/
 backend/dist/
+.env.local
+.turbo/
+**/ .turbo/
+
 
 # Next.js build
 .next/

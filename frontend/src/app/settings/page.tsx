@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,7 +35,7 @@ const staggerContainer = {
   }
 };
 
-export default function SettingsPage() {
+function SettingsPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
@@ -86,7 +86,9 @@ export default function SettingsPage() {
 
             {/* --- SIDEBAR GAUCHE (Modernized) --- */}
             <div className="lg:w-72 shrink-0 flex flex-col">
-               <VendorSidebar user={user} />
+               <Suspense fallback={null}>
+                 <VendorSidebar user={user} />
+               </Suspense>
             </div>
             {/* --- ZONE CENTRALE (Désormais plein écran) --- */}
             <div className="flex-1 space-y-6">
@@ -420,5 +422,13 @@ export default function SettingsPage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageContent />
+    </Suspense>
   );
 }

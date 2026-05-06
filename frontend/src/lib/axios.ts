@@ -28,6 +28,7 @@ const API_URL = getApiUrl();
 
 export const api = axios.create({
   baseURL: API_URL,
+  timeout: 12_000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -109,6 +110,7 @@ api.interceptors.response.use(
         `${API_URL}/auth/refresh`,
         {},
         {
+          timeout: 12_000,
           headers: {
             Authorization: `Bearer ${refreshToken}`
           }

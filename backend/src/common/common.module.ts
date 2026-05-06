@@ -5,6 +5,7 @@ import { IsValidCommuneConstraint } from './validators/is-valid-commune.validato
 import { IsValidPhoneNumberConstraint } from './validators/is-valid-phone.validator';
 import { IsBoutiqueRequiredForVendorConstraint } from './validators/is-boutique-required.validator';
 import { ModerationService } from './services/moderation.service';
+import { AppCacheService } from './services/app-cache.service';
 
 @Global()
 @Module({
@@ -15,6 +16,7 @@ import { ModerationService } from './services/moderation.service';
     IsValidPhoneNumberConstraint,
     IsBoutiqueRequiredForVendorConstraint,
     ModerationService,
+    AppCacheService,
   ],
   exports: [
     LocationService,
@@ -23,6 +25,7 @@ import { ModerationService } from './services/moderation.service';
     IsValidPhoneNumberConstraint,
     IsBoutiqueRequiredForVendorConstraint,
     ModerationService,
+    AppCacheService,
   ],
 })
 export class CommonModule {}
