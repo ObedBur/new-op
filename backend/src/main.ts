@@ -54,8 +54,17 @@ async function bootstrap() {
   const isDev = process.env.NODE_ENV !== 'production';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
+  // Parser les origines autorisées
+  const allowedOrigins = isDev
+    ? true
+    : [
+      ...frontendUrl.split(',').map(url => url.trim()),
+      'http://localhost:3000',
+      'http://127.0.0.1:3000'
+    ];
+
   app.enableCors({
-    origin: isDev ? true : [frontendUrl, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
