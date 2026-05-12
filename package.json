@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "wapibei-monorepo",
   "private": true,
   "packageManager": "pnpm@10.30.3",
@@ -28,26 +27,5 @@
       "sharp",
       "unrs-resolver"
     ]
-=======
-  "name": "kaskade",
-  "version": "1.0.0",
-  "description": "Kaskade - Monorepo with Next.js frontend and NestJS backend",
-  "private": true,
-  "scripts": {
-    "dev": "pnpm -r --parallel run dev",
-    "build": "pnpm -r run build",
-    "start": "pnpm -r run start",
-    "lint": "pnpm -r run lint",
-    "test": "pnpm -r run test",
-    "test:e2e": "pnpm -r run test:e2e",
-    "format": "pnpm -r run format",
-    "backend:dev": "pnpm --filter backend run start:dev",
-    "backend:build": "pnpm --filter backend run build",
-    "frontend:dev": "pnpm --filter kaskade-frontend run dev",
-    "frontend:build": "pnpm --filter kaskade-frontend run build"
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0"
->>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
   }
 }
