@@ -1,17 +1,30 @@
 {
   "compilerOptions": {
+<<<<<<< HEAD
     "module": "commonjs",
+=======
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+<<<<<<< HEAD
     "target": "ES2021",
+=======
+    "target": "ES2023",
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
+<<<<<<< HEAD
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
@@ -35,3 +48,12 @@
     "dist"
   ]
 }
+=======
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef

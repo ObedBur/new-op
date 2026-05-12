@@ -1,5 +1,6 @@
 {
   "singleQuote": true,
+<<<<<<< HEAD
   "trailingComma": "all",
   "printWidth": 80,
   "useTabs": false,
@@ -7,4 +8,7 @@
   "semi": true,
   "bracketSpacing": true,
   "arrowParens": "always"
+=======
+  "trailingComma": "all"
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
 }

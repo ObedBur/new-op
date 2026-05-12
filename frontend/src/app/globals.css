@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -282,3 +283,166 @@ h1, h2, h3, h4, h5, h6 {
 .radial-mask {
   mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
 }
+=======
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --off-white: #FCFBF7;
+  --chocolat: #321B13;
+  --chocolat-muted: rgba(50, 27, 19, 0.85);
+  --ocre: #BC9C6C;
+  
+  /* Arcture Typography Scale */
+  --font-h1-mobile: 2.25rem; /* 36px */
+  --font-h1-tablet: 3rem; /* 48px */
+  --font-h1-desktop: 4.5rem; /* 72px */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Gotham Book', 'Gotham Regular', sans-serif;
+  color: var(--chocolat);
+  background-color: var(--off-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  font-size: 1rem; /* 16px constant */
+  line-height: 1.5;
+}
+
+/* Custom Gotham Font simulation if not fully loaded */
+@layer base {
+  h1, h2 {
+    font-family: 'Gotham Bold', 'Playfair Display', serif; /* Serif as fallback for architectural look */
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: var(--font-h1-mobile);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  p {
+    font-family: 'Gotham Book', 'Gotham Regular', 'Inter', sans-serif;
+    color: var(--chocolat);
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  @media (min-width: 481px) {
+    h1 {
+      font-size: var(--font-h1-tablet);
+    }
+    h2 {
+      font-size: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    h1 {
+        font-size: var(--font-h1-desktop);
+        letter-spacing: -0.04em;
+    }
+    
+    h2 {
+        font-size: 3.5rem; /* 56px */
+        letter-spacing: -0.03em;
+    }
+  }
+}
+
+/* Base Container Utility following Arcture Grid */
+.arcture-container {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem; /* 20px mobile */
+  padding-right: 1.25rem;
+}
+
+/* Tablets / Mobile (Landscape) : 481px à 768px */
+@media (min-width: 481px) {
+  .arcture-container {
+    padding-left: 2.5rem; /* 40px tablet */
+    padding-right: 2.5rem;
+  }
+}
+
+/* Laptops / Petits écrans : 769px à 1024px */
+@media (min-width: 769px) {
+  .arcture-container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+/* Desktops (HD) : 1025px à 1200px (and above) */
+@media (min-width: 1025px) {
+  .arcture-container {
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}
+
+/* Arcture Button Style */
+.btn-arcture {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Mobile full-width */
+  padding: 1rem 2rem;
+  background-color: var(--ocre);
+  color: var(--chocolat);
+  font-family: 'Gotham Bold', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  transition: all 0.3s ease;
+  border-radius: 4px; /* Slight rounding 4-8px */
+}
+
+@media (min-width: 1025px) {
+  .btn-arcture {
+    width: auto; /* Desktop auto-width */
+  }
+  
+  .btn-arcture:hover {
+    background-color: var(--chocolat);
+    color: var(--ocre);
+  }
+}
+
+/* --- CUSTOM SCROLLBAR --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(50, 27, 19, 0.03);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #BC9C6C;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #321B13;
+}
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef

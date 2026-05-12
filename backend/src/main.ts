@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -39,11 +40,54 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   // ============ VALIDATION GLOBALE ============
+=======
+import 'dotenv/config';
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+
+async function bootstrap() {
+  // Ensure uploads directories exist
+  const avatarDir = join(process.cwd(), 'uploads', 'avatars');
+  const serviceDir = join(process.cwd(), 'uploads', 'services');
+  
+  [avatarDir, serviceDir].forEach(dir => {
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+  });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    credentials: true,
+  });
+
+  // Serve uploaded files statically (outside of api/v1 prefix)
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
+
+  app.setGlobalPrefix('api/v1');
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+<<<<<<< HEAD
       transformOptions: {
         enableImplicitConversion: true,
       },
@@ -90,3 +134,13 @@ async function bootstrap() {
   logger.log(`JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
 bootstrap();
+=======
+    }),
+  );
+
+  const port = process.env.PORT ?? 4000;
+  await app.listen(port, '0.0.0.0');
+  Logger.log(`🚀 Application running on port ${port}`, 'Bootstrap');
+}
+void bootstrap();
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef

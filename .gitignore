@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependances
 node_modules/
 .pnp
@@ -46,3 +47,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.tsbuildinfo
+=======
+node_modules
+Test/
+uploads/
+>>>>>>> 290370a19af069c11dcba02e6949aa48c45160ef
