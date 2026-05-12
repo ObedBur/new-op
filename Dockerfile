@@ -1,51 +1,31 @@
-name: WapiBei Backend CI
+# Image de base Node.js
+FROM node:24-slim
 
-on:
-  push:
-    branches: [ main, develop ]
-    paths:
-      - 'backend/**'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
+# Installation de pnpm
+RUN npm install -g pnpm
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+WORKDIR /app
 
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
+# On copie d'abord les fichiers de configuration de la racine (si nécessaire)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-      - name: 🟢 Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
+# On copie le dossier backend
+COPY backend/ ./backend/
 
-      - name: 📦 Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+# On se déplace dans le dossier backend pour l'installation et le build
+WORKDIR /app/backend
 
-      - name: 🛠️ Install Dependencies
-        working-directory: ./backend
-        run: pnpm install
+# Installation des dépendances
+RUN pnpm install
 
-      - name: 💎 Generate Prisma Client
-        working-directory: ./backend
-        run: npx prisma generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+# Génération du client Prisma (CRITIQUE pour tes erreurs)
+RUN npx prisma generate
 
-      - name: 🔍 Prisma Schema Validation
-        working-directory: ./backend
-        run: npx prisma validate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+# Build du projet NestJS
+RUN pnpm run build
 
-      - name: 🏗️ Build Backend
-        working-directory: ./backend
-        run: pnpm run build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+# Exposition du port (correspond à ta config Render)
+EXPOSE 4000
+
+# Commande de démarrage
+CMD ["pnpm", "run", "start:prod"]
