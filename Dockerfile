@@ -35,28 +35,32 @@ RUN pnpm --filter backend build
 
 # --- ÉTAPE 2 : RUNNER (PRODUCTION) ---
 FROM node:20-alpine AS production
+
+# Installation de pnpm (INDISPENSABLE - chaque FROM repart de zéro)
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
-# On copie d'abord les fichiers de configuration de la racine (si nécessaire)
+# Copie des fichiers de configuration du monorepo
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# On copie le dossier backend
-COPY backend/ ./backend/
+# Copie du package.json backend pour l'installation des dépendances de production
+COPY backend/package.json ./backend/
+COPY backend/prisma ./backend/prisma/
 
-# On se déplace dans le dossier backend pour l'installation et le build
-WORKDIR /app/backend
+# Installation des dépendances de PRODUCTION uniquement
+RUN pnpm install --no-frozen-lockfile --prod --filter backend
 
-# Installation des dépendances
-RUN pnpm install --no-strict-peer-dependencies --frozen-lockfile
+# Copie du client Prisma généré depuis le builder
+COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/backend/node_modules/.prisma ./backend/node_modules/.prisma
 
-# Génération du client Prisma (CRITIQUE pour tes erreurs)
-RUN npx prisma generate
-
-# Build du projet NestJS
-RUN pnpm run build
+# Copie du code compilé (dist) depuis le builder
+COPY --from=builder /app/backend/dist ./backend/dist
 
 # Exposition du port (correspond à ta config Render)
 EXPOSE 4000
 
 # Commande de démarrage
-CMD ["pnpm", "run", "start:prod"]
+WORKDIR /app/backend
+CMD ["node", "dist/main.js"]
