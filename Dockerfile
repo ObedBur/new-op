@@ -27,7 +27,7 @@ COPY backend ./backend
 # 5. GÉNÉRATION DU CLIENT PRISMA
 # On injecte une DATABASE_URL factice pour que Prisma puisse générer les types TypeScript 
 # sans avoir besoin d'une connexion réelle à la base de données pendant le build.
-RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" pnpm --filter backend exec prisma generate
+RUN DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19QRHcySHRaa1RnMkJ3VDhPMW9VWi0iLCJhcGlfa2V5IjoiMDFLUkdXMjZYQjZYNlpYTUoyREo5TTc4OVoiLCJ0ZW5hbnRfaWQiOiJjMDAzYzlhZjM5OTk2NmEwZmM3MDMyZmFiZWNkM2VhMDc4MjFjMGYwY2JmMzk2OWU5OTkxMzk2MDM2ZTc4OWM2IiwiaW50ZXJuYWxfc2VjcmV0IjoiNGE3ZmVlYTYtOTg3OS00MTcxLWFiMTQtNGIwZTZjYzNlNTBjIn0.90E8KFzl8jiw9Gpi4e0VCIP19tbDBQPh8ZCfK37UY0w"
 
 # 6. BUILD DU PROJET NESTJS
 # Cette étape transforme ton code TS en JS dans le dossier backend/dist

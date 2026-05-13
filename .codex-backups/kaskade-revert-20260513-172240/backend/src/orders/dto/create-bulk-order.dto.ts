@@ -1,0 +1,36 @@
+import { IsEmail, IsNotEmpty, IsString, IsArray, ValidateNested, IsInt, Min, Validate } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsValidPhoneNumber } from '../../common/validators/is-valid-phone.validator';
+
+class OrderItemDto {
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
+
+  @IsInt()
+  @Min(1)
+  quantity: number;
+}
+
+export class CreateBulkOrderDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  items: OrderItemDto[];
+
+  @IsString()
+  @IsNotEmpty()
+  customerName: string;
+
+  @Validate(IsValidPhoneNumber)
+  @IsNotEmpty()
+  customerPhone: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  customerEmail: string;
+
+  @IsString()
+  @IsNotEmpty()
+  deliveryAddress: string;
+}

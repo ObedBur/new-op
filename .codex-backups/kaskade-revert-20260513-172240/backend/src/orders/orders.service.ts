@@ -1,0 +1,456 @@
+import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
+import { EmailService } from '../common/email/email.service';
+import { WhatsAppService } from '../common/whatsapp/whatsapp.service';
+import { NotificationsService } from '../common/notifications/notifications.service';
+import { NotificationType, Role } from '@prisma/client';
+import { Cron, CronExpression } from '@nestjs/schedule';
+
+/**
+ * Service gérant le cycle de vie des commandes (Orders).
+ * Responsable de la validation des stocks, de la gestion des transactions,
+ * des notifications multi-canaux et du système de réputation (TrustScore).
+ */
+@Injectable()
+export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService,
+    private whatsAppService: WhatsAppService,
+    private notificationsService: NotificationsService,
+  ) { }
+
+  /**
+   * Crée plusieurs commandes de manière atomique.
+   * Valide les stocks avant toute opération et déclenche les alertes de réapprovisionnement.
+   * 
+   * @param createBulkOrderDto Détails des produits et du client
+   * @param clientId ID de l'acheteur
+   * @throws NotFoundException si un produit n'existe pas
+   * @throws BadRequestException si le stock est insuffisant
+   */
+  async createBulk(createBulkOrderDto: CreateBulkOrderDto, clientId: string) {
+    const { items, customerName, customerPhone, customerEmail, deliveryAddress } = createBulkOrderDto;
+
+    const productIds = items.map(item => item.productId);
+    const products = await this.prisma.product.findMany({
+      where: { id: { in: productIds } },
+      include: { user: true },
+    });
+
+    if (products.length !== items.length) {
+      throw new NotFoundException('Certains produits sélectionnés n\'existent plus.');
+    }
+
+    // Validation préalable des stocks pour éviter les échecs partiels de transaction
+    for (const item of items) {
+      const product = products.find(p => p.id === item.productId);
+      if (product.stockQuantity !== null && product.stockQuantity !== undefined && product.stockQuantity < item.quantity) {
+        throw new BadRequestException(
+          `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`
+        );
+      }
+    }
+
+    /**
+     * Utilisation d'une transaction Prisma pour garantir l'atomicité :
+     * 1. Création de la commande
+     * 2. Décrémentation du stock
+     */
+    const createdOrders = await this.prisma.$transaction([
+      ...items.map(item => {
+        const product = products.find(p => p.id === item.productId);
+        return this.prisma.order.create({
+          data: {
+            customerName,
+            customerPhone,
+            customerEmail,
+            deliveryAddress,
+            totalPrice: product.price * item.quantity,
+            productId: product.id,
+            clientId,
+            vendorId: product.userId,
+            status: 'CONFIRMED',
+          },
+          include: { product: true, vendor: true },
+        });
+      }),
+      ...items.map(item =>
+        this.prisma.product.update({
+          where: { id: item.productId },
+          data: { stockQuantity: { decrement: item.quantity } },
+        })
+      ),
+    ]);
+
+    const ordersOnly = createdOrders.filter((r): r is any => 'vendorId' in r);
+    const totalOrderPrice = ordersOnly.reduce((acc: number, order: any) => acc + order.totalPrice, 0);
+
+    // Gestion des alertes de stock bas (seuil critique < 5 unités)
+    const updatedProducts = createdOrders.filter((r): r is any => 'stockQuantity' in r);
+    for (const p of updatedProducts) {
+      if (p.stockQuantity !== null && p.stockQuantity !== undefined && p.stockQuantity < 5 && p.stockQuantity >= 0) {
+        this.handleLowStockAlert(p);
+      }
+    }
+
+    this.dispatchClientNotifications(clientId, customerEmail, customerName, items, products, totalOrderPrice, ordersOnly);
+    this.dispatchVendorNotifications(ordersOnly, customerName, customerPhone, deliveryAddress);
+    this.dispatchAdminNotifications(createdOrders.length, totalOrderPrice, customerName, ordersOnly);
+
+    return {
+      success: true,
+      orderCount: ordersOnly.length,
+      orders: ordersOnly,
+    };
+  }
+
+  /**
+   * Déclenche les alertes multi-canaux (In-App + Push) pour le stock bas.
+   */
+  private handleLowStockAlert(product: any) {
+    this.notificationsService.createNotification({
+      userId: product.userId,
+      title: 'Alerte Stock Bas',
+      message: `Il ne reste plus que ${product.stockQuantity} exemplaire(s) de "${product.name}".`,
+      type: NotificationType.SYSTEM_ALERT,
+      metadata: { productId: product.id, currentStock: product.stockQuantity },
+    });
+
+    this.notificationsService.sendPushToUser(product.userId, {
+      title: 'Stock presque épuisé',
+      body: `Plus que ${product.stockQuantity} "${product.name}" en stock.`,
+      data: { url: '/dashboard/products' }
+    });
+  }
+
+  /**
+   * Envoie les notifications de confirmation à l'acheteur.
+   */
+  private dispatchClientNotifications(clientId: string, email: string, name: string, items: any[], products: any[], total: number, orders: any[]) {
+    this.emailService.sendBulkOrderConfirmation({
+      customerEmail: email,
+      customerName: name,
+      items: items.map(item => {
+        const p = products.find(prod => prod.id === item.productId);
+        return { productName: p.name, price: p.price, quantity: item.quantity, productImage: p.image || (p.images && p.images[0]) };
+      }),
+      totalPrice: total,
+      orderIds: orders.map((o: any) => o.id),
+    }).catch(err => this.logger.error('Email client non envoyé', err));
+
+    this.notificationsService.createNotification({
+      userId: clientId,
+      title: 'Commande validée',
+      message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été reçue.`,
+      type: NotificationType.ORDER_CREATED,
+    });
+
+    this.notificationsService.sendPushToUser(clientId, {
+      title: 'Commande validée',
+      body: `Votre commande a bien été reçue. Merci de votre confiance.`,
+      data: { url: '/orders' }
+    });
+  }
+
+  /**
+   * Regroupe les commandes par vendeur pour éviter le spam et envoie les alertes.
+   */
+  private dispatchVendorNotifications(orders: any[], customerName: string, customerPhone: string, address: string) {
+    const ordersByVendor = new Map<string, any[]>();
+    orders.forEach((order: any) => {
+      const existing = ordersByVendor.get(order.vendorId) || [];
+      existing.push(order);
+      ordersByVendor.set(order.vendorId, existing);
+    });
+
+    ordersByVendor.forEach((vendorOrders: any[], vendorId: string) => {
+      const vendor = vendorOrders[0].vendor;
+      const productNames = vendorOrders.map(o => o.product.name).join(', ');
+      const vendorTotal = vendorOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+      const firstImage = vendorOrders[0].product.image || (vendorOrders[0].product.images && vendorOrders[0].product.images[0]);
+
+      this.emailService.sendVendorOrderAlert({
+        vendorEmail: vendor.email,
+        vendorName: vendor.boutiqueName || vendor.fullName,
+        customerName,
+        customerPhone,
+        productName: vendorOrders.length === 1 ? productNames : `${vendorOrders.length} articles`,
+        productImage: firstImage,
+        totalPrice: vendorTotal,
+        orderId: vendorOrders.map(o => o.id).join(', '),
+      }).catch(err => this.logger.error(`Email vendeur failed: ${vendor.email}`, err));
+
+      this.whatsAppService.sendOrderAlert(vendor.phone, {
+        vendorName: vendor.boutiqueName || vendor.fullName,
+        customerName,
+        customerPhone,
+        productName: vendorOrders.length === 1 ? productNames : `${vendorOrders.length} produits`,
+        productImage: firstImage,
+        deliveryAddress: address,
+        totalPrice: vendorTotal,
+      }).catch(err => this.logger.error(`WhatsApp vendeur failed: ${vendorId}`, err));
+
+      this.notificationsService.createNotification({
+        userId: vendorId,
+        title: 'Nouvelle vente',
+        message: `Vous avez reçu une commande de ${customerName} pour ${vendorOrders.length} article(s).`,
+        type: NotificationType.ORDER_CREATED,
+        metadata: { orderIds: vendorOrders.map(o => o.id), productImage: firstImage },
+      });
+
+      this.notificationsService.sendPushToUser(vendorId, {
+        title: 'Nouvelle vente',
+        body: `Une nouvelle commande de ${customerName} attend votre validation.`,
+        data: { url: '/dashboard/orders' }
+      });
+    });
+  }
+
+  /**
+   * Notifie l'administration de l'activité globale de la plateforme.
+   */
+  private async dispatchAdminNotifications(count: number, total: number, customerName: string, orders: any[]) {
+    const admins = await this.prisma.user.findMany({ where: { role: Role.ADMIN } });
+
+    admins.forEach(admin => {
+      this.emailService.sendAdminOrderAlert({
+        adminEmail: admin.email,
+        orderCount: count,
+        totalAmount: total,
+        customerName,
+        items: orders.map((o: any) => ({
+          productName: o.product.name,
+          productImage: o.product.image || (o.product.images && o.product.images[0])
+        })),
+      }).catch(err => this.logger.error(`Email admin failed: ${admin.email}`, err));
+
+      this.notificationsService.createNotification({
+        userId: admin.id,
+        title: 'Nouvelle commande plateforme',
+        message: `${customerName} a commandé ${count} article(s) (${total.toLocaleString()} $).`,
+        type: NotificationType.ORDER_CREATED,
+      });
+
+      if (admin.phone) {
+        this.whatsAppService.sendWhatsAppMessage(admin.phone,
+          `ALERTE ADMIN : Nouvelle commande de ${customerName} (${total.toLocaleString()} $).`
+        ).catch(err => this.logger.error(`WhatsApp admin failed: ${admin.phone}`, err));
+      }
+    });
+  }
+
+  /**
+   * Alias de commodité pour la création d'une commande unique.
+   */
+  async create(createOrderDto: CreateOrderDto, clientId: string) {
+    return this.createBulk({
+      items: [{ productId: createOrderDto.productId, quantity: 1 }],
+      customerName: createOrderDto.customerName,
+      customerPhone: createOrderDto.customerPhone,
+      customerEmail: createOrderDto.customerEmail,
+      deliveryAddress: createOrderDto.deliveryAddress,
+    }, clientId);
+  }
+
+  /**
+   * Récupère toutes les commandes destinées à un vendeur spécifique.
+   */
+  async findOrdersForVendor(vendorId: string) {
+    return this.prisma.order.findMany({
+      where: { vendorId },
+      include: {
+        product: true,
+        client: { select: { id: true, fullName: true, email: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  /**
+   * Récupère l'historique des achats d'un client.
+   */
+  async findOrdersForClient(clientId: string) {
+    return this.prisma.order.findMany({
+      where: { clientId },
+      include: { product: true },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  /**
+   * Met à jour le statut d'une commande et gère la logique métier associée (Pénalités, Bonus, Notifications).
+   * 
+   * @param orderId ID de la commande
+   * @param status Nouveau statut (CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
+   * @param requesterId Utilisateur tentant de modifier le statut
+   * @param requesterRole Rôle de l'utilisateur (ADMIN ou VENDOR)
+   * @throws NotFoundException si la commande n'existe pas
+   * @throws ForbiddenException si l'utilisateur n'a pas les droits sur cette commande
+   */
+  async updateStatus(orderId: string, status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED', requesterId: string, requesterRole: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { product: true, client: true, vendor: true }
+    });
+
+    if (!order) throw new NotFoundException('Commande introuvable');
+
+    // Sécurité : Seul le propriétaire de la boutique ou l'admin peut changer le statut
+    const isOwner = order.vendorId === requesterId;
+    const isAdmin = requesterRole === 'ADMIN';
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('Accès refusé : vous n\'êtes pas le propriétaire de cette vente.');
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status },
+      include: { product: true, vendor: true, client: true }
+    });
+
+    this.handleStatusNotifications(updatedOrder, status);
+    
+    // Logique de réputation (TrustScore)
+    if (status === 'DELIVERED') {
+      await this.handleDeliverySuccess(updatedOrder);
+    } else if (status === 'CANCELLED') {
+      await this.handleCancellationPenalty(updatedOrder, requesterId);
+    }
+
+    return updatedOrder;
+  }
+
+  /**
+   * Augmente la réputation du vendeur lors d'une livraison réussie.
+   */
+  private async handleDeliverySuccess(order: any) {
+    if (order.vendor.trustScore < 100) {
+      await this.prisma.user.update({
+        where: { id: order.vendorId },
+        data: { trustScore: { increment: 1 } }
+      });
+      this.logger.log(`TrustScore augmenté pour le vendeur ${order.vendor.boutiqueName} (+1).`);
+    }
+  }
+
+  /**
+   * Applique une pénalité si le vendeur annule lui-même une vente confirmée.
+   */
+  private async handleCancellationPenalty(order: any, requesterId: string) {
+    if (requesterId === order.vendorId && order.vendor.trustScore > 0) {
+      await this.prisma.user.update({
+        where: { id: order.vendorId },
+        data: { trustScore: { decrement: 2 } }
+      });
+      this.logger.warn(`Pénalité TrustScore (-2) pour le vendeur ${order.vendor.boutiqueName} suite à annulation.`);
+    }
+  }
+
+  /**
+   * Matrice de notifications multi-canaux basée sur le cycle de vie de la commande.
+   */
+  private handleStatusNotifications(order: any, status: string) {
+    const { client, vendor, product } = order;
+    const vendorName = vendor.boutiqueName || vendor.fullName;
+
+    const notificationMap: Record<string, { title: string, msg: string }> = {
+      CONFIRMED: { title: 'Commande confirmée', msg: `${vendorName} a confirmé votre commande pour "${product.name}".` },
+      SHIPPED: { title: 'Colis en route', msg: `Votre produit "${product.name}" a été expédié par ${vendorName}.` },
+      DELIVERED: { title: 'Colis livré', msg: `Votre "${product.name}" a été livré. Profitez-en bien !` },
+      CANCELLED: { title: 'Commande annulée', msg: `Votre commande pour "${product.name}" a été annulée.` }
+    };
+
+    const config = notificationMap[status];
+    if (!config) return;
+
+    this.notificationsService.createNotification({
+      userId: client.id,
+      title: config.title,
+      message: config.msg,
+      type: NotificationType.ORDER_CONFIRMED,
+      metadata: { orderId: order.id },
+    });
+
+    this.notificationsService.sendPushToUser(client.id, {
+      title: config.title,
+      body: config.msg,
+      data: { url: `/orders/${order.id}` }
+    });
+
+    if (status === 'CONFIRMED') {
+      this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+    } else if (status === 'SHIPPED') {
+      this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress });
+    } else if (status === 'CANCELLED') {
+      this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+    }
+  }
+
+  /**
+   * Calcul des statistiques de performance pour le tableau de bord vendeur.
+   */
+  async getVendorStats(vendorId: string) {
+    const orders = await this.prisma.order.findMany({
+      where: { vendorId, status: { not: 'CANCELLED' } },
+      include: { product: true }
+    });
+
+    const totalRevenue = orders.reduce((sum, o) => sum + o.totalPrice, 0);
+    
+    const productStats = new Map<string, { name: string, count: number, revenue: number }>();
+    orders.forEach(o => {
+      const existing = productStats.get(o.productId) || { name: o.product.name, count: 0, revenue: 0 };
+      existing.count += 1;
+      existing.revenue += o.totalPrice;
+      productStats.set(o.productId, existing);
+    });
+
+    const topProducts = Array.from(productStats.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    return {
+      totalRevenue,
+      totalOrders: orders.length,
+      topProducts,
+    };
+  }
+
+  /**
+   * Tâche planifiée nocturne pour pénaliser l'inactivité des vendeurs.
+   * Réduit le TrustScore si une commande PENDING n'est pas traitée sous 48h.
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleOrderDelayPenalty() {
+    this.logger.log('Lancement de la vérification quotidienne des retards...');
+    
+    const limitDate = new Date();
+    limitDate.setHours(limitDate.getHours() - 48);
+
+    const pendingOrders = await this.prisma.order.findMany({
+      where: { status: 'PENDING', createdAt: { lt: limitDate } },
+      include: { vendor: true }
+    });
+
+    for (const order of pendingOrders) {
+      if (order.vendor.trustScore > 0) {
+        await this.prisma.user.update({
+          where: { id: order.vendorId },
+          data: { trustScore: { decrement: 1 } }
+        });
+
+        this.notificationsService.createNotification({
+          userId: order.vendorId,
+          title: 'Retard de validation',
+          message: `Votre TrustScore a été réduit pour inactivité sur la commande de ${order.customerName}.`,
+          type: NotificationType.SYSTEM_ALERT,
+        });
+      }
+    }
+  }
+}
