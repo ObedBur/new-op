@@ -27,7 +27,7 @@ COPY backend ./backend
 # 5. GÉNÉRATION DU CLIENT PRISMA
 # On injecte une DATABASE_URL factice pour que Prisma puisse générer les types TypeScript 
 # sans avoir besoin d'une connexion réelle à la base de données pendant le build.
-RUN DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqd3RfaWQiOjEsInNlY3VyZV9rZXkiOiJza19QRHcySHRaa1RnMkJ3VDhPMW9VWi0iLCJhcGlfa2V5IjoiMDFLUkdXMjZYQjZYNlpYTUoyREo5TTc4OVoiLCJ0ZW5hbnRfaWQiOiJjMDAzYzlhZjM5OTk2NmEwZmM3MDMyZmFiZWNkM2VhMDc4MjFjMGYwY2JmMzk2OWU5OTkxMzk2MDM2ZTc4OWM2IiwiaW50ZXJuYWxfc2VjcmV0IjoiNGE3ZmVlYTYtOTg3OS00MTcxLWFiMTQtNGIwZTZjYzNlNTBjIn0.90E8KFzl8jiw9Gpi4e0VCIP19tbDBQPh8ZCfK37UY0w " 
+RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" pnpm --filter backend exec prisma generate
 
 # 6. BUILD DU PROJET NESTJS
 # Cette étape transforme ton code TS en JS dans le dossier backend/dist
@@ -37,25 +37,26 @@ RUN pnpm --filter backend build
 FROM node:20-alpine AS production
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# On copie d'abord les fichiers de configuration de la racine (si nécessaire)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# On définit l'environnement en production
-ENV NODE_ENV=production
+# On copie le dossier backend
+COPY backend/ ./backend/
 
-# Copie des fichiers essentiels depuis le builder
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
-COPY --from=builder /app/backend/package.json ./backend/
-COPY --from=builder /app/backend/dist ./backend/dist
-COPY --from=builder /app/backend/prisma ./backend/prisma
+# On se déplace dans le dossier backend pour l'installation et le build
+WORKDIR /app/backend
 
-# Copie des node_modules (incluant le client Prisma généré)
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/backend/node_modules ./backend/node_modules
+# Installation des dépendances
+RUN pnpm install --no-strict-peer-dependencies --frozen-lockfile
 
-# Exposition du port utilisé par NestJS
+# Génération du client Prisma (CRITIQUE pour tes erreurs)
+RUN npx prisma generate
+
+# Build du projet NestJS
+RUN pnpm run build
+
+# Exposition du port (correspond à ta config Render)
 EXPOSE 4000
-ENV PORT=4000
 
 # Commande de démarrage
-# Utilisation de node directement pour de meilleures performances en prod
-CMD ["node", "backend/dist/main.js"]
+CMD ["pnpm", "run", "start:prod"]

@@ -12,8 +12,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
+    "incremental": true,    "plugins": [
       {
         "name": "next"
       }
@@ -33,5 +32,5 @@
     "**/*.mts",
     "src/types/jest-dom.d.ts"
   ],
-  "exclude": ["node_modules"]
-}
+  "exclude": ["node_modules"]}
+

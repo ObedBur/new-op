@@ -46,3 +46,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.tsbuildinfo
+
+# Tests
+Test/
+
+# Uploads
+uploads/

@@ -11,5 +11,5 @@
     "test",
     "src/**/*.spec.ts",
     "src/generated/**/*"
-  ]
-}
+  ]}
+

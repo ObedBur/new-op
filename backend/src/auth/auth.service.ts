@@ -18,7 +18,6 @@ import { TokenService } from './services/token.service';
 import { OtpService } from './services/otp.service';
 import { PasswordService } from './services/password.service';
 import { UserValidationService } from './services/user-validation.service';
-
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);

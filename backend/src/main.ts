@@ -38,8 +38,7 @@ async function bootstrap() {
   // ============ FILTRE D'EXCEPTIONS GLOBAL ============
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // ============ VALIDATION GLOBALE ============
-  app.useGlobalPipes(
+  // ============ VALIDATION GLOBALE ============  app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
