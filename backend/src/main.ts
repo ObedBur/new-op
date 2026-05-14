@@ -30,8 +30,10 @@ import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import helmet from '@fastify/helmet';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-// 
+console.log('[Bootstrap] Début du chargement des modules NestJS...');
+
 async function bootstrap() {
+  console.log('[Bootstrap] Appel de NestFactory.create...');
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
@@ -40,6 +42,7 @@ async function bootstrap() {
       bodyLimit: 50 * 1024 * 1024,
     })
   );
+  console.log('[Bootstrap] NestFactory.create terminé.');
 
   // ============ PREFIXE GLOBAL ============
   app.setGlobalPrefix('api');
@@ -91,6 +94,7 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
   const port = process.env.PORT || 4000;
+  console.log(`[Bootstrap] Tentative d'écoute sur le port ${port}...`);
   await app.listen(port, '0.0.0.0');
 
   logger.log(`WapiBei est en ligne sur http://localhost:${port}`);
