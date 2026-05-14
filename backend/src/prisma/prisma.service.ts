@@ -56,9 +56,8 @@ function buildPrismaInit(): PrismaInit {
     throw new Error('DATABASE_URL is required');
   }
 
-  // CORRECTION ICI : Utilisez datasourceUrl au lieu de datasources
   return {
-    args: { datasourceUrl: fallbackUrl },
+    args: { datasources: { db: { url: fallbackUrl } } } as any,
     mode: 'engine-default'
   };
 }
