@@ -22,42 +22,14 @@ if (!process.env.DATABASE_URL) {
   console.log('[Bootstrap] DATABASE_URL est présente.');
 }
 
-// === HANDLERS D'ERREURS GLOBAUX ===
-// Doit être AVANT les imports NestJS pour capturer les crashs pendant le require()
-process.on('uncaughtException', (err) => {
-  console.error('[CRASH] UNCAUGHT EXCEPTION:', err.message);
-  console.error('[CRASH] Stack:', err.stack);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason: any) => {
-  console.error('[CRASH] UNHANDLED REJECTION:', reason?.message || reason);
-  console.error('[CRASH] Stack:', reason?.stack);
-  process.exit(1);
-});
-
-// S'exécute TOUJOURS, y compris après process.exit()
-process.on('exit', (code) => {
-  console.log(`[Bootstrap] Process terminé avec code: ${code}`);
-});
-
-// === IMPORTS NESTJS (avec logs entre chaque) ===
-console.log('[1/7] Chargement @nestjs/core...');
 import { NestFactory } from '@nestjs/core';
-console.log('[2/7] Chargement @nestjs/common...');
 import { ValidationPipe, Logger } from '@nestjs/common';
-console.log('[3/7] Chargement AppModule...');
 import { AppModule } from './app.module';
-console.log('[4/7] Chargement @nestjs/platform-fastify...');
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-console.log('[5/7] Chargement @fastify/helmet...');
 import helmet from '@fastify/helmet';
-console.log('[6/7] Chargement GlobalExceptionFilter...');
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
-console.log('[7/7] Tous les imports chargés avec succès !');
-
+// 
 async function bootstrap() {
-  console.log('[Bootstrap] Appel de NestFactory.create...');
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
@@ -66,7 +38,6 @@ async function bootstrap() {
       bodyLimit: 50 * 1024 * 1024,
     })
   );
-  console.log('[Bootstrap] NestFactory.create terminé.');
 
   // ============ PREFIXE GLOBAL ============
   app.setGlobalPrefix('api');
@@ -118,7 +89,6 @@ async function bootstrap() {
 
   const logger = new Logger('Bootstrap');
   const port = process.env.PORT || 4000;
-  console.log(`[Bootstrap] Tentative d'écoute sur le port ${port}...`);
   await app.listen(port, '0.0.0.0');
 
   logger.log(`WapiBei est en ligne sur http://localhost:${port}`);
@@ -126,8 +96,4 @@ async function bootstrap() {
   const refreshExpiry = process.env.JWT_REFRESH_EXPIRATION || '7d (default)';
   logger.log(`JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
-
-bootstrap().catch((err) => {
-  console.error('[Bootstrap] ERREUR FATALE:', err);
-  process.exit(1);
-});
+bootstrap();
