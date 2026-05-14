@@ -64,9 +64,11 @@ COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prism
 # Copie du code compilé (dist) depuis le builder
 COPY --from=builder /app/backend/dist ./backend/dist
 
+COPY backend/docker-entrypoint.sh ./backend/docker-entrypoint.sh
+RUN chmod +x ./backend/docker-entrypoint.sh
+
 # Exposition du port (correspond à ta config Render)
 EXPOSE 4000
 
-# Applique les migrations avant le démarrage (sinon /api/auth/register → 500 si les tables n'existent pas)
 WORKDIR /app/backend
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+CMD ["/bin/sh", "/app/backend/docker-entrypoint.sh"]

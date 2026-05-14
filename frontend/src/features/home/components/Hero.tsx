@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { AnimatePresence, motion } from "framer-motion";
 import { HeroSlide } from "../services/content.service";
@@ -12,6 +13,12 @@ interface HeroSlideshowProps {
 
 const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const slideIds = useMemo(() => slides.map((s) => s.id).join("|"), [slides]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [slideIds]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -54,6 +61,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
               fill
               priority
               sizes="(max-width: 768px) 100vw, 50vw"
+              unoptimized={/^https?:\/\//i.test(slides[currentIndex].imageUrl)}
             />
           </motion.div>
 
@@ -140,8 +148,7 @@ const LOCAL_SLIDES: HeroSlide[] = [
 ];
 
 export const Hero: React.FC<HeroProps> = ({ slides }) => {
-  // On utilise TOUJOURS les 5 images locales demandées
-  const activeSlides = LOCAL_SLIDES;
+  const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
 
   return (
     <section className="relative px-4 py-12 md:py-20 lg:py-24 container mx-auto max-w-7xl overflow-hidden">
@@ -242,33 +249,33 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            {/* Bouton Principal avec Shimmer et Rebond Spring */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative group h-14 px-8 rounded-xl bg-[#E67E22] text-white font-bold overflow-hidden transition-all shadow-lg hover:shadow-[#E67E22]/40"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Explorer les produits
-                <motion.span
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                >
-                  →
-                </motion.span>
-              </span>
+            <Link href="/products" className="inline-flex">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative group h-14 px-8 rounded-xl bg-[#E67E22] text-white font-bold overflow-hidden transition-all shadow-lg hover:shadow-[#E67E22]/40 flex items-center justify-center cursor-pointer"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Explorer les produits
+                  <motion.span
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    →
+                  </motion.span>
+                </span>
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full duration-1000 transition-transform bg-linear-to-r from-transparent via-white/30 to-transparent" />
+              </motion.div>
+            </Link>
 
-              {/* L'effet de brillance (Shimmer) */}
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full duration-1000 transition-transform bg-linear-to-r from-transparent via-white/30 to-transparent" />
-            </motion.button>
-
-            {/* Bouton Secondaire avec Inversion de couleur au Hover */}
-            <motion.button
-              whileHover={{ y: -2 }}
-              className="h-14 px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300"
-            >
-              Devenir vendeur
-            </motion.button>
+            <Link href="/devenir-prestataire" className="inline-flex">
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="h-14 px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
+              >
+                Devenir vendeur
+              </motion.div>
+            </Link>
           </div>
         </div>
 

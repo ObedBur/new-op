@@ -7,8 +7,17 @@ services:
     plan: starter
     healthCheckPath: /api/health
     envVars:
+      # P3005 (schéma déjà présent sans historique migrate) : mettre la valeur "1" une fois,
+      # redéployer, puis supprimer la variable sur Render.
+      - key: PRISMA_MIGRATE_BASELINE
+        sync: false
       - key: DATABASE_URL
         sync: false 
+      # Optionnel : URL Postgres directe (Render / Neon). Si DATABASE_URL pointe vers Prisma Accelerate
+      # (prisma-data.net), l’API Nest doit utiliser une URL directe pour @prisma/adapter-pg — sinon laissez vide
+      # et mettez une URL Postgres directe dans DATABASE_URL.
+      - key: DATABASE_DIRECT_URL
+        sync: false
       - key: NODE_ENV
         value: production
       - key: PORT

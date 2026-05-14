@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Hero } from "./Hero";
 import { CategoriesGrid } from "./CategoriesGrid";
 import { FeaturedProductStrip } from "./FeaturedProductStrip";
@@ -52,6 +53,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
     loading.recommendations ||
     loading.bestSellers;
 
+  const productsLoaded =
+    !loading.deals &&
+    !loading.newArrivals &&
+    !loading.recommendations &&
+    !loading.bestSellers;
+
+  const hasAnyProductSection =
+    deals.length > 0 ||
+    newArrivals.length > 0 ||
+    recommendations.length > 0 ||
+    bestSellers.length > 0;
+
+  const showProductEmptyState = productsLoaded && !hasAnyProductSection;
+
   const ProductStripSkeleton = ({ title, subtitle }: { title: string; subtitle: string }) => (
     <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
       <div className="w-full mb-8">
@@ -87,7 +102,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <main className="flex flex-col flex-1 min-h-screen bg-white">
       {/*  HERO */}
-      <Hero slides={loading.content ? [] : heroSlides} />
+      <Hero slides={heroSlides} />
 
       {/*  CATEGORIES */}
       <CategoriesGrid categories={loading.categories ? [] : categories} />
@@ -100,7 +115,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {deals.length > 0 && (
             <div className="bg-[#DDB88C]/30 rounded-[2rem] p-6 md:p-10 shadow-sm border border-[#DDB88C]/10">
               <FeaturedProductStrip
-                title=" Offres du moment"
+                title="Offres du moment"
                 subtitle="Promotions actives — prix réduits de plus de 15%"
                 products={deals}
                 onQuickView={openQuickView}
@@ -119,7 +134,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {newArrivals.length > 0 && (
             <div className="bg-[#DDB88C]/20 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
               <FeaturedProductStrip
-                title=" Nouveautés"
+                title="Nouveautés"
                 subtitle="Publiés ces 7 derniers jours"
                 products={newArrivals}
                 onQuickView={openQuickView}
@@ -131,7 +146,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {recommendations.length > 0 && (
             <div className="bg-[#DDB88C]/15 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
               <FeaturedProductStrip
-                title=" Recommandations"
+                title="Recommandations"
                 subtitle="Basé sur vos centres d'intérêt"
                 products={recommendations}
                 onQuickView={openQuickView}
@@ -143,11 +158,29 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {bestSellers.length > 0 && (
             <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
               <FeaturedProductStrip
-                title=" Meilleures ventes"
+                title="Meilleures ventes"
                 subtitle="Les articles les plus commandés"
                 products={bestSellers}
                 onQuickView={openQuickView}
               />
+            </div>
+          )}
+
+          {showProductEmptyState && (
+            <div className="rounded-[2rem] border border-[#DDB88C]/25 bg-[#DDB88C]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+                Aucune vitrine produit pour le moment
+              </h2>
+              <p className="text-slate-600 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+                Les offres, nouveautés et tendances s&apos;afficheront ici dès
+                qu&apos;il y aura du contenu côté catalogue.
+              </p>
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center rounded-xl bg-[#E67E22] px-8 py-3 text-sm font-bold text-white shadow-md transition hover:bg-[#d35400]"
+              >
+                Voir tous les produits
+              </Link>
             </div>
           )}
         </div>
@@ -160,7 +193,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/*  SERVICES & CTA */}
       <div className="bg-white">
-        <HowItWorks />
+        <HowItWorks steps={howItWorksSteps} />
       </div>
 
       <LoginBanner />
