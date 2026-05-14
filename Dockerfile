@@ -47,6 +47,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copie du package.json backend pour l'installation des dépendances de production
 COPY backend/package.json ./backend/
 COPY backend/prisma ./backend/prisma/
+COPY backend/prisma.config.ts ./backend/
 
 # Installation des dépendances de PRODUCTION uniquement
 RUN pnpm install --no-frozen-lockfile --prod --filter backend
@@ -66,6 +67,6 @@ COPY --from=builder /app/backend/dist ./backend/dist
 # Exposition du port (correspond à ta config Render)
 EXPOSE 4000
 
-# Commande de démarrage
+# Applique les migrations avant le démarrage (sinon /api/auth/register → 500 si les tables n'existent pas)
 WORKDIR /app/backend
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
