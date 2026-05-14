@@ -53,7 +53,6 @@ RUN pnpm install --no-frozen-lockfile --prod --filter backend
 
 # Copie du client Prisma généré depuis le builder
 COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/backend/node_modules/.prisma ./backend/node_modules/.prisma
 
 # Copie du code compilé (dist) depuis le builder
 COPY --from=builder /app/backend/dist ./backend/dist
