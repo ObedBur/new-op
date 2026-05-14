@@ -6,20 +6,29 @@ const envPaths = [
   path.join(process.cwd(), '.env.local')
 ];
 
+console.log('[Bootstrap] Démarrage du script main.ts...');
+
 for (const envPath of envPaths) {
   dotenv.config({ path: envPath });
-  if (process.env.DATABASE_URL) break;
+  if (process.env.DATABASE_URL) {
+    console.log(`[Bootstrap] DATABASE_URL chargée depuis ${envPath}`);
+    break;
+  }
 }
 
 if (!process.env.DATABASE_URL) {
-  process.exit(1);
+  console.error('[Bootstrap] ERREUR : DATABASE_URL est absente de process.env');
+  // On n'exite pas forcément ici si on veut voir d'autres logs, 
+  // mais Prisma plantera de toute façon plus tard.
+} else {
+  console.log('[Bootstrap] DATABASE_URL est présente.');
 }
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import helmet from '@fastify/helmet'; // Changement ici : version Fastify de helmet
+import helmet from '@fastify/helmet';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 // 
 async function bootstrap() {
