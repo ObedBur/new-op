@@ -44,15 +44,23 @@ type PrismaInit = {
 
 function buildPrismaInit(): PrismaInit {
   const urlForPg = resolveUrlForPgAdapter();
+
   if (urlForPg) {
     const pool = new Pool(poolConfigFromUrl(urlForPg));
     const adapter = new PrismaPg(pool as any);
     return { args: { adapter } as any, mode: 'pg-adapter' };
   }
-  if (!process.env.DATABASE_URL) {
+
+  const fallbackUrl = process.env.DATABASE_URL;
+  if (!fallbackUrl) {
     throw new Error('DATABASE_URL is required');
   }
-  return { args: undefined, mode: 'engine-default' };
+
+  // CORRECTION ICI : Utilisez datasourceUrl au lieu de datasources
+  return {
+    args: { datasourceUrl: fallbackUrl },
+    mode: 'engine-default'
+  };
 }
 
 @Injectable()
