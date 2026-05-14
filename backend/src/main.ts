@@ -24,6 +24,21 @@ if (!process.env.DATABASE_URL) {
   console.log('[Bootstrap] DATABASE_URL est présente.');
 }
 
+// Handlers d'erreurs globaux pour capturer les crashs silencieux
+process.on('uncaughtException', (err) => {
+  console.error('[Bootstrap] UNCAUGHT EXCEPTION:', err.message);
+  console.error('[Bootstrap] Stack:', err.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: any) => {
+  console.error('[Bootstrap] UNHANDLED REJECTION:', reason?.message || reason);
+  console.error('[Bootstrap] Stack:', reason?.stack);
+  process.exit(1);
+});
+
+console.log('[Bootstrap] Chargement des imports NestJS...');
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -102,4 +117,7 @@ async function bootstrap() {
   const refreshExpiry = process.env.JWT_REFRESH_EXPIRATION || '7d (default)';
   logger.log(`JWT Config: Access (${accessExpiry}), Refresh (${refreshExpiry})`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('[Bootstrap] ERREUR FATALE pendant bootstrap():', err);
+  process.exit(1);
+});
