@@ -51,6 +51,12 @@ COPY backend/prisma ./backend/prisma/
 # Installation des dépendances de PRODUCTION uniquement
 RUN pnpm install --no-frozen-lockfile --prod --filter backend
 
+# Prisma génère son client dans /app/node_modules/.prisma, qui résout ensuite
+# @prisma/client depuis /app/node_modules. Avec pnpm --filter, @prisma/client
+# est lié dans backend/node_modules, donc on expose aussi ce lien au niveau racine.
+RUN mkdir -p ./node_modules/@prisma \
+  && ln -sfn ../../backend/node_modules/@prisma/client ./node_modules/@prisma/client
+
 # Copie du client Prisma généré depuis le builder
 COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/.prisma ./node_modules/.prisma
 
