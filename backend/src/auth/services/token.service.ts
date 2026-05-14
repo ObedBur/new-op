@@ -218,11 +218,14 @@ export class TokenService {
   }
 
   private getSecret(key: 'JWT_ACCESS_SECRET' | 'JWT_REFRESH_SECRET'): string {
-    const secret = process.env[key];
+    const secret = key === 'JWT_ACCESS_SECRET'
+      ? process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET
+      : process.env.JWT_REFRESH_SECRET;
 
     if (process.env.NODE_ENV === 'production') {
       if (!secret || secret.length < AUTH_CONSTANTS.MIN_SECRET_LENGTH_PROD) {
-        throw new Error(`Invalid or missing ${key} in production`);
+        const displayKey = key === 'JWT_ACCESS_SECRET' ? 'JWT_ACCESS_SECRET or JWT_SECRET' : key;
+        throw new Error(`Invalid or missing ${displayKey} in production`);
       }
       return secret;
     }
