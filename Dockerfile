@@ -53,9 +53,8 @@ COPY backend/prisma.config.ts ./backend/
 RUN pnpm install --no-frozen-lockfile --prod --filter backend
 
 # RÉGÉNÉRATION DU CLIENT DANS L'ENVIRONNEMENT DE PROD
-# C'est l'étape la plus sûre pour garantir que le moteur Prisma (Query Engine) 
-# correspond à l'OS Linux-Alpine du container de production.
-RUN pnpm --filter backend exec prisma generate
+# On injecte une URL factice pour permettre la génération sans erreur.
+RUN DATABASE_URL="postgresql://fake:fake@localhost:5432/fake" pnpm --filter backend exec prisma generate
 
 # Copie du code compilé (dist) depuis le builder
 COPY --from=builder /app/backend/dist ./backend/dist
