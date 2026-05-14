@@ -15,7 +15,7 @@ export class PrismaService
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL || '';
-    const isAccelerate = databaseUrl.startsWith('prisma://');
+    const isAccelerate = databaseUrl.startsWith('prisma://') || databaseUrl.startsWith('prisma+');
 
     super({
       log: ['info', 'warn', 'error'],
