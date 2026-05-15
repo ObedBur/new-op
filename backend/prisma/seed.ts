@@ -23,14 +23,18 @@ async function main() {
 
   // Nettoyage des données existantes
   logger.log('🧹 Nettoyage de la base de données...');
-  await prisma.notification.deleteMany({});
-  await prisma.order.deleteMany({});
-  await prisma.refreshToken.deleteMany({});
-  await prisma.product.deleteMany({});
-  await prisma.category.deleteMany({});
-  await prisma.user.deleteMany({});
-  await prisma.heroSlide.deleteMany({});
-  await prisma.howItWorksStep.deleteMany({});
+  await prisma.$transaction([
+    prisma.notification.deleteMany({}),
+    prisma.order.deleteMany({}),
+    prisma.refreshToken.deleteMany({}),
+    prisma.follow.deleteMany({}),
+    prisma.pushSubscription.deleteMany({}),
+    prisma.product.deleteMany({}),
+    prisma.category.deleteMany({}),
+    prisma.user.deleteMany({}),
+    prisma.heroSlide.deleteMany({}),
+    prisma.howItWorksStep.deleteMany({}),
+  ]);
 
   // 1. Setup Admin
   logger.log('👤 Création de l\'administrateur...');

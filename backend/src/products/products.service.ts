@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ModerationService } from '../common/services/moderation.service';
 import { AppCacheService } from '../common/services/app-cache.service';
@@ -22,6 +22,8 @@ const productInclude = {
 const HOME_PRODUCTS_TTL_MS = 3 * 60 * 1000;
 @Injectable()
 export class ProductsService {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(
     private prisma: PrismaService,
     private moderationService: ModerationService,
@@ -156,24 +158,26 @@ export class ProductsService {
       }),
     };
 
-    const [items, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where,
-        skip,
+    try {
+      // TEST SIMPLE : sans include ni orderBy pour voir si ça passe
+      const items = await this.prisma.product.findMany({
+        where: { isPublic: true },
         take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: productInclude,
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+      });
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    };
+      const total = await this.prisma.product.count({ where: { isPublic: true } });
+
+      return {
+        items,
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      };
+    } catch (error: any) {
+      this.logger.error(`Error in findAll: ${error?.message || error}`, error?.stack);
+      throw error; // Sera capturé par le GlobalExceptionFilter
+    }
   }
 
   /**
