@@ -261,14 +261,20 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Skeleton Loading */
 .skeleton {
-  background: hsl(var(--skeleton));
+  background: linear-gradient(
+    90deg,
+    hsla(var(--skeleton), 0.06) 25%,
+    hsla(var(--skeleton), 0.12) 50%,
+    hsla(var(--skeleton), 0.06) 75%
+  );
+  background-size: 200% 100%;
   border-radius: 0.5rem;
-  animation: skeleton-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: skeleton-shimmer 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* Grid pattern for tech sections */
@@ -281,4 +287,70 @@ h1, h2, h3, h4, h5, h6 {
 
 .radial-mask {
   mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+}
+
+/* ========================================
+   PRODUCT CARD PREMIUM SYSTEM
+   ======================================== */
+
+/* Ombre multi-couches naturelle — conserve les couleurs WapiBei */
+.premium-shadow {
+  box-shadow:
+    0 1px 2px hsla(28, 78%, 52%, 0.04),
+    0 2px 4px hsla(0, 0%, 0%, 0.04),
+    0 4px 8px hsla(0, 0%, 0%, 0.04),
+    0 8px 16px hsla(0, 0%, 0%, 0.04),
+    0 0 0 1px hsla(0, 0%, 0%, 0.04);
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.premium-shadow:hover {
+  box-shadow:
+    0 2px 4px hsla(28, 78%, 52%, 0.06),
+    0 4px 8px hsla(0, 0%, 0%, 0.06),
+    0 8px 16px hsla(0, 0%, 0%, 0.06),
+    0 16px 32px hsla(0, 0%, 0%, 0.08),
+    0 0 0 1px hsla(28, 78%, 52%, 0.12);
+  transform: translateY(-4px);
+}
+
+/* Overlay d'actions rapides */
+.card-actions-overlay {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.group:hover .card-actions-overlay {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Badge glassmorphism commun */
+.glass-badge {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Indicateur de catégorie coloré (barre latérale) */
+.category-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Zoom image fluide */
+.img-zoom {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.group:hover .img-zoom {
+  transform: scale(1.07);
 }
