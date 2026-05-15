@@ -1,14 +1,14 @@
 ### ============================================================
 ### TEST AUTH - OBED BURINDI (Production Render)
 ### ============================================================
-@baseUrl = https://new-op-y5fc.onrender.com/api
-@email = kaskade@gmail.com
+@baseUrl = https://new-op-y5fc.onrender.com/api 
+@email = obedburindi@gmail.com     
 
 ### ------------------------------------------------------------
 ### 1. REGISTER (Inscription)
 ### ------------------------------------------------------------
 # @name register
-POST {{baseUrl}}/auth/register
+POST {{baseUrl}}/auth/register 
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 {
   "email": "{{email}}",
-  "otp": "123456" 
+  "otp": "807469" 
 }
 
 ### ------------------------------------------------------------
@@ -53,7 +53,7 @@ Content-Type: application/json
 
 {
   "email": "{{email}}",
-  "password": "Admin123"
+  "password": "Password123!"
 }
 
 ### ------------------------------------------------------------

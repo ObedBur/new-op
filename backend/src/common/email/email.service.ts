@@ -13,7 +13,7 @@ export class EmailService {
     require('dns').setDefaultResultOrder('ipv4first');
 
     const apiKey = process.env.BREVO_API_KEY;
-    this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}, Sender: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM}`);
+    this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}`);
 
     if (apiKey) {
       this.apiInstance.setApiKey(
@@ -85,7 +85,9 @@ export class EmailService {
 
     try {
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      this.logger.log(`Email OTP sent to ${email} via Brevo - Response: ${JSON.stringify(result)}`);
+      // On ne logue QUE le messageId — jamais les headers (qui contiennent la clé API)
+      const messageId = result?.body?.messageId || 'unknown';
+      this.logger.log(`Email OTP sent to ${email} via Brevo. messageId: ${messageId}`);
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

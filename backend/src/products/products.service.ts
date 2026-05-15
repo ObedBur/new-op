@@ -150,8 +150,8 @@ export class ProductsService {
       ...(onlyPublic !== undefined ? { isPublic: onlyPublic } : !userId && { isPublic: true }),
       ...(search && {
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search } },
+          { description: { contains: search } },
         ],
       }),
     };
@@ -288,18 +288,26 @@ export class ProductsService {
     const products = await this.prisma.product.findMany({
       where: {
         isPublic: true,
-        OR: [ { name: { contains: query, mode: 'insensitive' } } ],
+        name: { contains: query },  // Suppression de mode:'insensitive' pour Accelerate
       } as any,
       select: { name: true, category: { select: { name: true } } },
-      take: 8,
-      distinct: ['name']
+      take: 20,
     });
 
-    return products.map(p => ({
-      text: p.name,
-      category: p.category.name,
-      type: 'product'
-    }));
+    // Déduplication côté JS (distinct non supporté par Prisma Accelerate)
+    const seen = new Set<string>();
+    return products
+      .filter(p => {
+        if (seen.has(p.name)) return false;
+        seen.add(p.name);
+        return true;
+      })
+      .slice(0, 8)
+      .map(p => ({
+        text: p.name,
+        category: p.category.name,
+        type: 'product'
+      }));
   }
 
   /**
@@ -315,8 +323,8 @@ export class ProductsService {
       where: {
         isPublic: true,
         OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
+          { name: { contains: search } },
+          { description: { contains: search } },
         ],
       } as any,
       orderBy: { price: 'asc' },
