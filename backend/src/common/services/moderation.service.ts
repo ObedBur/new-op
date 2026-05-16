@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import axios from 'axios';
 import Filter = require('bad-words');
+import * as FormData from 'form-data';
 
 /**
  * Service de modération automatique du contenu.
@@ -18,7 +19,11 @@ export class ModerationService {
 
   constructor() {
     this.filter = new Filter();
-    this.filter.addWords('tramadol', 'viagra', 'arnaque', 'argent facile', 'investir vite');
+    this.filter.addWords(
+      'tramadol', 'viagra', 'arnaque', 'argent facile', 'investir vite',
+      'con', 'connard', 'salope', 'putain', 'merde', 'bâtard', 'pute',
+      'sexe', 'porno', 'nude', 'chier', 'enculé', 'nègre', 'pd'
+    );
   }
 
   /**
@@ -85,69 +90,69 @@ export class ModerationService {
   async validateImage(imageUrl: string): Promise<boolean> {
     if (!imageUrl || imageUrl.includes('unsplash.com')) return true;
 
-    const model = await this.ensureModelLoaded();
-    const tf = this.tfModule;
-    const Jimp = this.jimpModule?.Jimp;
+    const apiUser = process.env.SIGHTENGINE_API_USER;
+    const apiSecret = process.env.SIGHTENGINE_API_SECRET;
 
-    if (!model || !tf || !Jimp) {
-      this.logger.warn('Modération image indisponible, validation ignorée.');
+    if (!apiUser || !apiSecret) {
+      this.logger.warn("Clés d'API Sightengine manquantes. Modération d'image ignorée.");
       return true;
     }
 
-    let imageTensor: import('@tensorflow/tfjs').Tensor3D | null = null;
-
     try {
-      let buffer: Buffer;
+      const data = new FormData();
+      data.append('models', 'nudity-2.0,gore,weapons');
+      data.append('api_user', apiUser);
+      data.append('api_secret', apiSecret);
 
       if (imageUrl.startsWith('data:')) {
         const base64Data = imageUrl.split(';base64,').pop();
         if (!base64Data) throw new Error('Données Base64 invalides');
-        buffer = Buffer.from(base64Data, 'base64');
+        
+        const buffer = Buffer.from(base64Data, 'base64');
+        data.append('media', buffer, { filename: 'image.jpg' });
       } else {
-        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        buffer = Buffer.from(response.data);
+        data.append('url', imageUrl);
       }
 
-      const image = await Jimp.read(buffer);
-      const { width, height, data } = image.bitmap;
+      this.logger.log(`Envoi de l'image à Sightengine pour vérification...`);
+      const response = await axios({
+        method: 'post',
+        url: 'https://api.sightengine.com/1.0/check.json',
+        data: data,
+        headers: data.getHeaders()
+      });
 
-      const numChannels = 3;
-      const numPixels = width * height;
-      const values = new Int32Array(numPixels * numChannels);
+      const result = response.data;
 
-      for (let i = 0; i < numPixels; i++) {
-        const j = i * 4;
-        values[i * numChannels + 0] = data[j + 0];
-        values[i * numChannels + 1] = data[j + 1];
-        values[i * numChannels + 2] = data[j + 2];
+      if (result.status === 'success') {
+        // Vérification nudité
+        if (result.nudity && (result.nudity.sexual_activity > 0.4 || result.nudity.sexual_display > 0.4 || result.nudity.erotica > 0.6)) {
+          this.logger.warn(`Image rejetée pour nudité. Scores: ${JSON.stringify(result.nudity)}`);
+          throw new BadRequestException({
+            message: "L'image a été rejetée car elle contient de la nudité ou du contenu sexuel.",
+            error: 'MODERATION_ERROR_NUDITY'
+          });
+        }
+        
+        // Vérification violence/gore
+        if (result.gore && result.gore.prob > 0.5) {
+           this.logger.warn(`Image rejetée pour gore. Score: ${result.gore.prob}`);
+           throw new BadRequestException({
+             message: "L'image a été rejetée car elle contient du contenu violent ou graphique.",
+             error: 'MODERATION_ERROR_GORE'
+           });
+        }
       }
-
-      imageTensor = tf.tensor3d(values, [height, width, numChannels], 'int32');
-
-      const predictions = await model.classify(imageTensor);
-      this.logger.log(`Analyse NSFW pour ${imageUrl}: ${JSON.stringify(predictions)}`);
-
-      const nsfwThreshold = 0.30;
-      const dangerousClasses = ['Porn', 'Hentai', 'Sexy'];
-      const topPrediction = predictions.find(p => dangerousClasses.includes(p.className));
-
-      if (topPrediction && topPrediction.probability > nsfwThreshold) {
-        this.logger.warn(`Image rejetée: ${topPrediction.className} (${topPrediction.probability})`);
-        throw new BadRequestException({
-          message: `L'image a été rejetée car elle contient du contenu ${topPrediction.className.toLowerCase()}.`,
-          error: 'LOCAL_IMAGE_ERROR'
-        });
-      }
-
+      
       return true;
-    } catch (error) {
-      if (error instanceof BadRequestException) throw error;
-      this.logger.error("Erreur d'analyse NSFW:", error);
-      return true;
-    } finally {
-      if (imageTensor) {
-        imageTensor.dispose();
+    } catch (error: any) {
+      if (error instanceof BadRequestException) {
+        throw error;
       }
+      this.logger.error("Erreur lors de la communication avec Sightengine:", error?.response?.data || error?.message);
+      // En cas d'erreur API, on laisse passer (fail-open) ou on bloque (fail-closed).
+      // On choisit fail-open pour ne pas bloquer les utilisateurs si l'API est down.
+      return true;
     }
   }
 

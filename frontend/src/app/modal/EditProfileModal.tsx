@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
     X, User, Mail, Phone, MapPin, ShieldCheck,
-    Lock, Camera, BadgeCheck, CheckCircle2, Loader2
+    Lock, Camera, BadgeCheck, CheckCircle2, Loader2, Store
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/services/auth.service';
@@ -24,7 +24,9 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         fullName: '',
         email: '',
         phone: '',
-        city: '',
+        province: '',
+        commune: '',
+        boutiqueName: '',
         oldPassword: '',
         password: '',
         confirmPassword: '',
@@ -40,7 +42,9 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                 fullName: user.fullName || '',
                 email: user.email || '',
                 phone: user.phone || '',
-                city: user.province || '', // Assuming city/province mapping
+                province: user.province || '',
+                commune: user.commune || '',
+                boutiqueName: user.boutiqueName || '',
                 oldPassword: '',
                 password: '',
                 confirmPassword: '',
@@ -79,12 +83,41 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
             const updateData: any = { ...formData };
 
             if (profilePicture) {
-                // Lecture du fichier en Base64
-                const reader = new FileReader();
-                const base64Promise = new Promise((resolve) => {
-                    reader.onloadend = () => resolve(reader.result);
+                const base64Promise = new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(profilePicture);
+                    reader.onload = (event) => {
+                        const img = new window.Image();
+                        img.src = event.target?.result as string;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 400; // Profile pictures don't need to be huge
+                            const MAX_HEIGHT = 400;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx?.drawImage(img, 0, 0, width, height);
+                            // Compress as JPEG
+                            resolve(canvas.toDataURL('image/jpeg', 0.8));
+                        };
+                        img.onerror = (error) => reject(error);
+                    };
+                    reader.onerror = (error) => reject(error);
                 });
-                reader.readAsDataURL(profilePicture);
                 updateData.profilePicture = await base64Promise;
             }
 
@@ -256,18 +289,48 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Ville de résidence</label>
+                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Province</label>
                                         <div className="relative">
                                             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
                                             <input
-                                                name="city"
-                                                value={formData.city}
+                                                name="province"
+                                                value={formData.province}
                                                 onChange={handleChange}
                                                 className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
                                                 type="text"
+                                                placeholder="Ex: Nord-Kivu"
                                             />
                                         </div>
                                     </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Ville / Commune</label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
+                                            <input
+                                                name="commune"
+                                                value={formData.commune}
+                                                onChange={handleChange}
+                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
+                                                type="text"
+                                                placeholder="Ex: Goma"
+                                            />
+                                        </div>
+                                    </div>
+                                    {user?.role === 'VENDOR' && (
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Nom de la Boutique</label>
+                                            <div className="relative">
+                                                <Store className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
+                                                <input
+                                                    name="boutiqueName"
+                                                    value={formData.boutiqueName}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#ea580c]/20 text-[#1e293b] dark:text-white font-black text-sm transition-all"
+                                                    type="text"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </section>
 
