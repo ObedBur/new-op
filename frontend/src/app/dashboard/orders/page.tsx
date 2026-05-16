@@ -46,7 +46,7 @@ export default function OrdersPage() {
     });
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-[2000px] mx-auto pb-20 px-1 sm:px-6 pt-4 sm:pt-8 space-y-5 sm:space-y-10">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto pb-20 px-4 sm:px-10 pt-4 sm:pt-8 space-y-6 sm:space-y-12">
 
             {selectedOrder && (
                 <OrderDetailsModal
@@ -79,7 +79,7 @@ export default function OrdersPage() {
             </div>
 
             {/* STICKY FILTERS COMPACT WITH FADE */}
-            <div className="sticky top-4 z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl p-1.5 rounded-[2rem] shadow-xl shadow-black/5 border border-white/20 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden">
+            <div className="sticky top-[80px] md:top-[100px] z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl p-1.5 rounded-[2rem] shadow-xl shadow-black/5 border border-white/20 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden transition-all duration-300">
                 <div className="relative flex-1 flex items-center overflow-hidden">
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide px-1 no-scrollbar flex-1 scroll-smooth">
                         {['Toutes', 'À traiter', 'Expédiées', 'Livrées', 'Annulées'].map((tab) => (
@@ -107,7 +107,7 @@ export default function OrdersPage() {
             </div>
 
             {/* LIST SECTION */}
-            <div className="max-w-7xl mx-auto pb-20 px-1 sm:px-0">
+            <div className="w-full">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#E67E22]"></div>
@@ -119,7 +119,7 @@ export default function OrdersPage() {
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nous n'avons trouvé aucune commande pour ce filtre.</p>
                         </div>
                     ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-max h-[750px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-max">
                                 {filteredOrders.map((order) => (
                                     <OrderCard
                                         key={order.id}
