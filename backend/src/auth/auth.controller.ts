@@ -10,6 +10,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UseGuards, Req } from '@nestjs/common';
 import { AuthThrottlerGuard } from './guards/auth-throttler.guard';
 import type { JwtRequest, RefreshRequest } from './types/auth-request.types';
+import { UpdateNotificationPreferencesDto } from './dto/update-notification-preferences.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -116,6 +117,23 @@ export class AuthController {
   ) {
     const userId = req.user.id;
     return this.authService.updateProfile(userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('notification-preferences')
+  @HttpCode(HttpStatus.OK)
+  getNotificationPreferences(@Req() req: JwtRequest) {
+    return this.authService.getNotificationPreferences(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('notification-preferences')
+  @HttpCode(HttpStatus.OK)
+  updateNotificationPreferences(
+    @Req() req: JwtRequest,
+    @Body() dto: UpdateNotificationPreferencesDto,
+  ) {
+    return this.authService.updateNotificationPreferences(req.user.id, dto);
   }
 
   // =============== DEV ROUTES ===============

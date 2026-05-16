@@ -400,6 +400,37 @@ export class AuthService {
     return { success: true, user: updatedUser };
   }
 
+  // ========================= NOTIFICATION PREFERENCES =========================
+
+  /**
+   * Récupère les préférences de notifications de l'utilisateur.
+   * Crée des préférences par défaut si elles n'existent pas encore (upsert).
+   */
+  async getNotificationPreferences(userId: string) {
+    return this.prisma.notificationPreference.upsert({
+      where: { userId },
+      update: {},
+      create: { userId },
+    });
+  }
+
+  /**
+   * Met à jour partiellement les préférences de notifications.
+   * Crée l'entrée si elle n'existe pas encore.
+   */
+  async updateNotificationPreferences(userId: string, dto: Partial<{
+    ordersPush: boolean; ordersEmail: boolean; ordersInApp: boolean;
+    followsPush: boolean; followsEmail: boolean; followsInApp: boolean;
+    promosPush: boolean; promosEmail: boolean;
+    securityEmail: boolean; securityInApp: boolean;
+  }>) {
+    return this.prisma.notificationPreference.upsert({
+      where: { userId },
+      update: dto,
+      create: { userId, ...dto },
+    });
+  }
+
   async getUsersForTesting() {
     return this.prisma.user.findMany({
       select: {

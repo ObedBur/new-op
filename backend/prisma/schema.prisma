@@ -47,6 +47,7 @@ model User {
   follows             Follow[]       @relation("UserFollows")
   followers           Follow[]       @relation("UserFollowers")
   pushSubscriptions   PushSubscription[]
+  notificationPreference NotificationPreference?
 
   @@index([email])
   @@index([phone])
@@ -252,4 +253,30 @@ model PushSubscription {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model NotificationPreference {
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Commandes & Ventes
+  ordersPush   Boolean @default(true)
+  ordersEmail  Boolean @default(true)
+  ordersInApp  Boolean @default(true)
+
+  // Vendeurs Favoris
+  followsPush  Boolean @default(true)
+  followsEmail Boolean @default(false)
+  followsInApp Boolean @default(true)
+
+  // Offres & Promotions
+  promosPush   Boolean @default(true)
+  promosEmail  Boolean @default(false)
+
+  // Sécurité & Compte (toujours actif — stocké pour cohérence)
+  securityEmail Boolean @default(true)
+  securityInApp Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
 }

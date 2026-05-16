@@ -130,31 +130,41 @@ export class OrdersService {
 
   /**
    * Envoie les notifications de confirmation à l'acheteur.
+   * Respecte les préférences de l'utilisateur (Email, In-App, Push).
    */
-  private dispatchClientNotifications(clientId: string, email: string, name: string, items: any[], products: any[], total: number, orders: any[]) {
-    this.emailService.sendBulkOrderConfirmation({
-      customerEmail: email,
-      customerName: name,
-      items: items.map(item => {
-        const p = products.find(prod => prod.id === item.productId);
-        return { productName: p.name, price: p.price, quantity: item.quantity, productImage: p.image || (p.images && p.images[0]) };
-      }),
-      totalPrice: total,
-      orderIds: orders.map((o: any) => o.id),
-    }).catch(err => this.logger.error('Email client non envoyé', err));
+  private async dispatchClientNotifications(clientId: string, email: string, name: string, items: any[], products: any[], total: number, orders: any[]) {
+    // Récupérer les préférences (null = jamais configurées → on envoie tout par défaut)
+    const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: clientId } });
 
-    this.notificationsService.createNotification({
-      userId: clientId,
-      title: 'Commande validée',
-      message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été reçue.`,
-      type: NotificationType.ORDER_CREATED,
-    });
+    if (!prefs || prefs.ordersEmail) {
+      this.emailService.sendBulkOrderConfirmation({
+        customerEmail: email,
+        customerName: name,
+        items: items.map(item => {
+          const p = products.find(prod => prod.id === item.productId);
+          return { productName: p.name, price: p.price, quantity: item.quantity, productImage: p.image || (p.images && p.images[0]) };
+        }),
+        totalPrice: total,
+        orderIds: orders.map((o: any) => o.id),
+      }).catch(err => this.logger.error('Email client non envoyé', err));
+    }
 
-    this.notificationsService.sendPushToUser(clientId, {
-      title: 'Commande validée',
-      body: `Votre commande a bien été reçue. Merci de votre confiance.`,
-      data: { url: '/orders' }
-    });
+    if (!prefs || prefs.ordersInApp) {
+      this.notificationsService.createNotification({
+        userId: clientId,
+        title: 'Commande validée',
+        message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été reçue.`,
+        type: NotificationType.ORDER_CREATED,
+      });
+    }
+
+    if (!prefs || prefs.ordersPush) {
+      this.notificationsService.sendPushToUser(clientId, {
+        title: 'Commande validée',
+        body: `Votre commande a bien été reçue. Merci de votre confiance.`,
+        data: { url: '/orders' }
+      });
+    }
   }
 
   /**
@@ -353,8 +363,9 @@ export class OrdersService {
 
   /**
    * Matrice de notifications multi-canaux basée sur le cycle de vie de la commande.
+   * Respecte les préférences de notification de l'acheteur.
    */
-  private handleStatusNotifications(order: any, status: string) {
+  private async handleStatusNotifications(order: any, status: string) {
     const { client, vendor, product } = order;
     const vendorName = vendor.boutiqueName || vendor.fullName;
 
@@ -368,26 +379,35 @@ export class OrdersService {
     const config = notificationMap[status];
     if (!config) return;
 
-    this.notificationsService.createNotification({
-      userId: client.id,
-      title: config.title,
-      message: config.msg,
-      type: NotificationType.ORDER_CONFIRMED,
-      metadata: { orderId: order.id },
-    });
+    // Récupérer les préférences du client (null = jamais configurées → envoyer tout)
+    const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: client.id } });
 
-    this.notificationsService.sendPushToUser(client.id, {
-      title: config.title,
-      body: config.msg,
-      data: { url: `/orders/${order.id}` }
-    });
+    if (!prefs || prefs.ordersInApp) {
+      this.notificationsService.createNotification({
+        userId: client.id,
+        title: config.title,
+        message: config.msg,
+        type: NotificationType.ORDER_CONFIRMED,
+        metadata: { orderId: order.id },
+      });
+    }
 
-    if (status === 'CONFIRMED') {
-      this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
-    } else if (status === 'SHIPPED') {
-      this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress });
-    } else if (status === 'CANCELLED') {
-      this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+    if (!prefs || prefs.ordersPush) {
+      this.notificationsService.sendPushToUser(client.id, {
+        title: config.title,
+        body: config.msg,
+        data: { url: `/orders/${order.id}` }
+      });
+    }
+
+    if (!prefs || prefs.ordersEmail) {
+      if (status === 'CONFIRMED') {
+        this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+      } else if (status === 'SHIPPED') {
+        this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress });
+      } else if (status === 'CANCELLED') {
+        this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+      }
     }
   }
 

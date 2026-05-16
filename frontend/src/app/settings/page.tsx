@@ -16,6 +16,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
+import { getNotificationPreferences, saveNotificationPreferences, NotificationPreferences } from "@/features/notifications/services/preferences.service";
+import { toast } from "sonner";
 
 import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
 
@@ -44,6 +46,10 @@ function SettingsPageContent() {
   const [clientOrders, setClientOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
+  // État des préférences de notifications
+  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
+  const [isSavingPref, setIsSavingPref] = useState(false);
+
   React.useEffect(() => {
     if (activeTab === 'orders') {
       setIsLoadingOrders(true);
@@ -52,7 +58,23 @@ function SettingsPageContent() {
         setIsLoadingOrders(false);
       });
     }
+    if (activeTab === 'notifications') {
+      getNotificationPreferences().then(setPreferences);
+    }
   }, [activeTab]);
+
+  const handleSavePreferences = async () => {
+    if (!preferences) return;
+    setIsSavingPref(true);
+    try {
+      await saveNotificationPreferences(preferences);
+      toast.success('Préférences de notifications sauvegardées !');
+    } catch {
+      toast.error('Erreur lors de la sauvegarde. Veuillez réessayer.');
+    } finally {
+      setIsSavingPref(false);
+    }
+  };
 
   const {
     notifications,
@@ -118,26 +140,40 @@ function SettingsPageContent() {
                               id: 'orders',
                               title: 'Commandes & Ventes',
                               desc: 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
-                              channels: ['Push', 'Email', 'In-App']
+                              channels: [
+                                { label: 'Push',   key: 'ordersPush' as keyof NotificationPreferences },
+                                { label: 'Email',  key: 'ordersEmail' as keyof NotificationPreferences },
+                                { label: 'In-App', key: 'ordersInApp' as keyof NotificationPreferences },
+                              ]
                             },
                             {
                               id: 'follows',
                               title: 'Vendeurs Favoris',
                               desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
-                              channels: ['Push', 'Email', 'In-App']
+                              channels: [
+                                { label: 'Push',   key: 'followsPush' as keyof NotificationPreferences },
+                                { label: 'Email',  key: 'followsEmail' as keyof NotificationPreferences },
+                                { label: 'In-App', key: 'followsInApp' as keyof NotificationPreferences },
+                              ]
                             },
                             {
                               id: 'promos',
                               title: 'Offres & Promotions',
                               desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
-                              channels: ['Push', 'Email']
+                              channels: [
+                                { label: 'Push',  key: 'promosPush' as keyof NotificationPreferences },
+                                { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
+                              ]
                             },
                             {
                               id: 'security',
                               title: 'Sécurité & Compte',
                               desc: 'Alertes de connexion, vérification KYC et modifications importantes de profil.',
-                              channels: ['Email', 'In-App'],
-                              forced: true
+                              forced: true,
+                              channels: [
+                                { label: 'Email',  key: 'securityEmail' as keyof NotificationPreferences },
+                                { label: 'In-App', key: 'securityInApp' as keyof NotificationPreferences },
+                              ],
                             }
                           ].map((cat) => (
                             <div key={cat.id} className="group flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-10 border-b border-gray-50 dark:border-white/5 last:border-0 last:pb-0">
@@ -148,11 +184,21 @@ function SettingsPageContent() {
 
                               <div className="flex flex-wrap items-center gap-6 sm:gap-8">
                                 {cat.channels.map((channel) => (
-                                  <div key={channel} className="flex items-center gap-3">
+                                  <div key={channel.label} className="flex items-center gap-3">
                                     <label className="relative inline-flex items-center cursor-pointer">
-                                      <input type="checkbox" className="sr-only peer" defaultChecked={true} disabled={cat.forced && channel === 'Email'} />
-                                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#E67E22]"></div>
-                                      <span className="ml-3 text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">{channel}</span>
+                                      <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={preferences ? Boolean(preferences[channel.key]) : true}
+                                        disabled={cat.forced}
+                                        onChange={(e) =>
+                                          setPreferences(prev =>
+                                            prev ? { ...prev, [channel.key]: e.target.checked } : prev
+                                          )
+                                        }
+                                      />
+                                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#E67E22] peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
+                                      <span className="ml-3 text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">{channel.label}</span>
                                     </label>
                                   </div>
                                 ))}
@@ -162,8 +208,12 @@ function SettingsPageContent() {
                         </div>
 
                         <div className="mt-12 flex justify-end">
-                          <button className="px-8 py-4 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-blue-500/10">
-                            Enregistrer les réglages
+                          <button
+                            onClick={handleSavePreferences}
+                            disabled={isSavingPref || !preferences}
+                            className="px-8 py-4 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                          >
+                            {isSavingPref ? 'Enregistrement...' : 'Enregistrer les réglages'}
                           </button>
                         </div>
                       </section>
