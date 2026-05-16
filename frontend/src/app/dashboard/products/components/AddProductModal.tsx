@@ -134,14 +134,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 payload.image = base64Image as string;
             }
 
-            const response = product 
+            const response = product
                 ? await updateProduct(product.id, payload)
                 : await addProduct(payload);
 
             if (response?.success) {
-                toast.success(product ? 'Produit mis à jour ! 🛠️' : 'Produit lancé avec succès ! 🎉', {
+                toast.success(product ? 'Produit mis à jour !' : 'Produit lancé avec succès !', {
                     description: product ? 'Les modifications ont été enregistrées.' : 'Votre produit est maintenant visible dans votre boutique.',
-                    style: { background: '#1e293b', color: 'white', border: 'none' },
+                    style: { background: '#2D5A27', color: 'white', border: '1px solid #E67E22' },
                 });
                 setIsSuccess(true);
                 setTimeout(() => {
@@ -296,19 +296,19 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40 transition-colors group-focus-within/price:text-[#E67E22]">
                                             {currency === 'USD' ? <DollarSign size={16} /> : <Banknote size={16} />}
                                         </div>
-                                        <input 
-                                            value={price} 
-                                            onChange={(e) => setPrice(e.target.value)} 
-                                            type="number" 
-                                            placeholder="0.00" 
-                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" 
-                                            required 
+                                        <input
+                                            value={price}
+                                            onChange={(e) => setPrice(e.target.value)}
+                                            type="number"
+                                            placeholder="0.00"
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white"
+                                            required
                                         />
                                         {price && (
                                             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none animate-in fade-in slide-in-from-right-2">
                                                 <span className="text-[9px] font-black text-[#E67E22] uppercase tracking-tighter bg-[#E67E22]/5 px-2 py-1 rounded-lg border border-[#E67E22]/10">
-                                                    ≈ {currency === 'USD' 
-                                                        ? `${(Number(price) * EXCHANGE_RATE).toLocaleString()} FC` 
+                                                    ≈ {currency === 'USD'
+                                                        ? `${(Number(price) * EXCHANGE_RATE).toLocaleString()} FC`
                                                         : `${(Number(price) / EXCHANGE_RATE).toFixed(2)} $`}
                                                 </span>
                                             </div>
@@ -339,13 +339,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                     <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Quantité en stock</label>
                                     <div className="relative">
                                         <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
-                                        <input 
-                                            value={quantity} 
-                                            onChange={(e) => setQuantity(e.target.value)} 
-                                            type="number" 
-                                            placeholder="ex: 100" 
-                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" 
-                                            required 
+                                        <input
+                                            value={quantity}
+                                            onChange={(e) => setQuantity(e.target.value)}
+                                            type="number"
+                                            placeholder="ex: 100"
+                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white"
+                                            required
                                         />
                                     </div>
                                 </div>
@@ -354,10 +354,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                     <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Unité de mesure</label>
                                     <div className="relative">
                                         <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
-                                        <select 
-                                            value={unit} 
-                                            onChange={(e) => setUnit(e.target.value)} 
-                                            className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-black dark:text-white" 
+                                        <select
+                                            value={unit}
+                                            onChange={(e) => setUnit(e.target.value)}
+                                            className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-black dark:text-white"
                                             required
                                         >
                                             {UNITS.map((u) => (

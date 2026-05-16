@@ -87,13 +87,13 @@ function SettingsPageContent() {
 
             {/* --- SIDEBAR GAUCHE (Modernized) --- */}
             <div className="lg:w-72 shrink-0 flex flex-col">
-               <Suspense fallback={null}>
-                 <VendorSidebar user={user} />
-               </Suspense>
+              <Suspense fallback={null}>
+                <VendorSidebar user={user} />
+              </Suspense>
             </div>
             {/* --- ZONE CENTRALE (Désormais plein écran) --- */}
             <div className="flex-1 space-y-6">
-              
+
               {/* --- DYNAMIC SECTION --- */}
               <AnimatePresence mode="wait">
                 <motion.div
@@ -125,28 +125,28 @@ function SettingsPageContent() {
                         {isLoading ? (
                           <div className="py-24 flex flex-col items-center justify-center gap-4">
                             <div className="relative size-16">
-                               <div className="absolute inset-0 rounded-full border-4 border-gray-100 dark:border-white/5"></div>
-                               <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 animate-spin"></div>
+                              <div className="absolute inset-0 rounded-full border-4 border-gray-100 dark:border-white/5"></div>
+                              <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 animate-spin"></div>
                             </div>
                             <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Chargement des alertes...</p>
                           </div>
                         ) : notifications.length === 0 ? (
                           <div className="py-24 text-center space-y-6">
                             <div className="size-24 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] mx-auto flex items-center justify-center text-gray-200">
-                               <Bell size={40} />
+                              <Bell size={40} />
                             </div>
                             <div className="space-y-2">
-                               <p className="text-xl font-black text-deep-blue dark:text-white">Aucun nouveau message</p>
-                               <p className="text-sm font-semibold text-gray-400">Nous vous tiendrons au courant dès qu'il y a du nouveau.</p>
+                              <p className="text-xl font-black text-deep-blue dark:text-white">Aucun nouveau message</p>
+                              <p className="text-sm font-semibold text-gray-400">Nous vous tiendrons au courant dès qu'il y a du nouveau.</p>
                             </div>
                           </div>
                         ) : (
                           <div className="max-h-[75vh] sm:max-h-[60vh] overflow-y-auto pr-1 sm:pr-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10 hover:scrollbar-thumb-gray-300 transition-colors">
                             <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-3 sm:space-y-4">
                               {notifications.map((n) => (
-                                <motion.div 
+                                <motion.div
                                   variants={fadeUp}
-                                  key={n.id} 
+                                  key={n.id}
                                   onClick={() => handleNotificationClick(n)}
                                   className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 p-4 md:p-7 rounded-[1.25rem] md:rounded-[2rem] border transition-all duration-300 cursor-pointer hover:shadow-md ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-[#FDF9F6] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm'}`}
                                 >
@@ -161,9 +161,9 @@ function SettingsPageContent() {
                                           {n.title}
                                         </h4>
                                         <div className="flex flex-col items-end shrink-0">
-                                            <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">
-                                                {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                            </span>
+                                          <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">
+                                            {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                          </span>
                                         </div>
                                       </div>
                                       <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-snug line-clamp-2">
@@ -237,11 +237,10 @@ function SettingsPageContent() {
                                   <span className="px-3 py-1 bg-white dark:bg-white/10 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-100 dark:border-white/5">
                                     ID: {order.id.substring(0, 8)}
                                   </span>
-                                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                    order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
-                                    order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                    'bg-orange-100 text-orange-700'
-                                  }`}>
+                                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
+                                      order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                        'bg-orange-100 text-orange-700'
+                                    }`}>
                                     {order.status}
                                   </span>
                                 </div>
@@ -259,136 +258,130 @@ function SettingsPageContent() {
                   {activeTab === 'profile' && (
                     <div className="space-y-8">
                       <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 overflow-hidden">
-                        
+
                         {/* --- COVER & BANNER --- */}
                         <div className="h-32 sm:h-48 w-full relative overflow-hidden bg-gray-200 dark:bg-gray-800">
-                            <Image 
-                                src={user?.coverUrl || (user?.role === 'VENDOR' 
-                                    ? "/images/default-vendor-cover.png"
-                                    : "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
-                                )}
-                                alt="Image de couverture" 
-                                fill 
-                                className="object-cover"
-                                priority
-                            />
-                            {/* Overlay subtil pour assurer un bon contraste */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 dark:to-black/30"></div>
+                          <Image
+                            src={user?.coverUrl || (user?.role === 'VENDOR'
+                              ? "/images/default-vendor-cover.png"
+                              : "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
+                            )}
+                            alt="Image de couverture"
+                            fill
+                            className="object-cover"
+                            priority
+                          />
+                          {/* Overlay subtil pour assurer un bon contraste */}
+                          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 dark:to-black/30"></div>
                         </div>
 
                         <div className="px-6 md:px-12 pb-8 md:pb-12 relative">
-                            
-                            {/* --- AVATAR & ACTIONS HEADER --- */}
-                            <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end -mt-16 sm:-mt-20 mb-4 sm:mb-6 gap-6 sm:gap-0">
-                                <div className="relative group shrink-0 z-10 isolate">
-                                    <div className="absolute -inset-1 bg-gradient-to-br from-orange-400 to-green-600 rounded-[2.5rem] blur-xl opacity-20 sm:opacity-30 transition duration-500"></div>
-                                    <div className="relative size-32 sm:size-40 rounded-[2rem] border-4 border-white dark:border-[#111827] shadow-xl overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
-                                    {user?.avatarUrl ? (
-                                        <Image src={user.avatarUrl} alt={user.fullName || 'User'} fill className="object-cover" />
-                                    ) : (
-                                        <span className="text-4xl md:text-5xl font-black text-gray-300">
-                                        {user?.fullName?.charAt(0) || 'U'}
-                                        </span>
-                                    )}
-                                    <button
-                                        onClick={() => setIsEditModalOpen(true)}
-                                        className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-                                    >
-                                        <span className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                           <SettingsIcon size={14} /> Éditer
-                                        </span>
-                                    </button>
-                                    </div>
-                                </div>
 
-                                {/* DESKTOP ACTIONS */}
-                                <div className="hidden sm:flex w-full sm:w-auto flex-col sm:flex-row gap-3 sm:pb-2">
-                                    <button
-                                        onClick={() => setIsEditModalOpen(true)}
-                                        className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all sm:shadow-sm"
-                                    >
-                                        Changer Sécurité
-                                    </button>
-                                    <button
-                                        onClick={() => setIsEditModalOpen(true)}
-                                        className="w-full sm:w-auto px-6 py-3 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
-                                    >
-                                        Éditer Profil
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* --- USER TITLE & BADGES --- */}
-                            <div className="text-center sm:text-left space-y-2.5 mb-6 sm:mb-10">
-                                <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white capitalize tracking-tight">
-                                    {user?.fullName || 'Utilisateur'}
-                                </h2>
-                                
-                                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-2 mt-1">
-                                    <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
-                                        {user?.email}
-                                    </p>
-                                    <div className="hidden sm:block text-gray-300 dark:text-gray-600 px-1">•</div>
-                                    <div className="flex items-center gap-2">
-                                        {user?.role === 'VENDOR' && (
-                                            <span className="text-[#E67E22] bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
-                                                Vendeur
-                                            </span>
-                                        )}
-                                        <span className="text-[#2D5A27] dark:text-[#52c140] bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
-                                            Actif
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* MOBILE ACTIONS */}
-                            <div className="flex sm:hidden w-full flex-col gap-3 mb-8">
+                          {/* --- AVATAR & ACTIONS HEADER --- */}
+                          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end -mt-16 sm:-mt-20 mb-4 sm:mb-6 gap-6 sm:gap-0">
+                            <div className="relative group shrink-0 z-10 isolate">
+                              <div className="absolute -inset-1 bg-gradient-to-br from-orange-400 to-green-600 rounded-[2.5rem] blur-xl opacity-20 sm:opacity-30 transition duration-500"></div>
+                              <div className="relative size-32 sm:size-40 rounded-[2rem] border-4 border-white dark:border-[#111827] shadow-xl overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                                {user?.avatarUrl ? (
+                                  <Image src={user.avatarUrl} alt={user.fullName || 'User'} fill className="object-cover" />
+                                ) : (
+                                  <span className="text-4xl md:text-5xl font-black text-gray-300">
+                                    {user?.fullName?.charAt(0) || 'U'}
+                                  </span>
+                                )}
                                 <button
-                                    onClick={() => setIsEditModalOpen(true)}
-                                    className="w-full px-6 py-3.5 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-gray-50 transition-all shadow-sm"
+                                  onClick={() => setIsEditModalOpen(true)}
+                                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
                                 >
-                                    Changer Sécurité
+                                  <span className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                                    <SettingsIcon size={14} /> Éditer
+                                  </span>
                                 </button>
-                                <button
-                                    onClick={() => setIsEditModalOpen(true)}
-                                    className="w-full px-6 py-3.5 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
-                                >
-                                    Éditer Profil
-                                </button>
+                              </div>
                             </div>
 
-                            {/* --- DETAILED INFO GRID --- */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-6 pt-8 border-t border-gray-100 dark:border-white/5">
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Téléphone</p>
-                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                        <Smartphone size={16} className="text-gray-400" />
-                                        {user?.phone ? user.phone : <span className="text-gray-400 italic">Non renseigné</span>}
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Localisation</p>
-                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                        <MapPin size={16} className="text-gray-400" />
-                                        {user?.province || user?.commune ? `${user.commune || ''}, ${user.province || ''}`.trim().replace(/^,\s*/, '') : <span className="text-gray-400 italic">Non définie</span>}
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nom de la Boutique</p>
-                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                        <Store size={16} className="text-gray-400" />
-                                        {user?.boutiqueName ? user.boutiqueName : <span className="text-gray-400 italic">Aucune boutique associée</span>}
-                                    </p>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Membre Depuis</p>
-                                    <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                        <Clock size={16} className="text-gray-400" />
-                                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Récemment'}
-                                    </p>
-                                </div>
+                            {/* DESKTOP ACTIONS */}
+                            <div className="hidden sm:flex w-full sm:w-auto flex-col sm:flex-row gap-3 sm:pb-2">
+                              <button
+                                onClick={() => setIsEditModalOpen(true)}
+                                className="w-full sm:w-auto px-6 py-3 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
+                              >
+                                Éditer Profil
+                              </button>
                             </div>
+                          </div>
+
+                          {/* --- USER TITLE & BADGES --- */}
+                          <div className="text-center sm:text-left space-y-2.5 mb-6 sm:mb-10">
+                            <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white capitalize tracking-tight">
+                              {user?.fullName || 'Utilisateur'}
+                            </h2>
+
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-2 mt-1">
+                              <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
+                                {user?.email}
+                              </p>
+                              <div className="hidden sm:block text-gray-300 dark:text-gray-600 px-1">•</div>
+                              <div className="flex items-center gap-2">
+                                {user?.role === 'VENDOR' && (
+                                  <span className="text-[#E67E22] bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                    Vendeur
+                                  </span>
+                                )}
+                                <span className="text-[#2D5A27] dark:text-[#52c140] bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
+                                  Actif
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* MOBILE ACTIONS */}
+                          <div className="flex sm:hidden w-full flex-col gap-3 mb-8">
+                            <button
+                              onClick={() => setIsEditModalOpen(true)}
+                              className="w-full px-6 py-3.5 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-gray-50 transition-all shadow-sm"
+                            >
+                              Changer Sécurité
+                            </button>
+                            <button
+                              onClick={() => setIsEditModalOpen(true)}
+                              className="w-full px-6 py-3.5 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
+                            >
+                              Éditer Profil
+                            </button>
+                          </div>
+
+                          {/* --- DETAILED INFO GRID --- */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-6 pt-8 border-t border-gray-100 dark:border-white/5">
+                            <div className="space-y-2">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Téléphone</p>
+                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                <Smartphone size={16} className="text-gray-400" />
+                                {user?.phone ? user.phone : <span className="text-gray-400 italic">Non renseigné</span>}
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Localisation</p>
+                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                <MapPin size={16} className="text-gray-400" />
+                                {user?.province || user?.commune ? `${user.commune || ''}, ${user.province || ''}`.trim().replace(/^,\s*/, '') : <span className="text-gray-400 italic">Non définie</span>}
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nom de la Boutique</p>
+                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                <Store size={16} className="text-gray-400" />
+                                {user?.boutiqueName ? user.boutiqueName : <span className="text-gray-400 italic">Aucune boutique associée</span>}
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Membre Depuis</p>
+                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
+                                <Clock size={16} className="text-gray-400" />
+                                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Récemment'}
+                              </p>
+                            </div>
+                          </div>
 
                         </div>
                       </section>

@@ -159,13 +159,15 @@ export class ProductsService {
     };
 
     try {
-      // TEST SIMPLE : sans include ni orderBy pour voir si ça passe
       const items = await this.prisma.product.findMany({
-        where: { isPublic: true },
+        where,
+        skip,
         take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: productInclude,
       });
 
-      const total = await this.prisma.product.count({ where: { isPublic: true } });
+      const total = await this.prisma.product.count({ where });
 
       return {
         items,
@@ -176,8 +178,44 @@ export class ProductsService {
       };
     } catch (error: any) {
       this.logger.error(`Error in findAll: ${error?.message || error}`, error?.stack);
-      throw error; // Sera capturé par le GlobalExceptionFilter
+      throw error;
     }
+  }
+
+  /**
+   * Récupère TOUS les produits (publics ET brouillons) d'un vendeur spécifique.
+   * Utilisé exclusivement par le tableau de bord vendeur.
+   */
+  async getVendorProducts(
+    userId: string,
+    opts?: { search?: string; categoryId?: number; page?: number; limit?: number },
+  ) {
+    const { search, categoryId, page = 1, limit = 50 } = opts || {};
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      userId,
+      ...(categoryId && { categoryId }),
+      ...(search && {
+        OR: [
+          { name: { contains: search } },
+          { description: { contains: search } },
+        ],
+      }),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { category: true },
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return { items, total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   /**

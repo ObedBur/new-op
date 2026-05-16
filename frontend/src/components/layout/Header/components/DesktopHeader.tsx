@@ -31,7 +31,7 @@ export const DesktopHeader = ({
   const pathname = usePathname();
   const router = useRouter();
   const isActive = (path: string) => pathname === path;
-  const { unreadCount } = useAppNotifications();
+  const { notifications, unreadCount } = useAppNotifications();
   
   // Detect if current page is an authentication page
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'].some(path => pathname.startsWith(path));
@@ -152,15 +152,75 @@ export const DesktopHeader = ({
           <div className="w-px h-6 bg-black/10 dark:bg-white/10"></div>
 
           {/* Notifications */}
-          <Link
-            href="/settings?tab=notifications"
-            className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
-          >
-              <span className="material-symbols-outlined text-[22px]">notifications</span>
-              {unreadCount > 0 && (
-                <span className="absolute top-2.5 right-2.5 size-1.5 bg-red-500 rounded-full ring-2 ring-white dark:ring-black animate-pulse"></span>
-              )}
-          </Link>
+          <div className="relative group">
+            <Link
+              href="/settings?tab=notifications"
+              className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+            >
+                <span className="material-symbols-outlined text-[22px]">notifications</span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 size-5 bg-[#E67E22] text-white text-[10px] font-black flex items-center justify-center rounded-full shadow-lg border-2 border-white dark:border-black animate-in zoom-in">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+            </Link>
+
+            {/* Dropdown Notifications Container */}
+            <div className="absolute right-[-10px] top-[100%] pt-4 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-50">
+              <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border border-gray-100 dark:border-white/5 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[400px]">
+                <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent shrink-0">
+                  <h3 className="text-black dark:text-white font-black text-sm tracking-tight">Notifications</h3>
+                  {unreadCount > 0 ? (
+                    <span className="text-[10px] text-white font-black bg-[#E67E22] px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                      {unreadCount} nouvelle{unreadCount > 1 ? 's' : ''}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-gray-400 font-bold bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-full uppercase tracking-widest">
+                      0 nouvelle
+                    </span>
+                  )}
+                </div>
+                
+                <div className="flex flex-col overflow-y-auto custom-scrollbar">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center flex flex-col items-center justify-center">
+                      <div className="size-12 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-3">
+                        <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[24px]">notifications_off</span>
+                      </div>
+                      <p className="text-sm font-bold text-gray-400">Aucune notification</p>
+                      <p className="text-[10px] text-gray-400/70 mt-1 uppercase tracking-wider">Vous êtes à jour !</p>
+                    </div>
+                  ) : (
+                    notifications.slice(0, 3).map((notification) => (
+                      <div 
+                        key={notification.id} 
+                        className={`p-4 border-b border-gray-100 dark:border-white/5 transition-colors cursor-pointer relative ${!notification.isRead ? 'bg-[#E67E22]/5 hover:bg-[#E67E22]/10' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                      >
+                        {!notification.isRead && (
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#E67E22]"></div>
+                        )}
+                        <p className="text-[13px] text-gray-800 dark:text-gray-200 font-medium leading-tight mb-1">
+                          {notification.title}
+                        </p>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">
+                          {notification.message}
+                        </p>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                          {new Date(notification.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                
+                <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center border-t border-gray-100 dark:border-white/5 shrink-0">
+                  <Link href="/settings?tab=notifications" className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
+                    Voir toutes les notifications
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Cart */}
           <Link 

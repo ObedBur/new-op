@@ -1,20 +1,14 @@
 import React from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "../ui/Button";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export const LoginBanner: React.FC = () => {
-  const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
   // Don't show the banner if the user is already authenticated or if we're still loading the auth state
   if (isAuthenticated || isLoading) {
     return null;
   }
-
-  const handleLoginRedirect = () => {
-    router.push("/login");
-  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-3 pointer-events-none">
@@ -30,13 +24,12 @@ export const LoginBanner: React.FC = () => {
               Connecte-toi pour comparer <br /> plus de prix en Afrique
             </p>
           </div>
-          <Button
-            size="sm"
-            className="bg-[#ff4400] hover:bg-[#ff4400]/90"
-            onClick={handleLoginRedirect}
+          <Link
+            href="/login"
+            className="h-9 px-3 text-sm bg-[#ff4400] hover:bg-[#ff4400]/90 text-white rounded-xl font-semibold transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-primary/30"
           >
             Connexion
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

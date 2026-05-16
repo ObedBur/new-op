@@ -55,10 +55,41 @@ export default function Navbar() {
         <div className="flex items-center gap-3 md:gap-6">
           {!isMobileMenuOpen && (
             <>
-              <Link href="/notifications" className="relative p-2 text-white/60 hover:text-ocre transition-colors">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-ocre border-2 border-chocolat rounded-full"></span>
-              </Link>
+              <div className="relative group">
+                <Link href="/notifications" className="relative p-2 text-white/60 group-hover:text-ocre transition-colors block">
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-ocre border-2 border-chocolat rounded-full"></span>
+                </Link>
+
+                {/* Dropdown Notifications */}
+                <div className="absolute right-0 top-full mt-2 w-80 bg-chocolat border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-50">
+                  <div className="p-4 border-b border-white/5 flex items-center justify-between">
+                    <h3 className="text-white font-bold text-sm">Notifications</h3>
+                    <span className="text-xs text-ocre font-bold bg-ocre/10 px-2 py-0.5 rounded-full">3 nouvelles</span>
+                  </div>
+                  <div className="flex flex-col">
+                    {/* Dummy Notifications */}
+                    <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-ocre rounded-l-md"></div>
+                      <p className="text-sm text-white/90">Nouvelle demande de service <span className="text-ocre font-bold">#REQ-402</span></p>
+                      <span className="text-[10px] text-white/40 mt-1 block">Il y a 2 minutes</span>
+                    </div>
+                    <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                      <p className="text-sm text-white/90">Votre profil a été <span className="text-green-400 font-bold">vérifié</span></p>
+                      <span className="text-[10px] text-white/40 mt-1 block">Il y a 1 heure</span>
+                    </div>
+                    <div className="p-4 hover:bg-white/5 transition-colors cursor-pointer">
+                      <p className="text-sm text-white/90">Nouveau message de <span className="text-white font-bold">Jean Dupont</span></p>
+                      <span className="text-[10px] text-white/40 mt-1 block">Hier à 14:30</span>
+                    </div>
+                  </div>
+                  <div className="p-3 border-t border-white/5 text-center">
+                    <Link href="/notifications" className="text-xs text-white/60 hover:text-ocre transition-colors font-bold uppercase tracking-widest">
+                      Voir tout
+                    </Link>
+                  </div>
+                </div>
+              </div>
 
               {isAuthenticated && user ? (
                 <div className="hidden md:flex items-center gap-4">

@@ -30,6 +30,7 @@ export class ProductsController {
 
   /**
    * Récupère les produits appartenant au vendeur authentifié.
+   * Retourne TOUS les produits : publics ET brouillons.
    */
   @UseGuards(JwtAuthGuard)
   @Get('my-products')
@@ -37,16 +38,13 @@ export class ProductsController {
     @Req() req: any,
     @Query('categoryId') categoryId?: string,
     @Query('search') search?: string,
-    @Query('market') market?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
     const userId = req.user.id;
-    const result = await this.productsService.findAll({
-      userId,
+    const result = await this.productsService.getVendorProducts(userId, {
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       search,
-      market,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
     });
