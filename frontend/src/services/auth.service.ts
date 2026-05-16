@@ -1,4 +1,5 @@
-import { api, setAccessToken } from '@/lib/axios';
+import { api, setAccessToken, getAccessToken } from '@/lib/axios';
+import axios from 'axios';
 import { storage } from '@/utils/storage';
 import { LoginDto, RegisterDto, AuthResponse, User, RegisterResponse, VerifyOtpDto, VerifyOtpResponse, ResendOtpDto, ResendOtpResponse, ForgotPasswordDto, ForgotPasswordResponse, ResetPasswordDto, ResetPasswordResponse } from '@/types/auth';
 
@@ -40,24 +41,32 @@ export const authService = {
     }
   },
 
-  /**
-   * Tente de restaurer la session au chargement.
-   * On délègue la logique de refresh à l'intercepteur Axios
-   * en appelant simplement /auth/profile via l'instance 'api'.
-   */
   async initAuth(): Promise<User | null> {
     const refreshToken = storage.getRefreshToken();
     if (!refreshToken) return null;
 
     try {
-      // Si l'access_token est absent (F5), cet appel provoquera une 401.
-      // L'intercepteur de lib/axios.ts prendra le relais pour refresh
-      // et rejouera cet appel automatiquement.
+      const currentToken = getAccessToken();
+      
+      // Si on n'a pas d'access token (suite à un F5), on rafraîchit MANUELLEMENT 
+      // avant d'appeler /auth/profile. Cela empêche le navigateur d'afficher 
+      // l'erreur rouge "401 Unauthorized" dans la console qui fait peur aux devs.
+      if (!currentToken) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+        const refreshResponse = await axios.post(`${apiUrl}/auth/refresh`, {}, {
+          headers: { Authorization: `Bearer ${refreshToken}` }
+        });
+        
+        setAccessToken(refreshResponse.data.access_token);
+        if (refreshResponse.data.refresh_token) {
+          storage.setRefreshToken(refreshResponse.data.refresh_token);
+        }
+      }
+
       const response = await api.get<{ success: boolean; user: User }>('/auth/profile');
       return response.data.user;
     } catch (error) {
       console.error('Failed to init auth session:', error);
-      // On ne vide le storage ici que si l'erreur n'est pas déjà gérée par l'intercepteur
       return null;
     }
   },
