@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CartPage() {
   return (
-    <main className="min-h-screen pt-20">
+    <main className="flex-1 pt-24 pb-20 bg-[#F9F6F1]/50">
       <CartView />
     </main>
   );

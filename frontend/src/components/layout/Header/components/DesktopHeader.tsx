@@ -154,7 +154,7 @@ export const DesktopHeader = ({
           {/* Notifications */}
           <div className="relative group">
             <Link
-              href="/settings?tab=notifications"
+              href="/notifications"
               className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
             >
                 <span className="material-symbols-outlined text-[22px]">notifications</span>
@@ -214,7 +214,7 @@ export const DesktopHeader = ({
                 </div>
                 
                 <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center border-t border-gray-100 dark:border-white/5 shrink-0">
-                  <Link href="/settings?tab=notifications" className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
+                  <Link href="/notifications" className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
                     Voir toutes les notifications
                   </Link>
                 </div>

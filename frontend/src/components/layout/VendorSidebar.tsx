@@ -27,7 +27,7 @@ export const VendorSidebar: React.FC<VendorSidebarProps> = ({ user }) => {
         ] : [
             { id: 'orders', label: 'Mes Commandes', href: '/settings?tab=orders', icon: Package },
         ]),
-        { id: 'notifications', label: 'Notifications', href: '/settings?tab=notifications', icon: Bell },
+        { id: 'notifications', label: 'Notifications', href: '/notifications', icon: Bell },
         { id: 'security', label: 'Sécurité', href: '/settings?tab=security', icon: ShieldCheck },
         { id: 'preferences', label: 'Préférences', href: '/settings?tab=preferences', icon: SettingsIcon },
     ];
