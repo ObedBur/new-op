@@ -27,6 +27,7 @@ async function main() {
 
   // Nettoyage des données existantes (Parallèle pour éviter le timeout)
   logger.log('🧹 Nettoyage de la base de données...');
+<<<<<<< HEAD
   try {
     // Le TRUNCATE CASCADE est beaucoup plus rapide et évite les timeouts liés aux grosses requêtes de suppression sur Neon/Prisma Accelerate
     await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Notification", "Order", "RefreshToken", "Product", "Category", "User", "HeroSlide", "HowItWorksStep" CASCADE;`);
@@ -42,6 +43,20 @@ async function main() {
     await prisma.heroSlide.deleteMany();
     await prisma.howItWorksStep.deleteMany();
   }
+=======
+  await prisma.$transaction([
+    prisma.notification.deleteMany({}),
+    prisma.order.deleteMany({}),
+    prisma.refreshToken.deleteMany({}),
+    prisma.follow.deleteMany({}),
+    prisma.pushSubscription.deleteMany({}),
+    prisma.product.deleteMany({}),
+    prisma.category.deleteMany({}),
+    prisma.user.deleteMany({}),
+    prisma.heroSlide.deleteMany({}),
+    prisma.howItWorksStep.deleteMany({}),
+  ]);
+>>>>>>> 63ddaff7a6c9a1be936167da3f4ecc68ac47447c
 
   // 1. Setup Admin
   logger.log('👤 Création de l\'administrateur...');

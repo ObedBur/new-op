@@ -26,24 +26,33 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className, variant = 'rectan
 
 /**
  * Skeleton pour une carte produit complète.
- * Reproduit la structure du ProductCard pour un chargement cohérent.
+ * Reproduit exactement la structure premium du ProductCard.
  */
 export const ProductCardSkeleton: React.FC = () => (
-  <div className="flex flex-col bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-3xl overflow-hidden">
-    {/* Image placeholder */}
-    <Skeleton variant="card" className="w-full rounded-none" />
-    
-    {/* Content */}
-    <div className="p-3 flex flex-col gap-2">
-      {/* Price */}
-      <Skeleton variant="text" className="h-5 w-20" />
-      {/* Title */}
+  <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden premium-shadow">
+    {/* Zone image avec dégradé simulé */}
+    <div className="relative aspect-square w-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+      <Skeleton variant="card" className="w-full h-full rounded-none" />
+      {/* Simulation du badge stock */}
+      <div className="absolute top-2 left-2">
+        <Skeleton className="h-4 w-14 rounded-lg" />
+      </div>
+    </div>
+
+    {/* Zone contenu */}
+    <div className="p-2.5 md:p-3 flex flex-col gap-2">
+      {/* Ligne : icône catégorie + prix */}
+      <div className="flex items-center justify-between gap-1">
+        <Skeleton className="size-3 rounded-sm opacity-50" />
+        <Skeleton variant="text" className="h-4 w-20 ml-auto" />
+      </div>
+      {/* Titre */}
       <Skeleton variant="text" className="h-3 w-full" />
-      <Skeleton variant="text" className="h-3 w-3/4" />
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-1 pt-1 border-t border-gray-50 dark:border-white/5">
-        <Skeleton variant="text" className="h-3 w-16" />
-        <Skeleton variant="text" className="h-3 w-10" />
+      <Skeleton variant="text" className="h-3 w-2/3" />
+      {/* Pied : date + étoile */}
+      <div className="flex items-center justify-between pt-1.5 border-t border-black/5 dark:border-white/5 mt-auto">
+        <Skeleton variant="text" className="h-2.5 w-14" />
+        <Skeleton variant="text" className="h-2.5 w-8" />
       </div>
     </div>
   </div>
