@@ -13,24 +13,35 @@ const logger = new Logger('Seeder');
 const envPath = path.join(__dirname, '../.env');
 dotenv.config({ path: envPath });
 
-const url = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString: url });
-const adapter = new PrismaPg(pool as any);
-const prisma = new PrismaClient({ adapter } as any);
+const databaseUrl = process.env.DATABASE_URL || '';
+const isAccelerate = databaseUrl.startsWith('prisma://') || databaseUrl.startsWith('prisma+');
+
+const prisma = new PrismaClient({
+  ...(isAccelerate
+    ? { accelerateUrl: databaseUrl }
+    : { datasourceUrl: databaseUrl }),
+} as any);
 
 async function main() {
   logger.log('🚀 Démarrage du Seeding (150 produits)...');
 
-  // Nettoyage des données existantes
+  // Nettoyage des données existantes (Parallèle pour éviter le timeout)
   logger.log('🧹 Nettoyage de la base de données...');
-  await prisma.notification.deleteMany({});
-  await prisma.order.deleteMany({});
-  await prisma.refreshToken.deleteMany({});
-  await prisma.product.deleteMany({});
-  await prisma.category.deleteMany({});
-  await prisma.user.deleteMany({});
-  await prisma.heroSlide.deleteMany({});
-  await prisma.howItWorksStep.deleteMany({});
+  try {
+    // Le TRUNCATE CASCADE est beaucoup plus rapide et évite les timeouts liés aux grosses requêtes de suppression sur Neon/Prisma Accelerate
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Notification", "Order", "RefreshToken", "Product", "Category", "User", "HeroSlide", "HowItWorksStep" CASCADE;`);
+    logger.log('✅ Base de données nettoyée avec TRUNCATE CASCADE.');
+  } catch (error) {
+    logger.warn('⚠️ Le TRUNCATE a échoué, utilisation de deleteMany en séquentiel...');
+    await prisma.notification.deleteMany();
+    await prisma.order.deleteMany();
+    await prisma.refreshToken.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.heroSlide.deleteMany();
+    await prisma.howItWorksStep.deleteMany();
+  }
 
   // 1. Setup Admin
   logger.log('👤 Création de l\'administrateur...');
@@ -188,4 +199,4 @@ async function main() {
 
 main()
   .catch((e) => { logger.error('❌ Erreur:', e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); await pool.end(); });
+  .finally(async () => { await prisma.$disconnect(); });
