@@ -51,12 +51,13 @@ export default function ProductsPage() {
                     id: p.id,
                     name: p.name,
                     price: p.price,
-                    oldPrice: p.oldPrice || null,
-                    stock: p.stock || 0,
-                    maxStock: p.maxStock || 100,
+                    oldPrice: p.originalPrice || null,
+                    stock: p.stockQuantity || 0,
+                    maxStock: 500,
                     updatedAt: new Date(p.updatedAt).toLocaleDateString(),
                     status: p.availability === 'IN_STOCK' ? 'En stock' : (p.availability === 'LIMITED_STOCK' ? 'Stock Faible' : 'Rupture'),
                     categoryName: p.category?.name || 'Divers',
+                    isPublic: p.isPublic ?? false,
                     image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80'
                 }));
                 setProducts(mappedProducts);

@@ -3,8 +3,8 @@
 ### URL: https://new-op-y5fc.onrender.com
 ### ============================================================
 @baseUrl = https://new-op-y5fc.onrender.com/api
-@email = obedburindi@gmail.com
-@password = Password123!
+@email = forcenzulo@gmail.com
+@password = Obed@321
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🏓 PING — Health Check via route publique (< 400ms)
@@ -47,6 +47,12 @@ Authorization: Bearer {{accessToken}}
 
 ### [4] LISTE PRODUITS — GET /products (devrait être < 500ms)
 GET {{baseUrl}}/products
+
+###
+
+### [4b] MES PRODUITS VENDEUR — GET /products/my-products (token requis)
+GET {{baseUrl}}/products/my-products
+Authorization: Bearer {{accessToken}}
 
 ###
 

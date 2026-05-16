@@ -104,105 +104,126 @@ function SettingsPageContent() {
                   transition={{ duration: 0.3, ease: "easeOut" }}
                 >
                   {activeTab === 'notifications' && (
-                    <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-8 md:p-12 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 min-h-[80vh] sm:min-h-0">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-12">
-                        <div className="space-y-1">
-                          <h3 className="text-xl md:text-xl font-black text-deep-blue dark:text-white tracking-tight leading-none">Centre de Notifications</h3>
-                          <p className="text-xs md:text-xs font-semibold text-gray-400">Restez informé de votre activité sur WapiBei</p>
+                    <div className="space-y-8">
+                      {/* --- SECTION 1: PRÉFÉRENCES (DESIGN UNTITLED UI) --- */}
+                      <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-6 sm:p-10 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/10">
+                        <div className="mb-10">
+                          <h3 className="text-xl font-black text-deep-blue dark:text-white tracking-tight">Paramètres des notifications</h3>
+                          <p className="text-sm font-medium text-gray-500 mt-1">Choisissez comment vous souhaitez être informé de l'activité sur la plateforme.</p>
                         </div>
-                        {notifications.some(n => !n.isRead) && (
-                          <button
-                            onClick={() => markAllAsRead()}
-                            className="group flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/20"
-                          >
-                            <CheckCircle2 size={16} />
-                            Tout marquer comme lu
+
+                        <div className="space-y-10">
+                          {[
+                            {
+                              id: 'orders',
+                              title: 'Commandes & Ventes',
+                              desc: 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
+                              channels: ['Push', 'Email', 'In-App']
+                            },
+                            {
+                              id: 'follows',
+                              title: 'Vendeurs Favoris',
+                              desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
+                              channels: ['Push', 'Email', 'In-App']
+                            },
+                            {
+                              id: 'promos',
+                              title: 'Offres & Promotions',
+                              desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
+                              channels: ['Push', 'Email']
+                            },
+                            {
+                              id: 'security',
+                              title: 'Sécurité & Compte',
+                              desc: 'Alertes de connexion, vérification KYC et modifications importantes de profil.',
+                              channels: ['Email', 'In-App'],
+                              forced: true
+                            }
+                          ].map((cat) => (
+                            <div key={cat.id} className="group flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-10 border-b border-gray-50 dark:border-white/5 last:border-0 last:pb-0">
+                              <div className="max-w-md">
+                                <h4 className="text-base font-black text-deep-blue dark:text-white mb-1.5">{cat.title}</h4>
+                                <p className="text-sm text-gray-500 font-medium leading-relaxed">{cat.desc}</p>
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-6 sm:gap-8">
+                                {cat.channels.map((channel) => (
+                                  <div key={channel} className="flex items-center gap-3">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                      <input type="checkbox" className="sr-only peer" defaultChecked={true} disabled={cat.forced && channel === 'Email'} />
+                                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#E67E22]"></div>
+                                      <span className="ml-3 text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400">{channel}</span>
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-12 flex justify-end">
+                          <button className="px-8 py-4 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-blue-500/10">
+                            Enregistrer les réglages
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      </section>
 
-                      <div className="space-y-5">
-                        {isLoading ? (
-                          <div className="py-24 flex flex-col items-center justify-center gap-4">
-                            <div className="relative size-16">
-                              <div className="absolute inset-0 rounded-full border-4 border-gray-100 dark:border-white/5"></div>
-                              <div className="absolute inset-0 rounded-full border-4 border-t-orange-500 animate-spin"></div>
-                            </div>
-                            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Chargement des alertes...</p>
+                      {/* --- SECTION 2: ACTIVITÉ RÉCENTE --- */}
+                      <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-8 md:p-12 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-10">
+                          <div className="space-y-1">
+                            <h3 className="text-xl font-black text-deep-blue dark:text-white tracking-tight">Activités récentes</h3>
+                            <p className="text-xs font-semibold text-gray-400 italic">Historique de vos alertes reçues</p>
                           </div>
-                        ) : notifications.length === 0 ? (
-                          <div className="py-24 text-center space-y-6">
-                            <div className="size-24 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] mx-auto flex items-center justify-center text-gray-200">
-                              <Bell size={40} />
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-xl font-black text-deep-blue dark:text-white">Aucun nouveau message</p>
-                              <p className="text-sm font-semibold text-gray-400">Nous vous tiendrons au courant dès qu'il y a du nouveau.</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="max-h-[75vh] sm:max-h-[60vh] overflow-y-auto pr-1 sm:pr-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-white/10 hover:scrollbar-thumb-gray-300 transition-colors">
-                            <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-3 sm:space-y-4">
-                              {notifications.map((n) => (
-                                <motion.div
-                                  variants={fadeUp}
-                                  key={n.id}
-                                  onClick={() => handleNotificationClick(n)}
-                                  className={`group relative flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 p-4 md:p-7 rounded-[1.25rem] md:rounded-[2rem] border transition-all duration-300 cursor-pointer hover:shadow-md ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-[#FDF9F6] dark:bg-orange-500/5 border-orange-100 dark:border-orange-500/20 shadow-sm'}`}
-                                >
-                                  {/* Mobile-optimized Header Layout */}
-                                  <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
-                                    <div className={`size-10 md:size-14 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500 group-hover:scale-110 ${n.isRead ? 'bg-gray-50 text-gray-400 border-gray-100 dark:bg-white/5 dark:border-white/10' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
-                                      <Bell size={20} className="md:size-6 shrink-0" />
-                                    </div>
-                                    <div className="flex-1 min-w-0 sm:hidden">
-                                      <div className="flex items-center justify-between mb-1">
-                                        <h4 className={`text-base font-black truncate leading-tight pr-2 ${n.isRead ? 'text-gray-900 dark:text-white' : 'text-orange-950 dark:text-orange-100'}`}>
-                                          {n.title}
-                                        </h4>
-                                        <div className="flex flex-col items-end shrink-0">
-                                          <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">
-                                            {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-snug line-clamp-2">
-                                        {n.message}
-                                      </p>
-                                    </div>
-                                  </div>
+                          {notifications.some(n => !n.isRead) && (
+                            <button
+                              onClick={() => markAllAsRead()}
+                              className="group flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/10 text-gray-600 dark:text-gray-300 hover:text-orange-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              <CheckCircle2 size={14} />
+                              Tout marquer comme lu
+                            </button>
+                          )}
+                        </div>
 
-                                  {/* Desktop-optimized Layout */}
-                                  <div className="hidden sm:block flex-1 min-w-0 pr-8">
-                                    <div className="flex items-center justify-between mb-1.5">
-                                      <h4 className="font-black text-base text-deep-blue dark:text-white leading-none pr-4">{n.title}</h4>
-                                      <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400">
-                                        <Clock size={10} />
-                                        {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                      </div>
+                        <div className="space-y-4">
+                          {isLoading ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                              <div className="size-10 border-4 border-gray-100 dark:border-white/5 border-t-orange-500 rounded-full animate-spin"></div>
+                            </div>
+                          ) : notifications.length === 0 ? (
+                            <div className="py-20 text-center">
+                              <Bell size={40} className="mx-auto text-gray-200 mb-4" />
+                              <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aucune notification</p>
+                            </div>
+                          ) : (
+                            <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-hide">
+                              <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-3">
+                                {notifications.map((n) => (
+                                  <motion.div
+                                    variants={fadeUp}
+                                    key={n.id}
+                                    onClick={() => handleNotificationClick(n)}
+                                    className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${n.isRead ? 'bg-white dark:bg-white/0 border-gray-100 dark:border-white/5' : 'bg-orange-50/30 dark:bg-orange-500/5 border-orange-100/50 dark:border-orange-500/20 shadow-sm'}`}
+                                  >
+                                    <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${n.isRead ? 'bg-gray-50 text-gray-400 dark:bg-white/5' : 'bg-orange-100 text-orange-600'}`}>
+                                      <Bell size={18} />
                                     </div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                      {n.message}
-                                    </p>
-                                    {!n.isRead && (
-                                      <button
-                                        onClick={() => markAsRead(n.id)}
-                                        className="mt-5 px-5 py-2.5 bg-white dark:bg-white/10 text-orange-600 dark:text-orange-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-orange-100 dark:border-orange-500/20 hover:bg-orange-600 hover:text-white transition-all shadow-sm"
-                                      >
-                                        Marquer comme lu
-                                      </button>
-                                    )}
-                                  </div>
-                                  <div className="absolute top-4 right-4 sm:top-7 sm:right-7 p-1 sm:p-2 text-gray-300 hover:text-gray-500 transition-colors cursor-pointer">
-                                    <MoreVertical size={18} className="size-4 sm:size-[18px]" />
-                                  </div>
-                                </motion.div>
-                              ))}
-                            </motion.div>
-                          </div>
-                        )}
-                      </div>
-                    </section>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className={`text-sm font-black truncate ${n.isRead ? 'text-gray-900 dark:text-white' : 'text-orange-950 dark:text-orange-100'}`}>{n.title}</h4>
+                                      <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-1">{n.message}</p>
+                                    </div>
+                                    <div className="text-[10px] font-bold text-gray-300 shrink-0">
+                                      {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </motion.div>
+                            </div>
+                          )}
+                        </div>
+                      </section>
+                    </div>
                   )}
 
                   {activeTab === 'orders' && (
