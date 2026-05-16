@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Category } from '@/features/products/types';
 
-export const CategoriesGrid: React.FC<{ categories: Category[] }> = ({ categories }) => {
+export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: boolean }> = ({ categories, isLoading }) => {
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'popular'>('all');
 
   // Filtrage des catégories (Simulé pour 'popular' en prenant les premières avec count > 0)
@@ -16,9 +16,12 @@ export const CategoriesGrid: React.FC<{ categories: Category[] }> = ({ categorie
       .slice(0, 4);
   }, [categories, activeFilter]);
 
-  // Si pas de catégories, on affiche un petit message pour déboguer
+  if (isLoading) {
+    return <div className="text-center py-10 text-slate-500 animate-pulse">Chargement des secteurs...</div>;
+  }
+
   if (!categories || categories.length === 0) {
-    return <div className="text-center py-10">Chargement des rayons...</div>;
+    return null; // On cache complètement la section si elle est vide
   }
 
   return (

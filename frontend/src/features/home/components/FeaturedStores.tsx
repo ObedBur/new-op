@@ -12,15 +12,7 @@ interface FeaturedStoresProps {
 
 export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
   if (!stores || stores.length === 0) {
-    return (
-      <section className="container mx-auto max-w-7xl px-4 py-12">
-        <div className="text-center py-20 bg-gray-50 dark:bg-white/5 rounded-[2.5rem]">
-          <p className="text-gray-400">
-            Aucune boutique en vedette pour le moment.
-          </p>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   return (

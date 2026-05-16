@@ -105,7 +105,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <Hero slides={heroSlides} />
 
       {/*  CATEGORIES */}
-      <CategoriesGrid categories={loading.categories ? [] : categories} />
+      <CategoriesGrid categories={categories} isLoading={loading.categories} />
 
       {/*  GALERIES INTELLIGENTES */}
       <section className="py-10 space-y-12">

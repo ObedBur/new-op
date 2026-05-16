@@ -27,7 +27,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     CacheModule.register({
       isGlobal: true,
-      ttl: 600, 
+      ttl: 600,
       max: 1000,
     }),
     ThrottlerModule.forRoot([
@@ -35,11 +35,6 @@ import { ScheduleModule } from '@nestjs/schedule';
         name: 'global',
         ttl: 60000,
         limit: 100,
-      },
-      {
-        name: 'auth',
-        ttl: 900000,
-        limit: 5,
       }
     ]),
     PrismaModule,
@@ -63,4 +58,4 @@ import { ScheduleModule } from '@nestjs/schedule';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

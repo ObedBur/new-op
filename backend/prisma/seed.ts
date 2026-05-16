@@ -27,36 +27,23 @@ async function main() {
 
   // Nettoyage des données existantes (Parallèle pour éviter le timeout)
   logger.log('🧹 Nettoyage de la base de données...');
-<<<<<<< HEAD
   try {
     // Le TRUNCATE CASCADE est beaucoup plus rapide et évite les timeouts liés aux grosses requêtes de suppression sur Neon/Prisma Accelerate
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Notification", "Order", "RefreshToken", "Product", "Category", "User", "HeroSlide", "HowItWorksStep" CASCADE;`);
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "Notification", "Order", "RefreshToken", "Follow", "PushSubscription", "Product", "Category", "User", "HeroSlide", "HowItWorksStep" CASCADE;`);
     logger.log('✅ Base de données nettoyée avec TRUNCATE CASCADE.');
   } catch (error) {
     logger.warn('⚠️ Le TRUNCATE a échoué, utilisation de deleteMany en séquentiel...');
     await prisma.notification.deleteMany();
     await prisma.order.deleteMany();
     await prisma.refreshToken.deleteMany();
+    await prisma.follow.deleteMany();
+    await prisma.pushSubscription.deleteMany();
     await prisma.product.deleteMany();
     await prisma.category.deleteMany();
     await prisma.user.deleteMany();
     await prisma.heroSlide.deleteMany();
     await prisma.howItWorksStep.deleteMany();
   }
-=======
-  await prisma.$transaction([
-    prisma.notification.deleteMany({}),
-    prisma.order.deleteMany({}),
-    prisma.refreshToken.deleteMany({}),
-    prisma.follow.deleteMany({}),
-    prisma.pushSubscription.deleteMany({}),
-    prisma.product.deleteMany({}),
-    prisma.category.deleteMany({}),
-    prisma.user.deleteMany({}),
-    prisma.heroSlide.deleteMany({}),
-    prisma.howItWorksStep.deleteMany({}),
-  ]);
->>>>>>> 63ddaff7a6c9a1be936167da3f4ecc68ac47447c
 
   // 1. Setup Admin
   logger.log('👤 Création de l\'administrateur...');
@@ -125,6 +112,24 @@ async function main() {
     });
     vendors.push(v);
   }
+
+  // 3.5 Vendeur sans produits (Demandé pour tester les cas d'affichage vide)
+  logger.log('👻 Création d\'un vendeur sans produits...');
+  await prisma.user.create({
+    data: {
+      email: 'vide@wapibei.com',
+      password: hashedPassword,
+      fullName: 'Boutique Fantôme',
+      phone: '+243991111111',
+      province: 'Nord-Kivu',
+      commune: 'Goma',
+      role: UserRole.VENDOR,
+      boutiqueName: 'Boutique Sans Produits',
+      isVerified: true,
+      trustScore: 85,
+      avatarUrl: `https://i.pravatar.cc/150?u=vide`,
+    },
+  });
 
   // 4. Setup Produits (150 articles)
   logger.log('🛍️ Création de 150 produits...');
