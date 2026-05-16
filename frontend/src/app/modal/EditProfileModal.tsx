@@ -18,6 +18,7 @@ interface EditProfileModalProps {
 const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
     const { user, updateUser } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const coverInputRef = useRef<HTMLInputElement>(null);
 
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -35,6 +36,8 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [coverPicture, setCoverPicture] = useState<File | null>(null);
+    const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
 
     useEffect(() => {
         if (user && isOpen) {
@@ -51,6 +54,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                 transactionPin: '',
             });
             setPreviewUrl(user.avatarUrl || null);
+            setCoverPreviewUrl(user.coverUrl || null);
         }
     }, [user, isOpen]);
 
@@ -67,6 +71,15 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
             setProfilePicture(file);
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+        }
+    };
+
+    const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setCoverPicture(file);
+            const url = URL.createObjectURL(file);
+            setCoverPreviewUrl(url);
         }
     };
 
@@ -119,6 +132,45 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                     reader.onerror = (error) => reject(error);
                 });
                 updateData.profilePicture = await base64Promise;
+            }
+
+            if (coverPicture) {
+                const coverBase64Promise = new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(coverPicture);
+                    reader.onload = (event) => {
+                        const img = new window.Image();
+                        img.src = event.target?.result as string;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 1200; // Wider for covers
+                            const MAX_HEIGHT = 600;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx?.drawImage(img, 0, 0, width, height);
+                            // Compress as JPEG
+                            resolve(canvas.toDataURL('image/jpeg', 0.8));
+                        };
+                        img.onerror = (error) => reject(error);
+                    };
+                    reader.onerror = (error) => reject(error);
+                });
+                updateData.coverPicture = await coverBase64Promise;
             }
 
             // Nettoyage des champs vides
@@ -220,6 +272,27 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                 >
                                     Changer la photo
                                 </button>
+
+                                <input
+                                    type="file"
+                                    ref={coverInputRef}
+                                    onChange={handleCoverChange}
+                                    className="hidden"
+                                    accept="image/*"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => coverInputRef.current?.click()}
+                                    className="w-full mt-4 py-4 px-6 bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-500/10 dark:to-green-500/10 border-2 border-orange-100 dark:border-white/10 text-[#E67E22] dark:text-white rounded-[1.5rem] font-black text-sm hover:opacity-80 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    <Camera className="size-4" />
+                                    Changer la couverture
+                                </button>
+                                {coverPreviewUrl && (
+                                    <div className="w-full h-20 mt-4 rounded-xl overflow-hidden opacity-50">
+                                        <img src={coverPreviewUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Trust Badge Card */}

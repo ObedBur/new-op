@@ -42,4 +42,12 @@ export class UpdateProfileDto {
   @IsOptional()
   @MaxLength(4)
   transactionPin?: string;
+
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
+
+  @IsString()
+  @IsOptional()
+  coverPicture?: string;
 }

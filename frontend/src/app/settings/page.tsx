@@ -261,10 +261,19 @@ function SettingsPageContent() {
                       <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 overflow-hidden">
                         
                         {/* --- COVER & BANNER --- */}
-                        <div className="h-32 sm:h-48 w-full bg-gradient-to-r from-orange-100 to-green-100 dark:from-orange-900/30 dark:to-green-900/30 relative">
-                            {/* Texture optionnelle */}
-                            <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.05) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                            <div className="absolute inset-0 opacity-10 dark:opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,1) 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                        <div className="h-32 sm:h-48 w-full relative overflow-hidden bg-gray-200 dark:bg-gray-800">
+                            <Image 
+                                src={user?.coverUrl || (user?.role === 'VENDOR' 
+                                    ? "/images/default-vendor-cover.png"
+                                    : "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
+                                )}
+                                alt="Image de couverture" 
+                                fill 
+                                className="object-cover"
+                                priority
+                            />
+                            {/* Overlay subtil pour assurer un bon contraste */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 dark:to-black/30"></div>
                         </div>
 
                         <div className="px-6 md:px-12 pb-8 md:pb-12 relative">

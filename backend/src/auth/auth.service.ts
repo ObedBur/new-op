@@ -18,6 +18,7 @@ import { TokenService } from './services/token.service';
 import { OtpService } from './services/otp.service';
 import { PasswordService } from './services/password.service';
 import { UserValidationService } from './services/user-validation.service';
+import { ModerationService } from '../common/services/moderation.service';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly passwordService: PasswordService,
     private readonly userValidationService: UserValidationService,
     private readonly emailService: EmailService,
+    private readonly moderationService: ModerationService,
   ) { }
 
   // ========================= REGISTER =========================
@@ -290,6 +292,7 @@ export class AuthService {
         trustScore: true,
         isVerified: true,
         avatarUrl: true,
+        coverUrl: true,
         createdAt: true,
       },
     });
@@ -337,7 +340,19 @@ export class AuthService {
     if (dto.boutiqueName) data.boutiqueName = dto.boutiqueName;
     if (dto.avatarUrl) data.avatarUrl = dto.avatarUrl;
     if (dto.profilePicture && typeof dto.profilePicture === 'string') {
+      const isValid = await this.moderationService.validateImage(dto.profilePicture);
+      if (!isValid) {
+        throw new HttpException('Image de profil inappropriée détectée', HttpStatus.BAD_REQUEST);
+      }
       data.avatarUrl = dto.profilePicture;
+    }
+
+    if (dto.coverPicture && typeof dto.coverPicture === 'string') {
+      const isValid = await this.moderationService.validateImage(dto.coverPicture);
+      if (!isValid) {
+        throw new HttpException('Image de couverture inappropriée détectée', HttpStatus.BAD_REQUEST);
+      }
+      data.coverUrl = dto.coverPicture;
     }
 
     // Gestion du mot de passe
@@ -376,6 +391,7 @@ export class AuthService {
         trustScore: true,
         isVerified: true,
         avatarUrl: true,
+        coverUrl: true,
         createdAt: true,
         updatedAt: true,
       },

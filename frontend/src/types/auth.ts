@@ -12,6 +12,7 @@ export interface User {
   isVerified: boolean;
   trustScore: number;
   avatarUrl?: string;
+  coverUrl?: string;
   province?: string;
   commune?: string;
   address?: string;
@@ -98,6 +99,7 @@ export interface UpdateProfileDto {
   address?: string;
   city?: string;
   profilePicture?: File | string;
+  coverPicture?: File | string;
   password?: string;
   oldPassword?: string;
   transactionPin?: string;
