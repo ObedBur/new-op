@@ -149,7 +149,7 @@ export class TokenService {
         include: { user: true },
       });
 
-      // 2. Vrifier validit
+      // 2. Verifier validit
       if (!storedToken) {
         throw new HttpException('Session expire ou invalide', HttpStatus.UNAUTHORIZED);
       }
@@ -159,7 +159,7 @@ export class TokenService {
         throw new HttpException('Session expire', HttpStatus.UNAUTHORIZED);
       }
 
-      // 3. Vrifier userId
+      // 3. Verifier userId
       if (storedToken.userId !== userId) {
         throw new HttpException('Utilisateur invalide', HttpStatus.FORBIDDEN);
       }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from '@/types/auth';
 import { ProfileDropdown } from './ProfileDropdown';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
+import { resolveNotificationUrl } from '@/types/notification';
 
 interface NavLink {
   id: string;
@@ -31,13 +32,25 @@ export const DesktopHeader = ({
   const pathname = usePathname();
   const router = useRouter();
   const isActive = (path: string) => pathname === path;
-  const { notifications, unreadCount } = useAppNotifications();
+  const { notifications, unreadCount, markAsRead } = useAppNotifications();
   
   // Detect if current page is an authentication page
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'].some(path => pathname.startsWith(path));
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="hidden lg:flex w-full h-20 xl:h-24 items-center justify-between px-4 xl:px-10 relative bg-transparent z-50">
@@ -108,7 +121,6 @@ export const DesktopHeader = ({
             shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]
             transition-all duration-500
             hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]
-            z-20
           "
         >
           {/* Search */}
@@ -152,9 +164,9 @@ export const DesktopHeader = ({
           <div className="w-px h-6 bg-black/10 dark:bg-white/10"></div>
 
           {/* Notifications */}
-          <div className="relative group">
-            <Link
-              href="/notifications"
+          <div className="relative group" ref={notifRef}>
+            <button
+              onClick={() => setIsNotifOpen(prev => !prev)}
               className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
             >
                 <span className="material-symbols-outlined text-[22px]">notifications</span>
@@ -163,10 +175,10 @@ export const DesktopHeader = ({
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
-            </Link>
+            </button>
 
             {/* Dropdown Notifications Container */}
-            <div className="absolute right-[-10px] top-[100%] pt-4 w-80 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right scale-95 group-hover:scale-100 z-50">
+            <div className={`absolute right-[-10px] top-[100%] pt-4 w-80 transition-all duration-300 transform origin-top-right z-50 group-hover:opacity-100 group-hover:visible group-hover:scale-100 ${isNotifOpen ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-95'}`}>
               <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border border-gray-100 dark:border-white/5 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[400px]">
                 <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent shrink-0">
                   <h3 className="text-black dark:text-white font-black text-sm tracking-tight">Notifications</h3>
@@ -194,6 +206,12 @@ export const DesktopHeader = ({
                     notifications.slice(0, 3).map((notification) => (
                       <div 
                         key={notification.id} 
+                        onClick={() => {
+                          if (!notification.isRead) markAsRead(notification.id);
+                          setIsNotifOpen(false);
+                          const url = resolveNotificationUrl(notification, user?.role);
+                          if (url) router.push(url);
+                        }}
                         className={`p-4 border-b border-gray-100 dark:border-white/5 transition-colors cursor-pointer relative ${!notification.isRead ? 'bg-[#E67E22]/5 hover:bg-[#E67E22]/10' : 'hover:bg-gray-50 dark:hover:bg-white/5'}`}
                       >
                         {!notification.isRead && (
@@ -214,7 +232,7 @@ export const DesktopHeader = ({
                 </div>
                 
                 <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center border-t border-gray-100 dark:border-white/5 shrink-0">
-                  <Link href="/notifications" className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
+                  <Link href="/notifications" onClick={() => setIsNotifOpen(false)} className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
                     Voir toutes les notifications
                   </Link>
                 </div>

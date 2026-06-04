@@ -8,7 +8,8 @@ import {
   User, Store, Heart, Bell, ShieldCheck, Settings as SettingsIcon,
   ChevronRight, MapPin, BadgeCheck, TrendingDown, TrendingUp,
   Package, Plus, Hammer, Smartphone, Sprout, Search, Lock,
-  ShoppingBag, CheckCircle2, Clock, MoreVertical, SlidersHorizontal
+  ShoppingBag, CheckCircle2, Clock, MoreVertical, SlidersHorizontal,
+  Edit3, Camera, Trash2
 } from "lucide-react";
 import EditProfileModal from "../modal/EditProfileModal";
 
@@ -17,9 +18,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
 import { getNotificationPreferences, saveNotificationPreferences, NotificationPreferences } from "@/features/notifications/services/preferences.service";
+import { resolveNotificationUrl } from "@/types/notification";
 import { toast } from "sonner";
 
 import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
+import { useWishlist } from "@/hooks/useWishlist";
+import { ProductCard } from "@/features/products/components/ProductCard";
+import { Product } from "@/types/product.types";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders';
 
@@ -37,6 +42,15 @@ const staggerContainer = {
   }
 };
 
+const getInitials = (name: string) => {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 function SettingsPageContent() {
   const { user } = useAuth();
   const router = useRouter();
@@ -49,6 +63,18 @@ function SettingsPageContent() {
   // État des préférences de notifications
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [isSavingPref, setIsSavingPref] = useState(false);
+
+  // Favoris / Wishlist states
+  const { wishlist, toggleFavorite } = useWishlist();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleClearAllFavorites = () => {
+    if (confirm("Voulez-vous vraiment vider votre liste de favoris ?")) {
+      [...wishlist].forEach(p => toggleFavorite(p));
+      toast.success("Tous vos favoris ont été supprimés.");
+    }
+  };
 
   React.useEffect(() => {
     if (activeTab === 'orders') {
@@ -83,16 +109,11 @@ function SettingsPageContent() {
     markAllAsRead,
   } = useAppNotifications();
 
+  // Clic intelligent : marque comme lu + redirige vers l'URL contextuelle
   const handleNotificationClick = (n: any) => {
-    if (!n.isRead) {
-      markAsRead(n.id);
-    }
-
-    if (n.type === 'NEW_PRODUCT' && n.metadata?.productId) {
-      router.push(`/products/${n.metadata.productId}`);
-    } else if (n.type === 'ORDER_CREATED' || n.type === 'ORDER_CONFIRMED') {
-      router.push(user?.role === 'VENDOR' ? '/dashboard/orders' : '/settings?tab=orders');
-    }
+    if (!n.isRead) markAsRead(n.id);
+    const url = resolveNotificationUrl(n, user?.role);
+    if (url) router.push(url);
   };
 
   return (
@@ -103,18 +124,10 @@ function SettingsPageContent() {
         onClose={() => setIsEditModalOpen(false)}
       />
 
-      <main className="flex-grow pt-0 md:pt-10 pb-20">
-        <div className="container mx-auto max-w-7xl px-0 sm:px-4 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-0 sm:gap-6 lg:gap-10 items-stretch">
-
-            {/* --- SIDEBAR GAUCHE (Modernized) --- */}
-            <div className="lg:w-72 shrink-0 flex flex-col">
-              <Suspense fallback={null}>
-                <VendorSidebar user={user} />
-              </Suspense>
-            </div>
-            {/* --- ZONE CENTRALE (Désormais plein écran) --- */}
-            <div className="flex-1 space-y-6">
+      <main className="flex-grow p-4 md:p-8 lg:p-10 pb-20">
+        <div className="container mx-auto max-w-5xl">
+          <div className="w-full">
+            <div className="space-y-6">
 
               {/* --- DYNAMIC SECTION --- */}
               <AnimatePresence mode="wait">
@@ -328,138 +341,506 @@ function SettingsPageContent() {
                   )}
                   {activeTab === 'profile' && (
                     <div className="space-y-8">
-                      <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 overflow-hidden">
-
-                        {/* --- COVER & BANNER --- */}
-                        <div className="h-32 sm:h-48 w-full relative overflow-hidden bg-gray-200 dark:bg-gray-800">
-                          <Image
-                            src={user?.coverUrl || (user?.role === 'VENDOR'
-                              ? "/images/default-vendor-cover.png"
-                              : "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
-                            )}
-                            alt="Image de couverture"
-                            fill
-                            className="object-cover"
-                            priority
-                          />
-                          {/* Overlay subtil pour assurer un bon contraste */}
-                          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 dark:to-black/30"></div>
+                      <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
+                        
+                        {/* Cover Picture Banner */}
+                        <div className="h-36 sm:h-48 w-full relative overflow-hidden bg-gray-100 dark:bg-gray-800">
+                          {user?.coverUrl ? (
+                            <img
+                              src={user.coverUrl}
+                              alt="Image de couverture"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <img
+                              src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
+                              alt="Image de couverture par défaut"
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/25"></div>
+                          
+                          {/* Change cover button */}
+                          <button 
+                            type="button"
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="absolute top-4 right-4 px-3 py-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 z-10"
+                          >
+                            <Camera size={12} /> Modifier la couverture
+                          </button>
                         </div>
 
-                        <div className="px-6 md:px-12 pb-8 md:pb-12 relative">
-
-                          {/* --- AVATAR & ACTIONS HEADER --- */}
-                          <div className="flex flex-col sm:flex-row justify-between items-center sm:items-end -mt-16 sm:-mt-20 mb-4 sm:mb-6 gap-6 sm:gap-0">
-                            <div className="relative group shrink-0 z-10 isolate">
-                              <div className="absolute -inset-1 bg-gradient-to-br from-orange-400 to-green-600 rounded-[2.5rem] blur-xl opacity-20 sm:opacity-30 transition duration-500"></div>
-                              <div className="relative size-32 sm:size-40 rounded-[2rem] border-4 border-white dark:border-[#111827] shadow-xl overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center">
+                        {/* Floating Avatar & Details Overlay */}
+                        <div className="px-6 sm:px-8 relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-slate-100 dark:border-white/5">
+                          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
+                            
+                            {/* Avatar circle */}
+                            <div className="relative group shrink-0 z-10">
+                              <div className="size-24 sm:size-28 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white dark:border-[#111827] shadow-lg relative">
                                 {user?.avatarUrl ? (
-                                  <Image src={user.avatarUrl} alt={user.fullName || 'User'} fill className="object-cover" />
+                                  <img src={user.avatarUrl} alt={user.fullName || 'User'} className="w-full h-full object-cover" />
                                 ) : (
-                                  <span className="text-4xl md:text-5xl font-black text-gray-300">
-                                    {user?.fullName?.charAt(0) || 'U'}
-                                  </span>
+                                  <span className="text-3xl font-black tracking-tight">{getInitials(user?.fullName || '')}</span>
                                 )}
-                                <button
-                                  onClick={() => setIsEditModalOpen(true)}
-                                  className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
-                                >
-                                  <span className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                    <SettingsIcon size={14} /> Éditer
-                                  </span>
-                                </button>
                               </div>
+                              <button 
+                                type="button"
+                                onClick={() => setIsEditModalOpen(true)}
+                                className="absolute bottom-0 right-0 p-2 bg-[#E67E22] text-white rounded-full border-2 border-white dark:border-[#111827] shadow-md hover:scale-105 transition-transform active:scale-95 z-20"
+                              >
+                                <Camera size={11} />
+                              </button>
                             </div>
 
-                            {/* DESKTOP ACTIONS */}
-                            <div className="hidden sm:flex w-full sm:w-auto flex-col sm:flex-row gap-3 sm:pb-2">
-                              <button
-                                onClick={() => setIsEditModalOpen(true)}
-                                className="w-full sm:w-auto px-6 py-3 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest hover:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
-                              >
-                                Éditer Profil
-                              </button>
+                            {/* User name & role next to avatar */}
+                            <div className="sm:pb-1">
+                              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center justify-center sm:justify-start gap-2">
+                                {user?.fullName || 'Utilisateur'}
+                                <span className="text-[#2D5A27] dark:text-[#52c140] bg-green-50 dark:bg-green-500/10 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                                  Actif
+                                </span>
+                              </h3>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1 uppercase tracking-wider">
+                                {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                              </p>
                             </div>
                           </div>
 
-                          {/* --- USER TITLE & BADGES --- */}
-                          <div className="text-center sm:text-left space-y-2.5 mb-6 sm:mb-10">
-                            <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white capitalize tracking-tight">
-                              {user?.fullName || 'Utilisateur'}
-                            </h2>
+                          {/* Desktop modifier profile button */}
+                          <div className="sm:pb-1 z-10">
+                            <button 
+                              type="button"
+                              onClick={() => setIsEditModalOpen(true)}
+                              className="flex items-center gap-2 px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm shadow-orange-500/10 active:scale-95 shrink-0"
+                            >
+                              <Edit3 size={14} /> Modifier le Profil
+                            </button>
+                          </div>
+                        </div>
 
-                            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start gap-2 mt-1">
-                              <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
-                                {user?.email}
-                              </p>
-                              <div className="hidden sm:block text-gray-300 dark:text-gray-600 px-1">•</div>
-                              <div className="flex items-center gap-2">
-                                {user?.role === 'VENDOR' && (
-                                  <span className="text-[#E67E22] bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
-                                    Vendeur
-                                  </span>
-                                )}
-                                <span className="text-[#2D5A27] dark:text-[#52c140] bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">
-                                  Actif
+                        {/* Fields & Detailed Grid Section */}
+                        <div className="px-6 sm:px-8 pb-8 space-y-6">
+                          
+                          <div className="pt-4">
+                            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Account Information</h2>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">Mettez à jour les détails de votre profil d'utilisateur ici.</p>
+                          </div>
+
+                          {/* Fields Grid */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            {/* First Name */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Prénom</label>
+                              <input 
+                                type="text" 
+                                readOnly
+                                value={user?.fullName?.split(' ')[0] || ''}
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                              />
+                            </div>
+
+                            {/* Last Name */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nom de famille</label>
+                              <input 
+                                type="text" 
+                                readOnly
+                                value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                              />
+                            </div>
+
+                            {/* Email */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Adresse e-mail</label>
+                              <div className="relative">
+                                <input 
+                                  type="email" 
+                                  readOnly
+                                  value={user?.email || ''}
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl pl-4 pr-24 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-lg">
+                                  <CheckCircle2 size={10} /> Vérifié
                                 </span>
                               </div>
                             </div>
-                          </div>
 
-                          {/* MOBILE ACTIONS */}
-                          <div className="flex sm:hidden w-full flex-col gap-3 mb-8">
-                            <button
-                              onClick={() => setIsEditModalOpen(true)}
-                              className="w-full px-6 py-3.5 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-gray-50 transition-all shadow-sm"
-                            >
-                              Changer Sécurité
-                            </button>
-                            <button
-                              onClick={() => setIsEditModalOpen(true)}
-                              className="w-full px-6 py-3.5 bg-[#E67E22] text-white rounded-[1rem] text-[11px] font-black uppercase tracking-widest active:bg-[#cf6d18] transition-all shadow-lg shadow-orange-500/20"
-                            >
-                              Éditer Profil
-                            </button>
-                          </div>
+                            {/* Phone */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Numéro de téléphone</label>
+                              <div className="relative">
+                                <input 
+                                  type="text" 
+                                  readOnly
+                                  value={user?.phone || 'Non renseigné'}
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl pl-4 pr-24 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                                />
+                                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-lg">
+                                  <CheckCircle2 size={10} /> Actif
+                                </span>
+                              </div>
+                            </div>
 
-                          {/* --- DETAILED INFO GRID --- */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-8 gap-x-6 pt-8 border-t border-gray-100 dark:border-white/5">
+                            {/* Province */}
                             <div className="space-y-2">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Téléphone</p>
-                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                <Smartphone size={16} className="text-gray-400" />
-                                {user?.phone ? user.phone : <span className="text-gray-400 italic">Non renseigné</span>}
-                              </p>
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Province</label>
+                              <input 
+                                type="text" 
+                                readOnly
+                                value={user?.province || 'Non définie'}
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                              />
                             </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Localisation</p>
-                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                <MapPin size={16} className="text-gray-400" />
-                                {user?.province || user?.commune ? `${user.commune || ''}, ${user.province || ''}`.trim().replace(/^,\s*/, '') : <span className="text-gray-400 italic">Non définie</span>}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nom de la Boutique</p>
-                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                <Store size={16} className="text-gray-400" />
-                                {user?.boutiqueName ? user.boutiqueName : <span className="text-gray-400 italic">Aucune boutique associée</span>}
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Membre Depuis</p>
-                              <p className="text-[15px] font-semibold text-deep-blue dark:text-white flex items-center gap-2.5">
-                                <Clock size={16} className="text-gray-400" />
-                                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Récemment'}
-                              </p>
-                            </div>
-                          </div>
 
+                            {/* Commune */}
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Ville / Commune</label>
+                              <input 
+                                type="text" 
+                                readOnly
+                                value={user?.commune || 'Non définie'}
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                              />
+                            </div>
+
+                            {/* Boutique Name */}
+                            {user?.role === 'VENDOR' && (
+                              <div className="space-y-2 md:col-span-2">
+                                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nom de la Boutique</label>
+                                <input 
+                                  type="text" 
+                                  readOnly
+                                  value={user?.boutiqueName || 'Aucune boutique associée'}
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                                />
+                              </div>
+                            )}
+
+                            {/* Membre depuis */}
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Membre depuis</label>
+                              <input 
+                                type="text" 
+                                readOnly
+                                value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Récemment'}
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
+                              />
+                            </div>
+
+                          </div>
                         </div>
-                      </section>
+
+                      </div>
                     </div>
                   )}
 
-                  {activeTab !== 'notifications' && activeTab !== 'profile' && activeTab !== 'orders' && (
+                  {activeTab === 'security' && (
+                    <div className="space-y-8">
+                      <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-white/5 shadow-sm space-y-8 animate-fade-in">
+                        
+                        {/* Section Header */}
+                        <div className="pb-6 border-b border-slate-100 dark:border-white/5">
+                          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Sécurité du Compte</h2>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">Gérez votre mot de passe, votre PIN de transaction et surveillez vos connexions actives.</p>
+                        </div>
+
+                        {/* Password Change Card */}
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-orange-50 dark:bg-orange-500/10 rounded-xl text-[#E67E22] shrink-0">
+                              <Lock size={18} />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Changer le mot de passe</h3>
+                              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Pour assurer la sécurité de votre compte, choisissez un mot de passe robuste.</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Mot de passe actuel</label>
+                              <input 
+                                type="password" 
+                                placeholder="••••••••"
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-850 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nouveau mot de passe</label>
+                              <input 
+                                type="password" 
+                                placeholder="••••••••"
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-855 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Confirmer le mot de passe</label>
+                              <input 
+                                type="password" 
+                                placeholder="••••••••"
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-860 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-end pt-2 border-b border-slate-100 dark:border-white/5 pb-6">
+                            <button 
+                              type="button"
+                              onClick={() => setIsEditModalOpen(true)}
+                              className="px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+                            >
+                              Mettre à jour le mot de passe
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Transaction PIN Card */}
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl text-emerald-600 shrink-0">
+                              <ShieldCheck size={18} />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Code PIN de Transaction</h3>
+                              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Requis pour valider vos retraits, virements et achats sur la plateforme.</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nouveau code PIN (4 chiffres)</label>
+                              <input 
+                                type="text" 
+                                maxLength={4}
+                                placeholder="Ex: 1234"
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-850 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Confirmer le PIN</label>
+                              <input 
+                                type="text" 
+                                maxLength={4}
+                                placeholder="Ex: 1234"
+                                className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-855 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="flex justify-end pt-2 border-b border-slate-100 dark:border-white/5 pb-6">
+                            <button 
+                              type="button"
+                              onClick={() => setIsEditModalOpen(true)}
+                              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-750 text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+                            >
+                              Sauvegarder le code PIN
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Active Sessions */}
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-blue-50 dark:bg-blue-500/10 rounded-xl text-blue-600 shrink-0">
+                              <Smartphone size={18} />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Sessions Actives & Connexions</h3>
+                              <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Liste des appareils actuellement connectés à votre compte.</p>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {[
+                              { device: "Chrome / Windows 11", location: "Kinshasa, RDC", time: "Session active", active: true },
+                              { device: "Safari / iPhone 15 Pro", location: "Goma, RDC", time: "il y a 2 heures", active: false }
+                            ].map((session, i) => (
+                              <div key={i} className="flex justify-between items-center p-4 bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-2xl">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{session.device}</p>
+                                  <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">{session.location} • {session.time}</p>
+                                </div>
+                                {session.active ? (
+                                  <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">Actif</span>
+                                ) : (
+                                  <button 
+                                    type="button"
+                                    onClick={() => toast.success('Session déconnectée avec succès !')}
+                                    className="text-[9px] font-bold text-red-500 hover:text-red-750 uppercase tracking-wider cursor-pointer"
+                                  >
+                                    Déconnexion
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'preferences' && (
+                    <div className="space-y-8">
+                      <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-white/5 shadow-sm space-y-8 animate-fade-in">
+                        
+                        {/* Section Header */}
+                        <div className="pb-6 border-b border-slate-100 dark:border-white/5">
+                          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Préférences de l'Application</h2>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">Personnalisez votre expérience d'achat et de vente sur WapiBei.</p>
+                        </div>
+
+                        {/* Theme Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Thème d'affichage</h3>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Choisissez le style visuel de l'interface.</p>
+                          <div className="grid grid-cols-3 gap-3">
+                            {['Clair', 'Sombre', 'Système'].map((theme, idx) => (
+                              <button 
+                                key={theme}
+                                type="button"
+                                onClick={() => toast.success(`Thème ${theme} appliqué !`)}
+                                className={`py-3.5 rounded-2xl text-xs font-bold transition-all border cursor-pointer ${
+                                  idx === 2
+                                    ? "bg-[#080B1A] text-white border-transparent shadow-sm dark:bg-white dark:text-slate-950"
+                                    : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                                }`}
+                              >
+                                {theme}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Language Section */}
+                        <div className="space-y-4 border-t border-slate-100 dark:border-white/5 pt-6">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Langue de l'interface</h3>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Configurez la langue dans laquelle s'affichent les textes.</p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {[
+                              { label: 'Français', desc: 'Langue par défaut' },
+                              { label: 'Kiswahili', desc: 'Langue régionale' },
+                              { label: 'English', desc: 'Langue internationale' }
+                            ].map((lang, idx) => (
+                              <button 
+                                key={lang.label}
+                                type="button"
+                                onClick={() => toast.success(`Langue configurée sur ${lang.label}`)}
+                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${
+                                  idx === 0
+                                    ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
+                                    : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                                }`}
+                              >
+                                <p className="text-xs font-bold text-slate-900 dark:text-white">{lang.label}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{lang.desc}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Currency Section */}
+                        <div className="space-y-4 border-t border-slate-100 dark:border-white/5 pt-6">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Devise de facturation</h3>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Choisissez la monnaie dans laquelle s'affichent les prix.</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                              { label: 'USD ($)', desc: 'Dollar Américain (Taux actuel)' },
+                              { label: 'CDF (FC)', desc: 'Franc Congolais (Taux réel)' }
+                            ].map((currency, idx) => (
+                              <button 
+                                key={currency.label}
+                                type="button"
+                                onClick={() => toast.success(`Devise de facturation : ${currency.label}`)}
+                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${
+                                  idx === 0
+                                    ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
+                                    : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
+                                }`}
+                              >
+                                <p className="text-xs font-bold text-slate-900 dark:text-white">{currency.label}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{currency.desc}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Save Button */}
+                        <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-white/5">
+                          <button 
+                            type="button"
+                            onClick={() => toast.success('Vos préférences ont été enregistrées !')}
+                            className="px-6 py-3 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+                          >
+                            Enregistrer les préférences
+                          </button>
+                        </div>
+
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'favorites' && (
+                    <div className="space-y-8 animate-fade-in">
+                      <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-white/5 shadow-sm space-y-8">
+                        {/* Section Header */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-slate-100 dark:border-white/5">
+                          <div>
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Mes Favoris</h2>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">Gérez vos articles coup de cœur enregistrés pour plus tard.</p>
+                          </div>
+                          {wishlist.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleClearAllFavorites}
+                              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-[11px] font-bold transition-all cursor-pointer"
+                            >
+                              <Trash2 size={13} /> Vider les favoris
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Favorites Grid */}
+                        {wishlist.length > 0 ? (
+                          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                            {wishlist.map((product) => (
+                              <ProductCard
+                                key={product.id}
+                                product={product}
+                                onQuickView={(p) => {
+                                  setSelectedProduct(p);
+                                  setIsQuickViewOpen(true);
+                                }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          /* Empty State */
+                          <div className="p-12 sm:p-16 flex flex-col items-center justify-center text-center">
+                            <div className="size-20 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center mb-6 text-red-500">
+                              <Heart size={36} fill="currentColor" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                              Votre liste de favoris est vide
+                            </h3>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold max-w-sm mx-auto mb-8">
+                              Parcourez nos catégories et cliquez sur l'icône cœur pour sauvegarder les articles qui vous plaisent le plus.
+                            </p>
+                            <Link
+                              href="/"
+                              className="bg-[#E67E22] text-white px-8 py-3.5 rounded-xl font-bold text-xs hover:bg-[#cf6d18] transition-all shadow-md shadow-[#E67E22]/15 hover:scale-[1.02] active:scale-95 cursor-pointer"
+                            >
+                              Découvrir des produits
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab !== 'notifications' && activeTab !== 'profile' && activeTab !== 'orders' && activeTab !== 'security' && activeTab !== 'preferences' && activeTab !== 'favorites' && (
                     <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2.5rem] p-12 sm:p-24 text-center border-y sm:border border-gray-100 sm:border-white dark:border-white/5 shadow-xl flex flex-col items-center justify-center space-y-10 min-h-[50vh] sm:min-h-0">
                       <div className="size-24 sm:size-32 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] flex items-center justify-center text-gray-200">
                         <ShoppingBag size={48} className="size-10 sm:size-12" />

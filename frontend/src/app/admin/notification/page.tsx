@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAdminGuard } from '@/lib/use-admin-guard';
-import api from '@/lib/api';
+import { api } from '@/lib/axios';
 import { 
   Bell, 
   CheckCircle2, 

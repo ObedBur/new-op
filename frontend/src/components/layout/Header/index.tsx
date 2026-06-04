@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "./components/SearchBar";
-import { ProfileDropdown } from "./components/ProfileDropdown";
 import { MobileSidebar } from "./components/MobileSidebar";
 import { DesktopHeader } from "./components/DesktopHeader";
 import { useCart } from "@/features/cart/context/CartContext";
@@ -36,7 +35,6 @@ const HeaderOverlays = ({
   logout: () => Promise<void>;
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 
   const isActive = (path: string) => pathname === path;
@@ -109,18 +107,6 @@ const HeaderOverlays = ({
                 search
               </span>
             </button>
-
-            {pathname === "/settings" && (
-              <div className="hidden md:flex">
-                <ProfileDropdown
-                  isAuthenticated={isAuthenticated}
-                  user={user}
-                  onLogout={logout}
-                  isProfileOpen={isProfileOpen}
-                  setIsProfileOpen={setIsProfileOpen}
-                />
-              </div>
-            )}
 
             {/* Burger Menu Button */}
             <button

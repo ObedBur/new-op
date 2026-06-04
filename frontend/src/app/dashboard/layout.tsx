@@ -1,27 +1,11 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { VendorSidebar } from '@/components/layout/VendorSidebar';
+import React from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-
   return (
-    <main className="flex-1 pt-10">
-      <section className="container mx-auto max-w-7xl px-4 py-6 md:py-10 lg:py-10">
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          {/* Navigation - Handled globally by VendorSidebar */}
-          <Suspense fallback={null}>
-            <VendorSidebar user={user} />
-          </Suspense>
-
-          {/* Page Content */}
-          <div className="flex-1 min-w-0">
-            {children}
-          </div>
-        </div>
-      </section>
+    <main className="flex-grow p-4 md:p-8 lg:p-10">
+      {children}
     </main>
   );
 }

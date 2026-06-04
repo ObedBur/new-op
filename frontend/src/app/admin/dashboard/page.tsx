@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import { api } from '@/lib/axios';
 import Link from 'next/link';
 import { useAdminGuard } from "@/lib/use-admin-guard";
 import {

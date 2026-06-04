@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { User } from '@/types/auth';
+import { ChevronDown } from 'lucide-react';
 
 interface ProfileDropdownProps {
   isAuthenticated: boolean;
@@ -41,22 +42,22 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     const items = [
       { label: 'Accueil', href: '/' },
       { label: 'Mon Compte', href: '/settings' },
-      { label: 'Mes Commandes', href: '/dashboard/orders' },
     ];
 
     if (user?.role === 'VENDOR') {
       // Links specific to Sellers
       items.push(
+        { label: 'Mes Ventes', href: '/dashboard/orders' },
         { label: 'Ma Boutique', href: '/dashboard/store' },
         { label: 'Mes Produits', href: '/dashboard/products' }
       );
     } else {
       // Links specific to Customers
       items.push(
-        { label: 'Mes Favoris', href: '/dashboard/wishlist' }
+        { label: 'Mes Commandes', href: '/settings?tab=orders' },
+        { label: 'Mes Favoris', href: '/settings?tab=favorites' }
       );
     }
-
     return items;
   };
 
@@ -69,7 +70,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="group p-0.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
         >
-          <div className="size-9 rounded-full bg-gradient-to-tr from-[#4f46e5] to-[#818cf8] flex items-center justify-center text-white text-xs font-black border-2 border-white dark:border-white/10 shadow-sm group-hover:shadow-md transition-all duration-300 overflow-hidden relative">
+          <div className="size-9 rounded-full bg-[#5E5CE6] flex items-center justify-center text-white text-[11px] font-black shadow-sm group-hover:shadow-md transition-all duration-300 overflow-hidden relative select-none">
             {user?.avatarUrl ? (
               <Image
                 src={user.avatarUrl}
@@ -81,17 +82,15 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               getInitials(user?.fullName || '')
             )}
           </div>
-          <div className="hidden xl:flex flex-col items-start pr-2">
-            <span className="text-[10px] font-black text-deep-blue dark:text-white uppercase tracking-wider leading-tight">
-              {user?.fullName?.split(' ')[0]}
+          <div className="hidden sm:flex flex-col items-start pr-1">
+            <span className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-wider leading-tight">
+              {user?.fullName?.split(' ')[0] || 'OBED'}
             </span>
-            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tight">
-              {user?.role === 'VENDOR' ? 'Vendeur' : 'Client'}
+            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tight mt-0.5">
+              {user?.role === 'VENDOR' ? 'VENDEUR' : 'CLIENT'}
             </span>
           </div>
-          <span className={`material-symbols-outlined text-[16px] text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`}>
-            expand_more
-          </span>
+          <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
         </button>
       ) : (
         <Link 
@@ -104,31 +103,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       )}
 
       {isAuthenticated && isProfileOpen && (
-        <div className="absolute right-0 mt-4 w-64 bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-white/5 overflow-hidden z-70 animate-in fade-in zoom-in-95 duration-200">
-          {/* Header */}
-          <div className="p-5 bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent border-b border-gray-100 dark:border-white/5">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-xl bg-[#4f46e5] flex items-center justify-center text-white text-sm font-black shadow-lg shadow-blue-500/20 overflow-hidden relative">
-                {user?.avatarUrl ? (
-                  <Image
-                    src={user.avatarUrl}
-                    alt={user.fullName}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  getInitials(user?.fullName || '')
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-black text-deep-blue dark:text-white truncate uppercase tracking-tight">
-                  {user?.fullName}
-                </p>
-                <p className="text-[10px] text-gray-400 truncate font-medium">{user?.email}</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="absolute right-[-12px] xl:right-[-20px] mt-4 w-64 bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-gray-100 dark:border-white/5 overflow-hidden z-[200] animate-in fade-in zoom-in-95 duration-200">
           {/* Body */}
           <div className="p-2.5">
             <div className="mb-1 px-2.5">

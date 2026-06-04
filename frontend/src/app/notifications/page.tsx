@@ -16,8 +16,38 @@ import {
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+const formatDistanceToNow = (date: Date): string => {
+  try {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) {
+      return "à l'instant";
+    }
+    
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return `il y a ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
+    }
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `il y a ${diffInHours} heure${diffInHours > 1 ? 's' : ''}`;
+    }
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+      return `il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`;
+    }
+    
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short'
+    });
+  } catch {
+    return "Récemment";
+  }
+};
 
 type FilterType = 'all' | 'orders' | 'promo' | 'system';
 
@@ -143,7 +173,7 @@ export default function NotificationsPage() {
                           {n.title}
                         </h3>
                         <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest whitespace-nowrap ml-4">
-                          {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: fr })}
+                          {formatDistanceToNow(new Date(n.createdAt))}
                         </span>
                       </div>
                       <p className={`text-xs md:text-sm font-medium leading-relaxed max-w-2xl ${

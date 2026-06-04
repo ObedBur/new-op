@@ -24,20 +24,20 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
     if (slides.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 5000); // 5 seconds for a more relaxed feel
+    }, 5000);
     return () => clearInterval(timer);
   }, [slides.length]);
 
   if (!slides || slides.length === 0) {
     return (
-      <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+      <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
         <p className="text-gray-400 font-medium">Initialisation du visuel...</p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 group bg-black">
+    <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 group bg-black">
       <AnimatePresence mode="wait">
         <motion.div
           key={slides[currentIndex].id}
@@ -158,7 +158,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
         <div className="flex flex-col gap-6 items-center lg:items-start text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
           <div className="space-y-4">
             <h1 className="text-2xl md:text-5xl lg:text-7xl font-black leading-[1.1] tracking-tighter text-deep-blue dark:text-white">
-              <span className="text-[#E67E22]">Les meilleures produits des</span> <br />
+              <span className="text-[#E67E22]">Les meilleurs produits</span> <br />
               <span className="relative inline-block">
                 {/* Conteneur pour l'effet d'écriture et le changement de couleurs fluide */}
                 <motion.span
@@ -173,7 +173,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
                   }}
                   className="relative z-10"
                 >
-                  {"africaines".split("").map((char, index) => (
+                  {"africains".split("").map((char, index) => (
                     <motion.span
                       key={index}
                       variants={{

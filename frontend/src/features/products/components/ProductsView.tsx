@@ -43,17 +43,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
   return (
     <>
-      <section className="py-6 container mx-auto max-w-7xl px-3 sm:px-4 animate-in fade-in duration-500">
-        <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-                <span className="h-1 w-8 bg-[#E67E22] rounded-full"></span>
-                <span className="bg-[#E67E22]/10 text-[#E67E22] border border-[#E67E22]/20 text-xs font-black uppercase px-2.5 py-0.5 rounded-md tracking-widest">Marketplace Afrique</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight leading-none">
-              {searchTerm ? `Résultats pour "${searchTerm}"` : "Nos Articles"}
-            </h2>
-        </div>
-      </section>
 
       {/* CATÉGORIES EN FICHES */}
       <CategoriesGrid categories={categories} />

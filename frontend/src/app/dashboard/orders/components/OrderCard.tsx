@@ -38,12 +38,8 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
             {/* HEADER */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="size-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400 border border-gray-100 dark:border-white/5 overflow-hidden relative">
-                        {productImage ? (
-                            <img src={productImage} alt={productName} className="size-full object-cover shadow-inner" />
-                        ) : (
-                            <Package size={18} />
-                        )}
+                    <div className="size-10 flex items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-500/10 text-[#E67E22] dark:text-orange-400 border border-orange-100 dark:border-orange-500/20 overflow-hidden relative shrink-0">
+                        <Package size={18} />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
@@ -116,7 +112,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                     <>
                         <button
                             onClick={() => onStatusChange && onStatusChange('SHIPPED')}
-                            className="col-span-1 py-1 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-[#E67E22] dark:hover:bg-[#E67E22] dark:hover:text-white transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5"
+                            className="col-span-1 py-3 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-[#E67E22] dark:hover:bg-[#E67E22] dark:hover:text-white transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5"
                         >
                             <Truck size={14} />
                             <span>Expédier</span>

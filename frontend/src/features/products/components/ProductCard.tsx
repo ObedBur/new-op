@@ -7,6 +7,8 @@ import { Product } from '../types';
 import { ProductMapper } from '../services/product.mapper';
 import { useCart } from '@/features/cart/context/CartContext';
 import { formatDate } from '@/utils/date';
+import { useWishlist } from '@/hooks/useWishlist';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -39,7 +41,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { amount, currency } = ProductMapper.parsePrice(product.displayPrice || product.price);
   const { addItem } = useCart();
+  const { toggleFavorite, isFavorited } = useWishlist();
+  
+  const isFav = isFavorited(product.id);
   const categoryIcon = getCategoryIcon(product.categoryId);
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const action = toggleFavorite(product);
+    if (action === 'added') {
+      toast.success(`${product.name} ajouté aux favoris !`, {
+        icon: '⭐️'
+      });
+    } else if (action === 'removed') {
+      toast.success(`${product.name} retiré des favoris.`);
+    }
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -97,10 +114,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
 
-        {/* Badge Vérifié — glassmorphism */}
-        {product.user?.isVerified && (
-          <div className="absolute top-2 right-2 z-10">
-            <div className="glass-badge bg-white/20 size-7 rounded-full flex items-center justify-center">
+        {/* Top-Right Badge Stack (Verified + Favorite) */}
+        <div className="absolute top-2 right-2 z-30 flex flex-col gap-2">
+          {product.user?.isVerified && (
+            <div className="glass-badge bg-white/25 size-8 rounded-full flex items-center justify-center shadow-sm">
               <span
                 className="material-symbols-outlined text-[15px] text-white"
                 style={{ fontVariationSettings: "'FILL' 1" }}
@@ -108,8 +125,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 verified
               </span>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Interactive Favorite Button */}
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            className={`glass-badge size-8 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer ${
+              isFav 
+                ? 'bg-orange-500 text-white' 
+                : 'bg-black/40 hover:bg-black/60 text-white'
+            }`}
+          >
+            <span
+              className="material-symbols-outlined text-[16px]"
+              style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+            >
+              favorite
+            </span>
+          </button>
+        </div>
 
         {/* Badge Localisation — glassmorphism */}
         <div className="absolute bottom-2 left-2 z-10 max-w-[90%]">

@@ -88,7 +88,7 @@ export default function OrdersPage() {
                                 onClick={() => setActiveTab(tab)}
                                 className={`shrink-0 px-5 py-2.5 sm:py-3 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab
                                     ? 'bg-[#E67E22] text-white shadow-xl shadow-orange-500/30'
-                                    : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
+                                    : 'text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                             >
                                 {tab}

@@ -155,6 +155,7 @@ export class OrdersService {
         title: 'Commande validée',
         message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été reçue.`,
         type: NotificationType.ORDER_CREATED,
+        metadata: { url: '/settings?tab=orders', orderIds: orders.map((o: any) => o.id) },
       });
     }
 
@@ -210,7 +211,12 @@ export class OrdersService {
         title: 'Nouvelle vente',
         message: `Vous avez reçu une commande de ${customerName} pour ${vendorOrders.length} article(s).`,
         type: NotificationType.ORDER_CREATED,
-        metadata: { orderIds: vendorOrders.map(o => o.id), productImage: firstImage },
+        metadata: {
+          url: '/dashboard/orders',
+          orderIds: vendorOrders.map(o => o.id),
+          productImage: firstImage,
+          customerName,
+        },
       });
 
       this.notificationsService.sendPushToUser(vendorId, {
@@ -244,6 +250,11 @@ export class OrdersService {
         title: 'Nouvelle commande plateforme',
         message: `${customerName} a commandé ${count} article(s) (${total.toLocaleString()} $).`,
         type: NotificationType.ORDER_CREATED,
+        metadata: {
+          url: '/admin/notification',
+          orderCount: count,
+          customerName,
+        },
       });
 
       if (admin.phone) {
@@ -388,7 +399,10 @@ export class OrdersService {
         title: config.title,
         message: config.msg,
         type: NotificationType.ORDER_CONFIRMED,
-        metadata: { orderId: order.id },
+        metadata: {
+          url: '/settings?tab=orders',
+          orderId: order.id,
+        },
       });
     }
 

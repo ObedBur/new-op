@@ -12,10 +12,11 @@ import { ProductsView } from '@/features/products/components/ProductsView';
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; categoryId?: string };
+  searchParams: Promise<{ search?: string; categoryId?: string }>;
 }) {
-  const search = searchParams.search;
-  const categoryId = searchParams.categoryId ? parseInt(searchParams.categoryId) : undefined;
+  const resolvedSearchParams = await searchParams;
+  const search = resolvedSearchParams.search;
+  const categoryId = resolvedSearchParams.categoryId ? parseInt(resolvedSearchParams.categoryId) : undefined;
 
   // Parallel fetching in Server Component
   const [productsRes, categoriesRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] = await Promise.all([
