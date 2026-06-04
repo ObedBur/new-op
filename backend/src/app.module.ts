@@ -17,7 +17,6 @@ import { OrdersModule } from './orders/orders.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationsModule } from './common/notifications/notifications.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ChatsModule } from './module/chats/chats.module';
 
 @Module({
   imports: [
@@ -49,7 +48,6 @@ import { ChatsModule } from './module/chats/chats.module';
     SellersModule,
     ContentModule,
     OrdersModule,
-    ChatsModule,
   ],
   controllers: [AppController],
   providers: [

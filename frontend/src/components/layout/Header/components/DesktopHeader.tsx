@@ -22,6 +22,19 @@ interface DesktopHeaderProps {
   totalItems: number;
 }
 
+/**
+ * Composant DesktopHeader
+ * 
+ * Gère l'affichage de l'en-tête principal pour les écrans de bureau (lg+).
+ * Il s'adapte dynamiquement au contexte : sur les pages d'authentification, 
+ * il masque les actions (recherche, panier) et recentre le logo pour minimiser les distractions.
+ * 
+ * @param navLinks - Liste des liens de navigation (Accueil, Produits, etc.)
+ * @param isAuthenticated - État de connexion de l'utilisateur
+ * @param user - Données de l'utilisateur connecté
+ * @param logout - Fonction de déconnexion
+ * @param totalItems - Nombre total d'articles dans le panier (pour le badge)
+ */
 export const DesktopHeader = ({
   navLinks,
   isAuthenticated,
@@ -42,6 +55,7 @@ export const DesktopHeader = ({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // Ferme le menu déroulant des notifications si l'utilisateur clique en dehors de celui-ci
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
@@ -53,9 +67,9 @@ export const DesktopHeader = ({
   }, []);
 
   return (
-    <div className="hidden lg:flex w-full h-20 xl:h-24 items-center justify-between px-4 xl:px-10 relative bg-transparent z-50">
+    <div className="hidden lg:flex w-full h-20 xl:h-24 justify-center px-4 xl:px-10 relative bg-transparent z-50">
+      <div className="w-full max-w-7xl flex items-center justify-between relative">
       
-      {/* --- LEFT ISLAND (Navigation or Home Button) --- */}
       <div 
         className="
           flex items-center gap-1
@@ -85,10 +99,10 @@ export const DesktopHeader = ({
                 key={link.id}
                 href={link.id}
                 className={`
-                  px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs font-bold tracking-widest[0.1em] uppercase transition-all duration-300
+                  px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs tracking-widest[0.1em] uppercase transition-all duration-300
                   ${isActive(link.id) 
-                    ? 'bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25' 
-                    : 'text-black/50 dark:text-white/50 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20'}
+                    ? 'font-bold bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25' 
+                    : "font-medium text-gray-800 dark:text-gray-200 hover:text-[#E67E22] relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-[#E67E22] hover:after:w-1/2 after:transition-all after:duration-300"}
                 `}
               >
                 {link.label}
@@ -98,7 +112,6 @@ export const DesktopHeader = ({
         )}
       </div>
 
-      {/* --- CENTER BRAND (Floating Logo) --- */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none group z-10">
         <Link href="/" className="flex flex-col items-center pointer-events-auto">
           <h1 className="text-2xl xl:text-4xl font-black tracking-[0.2em] xl:tracking-[0.3em] drop-shadow-md group-hover:scale-105 transition-transform duration-500 uppercase">
@@ -108,7 +121,6 @@ export const DesktopHeader = ({
         </Link>
       </div>
 
-      {/* --- RIGHT ISLAND (Actions - Hidden on Auth Pages) --- */}
       {!isAuthPage && (
         <div 
           className="
@@ -123,7 +135,6 @@ export const DesktopHeader = ({
             hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]
           "
         >
-          {/* Search */}
           <div className="relative flex items-center">
               {isSearchOpen ? (
                   <form 
@@ -152,7 +163,7 @@ export const DesktopHeader = ({
               ) : (
                   <button 
                       onClick={() => setIsSearchOpen(true)}
-                      className="size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+                      className="size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
                       title="Rechercher"
                   >
                       <span className="material-symbols-outlined text-[22px]">search</span>
@@ -160,14 +171,12 @@ export const DesktopHeader = ({
               )}
           </div>
 
-          {/* Separator */}
           <div className="w-px h-6 bg-black/10 dark:bg-white/10"></div>
 
-          {/* Notifications */}
           <div className="relative group" ref={notifRef}>
             <button
               onClick={() => setIsNotifOpen(prev => !prev)}
-              className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+              className="relative size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
             >
                 <span className="material-symbols-outlined text-[22px]">notifications</span>
                 {unreadCount > 0 && (
@@ -177,7 +186,6 @@ export const DesktopHeader = ({
                 )}
             </button>
 
-            {/* Dropdown Notifications Container */}
             <div className={`absolute right-[-10px] top-[100%] pt-4 w-80 transition-all duration-300 transform origin-top-right z-50 group-hover:opacity-100 group-hover:visible group-hover:scale-100 ${isNotifOpen ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-95'}`}>
               <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border border-gray-100 dark:border-white/5 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[400px]">
                 <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent shrink-0">
@@ -240,10 +248,9 @@ export const DesktopHeader = ({
             </div>
           </div>
 
-          {/* Cart */}
           <Link 
               href="/cart"
-              className="relative size-10 flex items-center justify-center text-black/60 dark:text-white/60 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 rounded-full transition-all duration-300"
+              className="relative size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
           >
               <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
               {totalItems > 0 && (
@@ -253,7 +260,6 @@ export const DesktopHeader = ({
               )}
           </Link>
           
-          {/* Profile */}
           <div className="ml-1">
             <ProfileDropdown 
                 isAuthenticated={isAuthenticated}
@@ -266,8 +272,9 @@ export const DesktopHeader = ({
         </div>
       )}
 
-      {/* Placeholder to keep alignment if right side is hidden on auth pages */}
       {isAuthPage && <div className="w-[120px] invisible"></div>}
+      
+      </div>
     </div>
   );
 };

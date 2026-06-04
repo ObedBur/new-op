@@ -48,7 +48,6 @@ const HeaderOverlays = ({
 
   return (
     <>
-      {/* --- NEW DESKTOP HEADER (Visible lg+) --- */}
       <DesktopHeader
         navLinks={navLinks}
         isAuthenticated={isAuthenticated}
@@ -57,11 +56,9 @@ const HeaderOverlays = ({
         totalItems={totalItems}
       />
 
-      {/* --- MOBILE/TABLET HEADER (Visible < lg) --- */}
       <div
         className={`w-full px-4 md:px-6 h-16 md:h-20 flex lg:hidden items-center ${isAuthPage ? "justify-center" : "justify-between"} gap-2 relative`}
       >
-        {/* --- AUTH PAGE: HOME BUTTON (Left) --- */}
         {isAuthPage && (
           <Link
             href="/"
@@ -74,7 +71,6 @@ const HeaderOverlays = ({
           </Link>
         )}
 
-        {/* --- LOGO SECTION --- */}
         {!isSearchExpanded && (
           <Link
             href="/"
@@ -87,7 +83,6 @@ const HeaderOverlays = ({
           </Link>
         )}
 
-        {/* --- SEARCH BAR SECTION (Hidden on Auth Pages) --- */}
         {!isAuthPage && (
           <SearchBar
             isSearchExpanded={isSearchExpanded}
@@ -95,7 +90,6 @@ const HeaderOverlays = ({
           />
         )}
 
-        {/* --- ACTION GROUP (Hidden on Auth Pages) --- */}
         {!isSearchExpanded && !isAuthPage && (
           <div className="flex items-center gap-1 md:gap-3 shrink-0 animate-in fade-in duration-300">
             <button
@@ -108,7 +102,6 @@ const HeaderOverlays = ({
               </span>
             </button>
 
-            {/* Burger Menu Button */}
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
@@ -123,7 +116,6 @@ const HeaderOverlays = ({
         )}
       </div>
 
-      {/* --- SIDEBAR --- */}
       <MobileSidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -142,7 +134,7 @@ export const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/30 dark:bg-[#111]/30 backdrop-blur-md border-b border-gray-100/50 dark:border-white/5">
+    <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-lg border-b border-gray-100/50 dark:border-white/5">
       <HeaderOverlays
         key={pathname}
         pathname={pathname}
