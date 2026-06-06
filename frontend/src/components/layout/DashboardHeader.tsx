@@ -15,7 +15,7 @@ export const DashboardHeader = () => {
             <div className="container mx-auto max-w-7xl h-full px-6 md:px-12 lg:px-16 flex items-center justify-between">
                 
                 {/* Left Side: Logo & Home Link (shown on mobile, hidden on desktop sidebar layout) */}
-                <div className="flex items-center gap-6 lg:hidden">
+                <div className="flex items-center gap-6 md:hidden">
                     <Link
                         href="/"
                         className="flex items-center gap-2.5 cursor-pointer shrink-0 group"
@@ -46,26 +46,29 @@ export const DashboardHeader = () => {
                 <div className="flex items-center gap-4 sm:gap-6">
                     
                     {/* Chat Icon with notification dot */}
-                    <button className="relative p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
+                    <button className="hidden lg:block relative p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
                         <Mail size={18} />
                         <span className="absolute top-1 right-1 size-1.5 bg-[#FF4D4D] rounded-full border border-white dark:border-[#111]" />
                     </button>
 
                     {/* Notification Bell */}
-                    <button className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
+                    <button className="hidden lg:block p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
                         <Bell size={18} />
                     </button>
 
                     {/* Vertical Divider */}
-                    <div className="h-5 w-px bg-slate-200 dark:bg-white/10 hidden sm:block" />
+                    <div className="h-5 w-px bg-slate-200 dark:bg-white/10 hidden lg:block" />
 
-                    <ProfileDropdown
-                        isAuthenticated={isAuthenticated}
-                        user={user}
-                        onLogout={logout}
-                        isProfileOpen={isProfileOpen}
-                        setIsProfileOpen={setIsProfileOpen}
-                    />
+                    {/* Vertical Divider */}
+                    <div className="hidden lg:block">
+                        <ProfileDropdown
+                            isAuthenticated={isAuthenticated}
+                            user={user}
+                            onLogout={logout}
+                            isProfileOpen={isProfileOpen}
+                            setIsProfileOpen={setIsProfileOpen}
+                        />
+                    </div>
                 </div>
 
             </div>

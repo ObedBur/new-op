@@ -102,7 +102,7 @@ export const DesktopHeader = ({
                   px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs tracking-widest[0.1em] uppercase transition-all duration-300
                   ${isActive(link.id) 
                     ? 'font-bold bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25' 
-                    : "font-medium text-gray-800 dark:text-gray-200 hover:text-[#E67E22] relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-[#E67E22] hover:after:w-1/2 after:transition-all after:duration-300"}
+                    : `font-medium text-gray-800 dark:text-gray-200 hover:text-[#E67E22] relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-[#E67E22] hover:after:w-1/2 after:transition-all after:duration-300`}
                 `}
               >
                 {link.label}

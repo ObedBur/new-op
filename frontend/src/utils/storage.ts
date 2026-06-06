@@ -1,4 +1,4 @@
-const REFRESH_TOKEN_KEY = 'wapibei_refresh_token';
+const REFRESH_TOKEN_KEY = 'wapibei_refresh_token'; // Convention du projet : préfixe wapibei_
 
 type Theme = 'light' | 'dark' | 'emerald' | 'ocean';
 type Language = 'fr' | 'en' | 'sw';

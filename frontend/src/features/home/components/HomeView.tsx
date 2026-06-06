@@ -68,33 +68,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const showProductEmptyState = productsLoaded && !hasAnyProductSection;
 
   const ProductStripSkeleton = ({ title, subtitle }: { title: string; subtitle: string }) => (
-    <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-      <div className="w-full mb-8">
-        <div className="container mx-auto px-4 flex items-end justify-between mb-4">
-          <div className="space-y-2">
-            <div className="h-6 w-44 rounded bg-white/70 animate-pulse" />
-            <div className="h-3 w-52 rounded bg-white/60 animate-pulse" />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            {title}
-          </span>
+    <div className="w-full">
+      <div className="flex items-end justify-between mb-4">
+        <div className="space-y-2">
+          <div className="h-6 w-44 rounded bg-slate-200 animate-pulse" />
+          <div className="h-3 w-52 rounded bg-slate-100 animate-pulse" />
         </div>
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 md:gap-4">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={`${title}-${index}`}
-                className="min-h-[240px] rounded-2xl border border-white/50 bg-white/70 p-4 shadow-sm"
-              >
-                <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
-                <div className="mt-4 h-4 w-3/4 rounded bg-slate-100 animate-pulse" />
-                <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 animate-pulse" />
-                <div className="mt-6 h-8 w-full rounded-xl bg-slate-100 animate-pulse" />
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-xs font-medium text-slate-400">{subtitle}</p>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          {title}
+        </span>
+      </div>
+      <div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 md:gap-4">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={`${title}-${index}`}
+              className="min-h-[240px] rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+            >
+              <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
+              <div className="mt-4 h-4 w-3/4 rounded bg-slate-100 animate-pulse" />
+              <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 animate-pulse" />
+              <div className="mt-6 h-8 w-full rounded-xl bg-slate-100 animate-pulse" />
+            </div>
+          ))}
         </div>
+        <p className="mt-4 text-xs font-medium text-slate-400">{subtitle}</p>
       </div>
     </div>
   );
@@ -113,14 +111,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/*  Offres du moment (Promotions) */}
           {deals.length > 0 && (
-            <div className="bg-[#DDB88C]/30 rounded-[2rem] p-6 md:p-10 shadow-sm border border-[#DDB88C]/10">
-              <FeaturedProductStrip
-                title="Offres du moment"
-                subtitle="Promotions actives — prix réduits de plus de 15%"
-                products={deals}
-                onQuickView={openQuickView}
-              />
-            </div>
+            <FeaturedProductStrip
+              title="Offres du moment"
+              subtitle="Promotions actives — prix réduits de plus de 15%"
+              products={deals}
+              onQuickView={openQuickView}
+            />
           )}
 
           {showProductFallback && deals.length === 0 && (
@@ -132,38 +128,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/*  Nouveautés (< 7 jours) */}
           {newArrivals.length > 0 && (
-            <div className="bg-[#DDB88C]/20 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="Nouveautés"
-                subtitle="Publiés ces 7 derniers jours"
-                products={newArrivals}
-                onQuickView={openQuickView}
-              />
-            </div>
+            <FeaturedProductStrip
+              title="Nouveautés"
+              subtitle="Publiés ces 7 derniers jours"
+              products={newArrivals}
+              onQuickView={openQuickView}
+            />
           )}
 
           {/*  Recommandations (basé sur historique) */}
           {recommendations.length > 0 && (
-            <div className="bg-[#DDB88C]/15 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="Recommandations"
-                subtitle="Basé sur vos centres d'intérêt"
-                products={recommendations}
-                onQuickView={openQuickView}
-              />
-            </div>
+            <FeaturedProductStrip
+              title="Recommandations"
+              subtitle="Basé sur vos centres d'intérêt"
+              products={recommendations}
+              onQuickView={openQuickView}
+            />
           )}
 
           {/*  Meilleures ventes */}
           {bestSellers.length > 0 && (
-            <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="Meilleures ventes"
-                subtitle="Les articles les plus commandés"
-                products={bestSellers}
-                onQuickView={openQuickView}
-              />
-            </div>
+            <FeaturedProductStrip
+              title="Meilleures ventes"
+              subtitle="Les articles les plus commandés"
+              products={bestSellers}
+              onQuickView={openQuickView}
+            />
           )}
 
           {showProductEmptyState && (

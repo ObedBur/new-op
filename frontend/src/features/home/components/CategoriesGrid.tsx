@@ -1,20 +1,30 @@
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
 import { Category } from '@/features/products/types';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: boolean }> = ({ categories, isLoading }) => {
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'popular'>('all');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Filtrage des catégories (Simulé pour 'popular' en prenant les premières avec count > 0)
+  // Filtrage des catégories (Simulé pour 'popular')
   const displayedCategories = React.useMemo(() => {
     if (activeFilter === 'all') return categories;
     return categories
       .filter(c => (c.productCount || 0) > 0)
       .sort((a, b) => (b.productCount || 0) - (a.productCount || 0))
-      .slice(0, 4);
+      .slice(0, 10);
   }, [categories, activeFilter]);
+
+  // Fonction de défilement pour les contrôles Desktop
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = direction === 'left' ? -350 : 350;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 
   if (isLoading) {
     return <div className="text-center py-10 text-slate-500 animate-pulse">Chargement des secteurs...</div>;
@@ -25,31 +35,35 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
   }
 
   return (
-    <section className="py-8 px-4 bg-[#F8F9FA]">
-      <div className="container mx-auto max-w-7xl">
+    <section className="py-8 px-4 bg-[#F8F9FA] overflow-hidden">
+      <div className="container mx-auto relative">
 
-        {/* HEADER : Titre et Filtres avec un look plus "App" sur mobile */}
+        {/* HEADER : Titre, Boutons et Filtres */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
-              Explorer par <span className="text-[#E67E22]">Secteur</span>
-            </h2>
-            <p className="text-slate-500 text-[10px] md:text-sm font-medium">Trouvez les meilleures offres par catégorie d'articles</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-4">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                Explorer par <span className="text-[#E67E22]">Secteur</span>
+              </h2>
+            </div>
+            <p className="text-slate-500 text-[10px] md:text-sm font-medium">
+              Trouvez les meilleures offres par catégorie d'articles
+            </p>
           </div>
 
-          <div className="flex bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 w-full max-w-[280px] md:w-auto h-fit shadow-inner">
+          <div className="flex bg-slate-100/80 p-1.5 rounded-full border border-slate-200/50 w-full max-w-[280px] md:w-auto h-fit shadow-inner">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${activeFilter === 'all'
+              className={`flex-1 md:flex-none px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 ${activeFilter === 'all'
                   ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-100'
                   : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
-              Tous les Secteurs
+              Tous
             </button>
             <button
               onClick={() => setActiveFilter('popular')}
-              className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 ${activeFilter === 'popular'
+              className={`flex-1 md:flex-none px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 ${activeFilter === 'popular'
                   ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-100'
                   : 'text-slate-500 hover:text-slate-700'
                 }`}
@@ -59,27 +73,58 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
           </div>
         </div>
 
-        {/* GRILLE DYNAMIQUE : Scroll horizontal sur mobile/tablette, Grille sur Desktop */}
-        <div className="flex lg:grid lg:grid-cols-4 flex-nowrap lg:flex-wrap overflow-x-auto lg:overflow-x-visible pb-6 lg:pb-0 gap-3 scrollbar-hide snap-x snap-mandatory">
-          {displayedCategories.map((cat) => {
-            return (
+        {/* CARROUSEL HORIZONTAL FLUIDE */}
+        <div className="relative -mx-4 px-4 md:mx-0 md:px-0 group flex items-center">
+          
+          {/* Bouton Gauche */}
+          <button 
+            onClick={() => scroll('left')}
+            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            aria-label="Défiler vers la gauche"
+          >
+            <ChevronLeft size={24} strokeWidth={2} />
+          </button>
+
+          <div 
+            ref={scrollContainerRef}
+            className="flex flex-nowrap overflow-x-auto scrollbar-hide scroll-smooth gap-4 pb-6 pt-2 snap-x snap-mandatory w-full"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} /* Fallback for older browsers */
+          >
+            {displayedCategories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/products?category=${cat.id}`}
-                className="group min-w-[190px] sm:min-w-[220px] lg:min-w-0 bg-white rounded-xl p-3 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-3 animate-in fade-in zoom-in-95 duration-300 snap-start"
+                className="group shrink-0 w-[180px] md:w-[200px] bg-white rounded-2xl p-4 md:p-5 border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between snap-start cursor-pointer"
               >
-                {/* Texte à droite, compact */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-slate-800 truncate leading-none mb-1.5">{cat.name}</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-100">
-                      {cat.productCount || 0} Art.
-                    </span>
-                  </div>
+                <div className="flex flex-col min-w-0 pr-3">
+                  <h3 className="text-sm md:text-base font-bold text-slate-800 truncate leading-tight group-hover:text-[#E67E22] transition-colors">
+                    {cat.name}
+                  </h3>
+                  <span className="text-xs font-medium text-slate-400 mt-1">
+                    {cat.productCount || 0} articles
+                  </span>
                 </div>
+                
+                {/* Icône vectorielle pure à droite sans fond gris */}
+                <ChevronRight size={20} className="text-slate-300 group-hover:text-[#E67E22] group-hover:translate-x-1 transition-all shrink-0" strokeWidth={2} />
               </Link>
-            );
-          })}
+            ))}
+            
+            {/* Espace de sécurité à droite pour éviter que la dernière carte soit collée au bord */}
+            <div className="shrink-0 w-4 md:w-8" aria-hidden="true"></div>
+          </div>
+          
+          {/* Masque dégradé sur la droite (Desktop) pour indiquer qu'il y a du contenu masqué */}
+          <div className="absolute top-0 right-0 bottom-6 w-16 md:w-32 bg-gradient-to-l from-[#F8F9FA] to-transparent pointer-events-none hidden lg:block z-0"></div>
+          
+          {/* Bouton Droite */}
+          <button 
+            onClick={() => scroll('right')}
+            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            aria-label="Défiler vers la droite"
+          >
+            <ChevronRight size={24} strokeWidth={2} />
+          </button>
         </div>
 
       </div>

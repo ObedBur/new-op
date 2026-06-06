@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { storage } from '@/utils/storage';
 
-// Détecter l'URL du backend selon l'hôte
+// Détecter l'URL du backend selon l'environnement d'exécution
 const getApiUrl = () => {
   if (typeof window === 'undefined') {
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
@@ -9,18 +9,15 @@ const getApiUrl = () => {
 
   const hostname = window.location.hostname;
 
-  // Si accédé via localhost, utiliser Render en PROD ou localhost en DEV
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // Utiliser l'URL du backend Render si définie, sinon localhost
     return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
   }
 
-  // Si accédé via internet (prod), utiliser le backend Render
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
-  // Si accédé via une IP réseau locale, utiliser la même IP pour le backend
+  // Fallback : même IP, port 4000 (LAN)
   return `http://${hostname}:4000/api`;
 };
 
@@ -29,20 +26,16 @@ const API_URL = getApiUrl();
 export const api = axios.create({
   baseURL: API_URL,
   timeout: 60_000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
+// Access token conservé en mémoire (non persisté) pour éviter les failles XSS
 let accessToken: string | null = null;
 
-export const setAccessToken = (token: string | null) => {
-  accessToken = token;
-};
-
+export const setAccessToken = (token: string | null) => { accessToken = token; };
 export const getAccessToken = () => accessToken;
 
-// Intercepteur de REQUÊTE
+// Injecte l'access token dans chaque requête sortante
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (accessToken) {
@@ -57,43 +50,61 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
+// File d'attente pour les requêtes bloquées pendant un refresh en cours
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let successSubscribers: ((token: string) => void)[] = [];
+let failureSubscribers: ((error: unknown) => void)[] = [];
 
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
+const subscribeTokenRefresh = (
+  onSuccess: (token: string) => void,
+  onFailure: (error: unknown) => void
+) => {
+  successSubscribers.push(onSuccess);
+  failureSubscribers.push(onFailure);
 };
 
+// Débloquer toutes les requêtes en attente avec le nouveau token
 const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
+  successSubscribers.forEach((cb) => cb(token));
+  successSubscribers = [];
+  failureSubscribers = [];
 };
 
-// Intercepteur de RÉPONSE
+// Rejeter toutes les requêtes en attente si le refresh a échoué
+const onRefreshFailed = (error: unknown) => {
+  failureSubscribers.forEach((cb) => cb(error));
+  successSubscribers = [];
+  failureSubscribers = [];
+};
+
+// Intercepteur de réponse : gère le renouvellement automatique du token (401)
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
 
-    // Si pas 401, déjà réessayé, ou si c'est une tentative de login, on arrête là
-    if (
-      error.response?.status !== 401 ||
-      originalRequest._retry ||
-      originalRequest.url?.includes('/auth/login')
-    ) {
+    // On n'intercepte que les 401 non déjà réessayés, hors routes d'auth
+    const isAuthRoute =
+      originalRequest.url?.includes('/auth/login') ||
+      originalRequest.url?.includes('/auth/refresh') ||
+      originalRequest.url?.includes('/auth/profile');
+
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthRoute) {
       return Promise.reject(error);
     }
 
-    // Log 401 removed for production
-
+    // Un refresh est déjà en cours : mettre la requête en file d'attente
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        subscribeTokenRefresh((token: string) => {
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-          }
-          resolve(api(originalRequest));
-        });
+      return new Promise((resolve, reject) => {
+        subscribeTokenRefresh(
+          (token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            resolve(api(originalRequest));
+          },
+          (err) => reject(err)
+        );
       });
     }
 
@@ -102,27 +113,23 @@ api.interceptors.response.use(
 
     try {
       const refreshToken = storage.getRefreshToken();
-      // Tentative de refresh automatique
 
-      if (!refreshToken) throw new Error('No refresh token');
+      if (!refreshToken) throw new Error('No refresh token available');
 
       const response = await axios.post(
         `${API_URL}/auth/refresh`,
         {},
         {
           timeout: 12_000,
-          headers: {
-            Authorization: `Bearer ${refreshToken}`
-          }
+          headers: { Authorization: `Bearer ${refreshToken}` },
         }
       );
 
-      // On récupère les nouveaux tokens (snake_case venant de NestJS)
       const { access_token: newAccessToken, refresh_token: newRefreshToken } = response.data;
 
       setAccessToken(newAccessToken);
 
-      // Si le backend renvoie un nouveau refresh token (Rotation), on le stocke
+      // Rotation : persister le nouveau refresh token si le backend en envoie un
       if (newRefreshToken) {
         storage.setRefreshToken(newRefreshToken);
       }
@@ -134,16 +141,19 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       }
 
-      // Refresh réussi, relecture de la requête initiale
       return api(originalRequest);
 
     } catch (refreshError) {
       isRefreshing = false;
-      refreshSubscribers = [];
+      onRefreshFailed(refreshError);
+
       setAccessToken(null);
       storage.removeRefreshToken();
 
-      if (typeof window !== 'undefined') window.location.href = '/login';
+      // Rediriger vers /login seulement si pas déjà sur une page auth
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
 
       return Promise.reject(refreshError);
     }

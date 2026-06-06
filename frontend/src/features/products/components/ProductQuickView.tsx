@@ -50,7 +50,7 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md transition-opacity" onClick={onClose} />
       
       {/* Conteneur Principal Modal */}
-      <div className="relative w-full max-w-5xl bg-white dark:bg-[#111] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in-95 duration-300 max-h-[95vh] md:max-h-[85vh] border border-white/20">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-[#111] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in-95 duration-300 max-h-[92vh] border border-white/20">
         
         {/* Bouton Fermer Flottant */}
         <button 
@@ -60,8 +60,8 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
           <span className="material-symbols-outlined text-[24px] group-hover:rotate-90 transition-transform">close</span>
         </button>
 
-        {/* Section Gauche : Image Immersive */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto bg-gray-50 relative shrink-0 group">
+        {/* Section Gauche : Image Immersive — hauteur fixe sur mobile, auto sur desktop */}
+        <div className="w-full md:w-1/2 h-56 sm:h-72 md:h-auto md:min-h-[400px] bg-gray-100 relative shrink-0 group">
           <Image 
             src={product.image} 
             alt={product.name} 
@@ -72,9 +72,11 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
           />
         </div>
 
-        {/* Section Droite : Contenu et Actions */}
-        <div className="w-full md:w-1/2 flex flex-col h-full max-h-[calc(95vh-16rem)] md:max-h-full overflow-y-auto relative bg-white dark:bg-[#111]">
-            <div className="p-6 md:p-10 flex-1 flex flex-col gap-8">
+        {/* Section Droite : Contenu scrollable + footer sticky */}
+        <div className="w-full md:w-1/2 flex flex-col overflow-hidden bg-white dark:bg-[#111]">
+          {/* Zone de contenu scrollable */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 md:p-10 flex flex-col gap-8">
                 
             {/* 1. Header du Produit */}
                 <div>
@@ -145,8 +147,9 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
                     </div>
             </div>
             </div>
+          </div>
 
-          {/* 5. Pied de page d'actions : FULL WIDTH DESIGN */}
+          {/* 5. Footer sticky : boutons d'action toujours visibles */}
           <div className="px-6 py-5 md:px-10 md:py-8 bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border-t border-slate-100 dark:border-white/5 sticky bottom-0 z-10 w-full">
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
               {/* Panier */}
