@@ -3,21 +3,23 @@ import { storage } from '@/utils/storage';
 
 // Détecter l'URL du backend selon l'environnement d'exécution
 const getApiUrl = () => {
+  // Toujours priorité à la variable d'environnement (Vercel, Render, etc.)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Côté serveur (build SSR/SSG) sans variable d'env → localhost dev
   if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+    return 'http://127.0.0.1:4000/api';
   }
 
   const hostname = window.location.hostname;
 
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api';
+    return 'http://127.0.0.1:4000/api';
   }
 
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-
-  // Fallback : même IP, port 4000 (LAN)
+  // Fallback LAN (développement sur réseau local)
   return `http://${hostname}:4000/api`;
 };
 

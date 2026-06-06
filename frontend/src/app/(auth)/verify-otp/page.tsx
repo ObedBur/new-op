@@ -117,11 +117,11 @@ function VerifyOtpContent() {
 
           {/* Icon/Hero Section */}
           <div className="flex flex-col items-center justify-center mb-8">
-            <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-6 relative">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-emerald-600 dark:text-emerald-400">
+            <div className="w-20 h-20 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-6 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-10 h-10 text-[#E67E22]">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
               </svg>
-              <div className="absolute top-0 right-0 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900"></div>
+              <div className="absolute top-0 right-0 w-5 h-5 bg-[#E67E22] rounded-full border-2 border-white dark:border-slate-900"></div>
             </div>
             <h1 className="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center mb-3">Vérification du compte</h1>
             <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed text-center max-w-[280px]">
@@ -141,12 +141,12 @@ function VerifyOtpContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                Renvoyer le code dans <span className="text-emerald-600 dark:text-emerald-400 font-bold">00:{timer.toString().padStart(2, '0')}</span>
+                Renvoyer le code dans <span className="text-[#E67E22] font-bold">00:{timer.toString().padStart(2, '0')}</span>
               </p>
             </div>
             <button
               type="button"
-              className={`text-sm font-semibold transition-colors ${timer === 0 ? 'text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer' : 'text-slate-400 cursor-not-allowed'}`}
+              className={`text-sm font-semibold transition-colors ${timer === 0 ? 'text-[#E67E22] hover:underline cursor-pointer' : 'text-slate-400 cursor-not-allowed'}`}
               disabled={timer > 0}
               onClick={handleResend}
             >
@@ -160,7 +160,7 @@ function VerifyOtpContent() {
               isLoading={isLoading}
               fullWidth
               disabled={isLoading}
-              className="bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 shadow-emerald-500/20"
+              className="!bg-[#E67E22] hover:!bg-[#D35400] !shadow-lg !shadow-[#E67E22]/25 !border-none transition-all duration-300"
               onClick={() => {
                 // If the user clicks manual verify, we check if OTP is filled elsewhere
                 // But OtpInput auto-submits on completion
@@ -172,7 +172,7 @@ function VerifyOtpContent() {
               </svg>
             </Button>
             <div className="mt-6 flex justify-center">
-              <a href="#" className="text-sm text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-colors">
+              <a href="#" className="text-sm text-slate-500 hover:text-[#E67E22] dark:text-slate-400 dark:hover:text-[#E67E22] transition-colors">
                 Besoin d&apos;aide ? Contactez le support
               </a>
             </div>
@@ -188,7 +188,7 @@ export default function VerifyOtpPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center p-4 font-sans min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E67E22]"></div>
       </div>
     }>
       <VerifyOtpContent />

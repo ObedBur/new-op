@@ -76,8 +76,8 @@ export const OtpInput: React.FC<OtpInputProps> = ({ length = 6, onComplete, erro
             focus:outline-none focus:ring-4
             ${error 
               ? 'border-red-500 focus:ring-red-500/10' 
-              : 'border-slate-200 dark:border-slate-700 focus:border-emerald-600 focus:ring-emerald-600/10'}
-            ${digit ? 'bg-emerald-50/30 border-emerald-500' : 'bg-white dark:bg-slate-900'}
+              : 'border-slate-200 dark:border-slate-700 focus:border-[#E67E22] focus:ring-[#E67E22]/10'}
+            ${digit ? 'bg-orange-50/30 border-[#E67E22]' : 'bg-white dark:bg-slate-900'}
           `}
         />
       ))}
