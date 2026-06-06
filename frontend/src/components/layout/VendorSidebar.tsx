@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -15,7 +15,7 @@ interface VendorSidebarProps {
     user: UserType | null;
 }
 
-export const VendorSidebar: React.FC<VendorSidebarProps> = ({ user }) => {
+const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const currentTab = searchParams.get('tab');
@@ -126,5 +126,13 @@ export const VendorSidebar: React.FC<VendorSidebarProps> = ({ user }) => {
                 </div>
             </div>
         </aside>
+    );
+};
+
+export const VendorSidebar: React.FC<VendorSidebarProps> = (props) => {
+    return (
+        <Suspense fallback={<aside className="w-[60px] md:w-[260px] h-[100dvh] bg-white dark:bg-[#111827] border-r border-gray-100 dark:border-white/5 sticky top-0 shrink-0 z-40 transition-all duration-300"></aside>}>
+            <VendorSidebarContent {...props} />
+        </Suspense>
     );
 };
