@@ -65,7 +65,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
       ></div>
       
       <div 
-        className={`absolute right-0 top-0 bottom-0 w-[300px] max-w-[80vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-[2rem] overflow-hidden`}
+        className={`absolute right-0 top-0 bottom-0 w-[260px] max-w-[70vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-xl overflow-hidden`}
       >
         {/* Header - Minimalist Profile */}
         <div className="relative pt-6 pb-6 px-6 sm:px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
