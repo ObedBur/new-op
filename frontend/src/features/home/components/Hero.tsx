@@ -30,14 +30,14 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
 
   if (!slides || slides.length === 0) {
     return (
-      <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+      <div className="relative w-full h-[260px] sm:h-[320px] md:h-[400px] lg:h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
         <p className="text-gray-400 font-medium">Initialisation du visuel...</p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-full min-h-[350px] md:min-h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 group bg-black">
+    <div className="relative w-full h-[260px] sm:h-[320px] md:h-[400px] lg:h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 group bg-black">
       <AnimatePresence mode="wait">
         <motion.div
           key={slides[currentIndex].id}
@@ -69,7 +69,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
           <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent" />
 
           {/* Content Animation */}
-          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
+          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 md:p-10 lg:p-12">
             <motion.div
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -82,7 +82,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Badge className="mb-4 bg-primary/20 backdrop-blur-md border-primary/30 text-primary-foreground">
+                  <Badge className="mb-2 sm:mb-4 bg-primary/20 backdrop-blur-md border-primary/30 text-primary-foreground">
                     {slides[currentIndex].label}
                   </Badge>
                 </motion.div>
@@ -92,7 +92,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.6 }}
-                className="text-2xl md:text-5xl font-black text-white leading-[1.1] tracking-tight"
+                className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-[1.1] tracking-tight"
               >
                 {slides[currentIndex].title}
               </motion.h3>
@@ -101,7 +101,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 1 }}
-                className="flex items-center gap-3 mt-4"
+                className="flex items-center gap-3 mt-2 sm:mt-4"
               >
                 <div className="h-px w-8 bg-primary/50" />
                 <p className="text-white/70 text-xs md:text-sm font-bold uppercase tracking-widest">
@@ -115,7 +115,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
 
       {/* Pagination Indicators */}
       {slides.length > 1 && (
-        <div className="absolute bottom-6 right-8 z-30 flex gap-1.5 p-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
+        <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-8 z-30 flex gap-1.5 p-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
           {slides.map((_, index) => (
             <button
               key={index}
@@ -248,12 +248,12 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <Link href="/products" className="inline-flex">
+          <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full sm:w-auto">
+            <Link href="/products" className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="relative group h-14 px-8 rounded-xl bg-[#E67E22] text-white font-bold overflow-hidden transition-all shadow-lg hover:shadow-[#E67E22]/40 flex items-center justify-center cursor-pointer"
+                className="relative group h-14 w-full sm:w-auto px-8 rounded-xl bg-[#E67E22] text-white font-bold overflow-hidden transition-all shadow-lg hover:shadow-[#E67E22]/40 flex items-center justify-center cursor-pointer"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Explorer les produits
@@ -268,10 +268,10 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
               </motion.div>
             </Link>
 
-            <Link href="/devenir-prestataire" className="inline-flex">
+            <Link href="/devenir-prestataire" className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ y: -2 }}
-                className="h-14 px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
+                className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
               >
                 Devenir vendeur
               </motion.div>
@@ -279,7 +279,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
           </div>
         </div>
 
-        <div className="relative w-full hidden lg:block animate-in zoom-in fade-in duration-1000">
+        <div className="relative w-full block animate-in zoom-in fade-in duration-1000">
           <HeroSlideshow slides={activeSlides} />
           <div className="absolute -z-10 -top-6 -right-6 size-48 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute -z-10 -bottom-10 -left-10 size-64 bg-blue-500/10 rounded-full blur-3xl"></div>
