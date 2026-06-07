@@ -62,16 +62,27 @@ async function bootstrap() {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
   // Parser les origines autorisées
-  const allowedOrigins = isDev
+  const explicitOrigins = [
+    ...frontendUrl.split(',').map(url => url.trim()),
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ];
+
+  // Accepte les previews Vercel (*.vercel.app) dynamiquement
+  const corsOrigin = isDev
     ? true
-    : [
-      ...frontendUrl.split(',').map(url => url.trim()),
-      'http://localhost:3000',
-      'http://127.0.0.1:3000'
-    ];
+    : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        if (!origin) return callback(null, true); // requêtes sans origin (ex: Postman)
+        const isVercel = /^https:\/\/[a-z0-9-]+(\.vercel\.app)$/.test(origin);
+        if (isVercel || explicitOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS: Origin not allowed → ${origin}`));
+        }
+      };
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: corsOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
