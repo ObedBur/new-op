@@ -1,22 +1,11 @@
 import { Suspense } from 'react';
-import {
-  getProducts,
-  getCategories
-} from '@/features/products/services/product.service';
+import { getProducts, getCategories } from '@/features/products/services/product.service';
 import { ProductsView } from '@/features/products/components/ProductsView';
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ search?: string; categoryId?: string }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const search = resolvedSearchParams.search;
-  const categoryId = resolvedSearchParams.categoryId ? parseInt(resolvedSearchParams.categoryId) : undefined;
-
+export default async function ProductsPage() {
   // Parallel fetching in Server Component
   const [productsRes, categoriesRes] = await Promise.all([
-    getProducts({ search, categoryId }),
+    getProducts({}),
     getCategories()
   ]);
 
@@ -24,7 +13,7 @@ export default async function ProductsPage({
   const categories = categoriesRes.success ? categoriesRes.data : [];
 
   return (
-    <main className="min-h-screen pt-20">
+    <main className="min-h-screen pt-2">
       <Suspense fallback={
         <div className="container mx-auto px-4 py-20 text-center">
           <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full mx-auto" />
@@ -33,9 +22,9 @@ export default async function ProductsPage({
         <ProductsView
           initialProducts={products}
           categories={categories}
-          searchTerm={search}
         />
       </Suspense>
     </main>
   );
 }
+

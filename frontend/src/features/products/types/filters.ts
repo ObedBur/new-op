@@ -9,14 +9,4 @@ export interface ProductFilters {
   maxPrice: string;
   sortBy: SortOption;
   page: number;
-  currency?: CurrencyType;
-  // Vendor types
-  vendorAssurance?: boolean;
-  vendorVerified?: boolean;
-  // Product types
-  productReadyToShip?: boolean;
-  productSamples?: boolean;
-  // Condition
-  conditionNew?: boolean;
-  conditionUsed?: boolean;
 }

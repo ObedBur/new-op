@@ -3,9 +3,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Product, Category } from '../types';
-import { Badge } from '@/components/ui/Badge';
-import { CategoriesGrid } from '@/features/home/components/CategoriesGrid';
-import { FeaturedProductStrip } from '@/features/home/components/FeaturedProductStrip';
 import { 
   ProductGrid, 
   ProductFilterSidebar, 
@@ -21,13 +18,11 @@ import { useQuickView } from '../hooks/useQuickView';
 interface ProductsViewProps {
   initialProducts: Product[];
   categories: Category[];
-  searchTerm?: string;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ 
   initialProducts, 
-  categories, 
-  searchTerm
+  categories,
 }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { filters, updateFilters } = useProductFilters();
@@ -37,7 +32,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   return (
     <>
       {/* SECTION TOUS NOS ARTICLES */}
-      <section className="py-10 container mx-auto max-w-7xl px-3 sm:px-4">
+      <section className="pt-4 pb-10 container mx-auto max-w-7xl px-3 sm:px-4">
         <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
                 <span className="h-1 w-8 bg-[#E67E22] rounded-full"></span>
@@ -56,12 +51,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
             <div className="flex-1 w-full">
                 <ProductSortSelect 
-                  value={filters.sortBy} 
-                  onChange={(val) => updateFilters({ sortBy: val })} 
                   count={totalCount}
                   onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
-                  currency={filters.currency}
-                  onCurrencyChange={(currency) => updateFilters({ currency })}
                 />
 
                 <ProductGrid 

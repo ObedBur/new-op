@@ -9,152 +9,132 @@ interface SidebarProps {
   onUpdate: (updates: Partial<ProductFilters>) => void;
 }
 
-export const ProductFilterSidebar: React.FC<SidebarProps> = ({ categories: _categories, filters, onUpdate }) => {
+export const ProductFilterSidebar: React.FC<SidebarProps> = ({ categories, filters, onUpdate }) => {
   const [minPrice, setMinPrice] = useState<string>(filters.minPrice || '');
+  const [maxPrice, setMaxPrice] = useState<string>(filters.maxPrice || '');
 
-  const handlePriceChange = (value: string) => {
-    setMinPrice(value);
-    onUpdate({ minPrice: value });
+  const handleMinPriceCommit = () => {
+    onUpdate({ minPrice });
   };
 
-  const handleCheckboxChange = (key: keyof ProductFilters) => {
-    onUpdate({ 
-      [key]: !(filters[key] as boolean)
-    });
+  const handleMaxPriceCommit = () => {
+    onUpdate({ maxPrice });
   };
 
-  // Calculate percentage for slider background and tooltip position
-  const percentage = (parseFloat(minPrice) / 1000) * 100 || 0;
+  const handleCategoryClick = (categoryId: string | null) => {
+    onUpdate({ categoryId, page: 1 });
+  };
 
   return (
     <aside className="hidden md:block w-[240px] lg:w-[280px] shrink-0 sticky top-24 self-start">
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-            <h2 className="text-[17px] font-extrabold text-slate-800 mb-6">Filtres</h2>
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-white/5 p-6 shadow-sm">
+        <h2 className="text-[17px] font-extrabold text-slate-800 dark:text-white mb-6">Filtres</h2>
 
-            {/* Types de Fournisseurs */}
-            <div className="mb-7">
-                <h3 className="text-[15px] font-bold text-slate-800 mb-4">Types de Fournisseurs</h3>
-                <div className="space-y-3.5">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.vendorAssurance || false}
-                            onChange={() => handleCheckboxChange('vendorAssurance')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="material-symbols-outlined text-[#E67E22] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Assurance Commerce</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.vendorVerified || false}
-                            onChange={() => handleCheckboxChange('vendorVerified')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="material-symbols-outlined text-[#1877F2] text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Fournisseurs Vérifiés</span>
-                    </label>
-                </div>
-            </div>
+        {/* Catégories */}
+        <div className="mb-7">
+          <h3 className="text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">
+            Catégories
+          </h3>
+          <div className="space-y-1.5">
+            {/* Option "Toutes" */}
+            <button
+              onClick={() => handleCategoryClick(null)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                !filters.categoryId
+                  ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
+              }`}
+            >
+              <span>Toutes les catégories</span>
+            </button>
 
-            {/* Types de Produits */}
-            <div className="mb-7">
-                <h3 className="text-[15px] font-bold text-slate-800 mb-4">Types de Produits</h3>
-                <div className="space-y-3.5">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.productReadyToShip || false}
-                            onChange={() => handleCheckboxChange('productReadyToShip')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Prêt à Expédier</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.productSamples || false}
-                            onChange={() => handleCheckboxChange('productSamples')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Échantillons Payants</span>
-                    </label>
-                </div>
-            </div>
-
-            {/* Condition */}
-            <div className="mb-8">
-                <h3 className="text-[15px] font-bold text-slate-800 mb-4">Condition</h3>
-                <div className="space-y-3.5">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.conditionNew || false}
-                            onChange={() => handleCheckboxChange('conditionNew')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Nouveautés</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                        <input 
-                            type="checkbox" 
-                            checked={filters.conditionUsed || false}
-                            onChange={() => handleCheckboxChange('conditionUsed')}
-                            className="size-[18px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                        />
-                        <span className="text-[14px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Occasion</span>
-                    </label>
-                </div>
-            </div>
-
-            {/* Commande Min */}
-            <div className="mb-8">
-                <h3 className="text-[15px] font-bold text-slate-800 mb-8">Commande Min</h3>
-                <div className="relative pt-2 pb-2">
-                    <div 
-                      className="absolute top-[-14px] transform -translate-x-1/2 flex flex-col items-center pointer-events-none" 
-                      style={{ left: `${percentage}%` }}
-                    >
-                        <div className="bg-[#E67E22] text-white text-[11px] font-bold px-2 py-0.5 rounded-[4px]">
-                            {minPrice} $
-                        </div>
-                        <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-[#E67E22]"></div>
-                    </div>
-                    
-                    <input 
-                        type="range" 
-                        min="0" 
-                        max="1000" 
-                        value={minPrice || 0}
-                        onChange={(e) => handlePriceChange(e.target.value)}
-                        className="w-full h-[6px] rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[#E67E22] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-[#E67E22] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
-                        style={{
-                            background: `linear-gradient(to right, #E67E22 0%, #E67E22 ${percentage}%, #f1f5f9 ${percentage}%, #f1f5f9 100%)`
-                        }}
-                    />
-                </div>
-            </div>
-
-            {/* Prix */}
-            <div>
-                <h3 className="text-[15px] font-bold text-slate-800 mb-4">Prix</h3>
-                <div className="flex border border-slate-200 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-shadow bg-slate-50">
-                    <div className="pl-4 pr-3 py-2.5 flex items-center justify-center">
-                        <span className="text-slate-500 font-bold text-[15px]">$</span>
-                    </div>
-                    <input 
-                        type="number" 
-                        placeholder="100" 
-                        value={filters.maxPrice || ''}
-                        onChange={(e) => onUpdate({ maxPrice: e.target.value })}
-                        aria-label="Prix maximum"
-                        className="flex-1 w-full pr-4 py-2.5 text-sm outline-none text-slate-700 bg-white border-l border-slate-200"
-                        min="0"
-                    />
-                </div>
-            </div>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(String(cat.id))}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  filters.categoryId === String(cat.id)
+                    ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
+                }`}
+              >
+                <span>{cat.name}</span>
+                {cat.productCount !== undefined && (
+                  <span
+                    className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                      filters.categoryId === String(cat.id)
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-500'
+                    }`}
+                  >
+                    {cat.productCount}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Séparateur */}
+        <div className="h-px bg-slate-100 dark:bg-white/5 mb-7" />
+
+        {/* Budget / Prix */}
+        <div>
+          <h3 className="text-[13px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">
+            Budget ($)
+          </h3>
+          <div className="flex gap-2 items-center">
+            <div className="flex-1 flex border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-all bg-slate-50 dark:bg-white/5">
+              <div className="px-2.5 flex items-center justify-center">
+                <span className="text-slate-400 font-bold text-sm">Min</span>
+              </div>
+              <input
+                type="number"
+                placeholder="0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                onBlur={handleMinPriceCommit}
+                onKeyDown={(e) => e.key === 'Enter' && handleMinPriceCommit()}
+                aria-label="Prix minimum"
+                className="w-full pr-2 py-2.5 text-sm outline-none text-slate-700 dark:text-white bg-transparent border-l border-slate-200 dark:border-white/10"
+                min="0"
+              />
+            </div>
+            <span className="text-slate-300 font-bold">—</span>
+            <div className="flex-1 flex border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-all bg-slate-50 dark:bg-white/5">
+              <div className="px-2.5 flex items-center justify-center">
+                <span className="text-slate-400 font-bold text-sm">Max</span>
+              </div>
+              <input
+                type="number"
+                placeholder="∞"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                onBlur={handleMaxPriceCommit}
+                onKeyDown={(e) => e.key === 'Enter' && handleMaxPriceCommit()}
+                aria-label="Prix maximum"
+                className="w-full pr-2 py-2.5 text-sm outline-none text-slate-700 dark:text-white bg-transparent border-l border-slate-200 dark:border-white/10"
+                min="0"
+              />
+            </div>
+          </div>
+
+          {/* Bouton reset si filtre actif */}
+          {(filters.minPrice || filters.maxPrice || filters.categoryId) && (
+            <button
+              onClick={() => {
+                setMinPrice('');
+                setMaxPrice('');
+                onUpdate({ minPrice: '', maxPrice: '', categoryId: null, page: 1 });
+              }}
+              className="mt-4 w-full text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-[#E67E22] transition-colors duration-200 flex items-center justify-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[14px]">restart_alt</span>
+              Réinitialiser les filtres
+            </button>
+          )}
+        </div>
+      </div>
     </aside>
   );
 };

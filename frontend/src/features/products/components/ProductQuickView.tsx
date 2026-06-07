@@ -151,7 +151,7 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
 
           {/* 5. Footer sticky : boutons d'action toujours visibles */}
           <div className="px-6 py-5 md:px-10 md:py-8 bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border-t border-slate-100 dark:border-white/5 sticky bottom-0 z-10 w-full">
-            <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
               {/* Panier */}
               <button
                 onClick={handleAddToCart}

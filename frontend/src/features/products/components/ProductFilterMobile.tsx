@@ -15,190 +15,164 @@ interface MobileDrawerProps {
 
 export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClose, categories, filters, onUpdate }) => {
   const [minPrice, setMinPrice] = useState<string>(filters.minPrice || '');
+  const [maxPrice, setMaxPrice] = useState<string>(filters.maxPrice || '');
 
-  const handlePriceChange = (value: string) => {
-    setMinPrice(value);
-    onUpdate({ minPrice: value });
+  const handleCategoryClick = (categoryId: string | null) => {
+    onUpdate({ categoryId, page: 1 });
   };
 
-  const handleCheckboxChange = (key: keyof ProductFilters) => {
-    onUpdate({ 
-      [key]: !(filters[key] as boolean)
-    });
+  const handleApply = () => {
+    onUpdate({ minPrice, maxPrice });
+    onClose();
   };
 
-  // Calculate percentage for slider background and tooltip position
-  const percentage = (parseFloat(minPrice) / 1000) * 100 || 0;
+  const handleReset = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    onUpdate({ minPrice: '', maxPrice: '', categoryId: null, page: 1 });
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-[150] flex justify-end md:hidden">
-        {/* Backdrop overlay */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-          onClick={onClose}
-        />
-        
-        {/* Drawer content */}
-        <motion.div 
-          initial={{ x: '100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '100%' }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="relative w-[85vw] max-w-[340px] bg-white h-full shadow-2xl flex flex-col"
-        >
-            
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                <h2 className="text-[19px] font-extrabold text-slate-800">Filtres</h2>
-                <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={onClose} 
-                    className="bg-slate-50 rounded-full hover:bg-slate-100 text-slate-500 h-9 w-9"
+      {/* Backdrop overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Drawer content */}
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        exit={{ x: '100%' }}
+        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+        className="relative w-[85vw] max-w-[340px] bg-white dark:bg-zinc-900 h-full shadow-2xl flex flex-col"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
+          <h2 className="text-[19px] font-extrabold text-slate-800 dark:text-white">Filtres</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="bg-slate-50 dark:bg-white/5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300 h-9 w-9"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </Button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8">
+
+          {/* Catégories */}
+          <div>
+            <h3 className="text-[12px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
+              Catégories
+            </h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => handleCategoryClick(null)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 ${
+                  !filters.categoryId
+                    ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                    : 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10'
+                }`}
+              >
+                <span>Toutes les catégories</span>
+              </button>
+
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryClick(String(cat.id))}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 ${
+                    filters.categoryId === String(cat.id)
+                      ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                      : 'text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10'
+                  }`}
                 >
-                    <span className="material-symbols-outlined text-[20px]">close</span>
-                </Button>
+                  <span>{cat.name}</span>
+                  {cat.productCount !== undefined && (
+                    <span
+                      className={`text-[11px] font-black px-2 py-0.5 rounded-md ${
+                        filters.categoryId === String(cat.id)
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-200 dark:bg-white/10 text-slate-400 dark:text-slate-500'
+                      }`}
+                    >
+                      {cat.productCount}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-                {/* Types de Fournisseurs */}
-                <div className="mb-8">
-                    <h3 className="text-[15px] font-bold text-slate-800 mb-4">Types de Fournisseurs</h3>
-                    <div className="space-y-4">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.vendorAssurance || false}
-                                onChange={() => handleCheckboxChange('vendorAssurance')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="material-symbols-outlined text-[#E67E22] text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Assurance Commerce</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.vendorVerified || false}
-                                onChange={() => handleCheckboxChange('vendorVerified')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="material-symbols-outlined text-[#1877F2] text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Fournisseurs Vérifiés</span>
-                        </label>
-                    </div>
-                </div>
+          </div>
 
-                {/* Types de Produits */}
-                <div className="mb-8">
-                    <h3 className="text-[15px] font-bold text-slate-800 mb-4">Types de Produits</h3>
-                    <div className="space-y-4">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.productReadyToShip || false}
-                                onChange={() => handleCheckboxChange('productReadyToShip')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Prêt à Expédier</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.productSamples || false}
-                                onChange={() => handleCheckboxChange('productSamples')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Échantillons Payants</span>
-                        </label>
-                    </div>
-                </div>
+          {/* Séparateur */}
+          <div className="h-px bg-slate-100 dark:bg-white/5" />
 
-                {/* Condition */}
-                <div className="mb-9">
-                    <h3 className="text-[15px] font-bold text-slate-800 mb-4">Condition</h3>
-                    <div className="space-y-4">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.conditionNew || false}
-                                onChange={() => handleCheckboxChange('conditionNew')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Nouveautés</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={filters.conditionUsed || false}
-                                onChange={() => handleCheckboxChange('conditionUsed')}
-                                className="size-[20px] rounded-[4px] border-slate-300 text-[#E67E22] focus:ring-[#E67E22] accent-[#E67E22] transition-colors" 
-                            />
-                            <span className="text-[15px] text-slate-600 font-medium group-hover:text-slate-900 transition-colors">Occasion</span>
-                        </label>
-                    </div>
+          {/* Budget */}
+          <div>
+            <h3 className="text-[12px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
+              Budget ($)
+            </h3>
+            <div className="space-y-3">
+              {/* Prix Min */}
+              <div className="flex border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-all bg-slate-50 dark:bg-white/5">
+                <div className="px-4 py-3 flex items-center justify-center border-r border-slate-200 dark:border-white/10">
+                  <span className="text-slate-400 font-bold text-sm whitespace-nowrap">Prix Min</span>
                 </div>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  aria-label="Prix minimum"
+                  className="flex-1 w-full px-4 py-3 text-[15px] outline-none text-slate-700 dark:text-white bg-transparent"
+                  min="0"
+                />
+              </div>
 
-                {/* Commande Min */}
-                <div className="mb-9">
-                    <h3 className="text-[15px] font-bold text-slate-800 mb-9">Commande Min</h3>
-                    <div className="relative pt-2 pb-2">
-                        <div 
-                          className="absolute top-[-14px] transform -translate-x-1/2 flex flex-col items-center pointer-events-none" 
-                          style={{ left: `${percentage}%` }}
-                        >
-                            <div className="bg-[#E67E22] text-white text-[12px] font-bold px-2 py-0.5 rounded-[4px]">
-                                {minPrice} $
-                            </div>
-                            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-[#E67E22]"></div>
-                        </div>
-                        
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="1000" 
-                            value={minPrice || 0}
-                            onChange={(e) => handlePriceChange(e.target.value)}
-                            aria-label="Commande minimum"
-                            className="w-full h-[6px] rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-[#E67E22] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-[#E67E22] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md"
-                            style={{
-                                background: `linear-gradient(to right, #E67E22 0%, #E67E22 ${percentage}%, #f1f5f9 ${percentage}%, #f1f5f9 100%)`
-                            }}
-                        />
-                    </div>
+              {/* Prix Max */}
+              <div className="flex border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-all bg-slate-50 dark:bg-white/5">
+                <div className="px-4 py-3 flex items-center justify-center border-r border-slate-200 dark:border-white/10">
+                  <span className="text-slate-400 font-bold text-sm whitespace-nowrap">Prix Max</span>
                 </div>
-
-                {/* Prix */}
-                <div className="mb-4">
-                    <h3 className="text-[15px] font-bold text-slate-800 mb-4">Prix</h3>
-                    <div className="flex border border-slate-200 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-shadow bg-slate-50">
-                        <div className="pl-4 pr-3 py-3 flex items-center justify-center">
-                            <span className="text-slate-500 font-bold text-[15px]">$</span>
-                        </div>
-                        <input 
-                            type="number" 
-                            placeholder="100"
-                            value={filters.maxPrice || ''}
-                            onChange={(e) => onUpdate({ maxPrice: e.target.value })}
-                            aria-label="Prix maximum"
-                            className="flex-1 w-full pr-4 py-3 text-[15px] outline-none text-slate-700 bg-white border-l border-slate-200"
-                            min="0"
-                        />
-                    </div>
-                </div>
+                <input
+                  type="number"
+                  placeholder="∞"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  aria-label="Prix maximum"
+                  className="flex-1 w-full px-4 py-3 text-[15px] outline-none text-slate-700 dark:text-white bg-transparent"
+                  min="0"
+                />
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div className="p-4 border-t border-slate-100 bg-white">
-                <Button 
-                    onClick={onClose}
-                    className="w-full py-6 text-[14px] uppercase tracking-widest bg-[#E67E22] hover:bg-[#d6721b] text-white rounded-xl font-black shadow-lg shadow-[#E67E22]/20 transition-transform active:scale-95"
-                >
-                    Appliquer les filtres
-                </Button>
-            </div>
-        </motion.div>
+        {/* Footer Buttons */}
+        <div className="p-4 border-t border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900 flex gap-3">
+          <button
+            onClick={handleReset}
+            className="flex-1 py-3 text-[13px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-xl hover:text-[#E67E22] hover:border-[#E67E22] transition-all duration-200"
+          >
+            Réinitialiser
+          </button>
+          <Button
+            onClick={handleApply}
+            className="flex-[2] py-3 text-[13px] uppercase tracking-widest bg-[#E67E22] hover:bg-[#d6721b] text-white rounded-xl font-black shadow-lg shadow-[#E67E22]/20 transition-transform active:scale-95"
+          >
+            Appliquer
+          </Button>
+        </div>
+      </motion.div>
     </div>
   );
 };

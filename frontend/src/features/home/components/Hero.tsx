@@ -268,7 +268,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
               </motion.div>
             </Link>
 
-            <Link href="/devenir-prestataire" className="w-full sm:w-auto">
+            <Link href="/register?role=VENDOR" className="w-full sm:w-auto">
               <motion.div
                 whileHover={{ y: -2 }}
                 className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"

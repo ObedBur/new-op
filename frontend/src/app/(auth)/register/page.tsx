@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,17 @@ export default function RegisterPage() {
   const { showToast } = useToast();
 
   const [role, setRole] = useState<"CLIENT" | "VENDOR">("VENDOR");
+
+  // Read initial role from query params if present, e.g. /register?role=CLIENT or /register?role=VENDOR
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const roleParam = params.get("role")?.toUpperCase();
+      if (roleParam === "CLIENT" || roleParam === "VENDOR") {
+        setRole(roleParam as "CLIENT" | "VENDOR");
+      }
+    }
+  }, []);
   const [fullName, setFullName] = useState("");
   const [boutiqueName, setBoutiqueName] = useState("");
   const [email, setEmail] = useState("");

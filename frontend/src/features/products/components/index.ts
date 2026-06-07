@@ -6,4 +6,3 @@ export * from './ProductFilterMobile';
 export * from './ProductSortSelect';
 export * from './ProductPagination';
 export * from './ProductSubHeader';
-export * from './CurrencySelector';

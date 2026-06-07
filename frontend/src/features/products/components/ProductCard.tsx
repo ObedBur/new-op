@@ -102,15 +102,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
 
         {/* Overlay actions rapides au hover */}
-        <div className="card-actions-overlay absolute inset-0 z-20 flex items-center justify-center gap-2">
+        <div className="card-actions-overlay absolute inset-0 z-20 flex items-center justify-center gap-1.5 sm:gap-2">
           <button
             onClick={handleAddToCart}
             aria-label="Ajouter au panier"
-            className="flex items-center gap-1.5 bg-[#E67E22] hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-xl shadow-lg shadow-orange-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-1.5 bg-[#E67E22] hover:bg-orange-600 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest size-9 sm:w-auto sm:h-9 sm:px-3 sm:py-2 rounded-xl shadow-lg shadow-orange-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isOutOfStock}
           >
-            <span className="material-symbols-outlined text-[14px]">add_shopping_cart</span>
-            {!compact && <span>Ajouter</span>}
+            <span className="material-symbols-outlined text-[15px] sm:text-[14px]">add_shopping_cart</span>
+            {!compact && <span className="hidden sm:inline">Ajouter</span>}
           </button>
 
           <button
