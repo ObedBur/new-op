@@ -161,7 +161,7 @@ export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClo
         <div className="p-4 border-t border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900 flex gap-3">
           <button
             onClick={handleReset}
-            className="flex-1 py-3 text-[13px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-xl hover:text-[#E67E22] hover:border-[#E67E22] transition-all duration-200"
+            className="flex-[2] py-3 text-[13px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10 rounded-xl hover:text-[#E67E22] hover:border-[#E67E22] transition-all duration-200"
           >
             Réinitialiser
           </button>
