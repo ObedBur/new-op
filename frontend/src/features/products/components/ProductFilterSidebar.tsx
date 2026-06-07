@@ -27,7 +27,7 @@ export const ProductFilterSidebar: React.FC<SidebarProps> = ({ categories: _cate
   const percentage = (parseFloat(minPrice) / 1000) * 100 || 0;
 
   return (
-    <aside className="hidden lg:block w-[280px] shrink-0 sticky top-24 self-start">
+    <aside className="hidden md:block w-[240px] lg:w-[280px] shrink-0 sticky top-24 self-start">
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
             <h2 className="text-[17px] font-extrabold text-slate-800 mb-6">Filtres</h2>
 

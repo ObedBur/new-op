@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { Product, Category } from '../types';
 import { Badge } from '@/components/ui/Badge';
 import { CategoriesGrid } from '@/features/home/components/CategoriesGrid';
@@ -20,20 +21,12 @@ import { useQuickView } from '../hooks/useQuickView';
 interface ProductsViewProps {
   initialProducts: Product[];
   categories: Category[];
-  deals?: Product[];
-  newArrivals?: Product[];
-  recommendations?: Product[];
-  bestSellers?: Product[];
   searchTerm?: string;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({ 
   initialProducts, 
   categories, 
-  deals = [],
-  newArrivals = [],
-  recommendations = [],
-  bestSellers = [],
   searchTerm
 }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -43,64 +36,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
   return (
     <>
-
-      {/* CATÉGORIES EN FICHES */}
-      <CategoriesGrid categories={categories} />
-
-      {/* GALERIES INTELLIGENTES */}
-      <section className="py-10 space-y-12">
-        <div className="container mx-auto px-4">
-
-          {/* Galerie 1: Offres du moment (Promotions) */}
-          {deals.length > 0 && (
-            <div className="bg-[#DDB88C]/30 rounded-[2rem] p-6 md:p-10 shadow-sm border border-[#DDB88C]/10">
-              <FeaturedProductStrip
-                title="🔥 Offres du moment"
-                subtitle="Promotions actives — prix réduits de plus de 15%"
-                products={deals}
-                onQuickView={openQuickView}
-              />
-            </div>
-          )}
-
-          {/* Galerie 2: Nouveautés (< 7 jours) */}
-          {newArrivals.length > 0 && (
-            <div className="bg-[#DDB88C]/20 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="✨ Nouveautés"
-                subtitle="Publiés ces 7 derniers jours"
-                products={newArrivals}
-                onQuickView={openQuickView}
-              />
-            </div>
-          )}
-
-          {/* Galerie 3: Recommandations (basé sur historique) */}
-          {recommendations.length > 0 && (
-            <div className="bg-[#DDB88C]/15 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="💡 Recommandations"
-                subtitle="Basé sur vos centres d'intérêt"
-                products={recommendations}
-                onQuickView={openQuickView}
-              />
-            </div>
-          )}
-
-          {/* Galerie 4: Meilleures ventes */}
-          {bestSellers.length > 0 && (
-            <div className="bg-[#DDB88C]/10 rounded-[2rem] p-6 md:p-10 shadow-sm mt-12 border border-[#DDB88C]/5">
-              <FeaturedProductStrip
-                title="🏆 Meilleures ventes"
-                subtitle="Les articles les plus commandés"
-                products={bestSellers}
-                onQuickView={openQuickView}
-              />
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* SECTION TOUS NOS ARTICLES */}
       <section className="py-10 container mx-auto max-w-7xl px-3 sm:px-4">
         <div className="mb-8">
@@ -112,7 +47,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <p className="text-slate-500 text-sm font-medium mt-2">Parcourez l'ensemble de notre catalogue avec les filtres avancés</p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-10 items-start animate-in fade-in duration-500">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start animate-in fade-in duration-500">
             <ProductFilterSidebar 
               categories={categories} 
               filters={filters} 
@@ -143,13 +78,17 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
         </div>
       </section>
 
-        <ProductFilterMobile 
-          isOpen={isMobileFiltersOpen} 
-          onClose={() => setIsMobileFiltersOpen(false)} 
-          categories={categories} 
-          filters={filters} 
-          onUpdate={updateFilters} 
-        />
+        <AnimatePresence>
+          {isMobileFiltersOpen && (
+            <ProductFilterMobile 
+              isOpen={isMobileFiltersOpen} 
+              onClose={() => setIsMobileFiltersOpen(false)} 
+              categories={categories} 
+              filters={filters} 
+              onUpdate={updateFilters} 
+            />
+          )}
+        </AnimatePresence>
 
         {selectedProduct && (
           <ProductQuickView 

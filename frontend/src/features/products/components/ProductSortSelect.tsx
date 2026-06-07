@@ -22,7 +22,7 @@ export const ProductSortSelect: React.FC<SortSelectProps> = ({ value, onChange, 
                 variant="outline"
                 size="sm"
                 onClick={onOpenMobileFilters}
-                className="lg:hidden h-9 px-4 border-gray-200 dark:border-white/10 text-[#2D5A27] dark:text-white"
+                className="md:hidden h-9 px-4 border-gray-200 dark:border-white/10 text-[#2D5A27] dark:text-white"
                 leftIcon={<span className="material-symbols-outlined text-[16px]">tune</span>}
             >
                 Filtrer

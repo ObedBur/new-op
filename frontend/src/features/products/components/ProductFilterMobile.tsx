@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Category, ProductFilters } from '../types';
+import { motion } from 'framer-motion';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -14,8 +15,6 @@ interface MobileDrawerProps {
 
 export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClose, categories, filters, onUpdate }) => {
   const [minPrice, setMinPrice] = useState<string>(filters.minPrice || '');
-
-  if (!isOpen) return null;
 
   const handlePriceChange = (value: string) => {
     setMinPrice(value);
@@ -32,10 +31,25 @@ export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClo
   const percentage = (parseFloat(minPrice) / 1000) * 100 || 0;
 
   return (
-    <div className="fixed inset-0 z-[150] flex justify-end lg:hidden">
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
+    <div className="fixed inset-0 z-[150] flex justify-end md:hidden">
+        {/* Backdrop overlay */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+          onClick={onClose}
+        />
         
-        <div className="relative w-[85vw] max-w-[340px] bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+        {/* Drawer content */}
+        <motion.div 
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="relative w-[85vw] max-w-[340px] bg-white h-full shadow-2xl flex flex-col"
+        >
             
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
                 <h2 className="text-[19px] font-extrabold text-slate-800">Filtres</h2>
@@ -184,7 +198,7 @@ export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClo
                     Appliquer les filtres
                 </Button>
             </div>
-        </div>
+        </motion.div>
     </div>
   );
 };

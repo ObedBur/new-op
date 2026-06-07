@@ -1,11 +1,7 @@
 import { Suspense } from 'react';
 import {
   getProducts,
-  getCategories,
-  getDeals,
-  getNewArrivals,
-  getRecommendations,
-  getBestSellers
+  getCategories
 } from '@/features/products/services/product.service';
 import { ProductsView } from '@/features/products/components/ProductsView';
 
@@ -19,21 +15,13 @@ export default async function ProductsPage({
   const categoryId = resolvedSearchParams.categoryId ? parseInt(resolvedSearchParams.categoryId) : undefined;
 
   // Parallel fetching in Server Component
-  const [productsRes, categoriesRes, dealsRes, newArrivalsRes, recommendationsRes, bestSellersRes] = await Promise.all([
+  const [productsRes, categoriesRes] = await Promise.all([
     getProducts({ search, categoryId }),
-    getCategories(),
-    getDeals(12),
-    getNewArrivals(12),
-    getRecommendations(undefined, 12),
-    getBestSellers(12)
+    getCategories()
   ]);
 
   const products = productsRes.success ? productsRes.data : [];
   const categories = categoriesRes.success ? categoriesRes.data : [];
-  const deals = dealsRes.success ? dealsRes.data : [];
-  const newArrivals = newArrivalsRes.success ? newArrivalsRes.data : [];
-  const recommendations = recommendationsRes.success ? recommendationsRes.data : [];
-  const bestSellers = bestSellersRes.success ? bestSellersRes.data : [];
 
   return (
     <main className="min-h-screen pt-20">
@@ -45,10 +33,6 @@ export default async function ProductsPage({
         <ProductsView
           initialProducts={products}
           categories={categories}
-          deals={search ? [] : deals}
-          newArrivals={search ? [] : newArrivals}
-          recommendations={search ? [] : recommendations}
-          bestSellers={search ? [] : bestSellers}
           searchTerm={search}
         />
       </Suspense>
