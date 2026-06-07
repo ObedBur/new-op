@@ -38,8 +38,8 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
   return (
     <div
       className={`relative bg-white dark:bg-[#1a1a1a] border ${isBestPrice
-          ? 'border-emerald-500 shadow-2xl scale-[1.02] z-10'
-          : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
+        ? 'border-emerald-500 shadow-2xl scale-[1.02] z-10'
+        : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
         } rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
     >
       {isBestPrice && (
@@ -102,8 +102,8 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
       {/* Prix */}
       <div
         className={`mb-4 p-3 rounded-2xl text-center ${isBestPrice
-            ? 'bg-emerald-50 dark:bg-emerald-500/5'
-            : 'bg-gray-50 dark:bg-white/5'
+          ? 'bg-emerald-50 dark:bg-emerald-500/5'
+          : 'bg-gray-50 dark:bg-white/5'
           }`}
       >
         <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
@@ -111,8 +111,8 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
         </p>
         <span
           className={`text-2xl font-black tracking-tighter ${isBestPrice
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-deep-blue dark:text-white'
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : 'text-deep-blue dark:text-white'
             }`}
         >
           {product.displayPrice || `${product.price} $`}
@@ -237,8 +237,8 @@ export default function ComparePage() {
                   key={city}
                   onClick={() => setSelectedCity(city)}
                   className={`whitespace-nowrap text-[9px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-xl transition-all ${selectedCity === city
-                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
-                      : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'
+                    : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
                     }`}
                 >
                   {city}
@@ -247,10 +247,10 @@ export default function ComparePage() {
             </div>
 
             {/* Tri */}
-            <div className="flex items-center gap-2 bg-white dark:bg-[#1a1a1a] px-4 py-2.5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Tri :</span>
+            <div className="flex items-center gap-2 bg-[#E67E22]/10 px-3 py-1.5 rounded-full border border-[#E67E22]/20">
+              <span className="material-symbols-outlined text-[12px] text-[#E67E22]">sort</span>
               <select
-                className="bg-transparent text-[9px] font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 outline-none cursor-pointer"
+                className="bg-transparent text-[9px] font-black uppercase tracking-widest text-[#E67E22] outline-none cursor-pointer appearance-none"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -258,6 +258,7 @@ export default function ComparePage() {
                 <option value="price_desc">Plus cher</option>
                 <option value="rating">Mieux notés</option>
               </select>
+              <span className="material-symbols-outlined text-[10px] text-[#E67E22]">afficher plus</span>
             </div>
           </div>
         </div>

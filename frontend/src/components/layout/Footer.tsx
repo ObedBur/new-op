@@ -86,12 +86,19 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar simplifiée */}
-        <div className="pt-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-slate-500">
-          <p>© 2026 WapiBei Marketplace.</p>
-          <div className="flex gap-8 font-black uppercase tracking-widest text-slate-400">
-            <Link href="/privacy" className="hover:text-[#E67E22]">Légal</Link>
-            <Link href="/terms" className="hover:text-[#E67E22]">Conditions</Link>
+        <div className="pt-12 mt-12 border-t border-slate-200 dark:border-white/10 flex flex-col items-start gap-4 text-[11px] text-slate-500">
+
+          {/* Zone des liens : Alignés à gauche comme chez Cisco */}
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400">
+            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Politique de confidentialité</Link>
+            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Conditions d'utilisation</Link>
+            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Politique des cookies</Link>
+            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Mentions légales</Link>
           </div>
+
+          <p className="text-slate-400 dark:text-slate-600">
+            © {new Date().getFullYear()} WapiBei MarketPlace. Tous droits réservés.
+          </p>
         </div>
       </div>
     </footer>

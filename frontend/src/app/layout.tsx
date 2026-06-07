@@ -5,6 +5,7 @@ import { CartProvider } from "@/features/cart/context/CartContext";
 import { Toaster } from "@/components/ui/Toaster";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import RootLayoutContent from "./RootLayoutContent";
+import { CookieConsent } from "@/components/CookieConsent";
 
 // Utilisation d'une pile de polices système moderne pour éviter les délais de téléchargement Google Fonts
 const outfit = {
@@ -45,7 +46,6 @@ export const metadata: Metadata = {
     images: ['/shopping-cart.png'],
   },
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -64,6 +64,10 @@ export default function RootLayout({
           <CartProvider>
             <SplashScreen />
             <RootLayoutContent>{children}</RootLayoutContent>
+
+            {/* 2. Ajoutez le composant ici, juste avant la fin de la balise body */}
+            <CookieConsent />
+
             <Toaster />
           </CartProvider>
         </Providers>
