@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import axios from 'axios';
 
 export interface CompareProduct {
   id: string;
@@ -43,13 +44,22 @@ export interface CompareResult {
   products: CompareProduct[];
 }
 
-export async function compareProducts(search: string): Promise<CompareResult> {
+export async function compareProducts(search: string, signal?: AbortSignal): Promise<CompareResult> {
   try {
     const response = await api.get<CompareResult>('/products/compare', {
       params: { search },
+      signal,
     });
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      return {
+        success: false,
+        query: search,
+        products: [],
+      };
+    }
+
     console.error('Erreur comparaison:', error);
     return {
       success: false,

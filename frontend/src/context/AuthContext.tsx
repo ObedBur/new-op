@@ -21,11 +21,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   const initAuth = useCallback(async () => {
+    setIsLoading(true);
     try {
       const userData = await authService.initAuth();
       setUser(userData);
     } catch (error) {
       console.error('Auth initialization failed:', error);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }

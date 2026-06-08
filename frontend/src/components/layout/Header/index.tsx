@@ -25,12 +25,14 @@ const HeaderOverlays = ({
   pathname,
   totalItems,
   isAuthenticated,
+  isAuthLoading,
   user,
   logout,
 }: {
   pathname: string;
   totalItems: number;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   user: ReturnType<typeof useAuth>["user"];
   logout: () => Promise<void>;
 }) => {
@@ -51,6 +53,7 @@ const HeaderOverlays = ({
       <DesktopHeader
         navLinks={navLinks}
         isAuthenticated={isAuthenticated}
+        isAuthLoading={isAuthLoading}
         user={user}
         logout={logout}
         totalItems={totalItems}
@@ -121,6 +124,7 @@ const HeaderOverlays = ({
         onClose={() => setIsSidebarOpen(false)}
         navLinks={navLinks}
         isAuthenticated={isAuthenticated}
+        isAuthLoading={isAuthLoading}
         user={user}
         onLogout={logout}
       />
@@ -131,7 +135,7 @@ const HeaderOverlays = ({
 export const Header = () => {
   const pathname = usePathname();
   const { totalItems } = useCart();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-lg border-b border-gray-100/50 dark:border-white/5">
@@ -140,6 +144,7 @@ export const Header = () => {
         pathname={pathname}
         totalItems={totalItems}
         isAuthenticated={isAuthenticated}
+        isAuthLoading={isLoading}
         user={user}
         logout={logout}
       />

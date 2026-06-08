@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -13,12 +13,13 @@ import {
   ShieldCheck,
   MapPin,
   Package,
-  Info,
   Filter,
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { compareProducts, CompareProduct, CompareStats } from '@/features/compare/compare.service';
+import { compareProducts, CompareProduct } from '@/features/compare/compare.service';
+
+const quickSearches = ['riz', 'tomate', 'huile', 'farine', 'sucre'];
 
 // ─────────────────────────────────────────────
 // SELLER CARD
@@ -38,9 +39,9 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
   return (
     <div
       className={`relative bg-white dark:bg-[#1a1a1a] border ${isBestPrice
-        ? 'border-emerald-500 shadow-2xl scale-[1.02] z-10'
+        ? 'border-emerald-500 shadow-xl sm:shadow-2xl sm:scale-[1.02] z-10'
         : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
-        } rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
+        } rounded-2xl sm:rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
     >
       {isBestPrice && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-600 text-[8px] font-black uppercase tracking-widest text-white rounded-full shadow-lg z-20 whitespace-nowrap">
@@ -110,7 +111,7 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
           Prix
         </p>
         <span
-          className={`text-2xl font-black tracking-tighter ${isBestPrice
+          className={`text-xl sm:text-2xl font-black tracking-tighter break-words ${isBestPrice
             ? 'text-emerald-600 dark:text-emerald-400'
             : 'text-deep-blue dark:text-white'
             }`}
@@ -124,14 +125,14 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
         <Link href={waLink} target="_blank" className="block">
           <Button
             variant="outline"
-            className="w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-gray-100 dark:border-white/5 px-0"
+            className="w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-gray-100 dark:border-white/5 px-1"
           >
-            <Phone className="w-3 h-3 md:mr-2 text-emerald-600" /> <span className="hidden md:inline">WhatsApp</span>
+            <Phone className="w-3 h-3 mr-1.5 text-emerald-600 shrink-0" /> <span className="truncate">WhatsApp</span>
           </Button>
         </Link>
         <Link href={`/products/${product.id}`} className="block">
-          <Button className="w-full h-9 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95 px-0">
-            <ShoppingCart className="w-3 h-3 md:mr-2" /> <span className="hidden md:inline">Voir l'offre</span>
+          <Button className="w-full h-9 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95 px-1">
+            <ShoppingCart className="w-3 h-3 mr-1.5 shrink-0" /> <span className="truncate">Voir</span>
           </Button>
         </Link>
       </div>
@@ -149,33 +150,55 @@ export default function ComparePage() {
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [selectedCity, setSelectedCity] = useState('Toutes');
   const [products, setProducts] = useState<CompareProduct[]>([]);
-  const [stats, setStats] = useState<CompareStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const latestRequestRef = useRef(0);
 
   // Fetch depuis l'API Backend
-  const fetchCompare = useCallback(async (q: string) => {
-    if (!q.trim()) return;
+  const fetchCompare = useCallback(async (q: string, signal?: AbortSignal) => {
+    const normalizedQuery = q.trim();
+    const requestId = latestRequestRef.current + 1;
+    latestRequestRef.current = requestId;
+
+    if (normalizedQuery.length < 2) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const res = await compareProducts(q.trim());
-      if (res.success) {
+      const res = await compareProducts(normalizedQuery, signal);
+      if (res.success && requestId === latestRequestRef.current) {
         setProducts(res.products);
-        setStats(res.stats || null);
+      }
+    } catch (error) {
+      if (!signal?.aborted) {
+        console.error('Erreur recherche comparaison:', error);
       }
     } finally {
-      setLoading(false);
+      if (requestId === latestRequestRef.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchCompare(searchQuery);
+    const controller = new AbortController();
+    fetchCompare(searchQuery, controller.signal);
+    return () => controller.abort();
   }, [searchQuery, fetchCompare]);
 
   // Debounce input
   useEffect(() => {
-    const t = setTimeout(() => setSearchQuery(inputValue), 600);
+    const t = setTimeout(() => setSearchQuery(inputValue.trim()), 350);
     return () => clearTimeout(t);
   }, [inputValue]);
+
+  const runQuickSearch = (query: string) => {
+    setInputValue(query);
+    setSearchQuery(query);
+  };
 
   // Villes dynamiques basées sur la data
   const cities = useMemo(() => {
@@ -209,14 +232,21 @@ export default function ComparePage() {
       : '—';
 
   const featured = filtered[0] ?? null;
+  const hasActiveSearch = searchQuery.trim().length >= 2;
 
   return (
-    <main className="min-h-screen bg-[#fafafa] dark:bg-black pt-24 pb-20">
-      <div className="container mx-auto px-4 max-w-[1400px]">
+    <main className="min-h-screen bg-[#fafafa] dark:bg-black pt-20 sm:pt-24 pb-16 sm:pb-20 overflow-x-hidden">
+      <div className="container mx-auto px-3 sm:px-4 max-w-[1400px]">
 
         {/* ─── BARRE DE RECHERCHE ─── */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-12">
-          <div className="relative w-full lg:max-w-md flex items-center gap-3 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 px-5 py-3 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              setSearchQuery(inputValue.trim());
+            }}
+            className="relative w-full lg:max-w-md flex items-center gap-3 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 px-5 py-3 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all"
+          >
             <Search className="text-gray-300 w-5 h-5 shrink-0" />
             <input
               type="text"
@@ -226,11 +256,11 @@ export default function ComparePage() {
               className="w-full bg-transparent border-none outline-none text-[13px] font-bold dark:text-white placeholder:text-gray-400"
             />
             {loading && <Loader2 className="w-4 h-4 text-emerald-500 animate-spin shrink-0" />}
-          </div>
+          </form>
 
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3">
+          <div className="flex w-full lg:w-auto flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-end gap-3 min-w-0">
             {/* Filtre villes */}
-            <div className="flex items-center gap-1 bg-white dark:bg-[#1a1a1a] px-3 py-2 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1 bg-white dark:bg-[#1a1a1a] px-3 py-2 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-x-auto no-scrollbar min-w-0 max-w-full">
               <Filter className="w-4 h-4 text-[#2D5A27] shrink-0" />
               {cities.map((city) => (
                 <button
@@ -246,26 +276,39 @@ export default function ComparePage() {
               ))}
             </div>
 
-            {/* Tri */}
-            <div className="flex items-center gap-2 bg-[#E67E22]/10 px-3 py-1.5 rounded-full border border-[#E67E22]/20">
-              <span className="material-symbols-outlined text-[12px] text-[#E67E22]">sort</span>
-              <select
-                className="bg-transparent text-[9px] font-black uppercase tracking-widest text-[#E67E22] outline-none cursor-pointer appearance-none"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+              <button
+                type="button"
+                onClick={() => setOnlyVerified((value) => !value)}
+                className={`h-10 px-3 rounded-full border text-[9px] font-black uppercase tracking-widest transition-all ${onlyVerified
+                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                  : 'bg-white dark:bg-[#1a1a1a] border-gray-100 dark:border-white/5 text-gray-500 dark:text-gray-400'
+                  }`}
               >
-                <option value="price_asc">Moins cher</option>
-                <option value="price_desc">Plus cher</option>
-                <option value="rating">Mieux notés</option>
-              </select>
-              <span className="material-symbols-outlined text-[10px] text-[#E67E22]">afficher plus</span>
+                Vérifiés
+              </button>
+
+              {/* Tri */}
+              <div className="h-10 flex items-center justify-center gap-2 bg-[#E67E22]/10 px-3 rounded-full border border-[#E67E22]/20 min-w-0">
+                <span className="material-symbols-outlined text-[12px] text-[#E67E22] shrink-0">sort</span>
+                <select
+                  className="min-w-0 bg-transparent text-[9px] font-black uppercase tracking-widest text-[#E67E22] outline-none cursor-pointer"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  aria-label="Trier les offres"
+                >
+                  <option value="price_asc">Moins cher</option>
+                  <option value="price_desc">Plus cher</option>
+                  <option value="rating">Mieux notés</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ─── HERO PRODUIT ─── */}
-        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-3xl lg:rounded-[2.5rem] p-5 lg:p-10 mb-8 lg:mb-16 shadow-sm overflow-hidden flex flex-col lg:flex-row gap-6 lg:gap-10 items-center">
-          <div className="relative size-32 lg:size-56 shrink-0 rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden shadow-xl border-4 border-gray-50 dark:border-white/5">
+        <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] p-4 sm:p-5 lg:p-10 mb-8 lg:mb-16 shadow-sm overflow-hidden flex flex-col lg:flex-row gap-5 sm:gap-6 lg:gap-10 items-center">
+          <div className="relative size-28 sm:size-32 lg:size-56 shrink-0 rounded-[1.25rem] lg:rounded-[2rem] overflow-hidden shadow-xl border-4 border-gray-50 dark:border-white/5">
             {featured?.image ? (
               <Image src={featured.image} alt={featured.name} fill className="object-cover" />
             ) : (
@@ -274,44 +317,74 @@ export default function ComparePage() {
               </div>
             )}
           </div>
-          <div className="flex-1 text-center lg:text-left space-y-6">
+          <div className="flex-1 text-center lg:text-left space-y-5 sm:space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-center lg:justify-start gap-2">
                 <TrendingDown className="w-4 h-4 text-emerald-500" />
-                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                   Analyse de marché — {filtered.length} offre{filtered.length !== 1 ? 's' : ''}
                 </span>
               </div>
-              <h1 className="text-3xl lg:text-5xl font-black text-deep-blue dark:text-white tracking-tighter uppercase leading-[0.9]">
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-black text-deep-blue dark:text-white tracking-tighter uppercase leading-tight lg:leading-[0.9] break-words">
                 {searchQuery || 'Rechercher un produit'}
               </h1>
               {featured && (
-                <p className="text-[13px] font-medium text-gray-400 max-w-xl line-clamp-2">
+                <p className="text-xs sm:text-[13px] font-medium text-gray-400 max-w-xl line-clamp-3 sm:line-clamp-2">
                   {featured.description}
+                </p>
+              )}
+              {!featured && (
+                <p className="text-xs sm:text-sm font-medium text-gray-400 max-w-xl mx-auto lg:mx-0">
+                  Comparez les offres disponibles, trouvez le meilleur prix et contactez directement le vendeur.
                 </p>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-10 pt-4">
-              <div>
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Moyenne</p>
-                <p className="text-3xl font-black text-deep-blue dark:text-white">{filteredAvg} $</p>
+            {!featured && (
+              <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+                {quickSearches.map((query) => (
+                  <button
+                    key={query}
+                    type="button"
+                    onClick={() => runQuickSearch(query)}
+                    className="h-9 px-4 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors"
+                  >
+                    {query}
+                  </button>
+                ))}
               </div>
-              {filteredMin !== filteredMax && (
-                <div>
-                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Fourchette</p>
-                  <p className="text-2xl font-black text-emerald-600">{filteredMin} $ – {filteredMax} $</p>
+            )}
+
+            {featured ? (
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-10 pt-2 sm:pt-4">
+                <div className="min-w-0">
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Moyenne</p>
+                  <p className="text-2xl sm:text-3xl font-black text-deep-blue dark:text-white break-words">{filteredAvg} $</p>
                 </div>
-              )}
-            </div>
+                {filteredMin !== filteredMax && (
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Fourchette</p>
+                    <p className="text-xl sm:text-2xl font-black text-emerald-600 break-words">{filteredMin} $ – {filteredMax} $</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 pt-2">
+                {['Recherche rapide', 'Prix comparés', 'Vendeurs directs'].map((label) => (
+                  <div key={label} className="rounded-2xl bg-gray-50 dark:bg-white/5 px-4 py-3 border border-gray-100 dark:border-white/5">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-400">{label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* ─── DIVIDER ─── */}
-        <div className="flex items-center gap-4 mb-10 text-gray-200 dark:text-white/10">
+        <div className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-10 text-gray-200 dark:text-white/10">
           <div className="flex-1 h-px bg-current"></div>
-          <ShieldCheck className="w-5 h-5" />
-          <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-300 dark:text-white/20">Transaction Sécurisée</span>
+          <ShieldCheck className="w-5 h-5 shrink-0" />
+          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-gray-300 dark:text-white/20 whitespace-nowrap">Transaction Sécurisée</span>
           <div className="flex-1 h-px bg-current"></div>
         </div>
 
@@ -335,13 +408,64 @@ export default function ComparePage() {
               </div>
             ))}
           </div>
+        ) : hasActiveSearch ? (
+          <div className="col-span-full overflow-hidden rounded-3xl border border-[#E67E22]/20 bg-white dark:bg-[#1a1a1a] shadow-sm">
+            <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="p-6 sm:p-8 lg:p-10 text-center lg:text-left">
+                <div className="mx-auto lg:mx-0 mb-5 flex size-16 items-center justify-center rounded-2xl bg-[#E67E22]/10 text-[#E67E22] ring-1 ring-[#E67E22]/20">
+                  <Search className="w-7 h-7" />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#E67E22] mb-3">
+                  Aucun résultat
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#2D5A27] dark:text-white">
+                  Aucun produit trouvé pour &ldquo;{searchQuery}&rdquo;
+                </h2>
+                <p className="mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 max-w-xl mx-auto lg:mx-0">
+                  Essayez un nom plus simple ou comparez une catégorie populaire pour trouver des offres disponibles.
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center lg:justify-start gap-2">
+                  {quickSearches.map((query) => (
+                    <button
+                      key={query}
+                      type="button"
+                      onClick={() => runQuickSearch(query)}
+                      className="h-10 px-4 rounded-full bg-[#2D5A27] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[#24481f] transition-colors"
+                    >
+                      {query}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-[#2D5A27] p-6 sm:p-8 lg:p-10 text-white flex flex-col justify-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#E67E22] mb-4">
+                  Conseil recherche
+                </p>
+                <div className="space-y-3">
+                  {['Utilisez 1 ou 2 mots clés', 'Évitez les marques trop longues', 'Vérifiez la ville sélectionnée'].map((tip) => (
+                    <div key={tip} className="flex items-center gap-3">
+                      <CheckCircle className="w-4 h-4 text-[#E67E22] shrink-0" />
+                      <span className="text-sm font-bold">{tip}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
-          <div className="col-span-full py-24 text-center bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-[2.5rem]">
-            <Search className="w-10 h-10 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-400 font-bold text-xs uppercase tracking-widest italic">
-              Aucun produit trouvé pour &ldquo;{searchQuery}&rdquo;
-            </p>
-            <p className="text-gray-300 font-medium text-xs mt-2">Essayez &ldquo;riz&rdquo;, &ldquo;tomate&rdquo;, &ldquo;huile&rdquo;...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {quickSearches.slice(0, 3).map((query) => (
+              <button
+                key={query}
+                type="button"
+                onClick={() => runQuickSearch(query)}
+                className="text-left bg-white dark:bg-[#1a1a1a] border border-[#E67E22]/15 rounded-2xl p-4 hover:border-[#E67E22]/50 hover:shadow-lg hover:shadow-[#E67E22]/10 transition-all"
+              >
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#E67E22] mb-1">Comparer</p>
+                <p className="text-lg font-black text-[#2D5A27] dark:text-white uppercase">{query}</p>
+              </button>
+            ))}
           </div>
         )}
       </div>

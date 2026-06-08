@@ -407,7 +407,7 @@ export class EmailService {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
         <div style="background-color: #E67E22; padding: 40px 20px; text-align: center;">
           <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px;">WAPIBEI</h1>
-          <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-weight: 600;">Le marché intelligent de Goma</p>
+          <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-weight: 600;">Le marché intelligent de l'Afrique</p>
         </div>
         <div style="padding: 40px 30px;">
           <h2 style="color: #1a202c; font-size: 24px; font-weight: 800; margin-top: 0;">Heureux de vous voir parmi nous !</h2>
@@ -418,7 +418,7 @@ export class EmailService {
           <div style="background-color: #f7fafc; padding: 25px; border-radius: 15px; margin: 30px 0;">
             <h3 style="color: #2D5A27; font-size: 14px; text-transform: uppercase; margin-top: 0; letter-spacing: 1px;">Ce que vous pouvez faire :</h3>
             <ul style="color: #4a5568; margin: 15px 0 0 0; padding-left: 20px; font-weight: 500;">
-              <li style="margin-bottom: 10px;">Comparer les prix de Goma en temps réel.</li>
+              <li style="margin-bottom: 10px;">Comparer les prix en Afrique en temps réel.</li>
               <li style="margin-bottom: 10px;">Suivre vos boutiques préférées.</li>
               <li style="margin-bottom: 10px;">Acheter en toute confiance avec les scores de confiance.</li>
             </ul>

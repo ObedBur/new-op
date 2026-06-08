@@ -67,6 +67,11 @@ export const authService = {
       return response.data.user;
     } catch (error) {
       console.error('Failed to init auth session:', error);
+      setAccessToken(null);
+      storage.removeRefreshToken();
+      if (typeof window !== 'undefined') {
+        document.cookie = 'wapibei_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      }
       return null;
     }
   },

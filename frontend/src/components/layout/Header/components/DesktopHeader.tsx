@@ -17,6 +17,7 @@ interface NavLink {
 interface DesktopHeaderProps {
   navLinks: NavLink[];
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   user: User | null;
   logout: () => void;
   totalItems: number;
@@ -38,6 +39,7 @@ interface DesktopHeaderProps {
 export const DesktopHeader = ({
   navLinks,
   isAuthenticated,
+  isAuthLoading,
   user,
   logout,
   totalItems,
@@ -263,6 +265,7 @@ export const DesktopHeader = ({
           <div className="ml-1">
             <ProfileDropdown 
                 isAuthenticated={isAuthenticated}
+                isAuthLoading={isAuthLoading}
                 user={user}
                 onLogout={logout}
                 isProfileOpen={isProfileOpen}

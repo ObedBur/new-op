@@ -31,6 +31,7 @@ interface MobileSidebarProps {
   onClose: () => void;
   navLinks: NavLink[];
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   user: User | null;
   onLogout: () => void;
 }
@@ -40,6 +41,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   onClose, 
   navLinks, 
   isAuthenticated, 
+  isAuthLoading,
   user,
   onLogout
 }) => {
@@ -80,7 +82,15 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             </button>
           </div>
 
-          {isAuthenticated ? (
+          {isAuthLoading ? (
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-xl bg-gray-200 dark:bg-white/10 animate-pulse" />
+              <div className="min-w-0 space-y-2">
+                <div className="h-3 w-24 rounded bg-gray-200 dark:bg-white/10 animate-pulse" />
+                <div className="h-2 w-16 rounded bg-gray-200 dark:bg-white/10 animate-pulse" />
+              </div>
+            </div>
+          ) : isAuthenticated ? (
             <div className="flex items-center gap-4">
               <div className="size-12 rounded-xl bg-[#E67E22] flex items-center justify-center text-white text-lg font-black shadow-lg shadow-orange-500/20 border-2 border-white dark:border-white/10 overflow-hidden relative">
                 {user?.avatarUrl ? (

@@ -8,6 +8,7 @@ import { ChevronDown } from 'lucide-react';
 
 interface ProfileDropdownProps {
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
   user: User | null;
   onLogout: () => void;
   isProfileOpen: boolean;
@@ -16,6 +17,7 @@ interface ProfileDropdownProps {
 
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ 
   isAuthenticated, 
+  isAuthLoading,
   user,
   onLogout,
   isProfileOpen, 
@@ -65,7 +67,12 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   return (
     <div className="relative" ref={profileMenuRef}>
-      {isAuthenticated ? (
+      {isAuthLoading ? (
+        <div
+          className="size-10 rounded-full bg-gray-200 dark:bg-white/10 animate-pulse"
+          aria-label="Chargement du profil"
+        />
+      ) : isAuthenticated ? (
         <button 
           onClick={() => setIsProfileOpen(!isProfileOpen)}
           className="group p-0.5 flex items-center gap-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300"
