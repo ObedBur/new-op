@@ -20,7 +20,7 @@ export interface Product {
   image: string;
   images?: string[];
   updatedAt: string;
-  availability?: 'IN_STOCK' | 'LIMITED_STOCK' | 'ON_ORDER';
+  availability?: 'IN_STOCK' | 'LIMITED_STOCK' | 'OUT_OF_STOCK';
   stockQuantity?: number;
   unit?: string;
   user?: Seller;

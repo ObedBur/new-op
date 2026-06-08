@@ -90,10 +90,10 @@ export const Footer: React.FC = () => {
 
           {/* Zone des liens : Alignés à gauche comme chez Cisco */}
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Politique de confidentialité</Link>
-            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Conditions d'utilisation</Link>
-            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Politique des cookies</Link>
-            <Link href="/#" className="hover:text-[#E67E22] transition-colors">Mentions légales</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Politique de confidentialité</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Conditions d'utilisation</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Politique des cookies</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Mentions légales</Link>
           </div>
 
           <p className="text-slate-400 dark:text-slate-600">

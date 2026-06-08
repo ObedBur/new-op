@@ -38,7 +38,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -53,10 +53,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-lg bg-white dark:bg-[#1a1c1e] rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-white/5"
+            className="relative w-full max-w-lg max-h-[92dvh] bg-white dark:bg-[#1a1c1e] rounded-2xl sm:rounded-[2rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col"
           >
             {/* Header */}
-            <div className="relative pt-10 pb-6 px-8 text-center bg-linear-to-b from-gray-50/50 to-transparent dark:from-white/5">
+            <div className="relative pt-8 pb-5 px-5 sm:pt-10 sm:pb-6 sm:px-8 text-center bg-linear-to-b from-gray-50/50 to-transparent dark:from-white/5 shrink-0">
               <button
                 onClick={onClose}
                 className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-400"
@@ -64,16 +64,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <X size={20} />
               </button>
               <div className="mx-auto w-12 h-1 bg-[#E67E22]/20 rounded-full mb-6" />
-              <h2 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-deep-blue dark:text-white tracking-tight">
                 Finalisez votre commande
               </h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Prêt à recevoir vos trésors ?
+              <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-6">
+                Vos coordonnées seront envoyées au vendeur pour finaliser sur WhatsApp.
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-5">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5 overflow-y-auto">
               <div className="space-y-4">
                 <Input
                   label="Nom et Prénom"
@@ -103,7 +103,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </label>
                   <textarea
                     name="address"
-                    placeholder="Numéro, rue, ville et code postal"
+                    placeholder="Ville, commune, quartier ou point de rencontre"
                     defaultValue={initialData.address}
                     required
                     rows={3}
@@ -116,14 +116,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full h-14 bg-[#E67E22] hover:bg-orange-600 shadow-lg shadow-orange-500/20 text-white font-bold"
+                  className="w-full min-h-14 h-auto py-4 bg-[#E67E22] hover:bg-orange-600 shadow-lg shadow-orange-500/20 text-white font-bold whitespace-normal text-center"
                 >
-                  Payer à la livraison • {total.toLocaleString()} {currency}
+                  Envoyer la commande • {total.toLocaleString()} {currency}
                 </Button>
               </div>
 
               <p className="text-[10px] text-center text-gray-400 uppercase tracking-widest font-medium">
-                Paiement sécurisé • Livraison WapiBei
+                Pas de paiement en ligne • Le vendeur vous contacte sur WhatsApp
               </p>
             </form>
           </motion.div>

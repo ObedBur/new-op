@@ -16,36 +16,46 @@ interface CartContextType extends CartState {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const DELIVERY_FEE = 0; // Free for now, terms discussed with seller
+const CART_STORAGE_KEY = 'wapibei_cart';
+
+const loadStoredCart = (): CartItem[] => {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const savedCart = window.localStorage.getItem(CART_STORAGE_KEY);
+    if (!savedCart) return [];
+
+    const parsed = JSON.parse(savedCart);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter((item) => item?.product?.id && item.quantity > 0);
+  } catch (error) {
+    console.error('Failed to load cart from localStorage', error);
+    return [];
+  }
+};
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem('wapibei_cart');
-      if (savedCart) {
-        try {
-          // eslint-disable-next-line
-        setItems(JSON.parse(savedCart));
-        } catch (e) {
-          console.error('Failed to parse cart from localStorage', e);
-        }
-      }
-    }
-  }, []);
+  const [items, setItems] = useState<CartItem[]>(loadStoredCart);
 
   // Save cart to localStorage on change
   useEffect(() => {
-    localStorage.setItem('wapibei_cart', JSON.stringify(items));
+    try {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch (error) {
+      console.error('Failed to save cart to localStorage', error);
+    }
   }, [items]);
 
   const addItem = (product: Product, quantity: number = 1) => {
     // P2 FIX (frontend) — Vérification du stock avant l'ajout
     if (
-      product.stockQuantity !== null &&
-      product.stockQuantity !== undefined &&
-      product.stockQuantity === 0
+      product.availability === 'OUT_OF_STOCK' ||
+      (
+        product.stockQuantity !== null &&
+        product.stockQuantity !== undefined &&
+        product.stockQuantity === 0
+      )
     ) {
       toast.error(`"${product.name}" est en rupture de stock.`);
       return;

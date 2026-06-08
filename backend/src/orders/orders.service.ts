@@ -36,19 +36,42 @@ export class OrdersService {
   async createBulk(createBulkOrderDto: CreateBulkOrderDto, clientId: string) {
     const { items, customerName, customerPhone, customerEmail, deliveryAddress } = createBulkOrderDto;
 
-    const productIds = items.map(item => item.productId);
+    if (!items.length) {
+      throw new BadRequestException('Le panier est vide.');
+    }
+
+    const groupedItems = Array.from(
+      items.reduce((acc, item) => {
+        acc.set(item.productId, (acc.get(item.productId) || 0) + item.quantity);
+        return acc;
+      }, new Map<string, number>())
+    ).map(([productId, quantity]) => ({ productId, quantity }));
+
+    const productIds = groupedItems.map(item => item.productId);
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds } },
       include: { user: true },
     });
 
-    if (products.length !== items.length) {
+    if (products.length !== groupedItems.length) {
       throw new NotFoundException('Certains produits sélectionnés n\'existent plus.');
     }
 
-    // Validation préalable des stocks pour éviter les échecs partiels de transaction
-    for (const item of items) {
+    // Validation préalable pour éviter les commandes impossibles ou incohérentes.
+    for (const item of groupedItems) {
       const product = products.find(p => p.id === item.productId);
+      if (!product) {
+        throw new NotFoundException('Un produit sélectionné n\'existe plus.');
+      }
+
+      if (!product.isPublic || product.availability === 'OUT_OF_STOCK') {
+        throw new BadRequestException(`"${product.name}" n'est plus disponible à la commande.`);
+      }
+
+      if (!product.user?.isActive || product.user.role !== UserRole.VENDOR) {
+        throw new BadRequestException(`Le vendeur de "${product.name}" n'est pas disponible actuellement.`);
+      }
+
       if (product.stockQuantity !== null && product.stockQuantity !== undefined && product.stockQuantity < item.quantity) {
         throw new BadRequestException(
           `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`
@@ -62,8 +85,8 @@ export class OrdersService {
      * 2. Décrémentation du stock
      */
     const createdOrders = await this.prisma.$transaction([
-      ...items.map(item => {
-        const product = products.find(p => p.id === item.productId);
+      ...groupedItems.map(item => {
+        const product = products.find(p => p.id === item.productId)!;
         return this.prisma.order.create({
           data: {
             customerName,
@@ -74,17 +97,20 @@ export class OrdersService {
             productId: product.id,
             clientId,
             vendorId: product.userId,
-            status: 'CONFIRMED',
+            status: 'PENDING',
           },
           include: { product: true, vendor: true },
         });
       }),
-      ...items.map(item =>
-        this.prisma.product.update({
+      ...groupedItems
+        .filter(item => {
+          const product = products.find(p => p.id === item.productId);
+          return product?.stockQuantity !== null && product?.stockQuantity !== undefined;
+        })
+        .map(item => this.prisma.product.update({
           where: { id: item.productId },
           data: { stockQuantity: { decrement: item.quantity } },
-        })
-      ),
+        })),
     ]);
 
     const ordersOnly = createdOrders.filter((r): r is any => 'vendorId' in r);
@@ -98,9 +124,9 @@ export class OrdersService {
       }
     }
 
-    this.dispatchClientNotifications(clientId, customerEmail, customerName, items, products, totalOrderPrice, ordersOnly);
+    this.dispatchClientNotifications(clientId, customerEmail, customerName, groupedItems, products, totalOrderPrice, ordersOnly);
     this.dispatchVendorNotifications(ordersOnly, customerName, customerPhone, deliveryAddress);
-    this.dispatchAdminNotifications(createdOrders.length, totalOrderPrice, customerName, ordersOnly);
+    this.dispatchAdminNotifications(ordersOnly.length, totalOrderPrice, customerName, ordersOnly);
 
     return {
       success: true,
@@ -152,8 +178,8 @@ export class OrdersService {
     if (!prefs || prefs.ordersInApp) {
       this.notificationsService.createNotification({
         userId: clientId,
-        title: 'Commande validée',
-        message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été reçue.`,
+        title: 'Commande envoyée',
+        message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été envoyée au vendeur.`,
         type: NotificationType.ORDER_CREATED,
         metadata: { url: '/settings?tab=orders', orderIds: orders.map((o: any) => o.id) },
       });
@@ -161,8 +187,8 @@ export class OrdersService {
 
     if (!prefs || prefs.ordersPush) {
       this.notificationsService.sendPushToUser(clientId, {
-        title: 'Commande validée',
-        body: `Votre commande a bien été reçue. Merci de votre confiance.`,
+        title: 'Commande envoyée',
+        body: `Votre commande a été transmise au vendeur pour confirmation.`,
         data: { url: '/orders' }
       });
     }

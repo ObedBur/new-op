@@ -19,7 +19,7 @@ export const CookieConsent = () => {
     if (!isVisible) return null;
 
     return (
-        // Utilisation de glass-panel pour correspondre à votre esthétique de site
+        // La correction est ici : le ">" était manquant
         <div className="fixed bottom-6 right-6 z-[9999] w-[350px] glass-panel rounded-[var(--radius)] p-6 animate-in slide-in-from-bottom-8">
             <h4 className="font-display font-black text-foreground text-sm mb-3 uppercase tracking-wider">
                 Confidentialité
@@ -29,8 +29,7 @@ export const CookieConsent = () => {
                 En poursuivant votre navigation, vous acceptez notre politique d'utilisation.
             </p>
 
-            <div className="flex flex-col gap-3">
-                {/* Utilisation de votre btn-cta pour le bouton principal */}
+            <div className="flex flex-col gap-3"> {/* Le ">" est maintenant bien présent */}
                 <button
                     onClick={acceptCookies}
                     className="btn-cta w-full py-3 rounded-[var(--radius-md)] text-[11px] uppercase tracking-widest"
@@ -38,7 +37,6 @@ export const CookieConsent = () => {
                     Accepter les cookies
                 </button>
 
-                {/* Lien sobre pour la suite */}
                 <Link
                     href="/legal"
                     className="text-[10px] text-foreground/50 font-bold uppercase tracking-widest hover:text-primary transition-colors text-center"

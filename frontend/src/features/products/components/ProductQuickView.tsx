@@ -16,6 +16,7 @@ import { ProductMapper } from '../services/product.mapper';
 export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onClose }) => {
   const { addItem } = useCart();
   const { amount, currency } = ProductMapper.parsePrice(product.displayPrice || product.price);
+  const isOutOfStock = product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0;
 
   const handleAddToCart = () => {
     addItem(product);
@@ -155,16 +156,16 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
               {/* Panier */}
               <button
                 onClick={handleAddToCart}
-                disabled={product.stockQuantity === 0}
-                className={`flex-1 h-18 w-full rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 border-2 ${product.stockQuantity === 0
+                disabled={isOutOfStock}
+                className={`flex-1 h-18 w-full rounded-xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg transition-all active:scale-95 border-2 ${isOutOfStock
                     ? 'bg-slate-100 dark:bg-white/5 text-slate-400 cursor-not-allowed border-transparent'
                     : 'bg-[#E67E22] hover:bg-[#d6721b] text-white shadow-[#E67E22]/20 border-[#E67E22]'
                   }`}
               >
                 <span className="material-symbols-outlined text-[24px]">
-                  {product.stockQuantity === 0 ? 'block' : 'shopping_cart'}
+                  {isOutOfStock ? 'block' : 'shopping_cart'}
                 </span>
-                {product.stockQuantity === 0 ? 'PRODUIT ÉPUISÉ' : 'AJOUTER AU PANIER'}
+                {isOutOfStock ? 'PRODUIT ÉPUISÉ' : 'AJOUTER AU PANIER'}
               </button>
 
               {/* WhatsApp */}
