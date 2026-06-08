@@ -8,7 +8,7 @@ import { ChevronDown } from 'lucide-react';
 
 interface ProfileDropdownProps {
   isAuthenticated: boolean;
-  isAuthLoading: boolean;
+  isAuthLoading?: boolean;
   user: User | null;
   onLogout: () => void;
   isProfileOpen: boolean;
@@ -17,7 +17,7 @@ interface ProfileDropdownProps {
 
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ 
   isAuthenticated, 
-  isAuthLoading,
+  isAuthLoading = false,
   user,
   onLogout,
   isProfileOpen, 
