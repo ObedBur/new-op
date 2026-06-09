@@ -24,6 +24,7 @@ export default function SellerDetailPage() {
         if (id) {
           const data = await getSellerById(id as string);
           setSellerData(data);
+          setIsFollowed(Boolean(data?.isFollowed));
         }
       } catch (error) {
         console.error('Error fetching seller detail:', error);
@@ -204,7 +205,7 @@ export default function SellerDetailPage() {
 
                   <Link href={`/products/${product.id}`} className="block">
                     <button className="w-full py-3 bg-[#E67E22]/10 text-[#E67E22] hover:bg-[#E67E22] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
-                      VOIR
+                      AJOUTEZ AU PANIER !
                     </button>
                   </Link>
                 </div>

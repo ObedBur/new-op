@@ -1,7 +1,7 @@
 const REFRESH_TOKEN_KEY = 'wapibei_refresh_token'; // Convention du projet : préfixe wapibei_
 
-type Theme = 'light' | 'dark' | 'emerald' | 'ocean';
-type Language = 'fr' | 'en' | 'sw';
+type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'ocean';
+type Language = 'fr' | 'en';
 type FontSize = 'small' | 'medium' | 'large';
 
 export const storage = {
@@ -69,7 +69,10 @@ export const storage = {
   getTheme: (): Theme => storage.getItem<Theme>('theme', 'light'),
   setTheme: (theme: Theme) => storage.setItem('theme', theme),
   
-  getLanguage: (): Language => storage.getItem<Language>('language', 'fr'),
+  getLanguage: (): Language => {
+    const language = storage.getItem<string>('language', 'fr');
+    return language === 'en' ? 'en' : 'fr';
+  },
   setLanguage: (lang: Language) => storage.setItem('language', lang),
   
   getFontSize: (): FontSize => storage.getItem<FontSize>('fontSize', 'medium'),

@@ -284,7 +284,7 @@ export class ProductsService {
       );
     }
 
-    return this.prisma.product.update({
+    const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: {
         ...(data.name && { name: data.name }),
@@ -299,16 +299,33 @@ export class ProductsService {
       } as any,
       include: { category: true }
     });
+
+    if (!product.isPublic && updatedProduct.isPublic) {
+      this.notificationsService.broadcastNewProduct(updatedProduct.id);
+    }
+
+    return updatedProduct;
   }
 
   /**
    * Publie un ensemble de produits en une seule opération.
    */
   async bulkPublish(ids: string[], userId: string) {
-    return this.prisma.product.updateMany({
+    const productsToNotify = await this.prisma.product.findMany({
+      where: { id: { in: ids }, userId, isPublic: false },
+      select: { id: true },
+    });
+
+    const result = await this.prisma.product.updateMany({
       where: { id: { in: ids }, userId },
       data: { isPublic: true } as any,
     });
+
+    for (const product of productsToNotify) {
+      this.notificationsService.broadcastNewProduct(product.id);
+    }
+
+    return result;
   }
 
   /**

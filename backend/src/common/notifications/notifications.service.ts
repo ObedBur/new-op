@@ -137,7 +137,13 @@ export class NotificationsService {
           title: 'Nouveau produit',
           message: `${product.user.boutiqueName} a publié : ${product.name}`,
           type: NotificationType.NEW_PRODUCT,
-          metadata: { productId: product.id },
+          metadata: {
+            productId: product.id,
+            productName: product.name,
+            vendorId: product.userId,
+            vendorName: product.user.boutiqueName || 'Un vendeur',
+            url: `/products/${product.id}`,
+          },
         });
 
         // Notification Email

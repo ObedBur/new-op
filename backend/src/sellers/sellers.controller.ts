@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Param, UseGuards, Req, NotFoundException, UseInterceptors } from '@nestjs/common';
 import { SellersService } from './sellers.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { JwtRequest } from '../auth/types/auth-request.types';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
@@ -14,12 +15,12 @@ export class SellersController {
   async getActiveSellers() {
     return this.sellersService.findActiveVendors();
   }
-  // mise en cache pour 2 minutes
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(120)
+  // Route publique avec auth optionnelle pour retourner isFollowed aux utilisateurs connectés.
+  // Ne pas cacher cette réponse: isFollowed dépend de l'utilisateur connecté.
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':id')
-  async getOne(@Param('id') id: string) {
-    const seller = await this.sellersService.findOneVendor(id);
+  async getOne(@Param('id') id: string, @Req() req: JwtRequest) {
+    const seller = await this.sellersService.findOneVendor(id, req.user?.id);
     if (!seller) {
       throw new NotFoundException('Vendeur non trouvé');
     }

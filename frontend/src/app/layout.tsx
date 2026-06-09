@@ -65,7 +65,6 @@ export default function RootLayout({
             <SplashScreen />
             <RootLayoutContent>{children}</RootLayoutContent>
 
-            {/* 2. Ajoutez le composant ici, juste avant la fin de la balise body */}
             <CookieConsent />
 
             <Toaster />

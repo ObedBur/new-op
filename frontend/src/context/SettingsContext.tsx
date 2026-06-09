@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { storage } from '@/utils/storage';
 
-export type Theme = 'light' | 'dark' | 'emerald' | 'ocean';
-export type Language = 'fr' | 'en' | 'sw';
+export type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'ocean';
+export type Language = 'fr' | 'en';
 export type FontSize = 'small' | 'medium' | 'large';
 
 interface SettingsContextType {
@@ -42,7 +42,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (typeof window !== 'undefined') {
             const root = window.document.documentElement;
             root.classList.remove('theme-light', 'theme-dark', 'theme-emerald', 'theme-ocean');
-            root.classList.add(`theme-${theme}`);
+            const resolvedTheme =
+                theme === 'system'
+                    ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+                    : theme;
+            root.classList.add(`theme-${resolvedTheme}`);
         }
     }, [theme]);
 

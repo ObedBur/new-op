@@ -14,6 +14,7 @@ import {
 import EditProfileModal from "../modal/EditProfileModal";
 
 import { useAuth } from "@/context/AuthContext";
+import { Language, Theme, useSettings } from "@/context/SettingsContext";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
@@ -53,6 +54,7 @@ const getInitials = (name: string) => {
 
 function SettingsPageContent() {
   const { user } = useAuth();
+  const { theme, setTheme, language, setLanguage } = useSettings();
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
@@ -697,18 +699,25 @@ function SettingsPageContent() {
                           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Thème d'affichage</h3>
                           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Choisissez le style visuel de l'interface.</p>
                           <div className="grid grid-cols-3 gap-3">
-                            {['Clair', 'Sombre', 'Système'].map((theme, idx) => (
+                            {[
+                              { label: 'Clair', value: 'light' as Theme },
+                              { label: 'Sombre', value: 'dark' as Theme },
+                              { label: 'Système', value: 'system' as Theme },
+                            ].map((themeOption) => (
                               <button 
-                                key={theme}
+                                key={themeOption.value}
                                 type="button"
-                                onClick={() => toast.success(`Thème ${theme} appliqué !`)}
+                                onClick={() => {
+                                  setTheme(themeOption.value);
+                                  toast.success(`Thème ${themeOption.label} appliqué !`);
+                                }}
                                 className={`py-3.5 rounded-2xl text-xs font-bold transition-all border cursor-pointer ${
-                                  idx === 2
+                                  theme === themeOption.value
                                     ? "bg-[#080B1A] text-white border-transparent shadow-sm dark:bg-white dark:text-slate-950"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
                                 }`}
                               >
-                                {theme}
+                                {themeOption.label}
                               </button>
                             ))}
                           </div>
@@ -720,16 +729,18 @@ function SettingsPageContent() {
                           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Configurez la langue dans laquelle s'affichent les textes.</p>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {[
-                              { label: 'Français', desc: 'Langue par défaut' },
-                              { label: 'Kiswahili', desc: 'Langue régionale' },
-                              { label: 'English', desc: 'Langue internationale' }
-                            ].map((lang, idx) => (
+                              { label: 'Français', desc: 'Langue principale', value: 'fr' as Language },
+                              { label: 'English', desc: 'International language', value: 'en' as Language },
+                            ].map((lang) => (
                               <button 
                                 key={lang.label}
                                 type="button"
-                                onClick={() => toast.success(`Langue configurée sur ${lang.label}`)}
+                                onClick={() => {
+                                  setLanguage(lang.value);
+                                  toast.success(`Langue configurée sur ${lang.label}`);
+                                }}
                                 className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${
-                                  idx === 0
+                                  language === lang.value
                                     ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
                                 }`}

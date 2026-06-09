@@ -28,23 +28,35 @@ export class SellersService {
     }));
   }
 
-  async findOneVendor(id: string): Promise<any> {
-    const vendor = await this.prisma.user.findUnique({
-      where: { id, role: 'VENDOR' } as any,
-      include: {
-        products: {
-          orderBy: { createdAt: 'desc' },
-          select: { 
-            id: true, 
-            name: true, 
-            price: true, 
-            image: true,
-            images: true,
-            isPublic: true as any
+  async findOneVendor(id: string, viewerId?: string): Promise<any> {
+    const [vendor, follow] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id, role: 'VENDOR' } as any,
+        include: {
+          products: {
+            orderBy: { createdAt: 'desc' },
+            select: { 
+              id: true, 
+              name: true, 
+              price: true, 
+              image: true,
+              images: true,
+              isPublic: true as any
+            },
           },
-        },
-      } as any,
-    }) as any;
+        } as any,
+      }) as any,
+      viewerId
+        ? this.prisma.follow.findUnique({
+            where: {
+              followerId_vendorId: {
+                followerId: viewerId,
+                vendorId: id,
+              },
+            },
+          })
+        : null,
+    ]);
 
     if (!vendor) return null;
 
@@ -57,6 +69,7 @@ export class SellersService {
       trustScore: vendor.trustScore,
       isVerified: vendor.isVerified,
       avatarUrl: vendor.avatarUrl,
+      isFollowed: Boolean(follow),
       products: vendor.products,
       productCount: (vendor.products || []).length,
       createdAt: vendor.createdAt,
