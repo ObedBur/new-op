@@ -8,7 +8,7 @@ export const CookieConsent = () => {
 
     useEffect(() => {
         const consent = localStorage.getItem('wapibei_cookie_consent');
-        if (!consent) setIsVisible(true);r
+        if (!consent) setIsVisible(true);
     }, []);
 
     const acceptCookies = () => {
