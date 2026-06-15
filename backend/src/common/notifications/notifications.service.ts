@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationType } from '@prisma/client';
 import { EmailService } from '../email/email.service';
 import { WebPushService } from './web-push.service';
+import { NotificationsGateway } from './notifications.gateway';
 
 /**
  * Service central de gestion des notifications.
@@ -16,6 +17,7 @@ export class NotificationsService {
     private prisma: PrismaService,
     private emailService: EmailService,
     private webPushService: WebPushService,
+    private notificationsGateway: NotificationsGateway,
   ) { }
 
   /**
@@ -39,6 +41,7 @@ export class NotificationsService {
           metadata: data.metadata ?? {},
         },
       });
+      this.notificationsGateway.emitToUser(data.userId, 'notification:new', notification);
       this.logger.log(`Notification créée pour l'utilisateur ${data.userId}: ${data.title}`);
       return notification;
     } catch (error) {
@@ -121,7 +124,18 @@ export class NotificationsService {
         where: { vendorId: product.userId },
         include: {
           follower: {
-            select: { id: true, email: true, fullName: true },
+            select: {
+              id: true,
+              email: true,
+              fullName: true,
+              notificationPreference: {
+                select: {
+                  followsInApp: true,
+                  followsEmail: true,
+                  followsPush: true,
+                },
+              },
+            },
           },
         },
       });
@@ -130,28 +144,32 @@ export class NotificationsService {
 
       for (const follow of followers) {
         const follower = follow.follower;
+        const prefs = follower.notificationPreference;
+        const vendorName = product.user.boutiqueName || 'Un vendeur';
 
         // Notification In-App
-        await this.createNotification({
-          userId: follower.id,
-          title: 'Nouveau produit',
-          message: `${product.user.boutiqueName} a publié : ${product.name}`,
-          type: NotificationType.NEW_PRODUCT,
-          metadata: {
-            productId: product.id,
-            productName: product.name,
-            vendorId: product.userId,
-            vendorName: product.user.boutiqueName || 'Un vendeur',
-            url: `/products/${product.id}`,
-          },
-        });
+        if (!prefs || prefs.followsInApp) {
+          await this.createNotification({
+            userId: follower.id,
+            title: 'Nouveau produit',
+            message: `${vendorName} a publié : ${product.name}`,
+            type: NotificationType.NEW_PRODUCT,
+            metadata: {
+              productId: product.id,
+              productName: product.name,
+              vendorId: product.userId,
+              vendorName,
+              url: `/products/${product.id}`,
+            },
+          });
+        }
 
         // Notification Email
-        if (follower.email) {
+        if ((!prefs || prefs.followsEmail) && follower.email) {
           await this.emailService.sendNewProductNotification({
             email: follower.email,
             customerName: follower.fullName,
-            vendorName: product.user.boutiqueName || 'Un vendeur',
+            vendorName,
             productName: product.name,
             productImage: product.image || '',
             price: product.price,
@@ -160,11 +178,13 @@ export class NotificationsService {
         }
 
         // Notification Push (sur tous les appareils enregistrés)
-        await this.sendPushToUser(follower.id, {
-          title: 'Nouveau produit',
-          body: `${product.user.boutiqueName} a publié : ${product.name}`,
-          data: { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}` },
-        });
+        if (!prefs || prefs.followsPush) {
+          await this.sendPushToUser(follower.id, {
+            title: 'Nouveau produit',
+            body: `${vendorName} a publié : ${product.name}`,
+            data: { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}` },
+          });
+        }
       }
     } catch (error) {
       this.logger.error(`Échec de la diffusion du produit ${productId}`, error);

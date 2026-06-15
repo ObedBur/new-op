@@ -8,11 +8,17 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { SettingsProvider } from '@/context/SettingsContext';
 import { LoadingProvider } from '@/context/LoadingContext';
+import { useNotificationsSocket } from '@/hooks/useNotificationsSocket';
 
 const ReactQueryDevtools = dynamic(
   () => import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtools),
   { ssr: false },
 );
+
+function NotificationsSocketBridge() {
+  useNotificationsSocket();
+  return null;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -21,6 +27,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <LoadingProvider>
           <AuthProvider>
             <ToastProvider>
+              <NotificationsSocketBridge />
               {children}
             </ToastProvider>
           </AuthProvider>

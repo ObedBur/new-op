@@ -62,7 +62,6 @@ export default function AuthLayout({
               <span className="opacity-50">Langue:</span>
               <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
                 <option value="fr">Français</option>
-                <option value="sw">Kiswahili</option>
                 <option value="en">English</option>
               </select>
             </div>

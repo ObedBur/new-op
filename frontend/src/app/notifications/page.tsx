@@ -14,8 +14,11 @@ import {
   MoreVertical
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
+import { useAuth } from '@/context/AuthContext';
+import { AppNotification, resolveNotificationUrl } from '@/types/notification';
 const formatDistanceToNow = (date: Date): string => {
   try {
     const now = new Date();
@@ -53,6 +56,8 @@ type FilterType = 'all' | 'orders' | 'promo' | 'system';
 
 export default function NotificationsPage() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAppNotifications();
+  const { user } = useAuth();
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
   const filters = [
@@ -75,6 +80,16 @@ export default function NotificationsPage() {
     if (type.includes('PROMO')) return <Sparkles className="text-amber-500" size={20} />;
     if (type.includes('WELCOME') || type.includes('SYSTEM')) return <Info className="text-blue-500" size={20} />;
     return <Bell className="text-gray-400" size={20} />;
+  };
+
+  const handleNotificationClick = (notification: AppNotification) => {
+    if (!notification.isRead) {
+      markAsRead(notification.id);
+    }
+    const url = resolveNotificationUrl(notification, user?.role);
+    if (url) {
+      router.push(url);
+    }
   };
 
   return (
@@ -145,7 +160,7 @@ export default function NotificationsPage() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.05 }}
                     key={n.id}
-                    onClick={() => !n.isRead && markAsRead(n.id)}
+                    onClick={() => handleNotificationClick(n)}
                     className={`group relative flex items-start gap-5 p-6 border-b transition-all cursor-pointer ${
                       n.isRead 
                         ? "bg-transparent border-transparent opacity-50 grayscale-[0.5]" 

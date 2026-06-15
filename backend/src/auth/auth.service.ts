@@ -115,7 +115,7 @@ export class AuthService {
     });
 
     // Envoi du message de bienvenue
-    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
+    this.emailService.sendWelcome(user.email, user.fullName).catch(err =>
       this.logger.error(`Failed to send welcome email to ${user.email}`, err)
     );
 
@@ -415,8 +415,7 @@ export class AuthService {
   }
 
   /**
-   * Met à jour partiellement les préférences de notifications.
-   * Crée l'entrée si elle n'existe pas encore.
+   * Si l'entrée de notifications n'existe pas.
    */
   async updateNotificationPreferences(userId: string, dto: Partial<{
     ordersPush: boolean; ordersEmail: boolean; ordersInApp: boolean;

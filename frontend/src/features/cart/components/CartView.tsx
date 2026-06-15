@@ -41,7 +41,7 @@ export const CartView: React.FC = () => {
       });
 
       setIsCheckoutModalOpen(false);
-      clearCart();
+      await clearCart();
       window.location.href = "/cart/success";
     } catch (error) {
       console.error("Checkout failed:", error);

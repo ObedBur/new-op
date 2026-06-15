@@ -34,7 +34,6 @@ const SettingsView: React.FC = () => {
     const languages: { id: typeof language; label: string }[] = [
         { id: 'fr', label: 'Français' },
         { id: 'en', label: 'English' },
-        { id: 'sw', label: 'Swahili' },
     ];
 
     const fontSizes: { id: typeof fontSize; label: string }[] = [
@@ -46,7 +45,6 @@ const SettingsView: React.FC = () => {
     const t = {
         fr: { title: 'Configuration Globale', theme: 'Thème de l\'interface', lang: 'Langue du système', font: 'Taille de police', apply: 'Appliquer les changements', applying: 'Application en cours...', success: 'Paramètres mis à jour' },
         en: { title: 'Global Settings', theme: 'Interface Theme', lang: 'System Language', font: 'Font Size', apply: 'Apply Changes', applying: 'Applying...', success: 'Settings updated' },
-        sw: { title: 'Mipangilio ya Mfumo', theme: 'Mandhari', lang: 'Lugha', font: 'Ukubwa wa maandishi', apply: 'Tekeleza Mabadiliko', applying: 'Inatekeleza...', success: 'Mipangilio imesasishwa' },
     }[draftLanguage]; // Use draftLanguage for previewing translations
 
     const hasChanges = draftTheme !== theme || draftLanguage !== language || draftFontSize !== fontSize;

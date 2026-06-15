@@ -34,7 +34,8 @@ export function useAppNotifications() {
     queryFn: fetchNotifications,
     enabled: isAuthenticated && !authLoading,
     staleTime: 30_000,      // consider data fresh for 30s
-    refetchInterval: 60_000, // background refetch every 60s
+    refetchInterval: false, // realtime updates arrive through Socket.IO
+    refetchOnWindowFocus: true,
   });
 
   // ── Computed ───────────────────────────────────────
