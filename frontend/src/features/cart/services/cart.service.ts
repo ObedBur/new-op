@@ -20,10 +20,32 @@ const toCartItems = (items: ServerCartItem[]): CartItem[] => {
     }));
 };
 
+// Retry logic pour les requêtes qui échouent temporairement
+const retryAsync = async <T,>(
+  fn: () => Promise<T>,
+  maxRetries: number = 2,
+  delayMs: number = 500
+): Promise<T> => {
+  let lastError: unknown;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (i < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)));
+      }
+    }
+  }
+  throw lastError;
+};
+
 export const cartService = {
   async getCart(): Promise<CartItem[]> {
-    const response = await api.get<ServerCartItem[]>('/cart');
-    return toCartItems(response.data);
+    return retryAsync(async () => {
+      const response = await api.get<ServerCartItem[]>('/cart');
+      return toCartItems(response.data);
+    });
   },
 
   async addItem(productId: string, quantity: number): Promise<CartItem[]> {

@@ -66,6 +66,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItem[]>(loadStoredCart);
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const syncedUserIdRef = useRef<string | null>(null);
+  const isSyncingRef = useRef<boolean>(false);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // LocalStorage reste un cache rapide. Le serveur devient la source de vérité
   // dès que l'utilisateur est connecté.
@@ -75,30 +77,45 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveStoredCart(items, user?.id);
   }, [items, isAuthenticated, isAuthLoading, user?.id]);
 
+  // Sync du panier serveur au changement d'authentification
   useEffect(() => {
     if (isAuthLoading) return;
 
+    // Nettoyage du timeout précédent
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+      syncTimeoutRef.current = null;
+    }
+
+    // L'utilisateur n'est pas connecté
     if (!isAuthenticated || !user?.id) {
       if (syncedUserIdRef.current) {
         syncedUserIdRef.current = null;
         setItems(loadStoredCart());
       }
+      isSyncingRef.current = false;
       return;
     }
 
-    if (syncedUserIdRef.current === user.id) return;
+    // Déjà synchronisé pour cet utilisateur
+    if (syncedUserIdRef.current === user.id) {
+      return;
+    }
+
+    // Déjà en cours de sync, ne pas relancer
+    if (isSyncingRef.current) {
+      return;
+    }
+
+    // Marquer comme en cours de sync
+    isSyncingRef.current = true;
     syncedUserIdRef.current = user.id;
 
     let isMounted = true;
 
     const syncServerCart = async () => {
       try {
-        const guestItems = loadStoredCart();
-        const cachedUserItems = loadStoredCart(user.id);
-        const itemsToMerge = guestItems.length > 0 ? guestItems : cachedUserItems;
-        const serverItems = itemsToMerge.length > 0
-          ? await cartService.mergeCart(itemsToMerge)
-          : await cartService.getCart();
+        const serverItems = await cartService.getCart();
 
         if (!isMounted) return;
 
@@ -107,7 +124,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeGuestCart();
       } catch (error) {
         console.error('Failed to sync server cart', error);
-        toast.error('Impossible de synchroniser le panier pour le moment.');
+        if (isMounted) {
+          // Si 404 ou authentification échoue, garder les items locaux
+          const localItems = loadStoredCart(user.id);
+          if (localItems.length > 0) {
+            setItems(localItems);
+          }
+        }
+      } finally {
+        if (isMounted) {
+          isSyncingRef.current = false;
+        }
       }
     };
 
