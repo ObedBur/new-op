@@ -40,7 +40,10 @@ async function bootstrap() {
   );
 
   // ============ PREFIXE GLOBAL ============
-  app.setGlobalPrefix('api');
+  // ============ PREFIXE GLOBAL ============
+  app.setGlobalPrefix('api', {
+    exclude: ['/', 'health'],
+  });
 
   // ============ FILTRE D'EXCEPTIONS GLOBAL ============
   app.useGlobalFilters(new GlobalExceptionFilter());
