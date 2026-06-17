@@ -147,6 +147,8 @@ const LOCAL_SLIDES: HeroSlide[] = [
   { id: 'slide-5', title: "Style & Confort", imageUrl: '/hero/slide5.png', label: 'MODERNE' },
 ];
 
+const REGISTER_VENDOR_HREF = "/register?role=VENDOR#role-vendeur";
+
 export const Hero: React.FC<HeroProps> = ({ slides }) => {
   const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
 
@@ -268,14 +270,17 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
               </motion.div>
             </Link>
 
-            <Link href="/register?role=VENDOR" className="w-full sm:w-auto">
-              <motion.div
-                whileHover={{ y: -2 }}
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="w-full sm:w-auto"
+            >
+              <Link
+                href={REGISTER_VENDOR_HREF}
                 className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
               >
                 Devenir vendeur
-              </motion.div>
-            </Link>
+              </Link>
+            </motion.div>
           </div>
         </div>
 

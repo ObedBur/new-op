@@ -210,7 +210,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="w-full max-w-md mx-auto">
-            <div className="mb-8">
+            <div id="role-vendeur" className="mb-8 scroll-mt-24">
             <div className="relative flex p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
               {/* Indicateur Coulissant avec effet de relief */}
               <div

@@ -6,11 +6,14 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getSellerById, toggleFollowVendor } from '@/features/home/services/seller.service';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/features/cart/context/CartContext';
+import { Product } from '@/types/product.types';
 
 export default function SellerDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { addItem } = useCart();
   const [activeCategory, setActiveCategory] = useState('Tout');
   const [isLoading, setIsLoading] = useState(true);
   const [sellerData, setSellerData] = useState<any>(null);
@@ -74,6 +77,31 @@ export default function SellerDetailPage() {
   }
 
   const products = sellerData.products || [];
+
+  const toCartProduct = (product: any): Product => ({
+    id: product.id,
+    name: product.name,
+    description: product.description,
+    location: product.location,
+    city: product.city || sellerData.city || '',
+    country: product.country || sellerData.country || '',
+    price: Number(product.price) || 0,
+    displayPrice: product.displayPrice,
+    categoryId: product.categoryId || product.category?.id || '',
+    image: product.images?.[0] || product.image || '/images/placeholder.png',
+    images: product.images,
+    updatedAt: product.updatedAt || new Date().toISOString(),
+    availability: product.availability,
+    stockQuantity: product.stockQuantity,
+    unit: product.unit,
+    user: {
+      boutiqueName: sellerData.boutiqueName,
+      fullName: sellerData.fullName,
+      isVerified: sellerData.isVerified,
+      trustScore: sellerData.trustScore,
+      phone: sellerData.phone,
+    },
+  });
 
   return (
     <main className="flex-1 bg-gray-50/50 dark:bg-background-dark/50 pt-24 pb-20">
@@ -181,7 +209,7 @@ export default function SellerDetailPage() {
         {/* PRODUCTS */}
         {products.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
-            {products.map((product: any, idx: number) => (
+            {products.map((product: any) => (
               <div 
                 key={product.id} 
                 className="group bg-white dark:bg-[#111827] rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden"
@@ -203,11 +231,16 @@ export default function SellerDetailPage() {
                     <p className="text-lg sm:text-xl font-black text-[#E67E22] mt-1">${product.price}</p>
                   </div>
 
-                  <Link href={`/products/${product.id}`} className="block">
-                    <button className="w-full py-3 bg-[#E67E22]/10 text-[#E67E22] hover:bg-[#E67E22] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all">
-                      AJOUTEZ AU PANIER !
-                    </button>
-                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => addItem(toCartProduct(product), 1)}
+                    disabled={product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0}
+                    className="w-full py-3 bg-[#E67E22]/10 text-[#E67E22] hover:bg-[#E67E22] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0
+                      ? 'ÉPUISÉ'
+                      : 'AJOUTER AU PANIER'}
+                  </button>
                 </div>
               </div>
             ))}

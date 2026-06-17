@@ -30,7 +30,7 @@ export default function RootLayoutContent({ children }: { children: React.ReactN
         <div className="shrink-0 z-50">
           <VendorSidebar user={user} />
         </div>
-        
+
         {/* Right column: Navbar + Main Scrollable content */}
         <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
           <DashboardHeader />
@@ -44,10 +44,12 @@ export default function RootLayoutContent({ children }: { children: React.ReactN
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
-      {children}
+      <main className="flex-1">
+        {children}
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }

@@ -26,6 +26,7 @@ import { getClientOrders, Order } from "@/features/vendors/services/orders.servi
 import { useWishlist } from "@/hooks/useWishlist";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { Product } from "@/types/product.types";
+import { ListSkeleton, TableSkeleton } from "@/components/ui/SkeletonLoaders";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders';
 
@@ -156,8 +157,8 @@ function SettingsPageContent() {
                               title: 'Commandes & Ventes',
                               desc: 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
                               channels: [
-                                { label: 'Push',   key: 'ordersPush' as keyof NotificationPreferences },
-                                { label: 'Email',  key: 'ordersEmail' as keyof NotificationPreferences },
+                                { label: 'Push', key: 'ordersPush' as keyof NotificationPreferences },
+                                { label: 'Email', key: 'ordersEmail' as keyof NotificationPreferences },
                                 { label: 'In-App', key: 'ordersInApp' as keyof NotificationPreferences },
                               ]
                             },
@@ -166,8 +167,8 @@ function SettingsPageContent() {
                               title: 'Vendeurs Favoris',
                               desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
                               channels: [
-                                { label: 'Push',   key: 'followsPush' as keyof NotificationPreferences },
-                                { label: 'Email',  key: 'followsEmail' as keyof NotificationPreferences },
+                                { label: 'Push', key: 'followsPush' as keyof NotificationPreferences },
+                                { label: 'Email', key: 'followsEmail' as keyof NotificationPreferences },
                                 { label: 'In-App', key: 'followsInApp' as keyof NotificationPreferences },
                               ]
                             },
@@ -176,7 +177,7 @@ function SettingsPageContent() {
                               title: 'Offres & Promotions',
                               desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
                               channels: [
-                                { label: 'Push',  key: 'promosPush' as keyof NotificationPreferences },
+                                { label: 'Push', key: 'promosPush' as keyof NotificationPreferences },
                                 { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
                               ]
                             },
@@ -186,7 +187,7 @@ function SettingsPageContent() {
                               desc: 'Alertes de connexion, vérification KYC et modifications importantes de profil.',
                               forced: true,
                               channels: [
-                                { label: 'Email',  key: 'securityEmail' as keyof NotificationPreferences },
+                                { label: 'Email', key: 'securityEmail' as keyof NotificationPreferences },
                                 { label: 'In-App', key: 'securityInApp' as keyof NotificationPreferences },
                               ],
                             }
@@ -253,9 +254,7 @@ function SettingsPageContent() {
 
                         <div className="space-y-4">
                           {isLoading ? (
-                            <div className="py-20 flex flex-col items-center justify-center gap-4">
-                              <div className="size-10 border-4 border-gray-100 dark:border-white/5 border-t-orange-500 rounded-full animate-spin"></div>
-                            </div>
+                            <ListSkeleton count={3} />
                           ) : notifications.length === 0 ? (
                             <div className="py-20 text-center">
                               <Bell size={40} className="mx-auto text-gray-200 mb-4" />
@@ -299,9 +298,7 @@ function SettingsPageContent() {
                       </div>
 
                       {isLoadingOrders ? (
-                        <div className="flex justify-center py-20">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div>
-                        </div>
+                        <TableSkeleton rows={5} cols={4} />
                       ) : clientOrders.length === 0 ? (
                         <div className="text-center py-20">
                           <Package className="size-16 text-gray-200 mx-auto mb-4" />
@@ -324,8 +321,8 @@ function SettingsPageContent() {
                                     ID: {order.id.substring(0, 8)}
                                   </span>
                                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
-                                      order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                        'bg-orange-100 text-orange-700'
+                                    order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                      'bg-orange-100 text-orange-700'
                                     }`}>
                                     {order.status}
                                   </span>
@@ -344,7 +341,7 @@ function SettingsPageContent() {
                   {activeTab === 'profile' && (
                     <div className="space-y-8">
                       <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-100 dark:border-white/5 shadow-sm overflow-hidden">
-                        
+
                         {/* Cover Picture Banner */}
                         <div className="h-36 sm:h-48 w-full relative overflow-hidden bg-gray-100 dark:bg-gray-800">
                           {user?.coverUrl ? (
@@ -361,9 +358,9 @@ function SettingsPageContent() {
                             />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/25"></div>
-                          
+
                           {/* Change cover button */}
-                          <button 
+                          <button
                             type="button"
                             onClick={() => setIsEditModalOpen(true)}
                             className="absolute top-4 right-4 px-3 py-1.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 z-10"
@@ -375,7 +372,7 @@ function SettingsPageContent() {
                         {/* Floating Avatar & Details Overlay */}
                         <div className="px-6 sm:px-8 relative -mt-12 sm:-mt-16 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-slate-100 dark:border-white/5">
                           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
-                            
+
                             {/* Avatar circle */}
                             <div className="relative group shrink-0 z-10">
                               <div className="size-24 sm:size-28 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white dark:border-[#111827] shadow-lg relative">
@@ -385,7 +382,7 @@ function SettingsPageContent() {
                                   <span className="text-3xl font-black tracking-tight">{getInitials(user?.fullName || '')}</span>
                                 )}
                               </div>
-                              <button 
+                              <button
                                 type="button"
                                 onClick={() => setIsEditModalOpen(true)}
                                 className="absolute bottom-0 right-0 p-2 bg-[#E67E22] text-white rounded-full border-2 border-white dark:border-[#111827] shadow-md hover:scale-105 transition-transform active:scale-95 z-20"
@@ -410,7 +407,7 @@ function SettingsPageContent() {
 
                           {/* Desktop modifier profile button */}
                           <div className="sm:pb-1 z-10">
-                            <button 
+                            <button
                               type="button"
                               onClick={() => setIsEditModalOpen(true)}
                               className="flex items-center gap-2 px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm shadow-orange-500/10 active:scale-95 shrink-0"
@@ -422,7 +419,7 @@ function SettingsPageContent() {
 
                         {/* Fields & Detailed Grid Section */}
                         <div className="px-6 sm:px-8 pb-8 space-y-6">
-                          
+
                           <div className="pt-4">
                             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Account Information</h2>
                             <p className="text-xs text-slate-400 dark:text-slate-500 font-semibold mt-1">Mettez à jour les détails de votre profil d'utilisateur ici.</p>
@@ -430,12 +427,12 @@ function SettingsPageContent() {
 
                           {/* Fields Grid */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            
+
                             {/* First Name */}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Prénom</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 readOnly
                                 value={user?.fullName?.split(' ')[0] || ''}
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -445,8 +442,8 @@ function SettingsPageContent() {
                             {/* Last Name */}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nom de famille</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 readOnly
                                 value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -457,8 +454,8 @@ function SettingsPageContent() {
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Adresse e-mail</label>
                               <div className="relative">
-                                <input 
-                                  type="email" 
+                                <input
+                                  type="email"
                                   readOnly
                                   value={user?.email || ''}
                                   className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl pl-4 pr-24 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -473,8 +470,8 @@ function SettingsPageContent() {
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Numéro de téléphone</label>
                               <div className="relative">
-                                <input 
-                                  type="text" 
+                                <input
+                                  type="text"
                                   readOnly
                                   value={user?.phone || 'Non renseigné'}
                                   className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl pl-4 pr-24 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -488,8 +485,8 @@ function SettingsPageContent() {
                             {/* Province */}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Province</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 readOnly
                                 value={user?.province || 'Non définie'}
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -499,8 +496,8 @@ function SettingsPageContent() {
                             {/* Commune */}
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Ville / Commune</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 readOnly
                                 value={user?.commune || 'Non définie'}
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -511,8 +508,8 @@ function SettingsPageContent() {
                             {user?.role === 'VENDOR' && (
                               <div className="space-y-2 md:col-span-2">
                                 <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nom de la Boutique</label>
-                                <input 
-                                  type="text" 
+                                <input
+                                  type="text"
                                   readOnly
                                   value={user?.boutiqueName || 'Aucune boutique associée'}
                                   className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -523,8 +520,8 @@ function SettingsPageContent() {
                             {/* Membre depuis */}
                             <div className="space-y-2 md:col-span-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Membre depuis</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 readOnly
                                 value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Récemment'}
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 outline-none cursor-not-allowed"
@@ -541,7 +538,7 @@ function SettingsPageContent() {
                   {activeTab === 'security' && (
                     <div className="space-y-8">
                       <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-white/5 shadow-sm space-y-8 animate-fade-in">
-                        
+
                         {/* Section Header */}
                         <div className="pb-6 border-b border-slate-100 dark:border-white/5">
                           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Sécurité du Compte</h2>
@@ -559,36 +556,36 @@ function SettingsPageContent() {
                               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Pour assurer la sécurité de votre compte, choisissez un mot de passe robuste.</p>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Mot de passe actuel</label>
-                              <input 
-                                type="password" 
+                              <input
+                                type="password"
                                 placeholder="••••••••"
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-850 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
                               />
                             </div>
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nouveau mot de passe</label>
-                              <input 
-                                type="password" 
+                              <input
+                                type="password"
                                 placeholder="••••••••"
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-855 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
                               />
                             </div>
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Confirmer le mot de passe</label>
-                              <input 
-                                type="password" 
+                              <input
+                                type="password"
                                 placeholder="••••••••"
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-860 dark:text-slate-200 outline-none focus:border-[#E67E22] transition-colors"
                               />
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-end pt-2 border-b border-slate-100 dark:border-white/5 pb-6">
-                            <button 
+                            <button
                               type="button"
                               onClick={() => setIsEditModalOpen(true)}
                               className="px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
@@ -609,12 +606,12 @@ function SettingsPageContent() {
                               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Requis pour valider vos retraits, virements et achats sur la plateforme.</p>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Nouveau code PIN (4 chiffres)</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 maxLength={4}
                                 placeholder="Ex: 1234"
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-850 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors"
@@ -622,17 +619,17 @@ function SettingsPageContent() {
                             </div>
                             <div className="space-y-2">
                               <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Confirmer le PIN</label>
-                              <input 
-                                type="text" 
+                              <input
+                                type="text"
                                 maxLength={4}
                                 placeholder="Ex: 1234"
                                 className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-855 dark:text-slate-200 outline-none focus:border-emerald-500 transition-colors"
                               />
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-end pt-2 border-b border-slate-100 dark:border-white/5 pb-6">
-                            <button 
+                            <button
                               type="button"
                               onClick={() => setIsEditModalOpen(true)}
                               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-750 text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
@@ -653,7 +650,7 @@ function SettingsPageContent() {
                               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">Liste des appareils actuellement connectés à votre compte.</p>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-3">
                             {[
                               { device: "Chrome / Windows 11", location: "Kinshasa, RDC", time: "Session active", active: true },
@@ -667,7 +664,7 @@ function SettingsPageContent() {
                                 {session.active ? (
                                   <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">Actif</span>
                                 ) : (
-                                  <button 
+                                  <button
                                     type="button"
                                     onClick={() => toast.success('Session déconnectée avec succès !')}
                                     className="text-[9px] font-bold text-red-500 hover:text-red-750 uppercase tracking-wider cursor-pointer"
@@ -687,7 +684,7 @@ function SettingsPageContent() {
                   {activeTab === 'preferences' && (
                     <div className="space-y-8">
                       <div className="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-8 border border-slate-100 dark:border-white/5 shadow-sm space-y-8 animate-fade-in">
-                        
+
                         {/* Section Header */}
                         <div className="pb-6 border-b border-slate-100 dark:border-white/5">
                           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Préférences de l'Application</h2>
@@ -704,18 +701,17 @@ function SettingsPageContent() {
                               { label: 'Sombre', value: 'dark' as Theme },
                               { label: 'Système', value: 'system' as Theme },
                             ].map((themeOption) => (
-                              <button 
+                              <button
                                 key={themeOption.value}
                                 type="button"
                                 onClick={() => {
                                   setTheme(themeOption.value);
                                   toast.success(`Thème ${themeOption.label} appliqué !`);
                                 }}
-                                className={`py-3.5 rounded-2xl text-xs font-bold transition-all border cursor-pointer ${
-                                  theme === themeOption.value
+                                className={`py-3.5 rounded-2xl text-xs font-bold transition-all border cursor-pointer ${theme === themeOption.value
                                     ? "bg-[#080B1A] text-white border-transparent shadow-sm dark:bg-white dark:text-slate-950"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-                                }`}
+                                  }`}
                               >
                                 {themeOption.label}
                               </button>
@@ -732,18 +728,17 @@ function SettingsPageContent() {
                               { label: 'Français', desc: 'Langue principale', value: 'fr' as Language },
                               { label: 'English', desc: 'International language', value: 'en' as Language },
                             ].map((lang) => (
-                              <button 
+                              <button
                                 key={lang.label}
                                 type="button"
                                 onClick={() => {
                                   setLanguage(lang.value);
                                   toast.success(`Langue configurée sur ${lang.label}`);
                                 }}
-                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${
-                                  language === lang.value
+                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${language === lang.value
                                     ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-                                }`}
+                                  }`}
                               >
                                 <p className="text-xs font-bold text-slate-900 dark:text-white">{lang.label}</p>
                                 <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{lang.desc}</p>
@@ -761,15 +756,14 @@ function SettingsPageContent() {
                               { label: 'USD ($)', desc: 'Dollar Américain (Taux actuel)' },
                               { label: 'CDF (FC)', desc: 'Franc Congolais (Taux réel)' }
                             ].map((currency, idx) => (
-                              <button 
+                              <button
                                 key={currency.label}
                                 type="button"
                                 onClick={() => toast.success(`Devise de facturation : ${currency.label}`)}
-                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${
-                                  idx === 0
+                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${idx === 0
                                     ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
-                                }`}
+                                  }`}
                               >
                                 <p className="text-xs font-bold text-slate-900 dark:text-white">{currency.label}</p>
                                 <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{currency.desc}</p>
@@ -780,7 +774,7 @@ function SettingsPageContent() {
 
                         {/* Save Button */}
                         <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-white/5">
-                          <button 
+                          <button
                             type="button"
                             onClick={() => toast.success('Vos préférences ont été enregistrées !')}
                             className="px-6 py-3 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"

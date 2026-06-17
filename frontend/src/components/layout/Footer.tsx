@@ -33,7 +33,7 @@ export const Footer: React.FC = () => {
   if (authPaths.some((path) => pathname?.startsWith(path))) return null;
 
   return (
-    <footer className="bg-slate-50 text-slate-900 pt-24 pb-12 border-t border-slate-200 mt-auto relative overflow-hidden">
+    <footer className="bg-slate-50 text-slate-900 pt-24 pb-12 border-t border-slate-200 relative overflow-hidden">
       {/* Effets de fond */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#E67E22]/20 to-transparent" />
       <div className="absolute -top-64 -right-64 w-[500px] h-[500px] bg-[#E67E22]/5 rounded-full blur-[120px] pointer-events-none" />
