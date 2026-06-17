@@ -32,6 +32,16 @@ type HomeSectionKey =
 
 type HomeLoadingState = Record<HomeSectionKey, boolean>;
 
+const HOME_INITIAL_LOADING: HomeLoadingState = {
+  categories: true,
+  content: true,
+  stores: true,
+  deals: true,
+  newArrivals: true,
+  recommendations: true,
+  bestSellers: true,
+};
+
 export default function Home() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const { setAppReady } = useLoading();
@@ -41,15 +51,7 @@ export default function Home() {
   const [heroSlides, setHeroSlides] = useState<Awaited<ReturnType<typeof getHomepageContent>>["heroSlides"]>([]);
   const [stores, setStores] = useState<HomeSeller[]>([]);
   const [howItWorksSteps, setHowItWorksSteps] = useState<Awaited<ReturnType<typeof getHomepageContent>>["howItWorksSteps"]>([]);
-  const [sectionLoading, setSectionLoading] = useState<HomeLoadingState>({
-    categories: true,
-    content: true,
-    stores: true,
-    deals: true,
-    newArrivals: true,
-    recommendations: true,
-    bestSellers: true,
-  });
+  const [sectionLoading, setSectionLoading] = useState<HomeLoadingState>(HOME_INITIAL_LOADING);
 
   const setSectionLoaded = (key: HomeSectionKey) => {
     setSectionLoading((prev) => ({ ...prev, [key]: false }));
@@ -69,15 +71,7 @@ export default function Home() {
   }, [authLoading, isAuthenticated, user, router]);
 
   useEffect(() => {
-    setSectionLoading({
-      categories: true,
-      content: true,
-      stores: true,
-      deals: true,
-      newArrivals: true,
-      recommendations: true,
-      bestSellers: true,
-    });
+    setSectionLoading(HOME_INITIAL_LOADING);
 
     void getCategories()
       .then((response) => {
@@ -166,7 +160,19 @@ export default function Home() {
   }
 
   if (authLoading) {
-    return null;
+    return (
+      <HomeView
+        deals={[]}
+        newArrivals={[]}
+        recommendations={[]}
+        bestSellers={[]}
+        categories={[]}
+        heroSlides={[]}
+        stores={[]}
+        howItWorksSteps={[]}
+        loading={HOME_INITIAL_LOADING}
+      />
+    );
   }
 
   return (

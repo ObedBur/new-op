@@ -114,8 +114,8 @@ export class AuthService {
       },
     });
 
-    // Envoi du message de bienvenue
-    this.emailService.sendWelcome(user.email, user.fullName).catch(err =>
+    // Envoi du message de bienvenue (CORRIGÉ : sendWelcome -> sendWelcomeEmail)
+    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
       this.logger.error(`Failed to send welcome email to ${user.email}`, err)
     );
 
@@ -198,10 +198,10 @@ export class AuthService {
     return { success: true };
   }
 
-  // ========================= RESET PASSWORD (CORRIG) =========================
+  // ========================= RESET PASSWORD (CORRIGÉ) =========================
 
   async resetPassword(dto: ResetPasswordDto) {
-    // VRIFICATION PAR EMAIL - CORRECTION CRITIQUE
+    // VÉRIFICATION PAR EMAIL - CORRECTION CRITIQUE
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -215,7 +215,7 @@ export class AuthService {
     }
 
     if (new Date() > user.resetTokenExpiresAt) {
-      // Nettoyer le token expir
+      // Nettoyer le token expiré
       await this.prisma.user.update({
         where: { id: user.id },
         data: {
@@ -457,4 +457,3 @@ export class AuthService {
     this.logger.warn('All users and tokens cleared (DEV)');
   }
 }
-

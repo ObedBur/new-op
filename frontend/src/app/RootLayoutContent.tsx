@@ -46,7 +46,7 @@ export default function RootLayoutContent({ children }: { children: React.ReactN
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 min-h-[calc(100vh-96px)]">
         {children}
       </main>
       <Footer />
