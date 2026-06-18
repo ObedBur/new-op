@@ -625,7 +625,7 @@ export class EmailService {
 
               <!-- Titre Principal -->
               <h1 style="color: #111827; font-size: 26px; font-weight: 800; margin: 0 0 12px 0; letter-spacing: -0.03em; line-height: 1.25;">
-                C'est officiel, bienvenue à bord, ${fullName} !
+                C'est officiel, bienvenue à bord, ${name} !
               </h1>
 
               <!-- Texte d'introduction -->
