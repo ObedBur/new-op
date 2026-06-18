@@ -592,8 +592,6 @@ export class EmailService {
       return false;
     }
   }
-}
-
   /**
    * Message de bienvenue après inscription réussie.
    */
