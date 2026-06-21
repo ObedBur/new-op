@@ -1,0 +1,8 @@
+export const PRODUCT_CONFIG = {
+  ITEMS_PER_PAGE: 12,
+  DEFAULT_CURRENCY: 'FC',
+  PRICE_PRESETS: {
+    UNDER_25K: 25000,
+    OVER_75K: 75000,
+  }
+} as const;
