@@ -12,10 +12,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
     });
-    
+
     // Créer l'adaptateur Prisma pour PostgreSQL
-    const adapter = new PrismaPg(pool);
-    
+    const adapter = new PrismaPg(pool as any);
+
     // Initialiser PrismaClient avec l'adaptateur
     super({
       adapter,

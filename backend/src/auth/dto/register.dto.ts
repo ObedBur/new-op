@@ -62,10 +62,10 @@ export class RegisterDto {
   @IsOptional()
   @Validate(IsBoutiqueRequiredForVendor)
   boutiqueName?: string;
-
-  @IsEnum(UserRole)
+  
+  @IsEnum(UserRole) 
   @IsNotEmpty()
-  role!: UserRole;
+  role!: UserRole; 
 
   @IsString()
   @IsOptional()

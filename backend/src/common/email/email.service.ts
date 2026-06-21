@@ -10,7 +10,7 @@ export class EmailService {
     this.apiInstance = new Brevo.TransactionalEmailsApi();
 
 
-    require('dns').setDefaultResultOrder('ipv4first');
+    require('dns').setDefaultResultOrder('ipv4first')
 
     const apiKey = process.env.BREVO_API_KEY;
     this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}`);
