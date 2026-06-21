@@ -42,7 +42,6 @@ async function bootstrap() {
   // ============ PREFIXE GLOBAL ============
   // ============ PREFIXE GLOBAL ============
   app.setGlobalPrefix('api', {
-    exclude: ['/', 'health'],
   });
 
   // ============ FILTRE D'EXCEPTIONS GLOBAL ============
