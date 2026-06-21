@@ -115,13 +115,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const syncServerCart = async () => {
       try {
-        const serverItems = await cartService.getCart();
+        const guestItems = loadStoredCart(); // 1. Lire le panier "Invité"
+        let serverItems;
+
+        if (guestItems.length > 0) {
+          // 2. S'il y a des articles invités, on demande au serveur de les fusionner
+          serverItems = await cartService.mergeCart(guestItems);
+        } else {
+          // 3. Sinon, on récupère juste le panier existant de l'utilisateur
+          serverItems = await cartService.getCart();
+        }
 
         if (!isMounted) return;
 
         setItems(serverItems);
         saveStoredCart(serverItems, user.id);
-        removeGuestCart();
+        removeGuestCart(); // 4. On nettoie le panier invité qui a été fusionné
       } catch (error) {
         console.error('Failed to sync server cart', error);
         if (isMounted) {
