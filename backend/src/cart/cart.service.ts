@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ProductAvailability, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CartItemDto } from './dto/cart-item.dto';
@@ -51,11 +51,38 @@ export class CartService {
     const product = await this.getAvailableProduct(productId);
     this.assertQuantityAvailable(product, quantity);
 
-    await this.prisma.cartItem.upsert({
+    // Optimistic locking : lire la version actuelle avant toute modification
+    const existing = await this.prisma.cartItem.findUnique({
       where: { userId_productId: { userId, productId } },
-      create: { userId, productId, quantity },
-      update: { quantity },
+      select: { version: true },
     });
+
+    if (!existing) {
+      // L'item n'existe pas encore → simple création
+      await this.prisma.cartItem.create({
+        data: { userId, productId, quantity, version: 0 },
+      });
+      return this.findForUser(userId);
+    }
+
+    // Mise à jour conditionnelle : seulement si version n'a pas changé
+    const updated = await this.prisma.cartItem.updateMany({
+      where: {
+        userId_productId: { userId, productId },
+        version: existing.version,  // garde-fou anti-conflit
+      },
+      data: {
+        quantity,
+        version: { increment: 1 },
+      },
+    });
+
+    // 0 lignes affectées = conflit détecté (un autre appareil a modifié entre-temps)
+    if (updated.count === 0) {
+      throw new ConflictException(
+        'Le panier a été modifié par un autre appareil. Rechargez votre panier.'
+      );
+    }
 
     return this.findForUser(userId);
   }
