@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useLoading } from '@/context/LoadingContext';
 
-const MAX_DISPLAY_TIME = 3000; // Safety fallback: always hide after 3s
+const MAX_DISPLAY_TIME = 1500; // Safety fallback: always hide after 1.5s
 
 export const SplashScreen: React.FC = () => {
   const { isAppReady } = useLoading();
@@ -13,7 +13,7 @@ export const SplashScreen: React.FC = () => {
   const [messageIndex, setMessageIndex] = useState(0);
 
   const startTimeRef = useRef<number>(Date.now());
-  const MIN_DISPLAY_TIME = 1500;
+  const MIN_DISPLAY_TIME = 800;
 
   const messages = [
     "Bienvenue sur WapiBei",
@@ -54,7 +54,7 @@ export const SplashScreen: React.FC = () => {
         const nextIndex = prev + 1;
         return nextIndex >= messages.length ? messages.length - 1 : nextIndex;
       });
-    }, 600);
+    }, 400);
 
     return () => clearInterval(messageInterval);
   }, [isVisible, messages.length]);

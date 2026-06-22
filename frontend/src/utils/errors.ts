@@ -23,11 +23,24 @@ export const authErrors = {
   // General
   UNKNOWN_ERROR: "Oups ! Quelque chose s'est mal passé. Veuillez réessayer dans un instant.",
   NETWORK_ERROR: "Erreur de connexion. Vérifiez votre accès internet.",
+  SERVER_UNREACHABLE: "Impossible de joindre le serveur. Il est peut-être en maintenance ou temporairement indisponible.",
+  TIMEOUT_ERROR: "Le serveur met trop de temps à répondre. Veuillez réessayer.",
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapBackendError = (error: any): string => {
-  if (!error.response) return authErrors.NETWORK_ERROR;
+  if (!error.response) {
+    // Si on est dans le navigateur et qu'il n'y a pas de connexion réseau
+    if (typeof window !== 'undefined' && !navigator.onLine) {
+      return authErrors.NETWORK_ERROR;
+    }
+    // Si la requête a expiré
+    if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+      return authErrors.TIMEOUT_ERROR;
+    }
+    // Sinon, c'est probablement que le serveur backend est down ou injoignable (ex: CORS)
+    return authErrors.SERVER_UNREACHABLE;
+  }
   
   const status = error.response.status;
   const message = error.response.data?.message;
