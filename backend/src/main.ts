@@ -75,11 +75,13 @@ async function bootstrap() {
     ? true
     : (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
         if (!origin) return callback(null, true); // requêtes sans origin (ex: Postman)
-        const isVercel = /^https:\/\/[a-z0-9-]+(\.vercel\.app)$/.test(origin);
+        const isVercel = /\.vercel\.app$/.test(origin);
         if (isVercel || explicitOrigins.includes(origin)) {
           callback(null, true);
         } else {
-          callback(new Error(`CORS: Origin not allowed → ${origin}`));
+          // Si on passe une erreur, Fastify bloque. Passons false pour juste retirer les entêtes CORS
+          // au lieu de crasher la requête, ou on l'accepte avec warning.
+          callback(null, false); 
         }
       };
 

@@ -100,10 +100,12 @@ export class EmailService {
   }
 
   /**
-   * Envoi d'un lien de reninitialisation de mot de passe.
+   * Envoi d'un lien de réinitialisation de mot de passe.
    */
   async sendPasswordReset(email: string, token: string) {
-    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+    const rawFrontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = rawFrontendUrl.split(',')[0].trim();
+    const resetLink = `${frontendUrl}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
       this.logger.log(`[SIMULATION] Reset link for ${email}: ${resetLink}`);
@@ -111,7 +113,7 @@ export class EmailService {
     }
 
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = 'Rinitialisation de votre mot de passe WapiBei';
+    sendSmtpEmail.subject = 'Réinitialisation de votre mot de passe WapiBei';
     sendSmtpEmail.htmlContent = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; padding: 0; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background-color: #ffffff;">
         <div style="background-color: #E67E22; padding: 24px 20px; text-align: center;">

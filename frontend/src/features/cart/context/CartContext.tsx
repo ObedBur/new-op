@@ -12,6 +12,7 @@ interface CartContextType extends CartState {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, delta: number) => void;
   clearCart: () => Promise<void>;
+  isMounted: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -63,19 +64,26 @@ const isOutOfStock = (product: Product) => (
 );
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(loadStoredCart);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const syncedUserIdRef = useRef<string | null>(null);
   const isSyncingRef = useRef<boolean>(false);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    setItems(loadStoredCart());
+    setIsMounted(true);
+  }, []);
+
   // LocalStorage reste un cache rapide. Le serveur devient la source de vérité
   // dès que l'utilisateur est connecté.
   useEffect(() => {
+    if (!isMounted) return;
     if (isAuthLoading) return;
     if (!isAuthenticated && syncedUserIdRef.current) return;
     saveStoredCart(items, user?.id);
-  }, [items, isAuthenticated, isAuthLoading, user?.id]);
+  }, [items, isAuthenticated, isAuthLoading, user?.id, isMounted]);
 
   // Sync du panier serveur au changement d'authentification
   useEffect(() => {
@@ -280,6 +288,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     removeItem,
     updateQuantity,
     clearCart,
+    isMounted,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

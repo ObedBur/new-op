@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -21,10 +22,12 @@ export const CartView: React.FC = () => {
     updateQuantity,
     removeItem,
     clearCart,
+    isMounted,
   } = useCart();
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = React.useState(false);
   const { showToast } = useToast();
   const { user } = useAuth();
+  const router = useRouter();
 
   const handleCheckoutSubmit = async (data: any) => {
     try {
@@ -42,21 +45,10 @@ export const CartView: React.FC = () => {
 
       setIsCheckoutModalOpen(false);
       await clearCart();
-      window.location.href = "/cart/success";
+      router.push("/cart/success");
     } catch (error) {
       console.error("Checkout failed:", error);
       showToast("Commande impossible. Vérifiez le stock ou réessayez.", "error");
-    }
-  };
-
-  // Get currency from the first item if available, default to $
-  const firstItemPriceInfo = items.length > 0 ? ProductMapper.parsePrice(items[0].product.displayPrice || items[0].product.price) : { currency: '$' };
-  const currencySymbol = firstItemPriceInfo.currency;
-
-  if (items.length === 0) {
-    return (
-      <div className="container mx-auto max-w-5xl px-4 py-20 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
-        <div className="size-24 md:size-32 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-8">
           <span className="material-symbols-outlined text-gray-200 text-5xl md:text-6xl">
             shopping_cart_off
           </span>
