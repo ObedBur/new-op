@@ -7,7 +7,7 @@ export interface OrderDetailsModalProps {
     onStatusChange?: (newStatus: string) => Promise<void>;
 }
 
-export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
+export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetailsModalProps) {
     if (!order) return null;
 
     return (
