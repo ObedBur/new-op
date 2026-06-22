@@ -46,21 +46,21 @@ export const DashboardHeader = () => {
                 <div className="flex items-center gap-4 sm:gap-6">
                     
                     {/* Chat Icon with notification dot */}
-                    <button className="hidden lg:block relative p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
+                    <button className="relative p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
                         <Mail size={18} />
                         <span className="absolute top-1 right-1 size-1.5 bg-[#FF4D4D] rounded-full border border-white dark:border-[#111]" />
                     </button>
 
                     {/* Notification Bell */}
-                    <button className="hidden lg:block p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
+                    <button className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors shrink-0">
                         <Bell size={18} />
                     </button>
 
                     {/* Vertical Divider */}
                     <div className="h-5 w-px bg-slate-200 dark:bg-white/10 hidden lg:block" />
 
-                    {/* Vertical Divider */}
-                    <div className="hidden lg:block">
+                    {/* Profile Dropdown */}
+                    <div>
                         <ProfileDropdown
                             isAuthenticated={isAuthenticated}
                             user={user}

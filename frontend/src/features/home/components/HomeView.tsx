@@ -98,7 +98,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   );
 
   return (
-    <main className="flex flex-col flex-1 min-h-screen bg-white">
+    <main className="flex flex-col flex-1 min-h-screen bg-white dark:bg-[#080b14]">
       {/*  HERO */}
       <Hero slides={heroSlides} />
 
@@ -177,12 +177,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/*  MEILLEURES ADRESSES */}
-      <div className="py-16 bg-[#DDB88C]/5">
+      <div className="py-16 bg-[#DDB88C]/5 dark:bg-[#DDB88C]/10">
         <FeaturedStores stores={loading.stores ? [] : stores} />
       </div>
 
       {/*  SERVICES & CTA */}
-      <div className="bg-white">
+      <div className="bg-white dark:bg-[#080b14]">
         <HowItWorks steps={howItWorksSteps} />
       </div>
 

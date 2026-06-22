@@ -4,6 +4,7 @@ import { X, MapPin, Phone, ChevronRight, MessageCircle } from 'lucide-react';
 export interface OrderDetailsModalProps {
     order: any;
     onClose: () => void;
+    onStatusChange?: (newStatus: string) => Promise<void>;
 }
 
 export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
@@ -56,7 +57,7 @@ export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
                                     <MapPin size={10} className="text-[#E67E22]" />
                                     Livraison
                                 </p>
-                                <p className="text-sm font-black text-deep-blue dark:text-white leading-relaxed truncate">
+                                <p className="text-sm font-black text-deep-blue dark:text-white leading-relaxed whitespace-normal break-words">
                                     {order.deliveryAddress || "Non spécifiée"}
                                 </p>
                             </div>
@@ -88,7 +89,7 @@ export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
                                 </h5>
                                 <div className="flex items-center gap-3">
                                     <div className="px-2 py-1 bg-gray-100 dark:bg-white/5 rounded-md text-[9px] font-black uppercase text-gray-500">
-                                        Qté: 1
+                                        Qté: {Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
                                     </div>
                                     <div className="text-base sm:text-lg font-black text-[#E67E22]">
                                         ${order.totalPrice}
@@ -109,9 +110,42 @@ export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
                         <MessageCircle size={16} />
                         WhatsApp
                     </a>
+                    {order.status === 'PENDING' && onStatusChange && (
+                        <button
+                            onClick={async () => {
+                                await onStatusChange('CONFIRMED');
+                                onClose();
+                            }}
+                            className="flex-1 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
+                        >
+                            Confirmer
+                        </button>
+                    )}
+                    {order.status === 'CONFIRMED' && onStatusChange && (
+                        <button
+                            onClick={async () => {
+                                await onStatusChange('SHIPPED');
+                                onClose();
+                            }}
+                            className="flex-1 py-3.5 sm:py-4 bg-[#E67E22] hover:bg-orange-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
+                        >
+                            Expédier
+                        </button>
+                    )}
+                    {order.status === 'SHIPPED' && onStatusChange && (
+                        <button
+                            onClick={async () => {
+                                await onStatusChange('DELIVERED');
+                                onClose();
+                            }}
+                            className="flex-1 py-3.5 sm:py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
+                        >
+                            Livraison
+                        </button>
+                    )}
                     <button
                         onClick={onClose}
-                        className="flex-1 py-3.5 sm:py-4 bg-deep-blue hover:bg-[#1a2333] dark:bg-white dark:hover:bg-gray-100 text-white dark:text-deep-blue rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
+                        className="flex-1 py-3.5 sm:py-4 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
                     >
                         Fermer
                     </button>

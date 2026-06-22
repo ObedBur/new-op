@@ -3,21 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import { getVendorOrders, updateOrderStatus } from '@/features/vendors/services/orders.service';
 import { Search, Filter, Package } from 'lucide-react';
-import { OrderCard, OrderStatus } from './components/OrderCard';
+import { OrderCard } from './components/OrderCard';
 import { OrderDetailsModal } from './components/OrderDetailsModal';
+import { useToast } from '@/context/ToastContext';
 
 // --- PAGE PRINCIPALE ---
 
 
 export default function OrdersPage() {
+    const { showToast } = useToast();
     const [activeTab, setActiveTab] = useState<string>('Toutes');
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const [orders, setOrders] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
-    const statusLabels: Record<string, OrderStatus> = {
-        PENDING: 'À traiter',
-        CONFIRMED: 'À traiter',
+    const statusLabels: Record<string, string> = {
+        PENDING: 'Nouvelles',
+        CONFIRMED: 'Confirmées',
         SHIPPED: 'Expédiées',
         DELIVERED: 'Livrées',
         CANCELLED: 'Annulées'
@@ -40,10 +43,20 @@ export default function OrdersPage() {
     }, []);
 
     const filteredOrders = orders.filter(order => {
-        if (activeTab === 'Toutes') return true;
-        const statusFR = statusLabels[order.status] || order.status;
-        return statusFR === activeTab;
+        const matchesTab = activeTab === 'Toutes' || (statusLabels[order.status] || order.status) === activeTab;
+        const searchStr = searchQuery.toLowerCase();
+        const matchesSearch = !searchQuery || 
+                              order.id.toLowerCase().includes(searchStr) || 
+                              (order.customerName || '').toLowerCase().includes(searchStr) ||
+                              (order.product?.name || '').toLowerCase().includes(searchStr);
+        return matchesTab && matchesSearch;
     });
+
+    const tabs = ['Toutes', 'Nouvelles', 'Confirmées', 'Expédiées', 'Livrées', 'Annulées'];
+    const getTabCount = (tab: string) => {
+        if (tab === 'Toutes') return orders.length;
+        return orders.filter(o => statusLabels[o.status] === tab).length;
+    };
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto pb-20 px-4 sm:px-10 pt-4 sm:pt-8 space-y-6 sm:space-y-12">
@@ -52,6 +65,18 @@ export default function OrdersPage() {
                 <OrderDetailsModal
                     order={selectedOrder}
                     onClose={() => setSelectedOrder(null)}
+                    onStatusChange={async (newStatus) => {
+                        try {
+                            const res = await updateOrderStatus(selectedOrder.id, newStatus);
+                            if (res?.success) {
+                                setOrders(prev => prev.map(o => o.id === selectedOrder.id ? { ...o, status: newStatus } : o));
+                                showToast("Statut mis à jour avec succès", "success");
+                            }
+                        } catch (error) {
+                            console.error("Erreur", error);
+                            showToast("Erreur lors de la mise à jour", "error");
+                        }
+                    }}
                 />
             )}
 
@@ -72,26 +97,31 @@ export default function OrdersPage() {
                     </div>
                     <input
                         type="text"
-                        placeholder="RECHERCHER..."
+                        placeholder="RECHERCHER UNE COMMANDE..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 rounded-2xl px-10 py-3.5 text-[10px] font-black uppercase tracking-widest text-[#E67E22] placeholder-gray-300 dark:placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-[#E67E22]/20 focus:border-[#E67E22] outline-none transition-all"
                     />
                 </div>
             </div>
 
             {/* STICKY FILTERS COMPACT WITH FADE */}
-            <div className="sticky top-[80px] md:top-[100px] z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl p-1.5 rounded-[2rem] shadow-xl shadow-black/5 border border-white/20 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden transition-all duration-300">
+            <div className="sticky top-[64px] md:top-[80px] z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl p-1.5 rounded-[2rem] shadow-xl shadow-black/5 border border-white/20 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden transition-all duration-300">
                 <div className="relative flex-1 flex items-center overflow-hidden">
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide px-1 no-scrollbar flex-1 scroll-smooth">
-                        {['Toutes', 'À traiter', 'Expédiées', 'Livrées', 'Annulées'].map((tab) => (
+                        {tabs.map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`shrink-0 px-5 py-2.5 sm:py-3 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab
+                                className={`shrink-0 px-5 py-2.5 sm:py-3 rounded-[1.25rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 ${activeTab === tab
                                     ? 'bg-[#E67E22] text-white shadow-xl shadow-orange-500/30'
                                     : 'text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white'
                                     }`}
                             >
-                                {tab}
+                                <span>{tab}</span>
+                                <span className={`px-1.5 py-0.5 rounded-full text-[8px] ${activeTab === tab ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-500'}`}>
+                                    {getTabCount(tab)}
+                                </span>
                             </button>
                         ))}
                         {/* PADDING AT END FOR SCROLL */}
@@ -127,21 +157,23 @@ export default function OrdersPage() {
                                         originalId={order.id}
                                         customer={order.customerName || 'Client Anonyme'}
                                         customerPhone={order.customerPhone}
-                                        status={statusLabels[order.status] || 'À traiter'}
+                                        status={order.status}
                                         total={order.totalPrice}
                                         date={new Date(order.createdAt).toLocaleDateString()}
                                         productName={order.product?.name || "Produit inconnu"}
                                         productImage={order.product?.image || order.product?.images?.[0]}
-                                        count={1}
+                                        count={Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
                                         onViewDetails={() => setSelectedOrder(order)}
                                         onStatusChange={async (newStatus) => {
                                             try {
                                                 const res = await updateOrderStatus(order.id, newStatus);
                                                 if (res?.success) {
                                                     setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
+                                                    showToast("Statut mis à jour avec succès", "success");
                                                 }
                                             } catch (error) {
                                                 console.error("Erreur lors de la mise à jour du statut", error);
+                                                showToast("Erreur lors de la mise à jour du statut", "error");
                                             }
                                         }}
                                     />

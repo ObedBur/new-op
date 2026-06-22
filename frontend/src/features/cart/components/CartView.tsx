@@ -49,6 +49,21 @@ export const CartView: React.FC = () => {
     } catch (error) {
       console.error("Checkout failed:", error);
       showToast("Commande impossible. Vérifiez le stock ou réessayez.", "error");
+    }
+  };
+
+  // Get currency from the first item if available, default to $
+  const firstItemPriceInfo = items.length > 0 ? ProductMapper.parsePrice(items[0].product.displayPrice || items[0].product.price) : { currency: '$' };
+  const currencySymbol = firstItemPriceInfo.currency;
+
+  if (!isMounted) {
+    return null;
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="container mx-auto max-w-5xl px-4 py-20 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+        <div className="size-24 md:size-32 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-8">
           <span className="material-symbols-outlined text-gray-200 text-5xl md:text-6xl">
             shopping_cart_off
           </span>
@@ -70,7 +85,6 @@ export const CartView: React.FC = () => {
   return (
     <div className="container mx-auto max-w-7xl px-3 py-6 sm:px-4 md:py-10 animate-in fade-in duration-700">
       <div className="bg-[#FDFBF7] dark:bg-zinc-900 rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] p-4 sm:p-6 md:p-10 lg:p-14 xl:p-20 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] border border-black/[0.03] dark:border-white/5">
-
         {/* BREADCRUMBS (Inspired by image) */}
         <div className="flex flex-wrap items-center gap-2 mb-8 md:mb-10 text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-widest">
           <Link href="/" className="hover:text-black transition-colors">Accueil</Link>

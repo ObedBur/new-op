@@ -1,7 +1,7 @@
 import React from 'react';
 import { Package, CheckCircle, Truck, ChevronRight, MessageCircle, AlertCircle, FileText } from 'lucide-react';
 
-export type OrderStatus = 'À traiter' | 'Expédiées' | 'Livrées' | 'Annulées';
+export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | string;
 
 export interface OrderCardProps {
     id: string;
@@ -19,15 +19,38 @@ export interface OrderCardProps {
 }
 
 export function OrderCard({ id, originalId, status, total, date, count, customer, customerPhone, productName, productImage, onStatusChange, onViewDetails }: OrderCardProps) {
-    const isATraiter = status === 'À traiter';
-    const isLivree = status === 'Livrées';
-    const isAnnulee = status === 'Annulées';
+    const [isLoading, setIsLoading] = React.useState(false);
 
-    const statusStyles: Record<OrderStatus, string> = {
-        'À traiter': 'bg-orange-50 text-[#E67E22] border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20',
-        'Expédiées': 'bg-[#F0FDF4] text-[#2D5A27] border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20',
-        'Livrées': 'bg-[#F0FDF4] text-[#2D5A27] border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40',
-        'Annulées': 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20',
+    const isPending = status === 'PENDING';
+    const isConfirmed = status === 'CONFIRMED';
+    const isShipped = status === 'SHIPPED';
+    const isDelivered = status === 'DELIVERED';
+    const isCancelled = status === 'CANCELLED';
+
+    const statusLabels: Record<string, string> = {
+        PENDING: 'Nouvelle',
+        CONFIRMED: 'Confirmée',
+        SHIPPED: 'Expédiée',
+        DELIVERED: 'Livrée',
+        CANCELLED: 'Annulée'
+    };
+
+    const statusStyles: Record<string, string> = {
+        PENDING: 'bg-orange-50 text-[#E67E22] border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20',
+        CONFIRMED: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+        SHIPPED: 'bg-[#F0FDF4] text-[#2D5A27] border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20',
+        DELIVERED: 'bg-[#F0FDF4] text-[#2D5A27] border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40',
+        CANCELLED: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20',
+    };
+
+    const handleAction = async (newStatus: string) => {
+        if (!onStatusChange) return;
+        setIsLoading(true);
+        try {
+            await onStatusChange(newStatus);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -50,17 +73,18 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                     </div>
                 </div>
 
-                <div className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${statusStyles[status]}`}>
-                    {isATraiter && (
+                <div className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${statusStyles[status] || statusStyles['PENDING']}`}>
+                    {isPending && (
                         <span className="flex size-1.5 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full size-1.5 bg-orange-500"></span>
                         </span>
                     )}
-                    {status === 'Expédiées' && <Truck size={12} />}
-                    {isLivree && <CheckCircle size={12} />}
-                    {isAnnulee && <AlertCircle size={12} />}
-                    <span className="hidden sm:inline-block">{status}</span>
+                    {isConfirmed && <CheckCircle size={12} />}
+                    {isShipped && <Truck size={12} />}
+                    {isDelivered && <CheckCircle size={12} />}
+                    {isCancelled && <AlertCircle size={12} />}
+                    <span className="hidden sm:inline-block">{statusLabels[status] || status}</span>
                 </div>
             </div>
 
@@ -108,40 +132,62 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
 
             {/* ACTIONS */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {isATraiter ? (
+                {isPending ? (
                     <>
                         <button
-                            onClick={() => onStatusChange && onStatusChange('SHIPPED')}
-                            className="col-span-1 py-3 bg-deep-blue dark:bg-white text-white dark:text-deep-blue rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-[#E67E22] dark:hover:bg-[#E67E22] dark:hover:text-white transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5"
+                            onClick={() => handleAction('CONFIRMED')}
+                            disabled={isLoading}
+                            className="col-span-1 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
-                            <Truck size={14} />
+                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <CheckCircle size={16} />}
+                            <span>Confirmer</span>
+                        </button>
+                        <a
+                            href={`https://wa.me/${customerPhone?.replace(/\D/g, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="col-span-1 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
+                        >
+                            <MessageCircle size={16} className="text-green-500" />
+                            <span>WhatsApp</span>
+                        </a>
+                    </>
+                ) : isConfirmed ? (
+                    <>
+                        <button
+                            onClick={() => handleAction('SHIPPED')}
+                            disabled={isLoading}
+                            className="col-span-1 py-3 bg-[#E67E22] dark:bg-[#E67E22] text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
+                        >
+                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <Truck size={16} />}
                             <span>Expédier</span>
                         </button>
                         <a
                             href={`https://wa.me/${customerPhone?.replace(/\D/g, '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="col-span-1 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
+                            className="col-span-1 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
                         >
-                            <MessageCircle size={14} className="text-green-500" />
+                            <MessageCircle size={16} className="text-green-500" />
                             <span>WhatsApp</span>
                         </a>
                     </>
-                ) : status === 'Expédiées' ? (
+                ) : isShipped ? (
                     <button
-                        onClick={() => onStatusChange && onStatusChange('DELIVERED')}
-                            className="col-span-2 py-3 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5"
+                        onClick={() => handleAction('DELIVERED')}
+                        disabled={isLoading}
+                        className="col-span-2 py-3 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
-                        <CheckCircle size={14} />
-                            <span>Confirmer la livraison</span>
+                        {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current"></div> : <CheckCircle size={16} />}
+                        <span>Confirmer la livraison</span>
                     </button>
                 ) : (
-                            <button
-                                onClick={onViewDetails}
-                                className="col-span-2 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
-                            >
-                        <FileText size={14} />
-                                <span>Détails commande</span>
+                    <button
+                        onClick={onViewDetails}
+                        className="col-span-2 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
+                    >
+                        <FileText size={16} />
+                        <span>Détails commande</span>
                     </button>
                 )}
             </div>
