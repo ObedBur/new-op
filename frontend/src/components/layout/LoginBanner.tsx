@@ -11,22 +11,22 @@ export const LoginBanner: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-3 pointer-events-none">
-      <div className="container mx-auto max-w-lg pointer-events-auto">
-        <div className="bg-[#ffebdb]/95 dark:bg-primary/20 backdrop-blur-md border border-white/50 dark:border-white/10 p-3 rounded-xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-10">
+    <div className="fixed bottom-4 right-4 z-50 pointer-events-none md:bottom-6 md:right-6">
+      <div className="pointer-events-auto">
+        <div className="bg-[#ffebdb]/95 dark:bg-slate-900/90 backdrop-blur-md border border-[#E67E22]/30 dark:border-white/10 p-3 rounded-2xl flex items-center gap-4 shadow-2xl animate-in slide-in-from-bottom-10 max-w-sm">
           <div className="flex items-center gap-3 pl-1">
-            <div className="size-8 bg-white dark:bg-white/10 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="material-symbols-outlined text-primary text-xl">
+            <div className="size-8 bg-white dark:bg-white/10 rounded-lg flex items-center justify-center shadow-sm shrink-0">
+              <span className="material-symbols-outlined text-[#E67E22] text-xl">
                 login
               </span>
             </div>
-            <p className="text-[11px] font-black text-orange-900 dark:text-orange-100 leading-tight">
+            <p className="text-[11px] font-black text-slate-800 dark:text-slate-200 leading-tight">
               Connecte-toi pour comparer <br /> plus de prix en Afrique
             </p>
           </div>
           <Link
             href="/login"
-            className="h-9 px-3 text-sm bg-[#ff4400] hover:bg-[#ff4400]/90 text-white rounded-xl font-semibold transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-primary/30"
+            className="h-9 px-4 text-xs bg-[#E67E22] hover:bg-[#E67E22]/90 text-white rounded-xl font-bold transition-all transform active:scale-[0.98] flex items-center justify-center shrink-0 shadow-lg shadow-[#E67E22]/30"
           >
             Connexion
           </Link>

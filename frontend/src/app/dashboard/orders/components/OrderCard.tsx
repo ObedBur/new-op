@@ -54,79 +54,74 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
     };
 
     return (
-        <div className="group relative bg-white dark:bg-[#0f172a] rounded-3xl p-4 lg:p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-orange-200 dark:hover:border-orange-900/30 transition-all duration-300">
+        <div className="group relative bg-white dark:bg-[#0f172a] rounded-3xl p-4 lg:p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-orange-200 dark:hover:border-orange-900/30 transition-all duration-300 flex flex-col">
             {/* Glow décoratif discret au hover */}
             <div className="absolute -inset-px bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl transition-opacity pointer-events-none" />
 
             {/* HEADER */}
-            <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="size-10 flex items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-500/10 text-[#E67E22] dark:text-orange-400 border border-orange-100 dark:border-orange-500/20 overflow-hidden relative shrink-0">
+            <div className="flex items-start justify-between gap-2 mb-4 w-full">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="size-10 flex items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-500/10 text-[#E67E22] dark:text-orange-400 border border-orange-100 dark:border-orange-500/20 shrink-0">
                         <Package size={18} />
                     </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm font-black text-deep-blue dark:text-white uppercase tracking-tight">Commande</span>
-                            <span className="text-sm font-black text-[#E67E22]">#{id}</span>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 truncate">
+                            <span className="text-[11px] sm:text-xs font-black text-deep-blue dark:text-white uppercase tracking-tight">Cmd</span>
+                            <span className="text-[11px] sm:text-xs font-black text-[#E67E22] truncate">#{id}</span>
                         </div>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{date}</p>
                     </div>
                 </div>
 
-                <div className={`px-2.5 sm:px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-black uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${statusStyles[status] || statusStyles['PENDING']}`}>
+                <div className={`px-2.5 py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider border flex items-center gap-1.5 shrink-0 ${statusStyles[status] || statusStyles['PENDING']}`}>
                     {isPending && (
-                        <span className="flex size-1.5 relative">
+                        <span className="flex size-1.5 relative shrink-0">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full size-1.5 bg-orange-500"></span>
                         </span>
                     )}
-                    {isConfirmed && <CheckCircle size={12} />}
-                    {isShipped && <Truck size={12} />}
-                    {isDelivered && <CheckCircle size={12} />}
-                    {isCancelled && <AlertCircle size={12} />}
-                    <span className="hidden sm:inline-block">{statusLabels[status] || status}</span>
+                    {isConfirmed && <CheckCircle size={12} className="shrink-0" />}
+                    {isShipped && <Truck size={12} className="shrink-0" />}
+                    {isDelivered && <CheckCircle size={12} className="shrink-0" />}
+                    {isCancelled && <AlertCircle size={12} className="shrink-0" />}
+                    <span className="hidden sm:inline-block truncate max-w-[80px]">{statusLabels[status] || status}</span>
                 </div>
             </div>
 
-            {/* PRODUIT & PRIX SECTION */}
-            <div className="bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl p-3 mb-4">
-                <div className="flex items-center gap-4">
-                    <div className="size-11 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center shadow-sm shrink-0 overflow-hidden relative">
-                        {productImage ? (
-                            <img src={productImage} alt={productName} className="size-full object-cover" />
-                        ) : (
-                            <Package size={18} className="text-gray-400" />
-                        )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <h5 className="font-black text-deep-blue dark:text-white truncate text-sm lg:text-base leading-tight">
-                            {productName}
-                        </h5>
-                        <div className="mt-1 flex items-center gap-2 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            <span>Qté: {count}</span>
-                            <span className="text-gray-300">•</span>
-                            <span className="text-[#E67E22]">${total}</span>
-                        </div>
+            {/* PRODUIT & CLIENT (Simplified) */}
+            <div className="flex items-center gap-3 mb-5 mt-2 min-w-0">
+                <div className="size-12 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    {productImage ? (
+                        <img src={productImage} alt={productName} className="size-full object-cover" />
+                    ) : (
+                        <Package size={18} className="text-gray-400" />
+                    )}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h5 className="font-bold text-deep-blue dark:text-white truncate text-sm leading-tight">
+                        {productName}
+                    </h5>
+                    <div className="mt-1 flex items-center gap-2 text-[11px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <span>{count}x</span>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-[#E67E22]">${total}</span>
                     </div>
                 </div>
             </div>
 
-            {/* INFO CLIENT */}
-            <div className="flex items-center justify-between mb-4 px-1">
-                <div className="flex items-center gap-2.5">
-                    <div className="size-7 rounded-full bg-deep-blue dark:bg-orange-600 text-white flex items-center justify-center text-[10px] font-black border-2 border-white dark:border-[#111827] shadow-sm">
+            {/* INFO CLIENT COMPACT */}
+            <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-white/5 mb-4">
+                <div className="flex items-center gap-2 min-w-0">
+                    <div className="size-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center text-[9px] font-black shrink-0">
                         {customer.charAt(0)}
                     </div>
-                    <div>
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Acheteur</p>
-                        <p className="text-sm font-black text-gray-700 dark:text-gray-300">{customer}</p>
-                    </div>
+                    <p className="text-xs font-bold text-gray-600 dark:text-gray-300 truncate">{customer}</p>
                 </div>
                 <button
                     onClick={onViewDetails}
-                    className="text-gray-300 hover:text-[#E67E22] transition-colors"
+                    className="text-[10px] font-bold text-[#E67E22] hover:text-orange-600 uppercase tracking-wider shrink-0 flex items-center gap-0.5"
                 >
-                    <ChevronRight size={18} />
+                    Détails <ChevronRight size={14} />
                 </button>
             </div>
 

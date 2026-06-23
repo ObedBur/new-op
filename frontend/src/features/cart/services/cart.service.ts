@@ -9,7 +9,7 @@ interface ServerCartItem {
 }
 
 const toCartItems = (items: ServerCartItem[]): CartItem[] => {
-  return items
+  return (items || [])
     .filter(item => item?.product?.id && item.quantity > 0)
     .map(item => ({
       product: {

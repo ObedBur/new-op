@@ -35,28 +35,28 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
   }
 
   return (
-    <section className="py-8 px-4 bg-[#F8F9FA] overflow-hidden">
+    <section className="py-8 px-4 bg-[#F8F9FA] dark:bg-transparent overflow-hidden">
       <div className="container mx-auto relative">
 
         {/* HEADER : Titre, Boutons et Filtres */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
           <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
                 Explorer par <span className="text-[#E67E22]">Secteur</span>
               </h2>
             </div>
-            <p className="text-slate-500 text-[10px] md:text-sm font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-sm font-medium">
               Trouvez les meilleures offres par catégorie d'articles
             </p>
           </div>
 
-          <div className="flex bg-slate-100/80 p-1.5 rounded-full border border-slate-200/50 w-full max-w-[280px] md:w-auto h-fit shadow-inner">
+          <div className="flex bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 w-full max-w-[280px] md:w-auto h-fit shadow-inner">
             <button
               onClick={() => setActiveFilter('all')}
               className={`flex-1 md:flex-none px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 ${activeFilter === 'all'
-                  ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-100'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md ring-1 ring-slate-100 dark:ring-slate-600'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
               Tous
@@ -94,10 +94,10 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
               <Link
                 key={cat.id}
                 href={`/products?category=${cat.id}`}
-                className="group shrink-0 w-[180px] md:w-[200px] bg-white rounded-2xl p-4 md:p-5 border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between snap-start cursor-pointer"
+                className="group shrink-0 w-[180px] md:w-[200px] bg-white dark:bg-slate-900/40 rounded-2xl p-4 md:p-5 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-between snap-start cursor-pointer"
               >
                 <div className="flex flex-col min-w-0 pr-3">
-                  <h3 className="text-sm md:text-base font-bold text-slate-800 truncate leading-tight group-hover:text-[#E67E22] transition-colors">
+                  <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-white truncate leading-tight group-hover:text-[#E67E22] transition-colors">
                     {cat.name}
                   </h3>
                   <span className="text-xs font-medium text-slate-400 mt-1">
@@ -106,7 +106,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
                 </div>
                 
                 {/* Icône vectorielle pure à droite sans fond gris */}
-                <ChevronRight size={20} className="text-slate-300 group-hover:text-[#E67E22] group-hover:translate-x-1 transition-all shrink-0" strokeWidth={2} />
+                <ChevronRight size={20} className="text-slate-300 dark:text-slate-600 group-hover:text-[#E67E22] group-hover:translate-x-1 transition-all shrink-0" strokeWidth={2} />
               </Link>
             ))}
             
@@ -115,7 +115,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
           </div>
           
           {/* Masque dégradé sur la droite (Desktop) pour indiquer qu'il y a du contenu masqué */}
-          <div className="absolute top-0 right-0 bottom-6 w-16 md:w-32 bg-gradient-to-l from-[#F8F9FA] to-transparent pointer-events-none hidden lg:block z-0"></div>
+          <div className="absolute top-0 right-0 bottom-6 w-16 md:w-32 bg-gradient-to-l from-[#F8F9FA] dark:from-[#0b1221] to-transparent pointer-events-none hidden lg:block z-0"></div>
           
           {/* Bouton Droite */}
           <button 

@@ -206,8 +206,30 @@ async function main() {
   }
 
   const steps = [
-    { icon: 'search', title: 'Recherchez', description: 'Trouvez vos produits favoris.', order: 1 },
-    { icon: 'shopping_bag', title: 'Achetez', description: 'Rencontrez le vendeur et achetez.', order: 2 },
+    {
+      icon: 'search',
+      title: 'Trouvez vos produits favoris',
+      description: 'Explorez un vaste catalogue de produits locaux et internationaux (agricole, mode, tech). Ajoutez vos coups de cœur à votre panier en un clic.',
+      order: 1,
+    },
+    {
+      icon: 'shopping_cart',
+      title: 'Achetez en toute simplicité',
+      description: 'Validez votre panier instantanément sur la plateforme. Le vendeur reçoit immédiatement une alerte sur son tableau de bord pour préparer votre commande.',
+      order: 2,
+    },
+    {
+      icon: 'notifications_active',
+      title: 'Restez toujours informé',
+      description: 'Suivez l\'état de votre commande (Confirmée, Expédiée) en temps réel. Discutez directement avec le vendeur sur WhatsApp pour le moindre détail.',
+      order: 3,
+    },
+    {
+      icon: 'inventory_2',
+      title: 'Recevez et profitez',
+      description: 'Le vendeur vous expédie votre colis. Réceptionnez vos achats, vérifiez la qualité et finalisez la transaction en toute confiance.',
+      order: 4,
+    },
   ];
 
   for (const step of steps) {

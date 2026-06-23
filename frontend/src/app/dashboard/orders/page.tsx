@@ -105,8 +105,8 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            {/* STICKY FILTERS COMPACT WITH FADE */}
-            <div className="sticky top-[64px] md:top-[80px] z-40 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl p-1.5 rounded-[2rem] shadow-xl shadow-black/5 border border-white/20 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden transition-all duration-300">
+            {/* FILTERS COMPACT WITH FADE */}
+            <div className="relative z-30 bg-white/95 dark:bg-[#0f172a]/95 p-1.5 rounded-[2rem] shadow-sm border border-slate-200 dark:border-white/5 flex items-center justify-between gap-1 overflow-hidden">
                 <div className="relative flex-1 flex items-center overflow-hidden">
                     <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide px-1 no-scrollbar flex-1 scroll-smooth">
                         {tabs.map((tab) => (
