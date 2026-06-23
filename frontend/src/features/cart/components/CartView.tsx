@@ -12,6 +12,7 @@ import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/lib/axios";
 import { ProductMapper } from "@/features/products/services/product.mapper";
+import { getProductImageUrl } from "@/lib/image-utils";
 
 export const CartView: React.FC = () => {
   const {
@@ -184,10 +185,12 @@ export const CartView: React.FC = () => {
                   <div key={item.product.id} className="grid grid-cols-[88px_1fr] gap-4 sm:grid-cols-[112px_1fr] md:grid-cols-[128px_1fr] md:gap-6 group">
                     <div className="size-22 sm:size-28 md:size-32 rounded-2xl md:rounded-3xl overflow-hidden bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 shrink-0 relative">
                       <Image
-                        src={item.product.image}
+                        src={getProductImageUrl(item.product.image)}
                         alt={item.product.name}
                         fill
+                        unoptimized={item.product.image?.includes('unsplash.com') ?? false}
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/shopping-cart.png'; }}
                       />
                     </div>
                     <div className="min-w-0 py-1 flex flex-col justify-between">

@@ -49,7 +49,7 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 mb-3 sm:mb-5 text-center sm:text-left">
               <div className="relative size-12 sm:size-14 rounded-full p-0.5 bg-linear-to-tr from-primary to-orange-200 shadow-lg shrink-0">
                 <Image
-                  src={store.avatarUrl || "/images/default-avatar.png"}
+                  src={store.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(store.boutiqueName || 'V')}&background=E67E22&color=fff&size=56`}
                   alt={store.boutiqueName}
                   fill
                   sizes="56px"

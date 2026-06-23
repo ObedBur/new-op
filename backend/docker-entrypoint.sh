@@ -12,7 +12,15 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 
 echo "[entrypoint] Exécution des migrations Prisma..."
-npx prisma migrate deploy
+# Les migrations nécessitent une connexion directe (non-poolée) pour les advisory locks.
+# On utilise MIGRATE_DATABASE_URL si disponible, sinon DATABASE_URL.
+if [ -n "$MIGRATE_DATABASE_URL" ]; then
+    echo "[entrypoint] Utilisation de MIGRATE_DATABASE_URL (connexion directe)..."
+    DATABASE_URL="$MIGRATE_DATABASE_URL" npx prisma migrate deploy
+else
+    echo "[entrypoint] Attention: MIGRATE_DATABASE_URL non défini, utilisation de DATABASE_URL..."
+    npx prisma migrate deploy
+fi
 
 echo "[entrypoint] Lancement de NestJS..."
 # On utilise node directement. Si ça crash, le message d'erreur sera visible dans Render.

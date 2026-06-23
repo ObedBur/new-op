@@ -265,8 +265,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await cartService.clearCart();
     } catch (error) {
-      console.error('Failed to clear server cart', error);
-      toast.error('Le panier serveur n’a pas pu être vidé.');
+      // Erreur silencieuse : le panier local est déjà vidé, l'utilisateur n'est pas impacté.
+      // Cela peut arriver si le serveur est en veille (Render plan gratuit).
+      console.warn('Server cart clear failed (non-critical):', error);
     }
   };
 
