@@ -71,10 +71,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="w-full">
       <div className="flex items-end justify-between mb-4">
         <div className="space-y-2">
-          <div className="h-6 w-44 rounded bg-slate-200 animate-pulse" />
-          <div className="h-3 w-52 rounded bg-slate-100 animate-pulse" />
+          <div className="h-6 w-44 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+          <div className="h-3 w-52 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
           {title}
         </span>
       </div>
@@ -83,16 +83,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={`${title}-${index}`}
-              className="min-h-[240px] rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+              className="min-h-[240px] rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900 p-4 shadow-sm"
             >
-              <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
-              <div className="mt-4 h-4 w-3/4 rounded bg-slate-100 animate-pulse" />
-              <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 animate-pulse" />
-              <div className="mt-6 h-8 w-full rounded-xl bg-slate-100 animate-pulse" />
+              <div className="h-28 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
+              <div className="mt-4 h-4 w-3/4 rounded bg-slate-100 dark:bg-white/5 animate-pulse" />
+              <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 dark:bg-white/5 animate-pulse" />
+              <div className="mt-6 h-8 w-full rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
             </div>
           ))}
         </div>
-        <p className="mt-4 text-xs font-medium text-slate-400">{subtitle}</p>
+        <p className="mt-4 text-xs font-medium text-slate-400 dark:text-slate-500">{subtitle}</p>
       </div>
     </div>
   );
@@ -158,10 +158,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {showProductEmptyState && (
             <div className="rounded-[2rem] border border-[#DDB88C]/25 bg-[#DDB88C]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
-              <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 Aucune vitrine produit pour le moment
               </h2>
-              <p className="text-slate-600 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
                 Les offres, nouveautés et tendances s&apos;afficheront ici dès
                 qu&apos;il y aura du contenu côté catalogue.
               </p>

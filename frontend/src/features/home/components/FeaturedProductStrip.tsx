@@ -17,10 +17,10 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
     <div className="w-full mb-8 bg-transparent">
       <div className="container mx-auto px-4 flex items-end justify-between mb-4">
         <div className="space-y-0.5">
-          <h3 className="text-lg md:text-xl font-black text-slate-900 leading-none">
+          <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-none">
             {title.split(' ')[0]} <span className="text-[#E67E22]">{title.split(' ').slice(1).join(' ')}</span>
           </h3>
-          <p className="text-[10px] md:text-xs text-slate-500 font-medium">{subtitle}</p>
+          <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
         </div>
         <Link
           href="/products"
@@ -45,9 +45,9 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
           {/* Card "Tout voir" plus élégante sur mobile */}
           <Link
             href="/products"
-            className="w-full min-h-[160px] flex flex-col items-center justify-center gap-2 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:border-[#E67E22]/50 hover:bg-white transition-all group lg:hidden"
+            className="w-full min-h-[160px] flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-[#E67E22]/50 dark:hover:border-[#E67E22]/50 hover:bg-white dark:hover:bg-white/10 transition-all group lg:hidden"
           >
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tight group-hover:text-[#E67E22]">Tout voir</span>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight group-hover:text-[#E67E22] dark:group-hover:text-[#E67E22]">Tout voir</span>
           </Link>
         </div>
       </div>

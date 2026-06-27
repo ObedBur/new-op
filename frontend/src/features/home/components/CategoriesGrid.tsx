@@ -64,8 +64,8 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
             <button
               onClick={() => setActiveFilter('popular')}
               className={`flex-1 md:flex-none px-6 py-2 rounded-full text-xs font-bold transition-all duration-300 ${activeFilter === 'popular'
-                  ? 'bg-white text-slate-900 shadow-md ring-1 ring-slate-100'
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-md ring-1 ring-slate-100 dark:ring-slate-600'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
               Populaires

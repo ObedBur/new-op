@@ -18,6 +18,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationsModule } from './common/notifications/notifications.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CartModule } from './cart/cart.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
