@@ -136,6 +136,7 @@ export class NotificationsService {
                   followsInApp: true,
                   followsEmail: true,
                   followsPush: true,
+                  followsSms: true,
                 },
               },
             },
@@ -189,14 +190,14 @@ export class NotificationsService {
           });
         }
 
-        // Notification SMS (Mode MOCK temp basé sur l'existence du tel)
-        const shouldSendSmsMock = Boolean(follower.phone);
-        if (shouldSendSmsMock && follower.phone) {
+        // Notification SMS (opt-in uniquement via followsSms)
+        const shouldSendSms = Boolean(prefs?.followsSms && follower.phone);
+        if (shouldSendSms && follower.phone) {
           try {
             const message = `WapiBei: ${vendorName} a publié "${product.name}". Voir: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`;
             await this.smsService.sendSms(follower.phone, message);
           } catch (smsError) {
-            this.logger.error(`Échec SMS Mock pour l'utilisateur ${follower.id}`, smsError);
+            this.logger.error(`Échec SMS pour l'utilisateur ${follower.id}`, smsError);
           }
         }
       }
