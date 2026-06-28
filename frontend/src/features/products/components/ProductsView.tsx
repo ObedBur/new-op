@@ -24,6 +24,12 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   initialProducts, 
   categories,
 }) => {
+  const categoriesWithCounts = React.useMemo(() => {
+    return categories.map(cat => ({
+      ...cat,
+      productCount: initialProducts.filter(p => String(p.categoryId) === String(cat.id)).length
+    }));
+  }, [categories, initialProducts]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { filters, updateFilters } = useProductFilters();
   const { paginatedProducts, totalCount, totalPages } = useProductListView(initialProducts, filters);
@@ -44,7 +50,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 
         <div className="flex flex-col md:flex-row gap-6 lg:gap-10 items-start animate-in fade-in duration-500">
             <ProductFilterSidebar 
-              categories={categories} 
+              categories={categoriesWithCounts} 
               filters={filters} 
               onUpdate={updateFilters} 
             />
@@ -74,7 +80,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <ProductFilterMobile 
               isOpen={isMobileFiltersOpen} 
               onClose={() => setIsMobileFiltersOpen(false)} 
-              categories={categories} 
+              categories={categoriesWithCounts} 
               filters={filters} 
               onUpdate={updateFilters} 
             />

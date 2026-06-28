@@ -7,6 +7,7 @@ import { useLoading } from "@/context/LoadingContext";
 import { HomeView } from "@/features/home/components/HomeView";
 import {
   getCategories,
+  getProducts,
   getDeals,
   getNewArrivals,
   getRecommendations,
@@ -73,14 +74,21 @@ export default function Home() {
   useEffect(() => {
     setSectionLoading(HOME_INITIAL_LOADING);
 
-    void getCategories()
-      .then((response) => {
-        if (response.success) {
-          setCategories(response.data);
+    void Promise.all([getCategories(), getProducts({})])
+      .then(([catsRes, prodsRes]) => {
+        if (catsRes.success && prodsRes.success) {
+          const allProds = prodsRes.data;
+          const updatedCats = catsRes.data.map(cat => ({
+            ...cat,
+            productCount: allProds.filter(p => String(p.categoryId) === String(cat.id)).length
+          }));
+          setCategories(updatedCats);
+        } else if (catsRes.success) {
+          setCategories(catsRes.data);
         }
       })
       .catch((error) => {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching categories or products:", error);
       })
       .finally(() => setSectionLoaded("categories"));
 
