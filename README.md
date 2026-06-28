@@ -1,9 +1,7 @@
 # Monorepo
 
 ## Structure
-
-```
-kaskade/
+Wapibei/
 ├── backend/          # NestJS API
 ├── frontend/         # Next.js Web App
 ├── pnpm-workspace.yaml
