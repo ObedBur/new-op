@@ -15,10 +15,9 @@ import { SellersModule } from './sellers/sellers.module';
 import { ContentModule } from './content/content.module';
 import { OrdersModule } from './orders/orders.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import { NotificationsModule } from './common/notifications/notifications.module';
+import { NotificationsModule } from './common/notifications/notifications.module'; // On garde uniquement celui-ci
 import { ScheduleModule } from '@nestjs/schedule';
 import { CartModule } from './cart/cart.module';
-import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [

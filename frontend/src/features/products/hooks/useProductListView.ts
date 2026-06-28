@@ -9,7 +9,7 @@ export function useProductListView(products: Product[], filters: ProductFilters)
     const { UNDER_25K, OVER_75K } = PRODUCT_CONFIG.PRICE_PRESETS;
 
     const filtered = products.filter(product => {
-      if (filters.categoryId && product.categoryId !== filters.categoryId) return false;
+      if (filters.categoryId && String(product.categoryId) !== String(filters.categoryId)) return false;
       
       if (filters.priceRange !== 'all') {
         if (filters.priceRange === 'under_25k' && product.price >= UNDER_25K) return false;

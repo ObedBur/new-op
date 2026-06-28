@@ -152,22 +152,16 @@ const LOCAL_SLIDES: HeroSlide[] = [
 const REGISTER_VENDOR_HREF = "/register?role=VENDOR#role-vendeur";
 
 export const Hero: React.FC<HeroProps> = ({ slides }) => {
-  const { isAuthenticated, user } = useAuth();
-  const router = useRouter();
+  const { isAuthenticated, logout } = useAuth();
+  const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
 
-  const handleVendorClick = () => {
+  const handleVendorClick = async (e: React.MouseEvent) => {
     if (isAuthenticated) {
-      if (user?.role === "VENDOR" || user?.role === "ADMIN") {
-        router.push("/dashboard");
-      } else {
-        router.push("/dashboard/settings"); // Clients want to become vendor -> go to settings to upgrade
-      }
-    } else {
-      router.push(REGISTER_VENDOR_HREF);
+      e.preventDefault();
+      await logout();
+      window.location.href = REGISTER_VENDOR_HREF;
     }
   };
-
-  const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
 
   return (
     <section className="relative px-4 py-12 md:py-20 lg:py-24 container mx-auto max-w-7xl overflow-hidden">
@@ -287,13 +281,14 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
               </motion.div>
             </Link>
 
-            <motion.div
-              onClick={handleVendorClick}
-              whileHover={{ y: -2 }}
-              className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
-            >
-              Devenir vendeur
-            </motion.div>
+            <Link href={REGISTER_VENDOR_HREF} className="w-full sm:w-auto" onClick={handleVendorClick}>
+              <motion.div
+                whileHover={{ y: -2 }}
+                className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
+              >
+                Devenir vendeur
+              </motion.div>
+            </Link>
           </div>
         </div>
 
