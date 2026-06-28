@@ -8,6 +8,7 @@ import { MobileSidebar } from "./components/MobileSidebar";
 import { DesktopHeader } from "./components/DesktopHeader";
 import { useCart } from "@/features/cart/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useAppNotifications } from "@/hooks/useAppNotifications";
 
 const navLinks = [
   { id: "/", label: "Accueil", icon: "home" },
@@ -38,6 +39,7 @@ const HeaderOverlays = ({
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const { unreadCount } = useAppNotifications();
 
   const isActive = (path: string) => pathname === path;
   const isAuthPage = [
@@ -104,6 +106,38 @@ const HeaderOverlays = ({
                 search
               </span>
             </button>
+
+            {isAuthenticated && (
+              <Link
+                href="/notifications"
+                className="lg:hidden relative p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                aria-label="Notifications"
+              >
+                <span className="material-symbols-outlined text-[24px]">
+                  notifications
+                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 size-4 bg-[#E67E22] text-white text-[9px] font-black flex items-center justify-center rounded-full">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
+            <Link
+              href="/cart"
+              className="lg:hidden relative p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              aria-label="Panier"
+            >
+              <span className="material-symbols-outlined text-[24px]">
+                shopping_bag
+              </span>
+              {totalItems > 0 && (
+                <span className="absolute top-1 right-1 size-4 bg-[#E67E22] text-white text-[9px] font-black flex items-center justify-center rounded-full shadow-lg border border-white dark:border-black">
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
+              )}
+            </Link>
 
             <button
               onClick={() => setIsSidebarOpen(true)}
