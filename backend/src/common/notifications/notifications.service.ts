@@ -4,6 +4,7 @@ import { NotificationType } from '@prisma/client';
 import { EmailService } from '../email/email.service';
 import { WebPushService } from './web-push.service';
 import { NotificationsGateway } from './notifications.gateway';
+import { SmsService } from './sms.service';
 
 /**
  * Service central de gestion des notifications.
@@ -18,6 +19,7 @@ export class NotificationsService {
     private emailService: EmailService,
     private webPushService: WebPushService,
     private notificationsGateway: NotificationsGateway,
+    private smsService: SmsService,
   ) { }
 
   /**
@@ -127,12 +129,14 @@ export class NotificationsService {
             select: {
               id: true,
               email: true,
+              phone: true,
               fullName: true,
               notificationPreference: {
                 select: {
                   followsInApp: true,
                   followsEmail: true,
                   followsPush: true,
+                  followsSms: true,
                 },
               },
             },
@@ -184,6 +188,17 @@ export class NotificationsService {
             body: `${vendorName} a publié : ${product.name}`,
             data: { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}` },
           });
+        }
+
+        // Notification SMS (opt-in uniquement via followsSms)
+        const shouldSendSms = Boolean(prefs?.followsSms && follower.phone);
+        if (shouldSendSms && follower.phone) {
+          try {
+            const message = `WapiBei: ${vendorName} a publié "${product.name}". Voir: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`;
+            await this.smsService.sendSms(follower.phone, message);
+          } catch (smsError) {
+            this.logger.error(`Échec SMS pour l'utilisateur ${follower.id}`, smsError);
+          }
         }
       }
     } catch (error) {

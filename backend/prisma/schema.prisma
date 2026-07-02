@@ -282,15 +282,18 @@ model NotificationPreference {
   ordersPush   Boolean @default(true)
   ordersEmail  Boolean @default(true)
   ordersInApp  Boolean @default(true)
+  ordersSms    Boolean @default(false)
 
   // Vendeurs Favoris
   followsPush  Boolean @default(true)
   followsEmail Boolean @default(false)
   followsInApp Boolean @default(true)
+  followsSms   Boolean @default(false)
 
   // Offres & Promotions
   promosPush   Boolean @default(true)
   promosEmail  Boolean @default(false)
+  promosSms    Boolean @default(false)
 
   // Sécurité & Compte (toujours actif — stocké pour cohérence)
   securityEmail Boolean @default(true)
