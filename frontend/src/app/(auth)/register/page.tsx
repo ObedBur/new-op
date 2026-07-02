@@ -25,6 +25,11 @@ const customCountries = defaultCountries.map((country) => {
   return country;
 });
 
+const customFlags = defaultCountries.map((c) => ({
+  iso2: c[1] as string,
+  src: `https://flagcdn.com/w20/${c[1]}.png`,
+}));
+
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
@@ -366,6 +371,7 @@ export default function RegisterPage() {
                     value={phone}
                     onChange={(phone) => setPhone(phone)}
                     countries={customCountries}
+                    flags={customFlags as any}
                     forceDialCode
                     inputProps={{
                       placeholder: "974 927 593",
