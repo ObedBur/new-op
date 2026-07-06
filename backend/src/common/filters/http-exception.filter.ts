@@ -11,6 +11,8 @@ import { FastifyReply } from 'fastify';
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
     private readonly logger = new Logger(GlobalExceptionFilter.name);
+    private readonly exposeDebug =
+        process.env.NODE_ENV !== 'production' && process.env.EXPOSE_ERROR_DEBUG === 'true';
 
     catch(exception: unknown, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
@@ -68,7 +70,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             statusCode: status,
             message,
             timestamp: new Date().toISOString(),
-            ...(process.env.NODE_ENV === 'development' && {
+            ...(this.exposeDebug && {
                 // Afficher le détail SEULEMENT en développement
                 debug: {
                     error: exception instanceof Error ? exception.message : String(exception),
