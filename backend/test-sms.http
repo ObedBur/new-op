@@ -1,0 +1,35 @@
+### Fichier de test HTTP pour les notifications SMS
+### Extension recommandée (VSCode) : REST Client par Huachao Mao
+
+# Variables (modifiez si nécessaire)
+@baseUrl = http://localhost:4000/api
+@phone = +33612345678
+@message = Bonjour, ceci est un test du service SMS WapiBei !
+
+### 1. Tester l'envoi de SMS (MOCK)
+# Cet endpoint permet de vérifier que le module SMS intercepte bien la requête.
+POST {{baseUrl}}/notifications/test-sms
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}",
+  "message": "{{message}}"
+}
+
+### 2. Tester l'envoi de SMS avec un corps vide (doit être ignoré)
+POST {{baseUrl}}/notifications/test-sms
+Content-Type: application/json
+
+{
+  "phone": "{{phone}}",
+  "message": ""
+}
+
+### 3. Tester l'envoi de SMS sans numéro (doit être ignoré)
+POST {{baseUrl}}/notifications/test-sms
+Content-Type: application/json
+
+{
+  "phone": "",
+  "message": "{{message}}"
+}

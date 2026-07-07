@@ -4,7 +4,7 @@ import { NotificationType } from '@prisma/client';
 import { EmailService } from '../email/email.service';
 import { WebPushService } from './web-push.service';
 import { NotificationsGateway } from './notifications.gateway';
-import { SmsService } from './sms.service';
+import { SmsService } from './sms/sms.service';
 
 /**
  * Service central de gestion des notifications.
@@ -236,5 +236,12 @@ export class NotificationsService {
     } catch (error) {
       this.logger.error(`Échec de l'envoi push pour l'utilisateur ${userId}`, error);
     }
+  }
+
+  /**
+   * Endpoint de test pour l'envoi de SMS
+   */
+  async testSms(to: string, message: string) {
+    return this.smsService.sendSms(to, message);
   }
 }

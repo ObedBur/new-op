@@ -6,13 +6,24 @@ import { NotificationsGateway } from './notifications.gateway';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { EmailModule } from '../email/email.module';
 import { AuthModule } from '../../auth/auth.module';
-import { SmsService } from './sms.service';
+import { SmsService } from './sms/sms.service';
+import { smsProviderFactory } from './sms/sms.factory';
+import { MockSmsProvider } from './sms/providers/mock.provider';
+import { TwilioSmsProvider } from './sms/providers/twilio.provider';
 
 @Global()
 @Module({
   imports: [PrismaModule, EmailModule, AuthModule],
   controllers: [NotificationsController],
-  providers: [NotificationsService, WebPushService, NotificationsGateway, SmsService],
+  providers: [
+    NotificationsService, 
+    WebPushService, 
+    NotificationsGateway, 
+    SmsService,
+    MockSmsProvider,
+    TwilioSmsProvider,
+    smsProviderFactory
+  ],
   exports: [NotificationsService, WebPushService, NotificationsGateway, SmsService],
 })
 export class NotificationsModule {}
