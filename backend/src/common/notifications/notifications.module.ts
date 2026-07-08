@@ -10,6 +10,7 @@ import { SmsService } from './sms/sms.service';
 import { smsProviderFactory } from './sms/sms.factory';
 import { MockSmsProvider } from './sms/providers/mock.provider';
 import { TwilioSmsProvider } from './sms/providers/twilio.provider';
+import { AfricastalkingSmsProvider } from './sms/providers/africastalking.provider';
 
 @Global()
 @Module({
@@ -22,6 +23,7 @@ import { TwilioSmsProvider } from './sms/providers/twilio.provider';
     SmsService,
     MockSmsProvider,
     TwilioSmsProvider,
+    AfricastalkingSmsProvider,
     smsProviderFactory
   ],
   exports: [NotificationsService, WebPushService, NotificationsGateway, SmsService],

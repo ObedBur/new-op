@@ -84,28 +84,5 @@ export class NotificationsController {
     return this.notificationsService.savePushSubscription(req.user.id, subscription);
   }
 
-  /**
-   * Endpoint de test pour envoyer un SMS (MOCK).
-   *
-   * ─── Sécurité ────────────────────────────────────────────────────────────
-   * DevOnlyGuard : bloque cet endpoint avec un 403 Forbidden en production
-   * (NODE_ENV === 'production'). En développement, l'accès est libre pour
-   * faciliter les tests sans avoir à s'authentifier.
-   *
-   * ─── Validation ──────────────────────────────────────────────────────────
-   * Le DTO SendSmsDto active la ValidationPipe globale :
-   * - phone  : format E.164 strict (^\+[1-9]\d{6,14}$)
-   * - message: 1 à 1600 caractères (après trim)
-   * Les erreurs de validation retournent automatiquement 400 Bad Request.
-   *
-   * ─── Code HTTP ───────────────────────────────────────────────────────────
-   * 200 OK (pas 201) : aucune ressource n'est créée, on effectue une action.
-   */
-  @UseGuards(DevOnlyGuard, ThrottlerGuard)
-  @Throttle({ global: { limit: 3, ttl: 60000 } })
-  @Post('test-sms')
-  @HttpCode(HttpStatus.OK)
-  async testSms(@Body() dto: SendSmsDto) {
-    return this.notificationsService.testSms(dto.phone, dto.message);
-  }
+
 }
