@@ -105,6 +105,21 @@ const HeaderOverlays = ({
               </span>
             </button>
 
+            <Link
+              href="/cart"
+              className="relative p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              aria-label="Voir le panier"
+            >
+              <span className="material-symbols-outlined text-[24px] md:text-[28px]">
+                shopping_bag
+              </span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 flex items-center justify-center rounded-full bg-[#E67E22] text-[10px] font-black text-white border-2 border-white dark:border-[#111]">
+                  {totalItems > 9 ? '9+' : totalItems}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"

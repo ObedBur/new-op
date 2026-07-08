@@ -10,19 +10,43 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { NotificationsService } from './notifications.service';
+import { SmsService } from './sms/sms.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { JwtRequest } from '../../auth/types/auth-request.types';
 import { SendSmsDto } from './dto/send-sms.dto';
 import { DevOnlyGuard } from '../guards/dev-only.guard';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 
 /**
  * Contrôleur gérant les notifications In-App et les abonnements aux notifications Push.
  */
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    private readonly smsService: SmsService,
+  ) {}
+
+  /**
+   * Endpoint de test pour envoyer un SMS.
+   */
+  @UseGuards(DevOnlyGuard, ThrottlerGuard)
+  @Throttle({ global: { limit: 3, ttl: 60000 } })
+  @Post('test-sms')
+  @HttpCode(HttpStatus.OK)
+  async testSms(@Body() dto: SendSmsDto) {
+    const result = await this.smsService.sendSms(dto.phone, dto.message);
+
+    return {
+      sent: result.sent,
+      provider: result.provider,
+      attempts: result.attempts ?? 0,
+      durationMs: result.durationMs ?? 0,
+      ...(result.skipped && { skipped: result.skipped }),
+      ...(result.reason && { reason: result.reason }),
+    };
+  }
 
   /**
    * Récupère les 50 dernières notifications de l'utilisateur authentifié.
