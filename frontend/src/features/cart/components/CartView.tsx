@@ -140,7 +140,14 @@ export const CartView: React.FC = () => {
               <div className="space-y-4 pt-4 md:pt-8">
                 <Button
                   className="w-full min-h-14 py-4 sm:py-6 md:py-8 bg-[#A64B2A] hover:bg-[#8B3A1E] text-white shadow-2xl shadow-orange-900/20 font-black uppercase tracking-[0.14em] sm:tracking-[0.2em] text-[11px] sm:text-[13px] rounded-2xl border-none transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-normal text-center"
-                  onClick={() => setIsCheckoutModalOpen(true)}
+                  onClick={() => {
+                    if (!user) {
+                      showToast("Veuillez vous connecter pour commander", "error");
+                      router.push("/login?redirect=/cart");
+                      return;
+                    }
+                    setIsCheckoutModalOpen(true);
+                  }}
                   leftIcon={
                     <span className="material-symbols-outlined text-[24px]">
                       send

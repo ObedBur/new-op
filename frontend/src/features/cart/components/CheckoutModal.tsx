@@ -5,6 +5,26 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Address, AddressService } from "@/features/addresses/services/address.service";
+import { useAuth } from "@/context/AuthContext";
+
+interface CheckoutModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: any) => void;
+  total: number;
+  currency?: string;
+  initialData?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+}
+
+export const CheckoutModal: React.FC<CheckoutModalProps> = ({
+  isOpen,
+import { useAuth } from "@/context/AuthContext";
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -28,6 +48,24 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   currency = "$",
   initialData = {},
 }) => {
+  const { user } = useAuth();
+  const [addresses, setAddresses] = React.useState<Address[]>([]);
+  const [selectedAddress, setSelectedAddress] = React.useState<string>(initialData.address || "");
+
+  React.useEffect(() => {
+    if (isOpen && user) {
+      AddressService.getAddresses()
+        .then(data => {
+          setAddresses(data);
+          if (data.length > 0 && !selectedAddress) {
+            const def = data.find(a => a.isDefault) || data[0];
+            setSelectedAddress(`${def.street}, ${def.commune}, ${def.city}, ${def.province}`);
+          }
+        })
+        .catch(err => console.error("Failed to load addresses", err));
+    }
+  }, [isOpen, user]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -98,13 +136,39 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   required
                 />
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-bold text-gray-700 dark:text-gray-300 ml-1">
-                    Adresse de livraison
-                  </label>
+                  <div className="flex items-center justify-between ml-1 mb-1">
+                    <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                      Adresse de livraison
+                    </label>
+                  </div>
+                  
+                  {addresses.length > 0 && (
+                    <div className="mb-2">
+                      <select 
+                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-deep-blue dark:text-white outline-none focus:border-[#E67E22] transition-colors appearance-none"
+                        onChange={(e) => {
+                          const addr = addresses.find(a => a.id === e.target.value);
+                          if (addr) {
+                            setSelectedAddress(`${addr.street}, ${addr.commune}, ${addr.city}, ${addr.province}`);
+                          }
+                        }}
+                        defaultValue=""
+                      >
+                        <option value="" disabled>Choisir dans le carnet d'adresses...</option>
+                        {addresses.map(addr => (
+                          <option key={addr.id} value={addr.id}>
+                            {addr.title} - {addr.street}, {addr.commune}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <textarea
                     name="address"
                     placeholder="Ville, commune, quartier ou point de rencontre"
-                    defaultValue={initialData.address}
+                    value={selectedAddress}
+                    onChange={(e) => setSelectedAddress(e.target.value)}
                     required
                     rows={3}
                     className="w-full px-5 py-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22]/20 focus:border-[#E67E22] transition-all resize-none text-deep-blue dark:text-white"
