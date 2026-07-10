@@ -3,6 +3,8 @@ import { getProducts, getCategories } from '@/features/products/services/product
 import { ProductsView } from '@/features/products/components/ProductsView';
 import { ProductGridSkeleton, CategoryGridSkeleton } from '@/components/ui/SkeletonLoaders';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsPage() {
   // Parallel fetching in Server Component
   const [productsRes, categoriesRes] = await Promise.all([
