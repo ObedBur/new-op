@@ -16,11 +16,15 @@ dotenv.config({ path: envPath });
 const databaseUrl = process.env.DATABASE_URL || '';
 const isAccelerate = databaseUrl.startsWith('prisma://') || databaseUrl.startsWith('prisma+');
 
-const prisma = new PrismaClient({
-  ...(isAccelerate
-    ? { accelerateUrl: databaseUrl }
-    : { datasourceUrl: databaseUrl }),
-} as any);
+const prisma = isAccelerate
+  ? new PrismaClient({ accelerateUrl: databaseUrl } as any)
+  : new PrismaClient({
+      adapter: new PrismaPg(
+        new Pool({
+          connectionString: databaseUrl,
+        }) as any,
+      ),
+    });
 
 async function main() {
   logger.log('🚀 Démarrage du Seeding (150 produits)...');

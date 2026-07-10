@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { randomUUID } from 'crypto';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { Pool } from 'pg';
 
 // Load environment variables
 const envPath = path.join(__dirname, '../.env');
@@ -10,11 +12,15 @@ dotenv.config({ path: envPath });
 const databaseUrl = process.env.DATABASE_URL || '';
 const isAccelerate = databaseUrl.startsWith('prisma://') || databaseUrl.startsWith('prisma+');
 
-const prisma = new PrismaClient({
-  ...(isAccelerate
-    ? { accelerateUrl: databaseUrl }
-    : { datasourceUrl: databaseUrl }),
-} as any);
+const prisma = isAccelerate
+  ? new PrismaClient({ accelerateUrl: databaseUrl } as any)
+  : new PrismaClient({
+      adapter: new PrismaPg(
+        new Pool({
+          connectionString: databaseUrl,
+        }) as any,
+      ),
+    });
 
 async function main() {
   console.log('Suppression des anciennes étapes HowItWorks...');

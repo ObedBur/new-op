@@ -211,12 +211,20 @@ export class OrdersService {
       const vendorTotal = vendorOrders.reduce((sum, o) => sum + o.totalPrice, 0);
       const firstImage = vendorOrders[0].product.image || (vendorOrders[0].product.images && vendorOrders[0].product.images[0]);
 
+      const productDetailsList = vendorOrders.map(o => {
+        const qty = o.totalPrice / o.product.price;
+        return `- ${qty}x ${o.product.name}`;
+      }).join('\n');
+
+      const emailProductName = vendorOrders.length === 1 ? vendorOrders[0].product.name : `${vendorOrders.length} articles:\n${productDetailsList}`;
+      const whatsappProductName = vendorOrders.length === 1 ? vendorOrders[0].product.name : `\n${productDetailsList}`;
+
       this.emailService.sendVendorOrderAlert({
         vendorEmail: vendor.email,
         vendorName: vendor.boutiqueName || vendor.fullName,
         customerName,
         customerPhone,
-        productName: vendorOrders.length === 1 ? productNames : `${vendorOrders.length} articles`,
+        productName: emailProductName,
         productImage: firstImage,
         totalPrice: vendorTotal,
         orderId: vendorOrders.map(o => o.id).join(', '),
@@ -226,7 +234,7 @@ export class OrdersService {
         vendorName: vendor.boutiqueName || vendor.fullName,
         customerName,
         customerPhone,
-        productName: vendorOrders.length === 1 ? productNames : `${vendorOrders.length} produits`,
+        productName: whatsappProductName,
         productImage: firstImage,
         deliveryAddress: address,
         totalPrice: vendorTotal,
