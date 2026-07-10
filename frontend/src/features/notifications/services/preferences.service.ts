@@ -4,11 +4,14 @@ export interface NotificationPreferences {
   ordersPush: boolean;
   ordersEmail: boolean;
   ordersInApp: boolean;
+  ordersSms: boolean;
   followsPush: boolean;
   followsEmail: boolean;
   followsInApp: boolean;
+  followsSms: boolean;
   promosPush: boolean;
   promosEmail: boolean;
+  promosSms: boolean;
   securityEmail: boolean;
   securityInApp: boolean;
 }

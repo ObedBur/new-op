@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
     User, Store, Package, ShoppingBag,
-    Bell, ShieldCheck, Settings as SettingsIcon, Heart, TrendingUp, LogOut, ArrowLeft
+    Bell, ShieldCheck, Settings as SettingsIcon, Heart, TrendingUp, LogOut, ArrowLeft, MapPin
 } from 'lucide-react';
 import { User as UserType } from '@/types/auth';
 import { useWishlist } from '@/hooks/useWishlist';
@@ -34,6 +34,7 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
         ]),
         { id: 'notifications', label: 'Notifications', href: '/settings?tab=notifications', icon: Bell },
         { id: 'security', label: 'Sécurité', href: '/settings?tab=security', icon: ShieldCheck },
+        { id: 'addresses', label: 'Carnet d\'adresses', href: '/settings?tab=addresses', icon: MapPin },
         { id: 'preferences', label: 'Préférences', href: '/settings?tab=preferences', icon: SettingsIcon },
     ];
 

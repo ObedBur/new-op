@@ -418,9 +418,9 @@ export class AuthService {
    * Si l'entrée de notifications n'existe pas.
    */
   async updateNotificationPreferences(userId: string, dto: Partial<{
-    ordersPush: boolean; ordersEmail: boolean; ordersInApp: boolean;
-    followsPush: boolean; followsEmail: boolean; followsInApp: boolean;
-    promosPush: boolean; promosEmail: boolean;
+    ordersPush: boolean; ordersEmail: boolean; ordersInApp: boolean; ordersSms: boolean;
+    followsPush: boolean; followsEmail: boolean; followsInApp: boolean; followsSms: boolean;
+    promosPush: boolean; promosEmail: boolean; promosSms: boolean;
     securityEmail: boolean; securityInApp: boolean;
   }>) {
     return this.prisma.notificationPreference.upsert({

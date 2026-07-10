@@ -7,6 +7,7 @@ import { Product } from '../types';
 import { ProductMapper } from '../services/product.mapper';
 import { useCart } from '@/features/cart/context/CartContext';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCurrency } from '@/hooks/useCurrency';
 import { toast } from 'sonner';
 
 interface ProductCardProps {
@@ -22,7 +23,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   compact = false,
   className = '',
 }) => {
-  const { amount, currency } = ProductMapper.parsePrice(product.displayPrice || product.price);
+  const { formatPriceParts } = useCurrency();
+  const { amount, symbol } = formatPriceParts(product.price);
   const { addItem } = useCart();
   const { toggleFavorite, isFavorited } = useWishlist();
 
@@ -132,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {amount}
           </span>
           <span className="text-[8px] md:text-[9px] font-black text-[#E67E22] uppercase">
-            {currency}
+            {symbol}
           </span>
           {product.unit && (
             <span className="text-[8px] md:text-[9px] font-medium text-gray-400 dark:text-gray-500 ml-0.5">

@@ -3,6 +3,7 @@ const REFRESH_TOKEN_KEY = 'wapibei_refresh_token'; // Convention du projet : prÃ
 type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'ocean';
 type Language = 'fr' | 'en';
 type FontSize = 'small' | 'medium' | 'large';
+type Currency = 'USD' | 'CDF';
 
 export const storage = {
   // Refresh token methods (existing)
@@ -77,4 +78,7 @@ export const storage = {
   
   getFontSize: (): FontSize => storage.getItem<FontSize>('fontSize', 'medium'),
   setFontSize: (size: FontSize) => storage.setItem('fontSize', size),
+
+  getCurrency: (): Currency => storage.getItem<Currency>('currency', 'USD'),
+  setCurrency: (c: Currency) => storage.setItem('currency', c),
 };

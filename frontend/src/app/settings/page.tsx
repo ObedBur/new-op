@@ -14,7 +14,7 @@ import {
 import EditProfileModal from "../modal/EditProfileModal";
 
 import { useAuth } from "@/context/AuthContext";
-import { Language, Theme, useSettings } from "@/context/SettingsContext";
+import { Language, Theme, Currency, useSettings } from "@/context/SettingsContext";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
@@ -23,12 +23,14 @@ import { resolveNotificationUrl } from "@/types/notification";
 import { toast } from "sonner";
 
 import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
+import { useCurrency } from "@/hooks/useCurrency";
+import { AddressBookSection } from "@/features/addresses/components/AddressBookSection";
 import { useWishlist } from "@/hooks/useWishlist";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { Product } from "@/types/product.types";
 import { ListSkeleton, TableSkeleton } from "@/components/ui/SkeletonLoaders";
 
-type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders';
+type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders' | 'addresses';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -55,9 +57,10 @@ const getInitials = (name: string) => {
 
 function SettingsPageContent() {
   const { user } = useAuth();
-  const { theme, setTheme, language, setLanguage } = useSettings();
+  const { theme, setTheme, language, setLanguage, currency, setCurrency } = useSettings();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { formatPrice } = useCurrency();
   const activeTab = (searchParams.get('tab') as SettingsTab) || 'profile';
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [clientOrders, setClientOrders] = useState<Order[]>([]);
@@ -160,6 +163,7 @@ function SettingsPageContent() {
                                 { label: 'Push', key: 'ordersPush' as keyof NotificationPreferences },
                                 { label: 'Email', key: 'ordersEmail' as keyof NotificationPreferences },
                                 { label: 'In-App', key: 'ordersInApp' as keyof NotificationPreferences },
+                                { label: 'SMS', key: 'ordersSms' as keyof NotificationPreferences },
                               ]
                             },
                             {
@@ -170,6 +174,7 @@ function SettingsPageContent() {
                                 { label: 'Push', key: 'followsPush' as keyof NotificationPreferences },
                                 { label: 'Email', key: 'followsEmail' as keyof NotificationPreferences },
                                 { label: 'In-App', key: 'followsInApp' as keyof NotificationPreferences },
+                                { label: 'SMS', key: 'followsSms' as keyof NotificationPreferences },
                               ]
                             },
                             {
@@ -179,6 +184,7 @@ function SettingsPageContent() {
                               channels: [
                                 { label: 'Push', key: 'promosPush' as keyof NotificationPreferences },
                                 { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
+                                { label: 'SMS', key: 'promosSms' as keyof NotificationPreferences },
                               ]
                             },
                             {
@@ -290,6 +296,12 @@ function SettingsPageContent() {
                     </div>
                   )}
 
+                  {activeTab === 'addresses' && (
+                    <div className="w-full">
+                      <AddressBookSection />
+                    </div>
+                  )}
+
                   {activeTab === 'orders' && (
                     <motion.div variants={fadeUp} className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2rem] md:rounded-[2.5rem] p-4 sm:p-8 md:p-12 border-y sm:border border-gray-100 dark:border-white/5 sm:shadow-2xl sm:shadow-gray-200/20 min-h-[80vh] sm:min-h-0">
                       <div className="mb-10">
@@ -329,7 +341,7 @@ function SettingsPageContent() {
                                 </div>
                               </div>
                               <div className="text-right shrink-0">
-                                <p className="text-xl font-black text-[#E67E22]">{order.totalPrice.toLocaleString()} $</p>
+                                <p className="text-xl font-black text-[#E67E22]">{formatPrice(order.totalPrice)}</p>
                                 <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
                               </div>
                             </div>
@@ -753,20 +765,23 @@ function SettingsPageContent() {
                           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Choisissez la monnaie dans laquelle s'affichent les prix.</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {[
-                              { label: 'USD ($)', desc: 'Dollar Américain (Taux actuel)' },
-                              { label: 'CDF (FC)', desc: 'Franc Congolais (Taux réel)' }
-                            ].map((currency, idx) => (
+                              { label: 'USD ($)', value: 'USD' as Currency, desc: 'Dollar Américain (Taux actuel)' },
+                              { label: 'CDF (FC)', value: 'CDF' as Currency, desc: 'Franc Congolais (Taux réel)' }
+                            ].map((curr) => (
                               <button
-                                key={currency.label}
+                                key={curr.label}
                                 type="button"
-                                onClick={() => toast.success(`Devise de facturation : ${currency.label}`)}
-                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${idx === 0
+                                onClick={() => {
+                                  setCurrency(curr.value);
+                                  toast.success(`Devise de facturation : ${curr.label}`);
+                                }}
+                                className={`p-4 rounded-2xl text-left transition-all border cursor-pointer ${currency === curr.value
                                     ? "bg-white dark:bg-[#111827] border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
                                     : "bg-[#F9FAFB] dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-50"
                                   }`}
                               >
-                                <p className="text-xs font-bold text-slate-900 dark:text-white">{currency.label}</p>
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{currency.desc}</p>
+                                <p className="text-xs font-bold text-slate-900 dark:text-white">{curr.label}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{curr.desc}</p>
                               </button>
                             ))}
                           </div>

@@ -18,6 +18,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { NotificationsModule } from './common/notifications/notifications.module'; // On garde uniquement celui-ci
 import { ScheduleModule } from '@nestjs/schedule';
 import { CartModule } from './cart/cart.module';
+import { AddressesModule } from './addresses/addresses.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { CartModule } from './cart/cart.module';
     ContentModule,
     OrdersModule,
     CartModule,
+    AddressesModule,
   ],
   controllers: [AppController],
   providers: [
