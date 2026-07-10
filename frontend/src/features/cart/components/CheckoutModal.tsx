@@ -24,24 +24,6 @@ interface CheckoutModalProps {
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   isOpen,
-import { useAuth } from "@/context/AuthContext";
-
-interface CheckoutModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: any) => void;
-  total: number;
-  currency?: string;
-  initialData?: {
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-  };
-}
-
-export const CheckoutModal: React.FC<CheckoutModalProps> = ({
-  isOpen,
   onClose,
   onSubmit,
   total,
