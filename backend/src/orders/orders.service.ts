@@ -5,6 +5,7 @@ import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
 import { EmailService } from '../common/email/email.service';
 import { WhatsAppService } from '../common/whatsapp/whatsapp.service';
 import { NotificationsService } from '../common/notifications/notifications.service';
+import { SmsService } from '../common/notifications/sms/sms.service';
 import { NotificationType, UserRole } from '@prisma/client';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
@@ -22,6 +23,7 @@ export class OrdersService {
     private emailService: EmailService,
     private whatsAppService: WhatsAppService,
     private notificationsService: NotificationsService,
+    private smsService: SmsService,
   ) { }
 
   /**
@@ -192,6 +194,16 @@ export class OrdersService {
         data: { url: '/orders' }
       });
     }
+
+    // SMS Client (opt-in uniquement)
+    if (prefs?.ordersSms) {
+      const client = await this.prisma.user.findUnique({ where: { id: clientId }, select: { phone: true } });
+      if (client?.phone) {
+        const smsMessage = `WapiBei: Votre commande de ${items.length} article(s) pour ${total.toLocaleString()} $ a bien été envoyée. Le vendeur vous contactera sous peu.`;
+        this.smsService.sendSms(client.phone, smsMessage)
+          .catch(err => this.logger.error(`SMS client failed: ${clientId}`, err));
+      }
+    }
   }
 
   /**
@@ -258,6 +270,17 @@ export class OrdersService {
         body: `Une nouvelle commande de ${customerName} attend votre validation.`,
         data: { url: '/dashboard/orders' }
       });
+
+      // SMS Vendeur (opt-in uniquement via préférences)
+      this.prisma.notificationPreference.findUnique({ where: { userId: vendorId } })
+        .then(vendorPrefs => {
+          if (vendorPrefs?.ordersSms && vendor.phone) {
+            const smsBody = `WapiBei: Nouvelle commande de ${customerName} (${vendorTotal.toLocaleString()} $). Produit(s): ${productNames}. Tel: ${customerPhone}. Adresse: ${address}.`;
+            this.smsService.sendSms(vendor.phone, smsBody)
+              .catch(err => this.logger.error(`SMS vendeur failed: ${vendorId}`, err));
+          }
+        })
+        .catch(err => this.logger.error(`Prefs lookup failed for vendor ${vendorId}`, err));
     });
   }
 
