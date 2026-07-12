@@ -78,19 +78,19 @@ export function useSearch() {
           const fetchedProducts: Product[] = res.data.data || [];
           
           // Extraire des shops uniques depuis les produits retournés (simulation si pas d'API vendors dédiée)
-          const uniqueShopsMap = new Map<string, SearchVendor>();
-          fetchedProducts.forEach(p => {
-            if (p.user && !uniqueShopsMap.has(p.userId)) {
-              uniqueShopsMap.set(p.userId, {
-                id: p.userId,
-                boutiqueName: p.user.boutiqueName || p.user.fullName,
-                avatarUrl: p.user.avatarUrl,
-                trustScore: p.user.trustScore,
-                isVerified: p.user.isVerified
-              });
-            }
-          });
           
+          const uniqueShopsMap = new Map<string, SearchVendor>();
+fetchedProducts.forEach(p => {
+  if (p.user && !uniqueShopsMap.has(p.user.id)) {
+    uniqueShopsMap.set(p.user.id, {
+      id: p.user.id,
+      boutiqueName: p.user.boutiqueName || p.user.fullName,
+      avatarUrl: p.user.avatarUrl,
+      trustScore: p.user.trustScore,
+      isVerified: p.user.isVerified
+    });
+  }
+});
           // Extraire des suggestions simples
           const suggestions = Array.from(new Set(fetchedProducts.map(p => p.name.toLowerCase()))).slice(0, 4);
 
