@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { User } from '@/types/auth';
 import { ProfileDropdown } from './ProfileDropdown';
+import { GlobalSearch } from './GlobalSearch';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
 
@@ -52,7 +53,6 @@ export const DesktopHeader = ({
   // Detect if current page is an authentication page
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'].some(path => pathname.startsWith(path));
 
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -70,11 +70,12 @@ export const DesktopHeader = ({
 
   return (
     <div className="hidden lg:flex w-full h-20 xl:h-24 justify-center px-4 xl:px-10 relative bg-transparent z-50">
-      <div className="w-full max-w-7xl flex items-center justify-between relative">
+      <div className="w-full max-w-7xl flex items-center justify-between gap-4 xl:gap-8 relative">
       
+      {/* LEFT: Nav Links */}
       <div 
         className="
-          flex items-center gap-1
+          shrink-0 flex items-center gap-1
           bg-white/70 dark:bg-black/40 
           backdrop-blur-2xl
           px-4 py-2
@@ -101,7 +102,7 @@ export const DesktopHeader = ({
                 key={link.id}
                 href={link.id}
                 className={`
-                  px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs tracking-widest[0.1em] uppercase transition-all duration-300
+                  px-3 xl:px-5 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs tracking-widest[0.1em] uppercase transition-all duration-300 whitespace-nowrap
                   ${isActive(link.id) 
                     ? 'font-bold bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25' 
                     : `font-medium text-gray-800 dark:text-gray-200 hover:text-[#E67E22] relative after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-[#E67E22] hover:after:w-1/2 after:transition-all after:duration-300`}
@@ -114,7 +115,8 @@ export const DesktopHeader = ({
         )}
       </div>
 
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none group z-10">
+      {/* CENTER: Logo */}
+      <div className="flex-1 flex justify-center items-center pointer-events-none group z-10 min-w-max">
         <Link href="/" className="flex flex-col items-center pointer-events-auto">
           <h1 className="text-2xl xl:text-4xl font-black tracking-[0.2em] xl:tracking-[0.3em] drop-shadow-md group-hover:scale-105 transition-transform duration-500 uppercase">
             <span className="text-[#E67E22]">WAPI</span><span className="text-[#2D5A27]">BEI</span>
@@ -123,13 +125,14 @@ export const DesktopHeader = ({
         </Link>
       </div>
 
+      {/* RIGHT: Search + Actions */}
       {!isAuthPage && (
         <div 
           className="
-            flex items-center gap-4
+            shrink-0 flex items-center gap-3
             bg-white/70 dark:bg-black/40 
             backdrop-blur-2xl
-            px-3 xl:px-5 py-1.5 xl:py-2
+            px-3 xl:px-4 py-1.5
             rounded-full 
             border border-white/40 dark:border-white/10
             shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]
@@ -137,55 +140,25 @@ export const DesktopHeader = ({
             hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.15)]
           "
         >
-          <div className="relative flex items-center">
-              {isSearchOpen ? (
-                  <form 
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const query = (e.currentTarget.elements.namedItem('search') as HTMLInputElement).value;
-                      if (query.trim()) {
-                        router.push(`/products?search=${encodeURIComponent(query.trim())}`);
-                        setIsSearchOpen(false);
-                      }
-                    }}
-                    className="flex items-center animate-in zoom-in-95 fade-in duration-300 bg-white/50 dark:bg-white/5 rounded-full px-4 py-1.5 border border-white/20"
-                  >
-                      <input 
-                          name="search"
-                          type="text" 
-                          placeholder="RECHERCHER..." 
-                          className="bg-transparent border-none outline-none text-[10px] font-bold tracking-wider w-40 text-black dark:text-white placeholder-black/40 dark:placeholder-white/40"
-                          autoFocus
-                          onBlur={(e) => !e.target.value && setIsSearchOpen(false)}
-                      />
-                      <button type="button" onClick={() => setIsSearchOpen(false)} className="ml-2 text-black/40 dark:text-white/40 hover:text-red-500 transition-colors">
-                          <span className="material-symbols-outlined text-[16px]">close</span>
-                      </button>
-                  </form>
-              ) : (
-                  <button 
-                      onClick={() => setIsSearchOpen(true)}
-                      className="size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
-                      title="Rechercher"
-                  >
-                      <span className="material-symbols-outlined text-[22px]">search</span>
-                  </button>
-              )}
+          {/* Global Search Bar */}
+          <div className="transition-all duration-300 flex items-center justify-end">
+            <GlobalSearch />
           </div>
 
-          <div className="w-px h-6 bg-black/10 dark:bg-white/10"></div>
+          <div className="w-px h-6 bg-black/10 dark:bg-white/10 shrink-0"></div>
 
+          {/* Notifications */}
           <div className="relative group" ref={notifRef}>
             <button
               onClick={() => setIsNotifOpen(prev => !prev)}
               className="relative size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
             >
-                <span className="material-symbols-outlined text-[22px]">notifications</span>
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 size-5 bg-[#E67E22] text-white text-[10px] font-black flex items-center justify-center rounded-full shadow-lg border-2 border-white dark:border-black animate-in zoom-in">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
+              <span className="material-symbols-outlined text-[22px]">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 size-5 bg-[#E67E22] text-white text-[10px] font-black flex items-center justify-center rounded-full shadow-lg border-2 border-white dark:border-black animate-in zoom-in">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
 
             <div className={`absolute right-[-10px] top-[100%] pt-4 w-80 transition-all duration-300 transform origin-top-right z-50 group-hover:opacity-100 group-hover:visible group-hover:scale-100 ${isNotifOpen ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-95'}`}>
@@ -250,6 +223,7 @@ export const DesktopHeader = ({
             </div>
           </div>
 
+          {/* Cart */}
           <Link 
               href="/cart"
               className="relative size-10 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-[#E67E22] hover:bg-[#E67E22]/10 dark:hover:bg-[#E67E22]/20 hover:scale-105 rounded-full transition-all duration-300"
@@ -262,6 +236,7 @@ export const DesktopHeader = ({
               )}
           </Link>
           
+          {/* Profile */}
           <div className="ml-1">
             <ProfileDropdown 
                 isAuthenticated={isAuthenticated}

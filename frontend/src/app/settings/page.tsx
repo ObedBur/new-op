@@ -123,7 +123,7 @@ function SettingsPageContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-[#080b14]">
+    <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-black">
       {/* Modale d'édition */}
       <EditProfileModal
         isOpen={isEditModalOpen}
@@ -753,7 +753,7 @@ function SettingsPageContent() {
                                   }`}
                               >
                                 <p className="text-xs font-bold text-slate-900 dark:text-white">{lang.label}</p>
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{lang.desc}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-semibold mt-0.5">{lang.desc}</p>
                               </button>
                             ))}
                           </div>
@@ -762,7 +762,7 @@ function SettingsPageContent() {
                         {/* Currency Section */}
                         <div className="space-y-4 border-t border-slate-100 dark:border-white/5 pt-6">
                           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Devise de facturation</h3>
-                          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-semibold">Choisissez la monnaie dans laquelle s'affichent les prix.</p>
+                          <p className="text-[11px] text-slate-400 dark:text-slate-300 font-semibold">Choisissez la monnaie dans laquelle s'affichent les prix.</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {[
                               { label: 'USD ($)', value: 'USD' as Currency, desc: 'Dollar Américain (Taux actuel)' },
@@ -781,7 +781,7 @@ function SettingsPageContent() {
                                   }`}
                               >
                                 <p className="text-xs font-bold text-slate-900 dark:text-white">{curr.label}</p>
-                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">{curr.desc}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-semibold mt-0.5">{curr.desc}</p>
                               </button>
                             ))}
                           </div>

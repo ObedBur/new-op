@@ -11,7 +11,7 @@ export default function CheckoutSuccessPage() {
     const orderId = "WPB-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
     return (
-        <main className="min-h-screen bg-[#F3F4F9] dark:bg-[#080b14] pt-32 pb-20 px-4 flex items-center justify-center font-sans">
+        <main className="min-h-screen bg-[#F3F4F9] dark:bg-black pt-32 pb-20 px-4 flex items-center justify-center font-sans">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -7,6 +7,9 @@ import { CategoriesGrid } from "./CategoriesGrid";
 import { FeaturedProductStrip } from "./FeaturedProductStrip";
 import { FeaturedStores } from "./FeaturedStores";
 import { HowItWorks } from "./HowItWorks";
+import { WhyChooseUs } from "./WhyChooseUs";
+import { Testimonials } from "./Testimonials";
+import { Newsletter } from "./Newsletter";
 import { LoginBanner } from "@/components/layout/LoginBanner";
 import { Product, Category } from "@/features/products/types";
 import { ProductQuickView } from "@/features/products/components/ProductQuickView";
@@ -69,36 +72,55 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   const ProductStripSkeleton = ({ title, subtitle }: { title: string; subtitle: string }) => (
     <div className="w-full">
-      <div className="flex items-end justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-end justify-between mb-6">
         <div className="space-y-2">
-          <div className="h-6 w-44 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-          <div className="h-3 w-52 rounded bg-slate-100 dark:bg-slate-800 animate-pulse" />
+          <div className="h-6 w-44 rounded-xl bg-slate-200 dark:bg-white/8 relative overflow-hidden">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 dark:via-white/10 to-transparent" />
+          </div>
+          <div className="h-3 w-56 rounded-lg bg-slate-100 dark:bg-white/5 relative overflow-hidden">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite_200ms] bg-gradient-to-r from-transparent via-white/60 dark:via-white/10 to-transparent" />
+          </div>
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300 dark:text-white/20">
           {title}
         </span>
       </div>
-      <div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 md:gap-4">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={`${title}-${index}`}
-              className="min-h-[240px] rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900 p-4 shadow-sm"
-            >
-              <div className="h-28 rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
-              <div className="mt-4 h-4 w-3/4 rounded bg-slate-100 dark:bg-white/5 animate-pulse" />
-              <div className="mt-2 h-3 w-1/2 rounded bg-slate-100 dark:bg-white/5 animate-pulse" />
-              <div className="mt-6 h-8 w-full rounded-xl bg-slate-100 dark:bg-white/5 animate-pulse" />
+
+      {/* Cards grid : 2 cols mobile → 3 tablet → 4 md → 6 lg */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={`${title}-${i}`}
+            className="rounded-2xl border border-slate-100 dark:border-white/[0.05] bg-white dark:bg-white/[0.03] p-4 shadow-sm"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            {/* Image placeholder */}
+            <div className="relative w-full aspect-square rounded-xl bg-slate-100 dark:bg-white/[0.06] overflow-hidden mb-4">
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite] bg-gradient-to-r from-transparent via-white/50 dark:via-white/8 to-transparent" />
             </div>
-          ))}
-        </div>
-        <p className="mt-4 text-xs font-medium text-slate-400 dark:text-slate-500">{subtitle}</p>
+            {/* Title */}
+            <div className="relative h-4 w-3/4 rounded-lg bg-slate-100 dark:bg-white/[0.06] overflow-hidden mb-2">
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite_100ms] bg-gradient-to-r from-transparent via-white/50 dark:via-white/8 to-transparent" />
+            </div>
+            {/* Subtitle */}
+            <div className="relative h-3 w-1/2 rounded-md bg-slate-100 dark:bg-white/[0.04] overflow-hidden mb-5">
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite_200ms] bg-gradient-to-r from-transparent via-white/50 dark:via-white/8 to-transparent" />
+            </div>
+            {/* Button */}
+            <div className="relative h-9 w-full rounded-xl bg-slate-100 dark:bg-white/[0.06] overflow-hidden">
+              <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.8s_infinite_300ms] bg-gradient-to-r from-transparent via-white/50 dark:via-white/8 to-transparent" />
+            </div>
+          </div>
+        ))}
       </div>
+      <p className="mt-4 text-xs font-medium text-slate-300 dark:text-white/20">{subtitle}</p>
     </div>
   );
 
+
   return (
-    <main className="flex flex-col flex-1 min-h-screen bg-white dark:bg-[#080b14]">
+    <main className="flex flex-col flex-1 min-h-screen bg-white dark:bg-black">
       {/*  HERO */}
       <Hero slides={heroSlides} />
 
@@ -182,9 +204,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </div>
 
       {/*  SERVICES & CTA */}
-      <div className="bg-white dark:bg-[#080b14]">
+      <div className="bg-white dark:bg-black">
         <HowItWorks steps={howItWorksSteps} />
       </div>
+
+      {/* POURQUOI NOUS CHOISIR */}
+      <WhyChooseUs />
+
+      {/* AVIS CLIENTS */}
+      <Testimonials />
+
+      {/* NEWSLETTER */}
+      <Newsletter />
 
       <LoginBanner />
 

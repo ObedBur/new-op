@@ -93,7 +93,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FDFBF7] dark:bg-[#080b14] pt-28 pb-20 px-4 flex justify-center font-sans">
+    <main className="min-h-screen bg-[#FDFBF7] dark:bg-black pt-28 pb-20 px-4 flex justify-center font-sans">
       <div className="container max-w-5xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

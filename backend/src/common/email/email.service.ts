@@ -470,6 +470,25 @@ export class EmailService {
   }
 
   /**
+   * Relance pour panier abandonné
+   */
+  async sendAbandonedCart(data: { email: string, name: string, itemCount: number, cartLink: string }) {
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.subject = ` ${data.name}, vous avez oublié des articles dans votre panier !`;
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+        <div style="padding: 30px; text-align: center;">
+          <h2 style="font-size: 22px; font-weight: 900; color: #1a202c; margin-top: 0;">Oops !</h2>
+          <p style="color: #4a5568; margin-bottom: 20px;">Il semblerait que vous ayez laissé ${data.itemCount} article(s) dans votre panier.</p>
+          <a href="${data.cartLink}" style="display: block; background-color: #E67E22; color: #ffffff; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: 900; font-size: 14px; margin-top: 10px;">FINALISER MA COMMANDE</a>
+        </div>
+      </div>
+    `;
+    sendSmtpEmail.to = [{ email: data.email }];
+    return this.apiInstance.sendTransacEmail(sendSmtpEmail);
+  }
+
+  /**
    * Rapport de Clôture pour l'Admin
    */
   async sendClosureAdminReport(data: { adminEmail: string, orderId: string, clientName: string, vendorName: string, productName: string, amount: number }) {

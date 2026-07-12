@@ -25,7 +25,7 @@ export default function RootLayoutContent({ children }: { children: React.ReactN
 
   if (isDashboardPage) {
     return (
-      <div className="flex flex-row min-h-screen bg-[#F8FAFC] dark:bg-[#080b14] text-[#1E293B] font-sans antialiased">
+      <div className="flex flex-row min-h-screen bg-[#F8FAFC] dark:bg-black text-[#1E293B] font-sans antialiased">
         {/* Left column sidebar (narrow on mobile, wide on desktop) */}
         <div className="shrink-0 z-50">
           <VendorSidebar user={user} />

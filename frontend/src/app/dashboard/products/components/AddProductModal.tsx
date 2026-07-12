@@ -277,7 +277,6 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                                     key={curr}
                                                     type="button"
                                                     onClick={() => {
-                                                        // Convert existing value when switching currency
                                                         if (price) {
                                                             const val = Number(price);
                                                             if (curr === 'FC' && currency === 'USD') setPrice((val * EXCHANGE_RATE).toFixed(0));
@@ -285,7 +284,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                                         }
                                                         setCurrency(curr);
                                                     }}
-                                                    className={`px-2 py-0.5 rounded-md text-[8px] font-black transition-all ${currency === curr ? 'bg-[#E67E22] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/40 hover:text-black'}`}
+                                                    className={`px-3 py-1 rounded-md text-[10px] font-black transition-all ${currency === curr ? 'bg-[#E67E22] text-white shadow-sm' : 'bg-black/5 dark:bg-white/5 text-black/40 hover:text-black hover:bg-black/10'}`}
                                                 >
                                                     {curr}
                                                 </button>
@@ -301,7 +300,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                             onChange={(e) => setPrice(e.target.value)}
                                             type="number"
                                             placeholder="0.00"
-                                            className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white"
+                                            className="w-full sm:pl-12 pl-12 pr-28 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                             required
                                         />
                                         {price && (

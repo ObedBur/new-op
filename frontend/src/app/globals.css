@@ -277,6 +277,13 @@ h1, h2, h3, h4, h5, h6 {
   100% { background-position: -200% 0; }
 }
 
+/* Shimmer sweep for skeleton cards */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+
 /* Grid pattern for tech sections */
 .bg-grid-tech {
   background-image: 

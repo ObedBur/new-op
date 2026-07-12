@@ -27,7 +27,39 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
   };
 
   if (isLoading) {
-    return <div className="text-center py-10 text-slate-500 animate-pulse">Chargement des secteurs...</div>;
+    return (
+      <section className="py-8 px-4 bg-[#F8F9FA] dark:bg-transparent overflow-hidden">
+        <div className="container mx-auto">
+
+          {/* Header skeleton */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
+            <div className="space-y-2">
+              <div className="h-7 w-52 rounded-xl bg-slate-200 dark:bg-white/10 animate-pulse" />
+              <div className="h-4 w-72 rounded-lg bg-slate-100 dark:bg-white/5 animate-pulse" />
+            </div>
+            <div className="h-10 w-[200px] rounded-full bg-slate-100 dark:bg-white/5 animate-pulse" />
+          </div>
+
+          {/* Cards skeleton row — show 2.5 cards on mobile, more on desktop */}
+          <div className="flex gap-4 overflow-hidden pb-6 pt-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="shrink-0 w-[180px] md:w-[200px] bg-white dark:bg-white/[0.04] rounded-2xl p-4 md:p-5 border border-slate-100 dark:border-white/[0.06] flex items-center justify-between"
+                style={{ opacity: 1 - i * 0.1 }}
+              >
+                <div className="flex flex-col gap-2 flex-1 pr-3">
+                  <div className="h-4 w-28 rounded-lg bg-slate-200 dark:bg-white/10 animate-pulse" />
+                  <div className="h-3 w-16 rounded-md bg-slate-100 dark:bg-white/5 animate-pulse" />
+                </div>
+                <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/5 animate-pulse shrink-0" />
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+    );
   }
 
   if (!categories || categories.length === 0) {

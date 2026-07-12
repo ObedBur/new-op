@@ -3,8 +3,8 @@ import React from "react";
 // On renomme EmboitementSteps en HowItWorks et on accepte les props attendues
 export const HowItWorks = ({ steps }: any) => {
   return (
-    <section className="py-20 px-4 bg-white dark:bg-[#080b14]">
-      <div className="container mx-auto max-w-4xl">
+    <section className="py-20 px-4 bg-white dark:bg-black">
+      <div className="container mx-auto max-w-7xl">
         
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white">

@@ -46,10 +46,12 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
         timeout: this.configService.get<number>('AFRICASTALKING_TIMEOUT_MS', 10000),
       });
 
+      this.logger.debug(`[SMS AFRICASTALKING] Raw response: ${JSON.stringify(response.data)}`);
+
       const recipient = response.data?.SMSMessageData?.Recipients?.[0];
       const status = recipient?.status || response.data?.SMSMessageData?.Message;
       const messageId = recipient?.messageId;
-      const isSuccess = !recipient || ['Success', 'Sent', 'Submitted'].includes(recipient.status);
+      const isSuccess = recipient && ['Success', 'Sent', 'Submitted'].includes(recipient.status);
 
       if (!isSuccess) {
         this.logger.error(`[SMS AFRICASTALKING] rejected by provider: ${status}`);

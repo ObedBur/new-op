@@ -471,6 +471,15 @@ export class OrdersService {
       });
     }
 
+    if (prefs?.ordersSms && client.phone && (status === 'SHIPPED' || status === 'DELIVERED')) {
+      const smsMessage = status === 'SHIPPED' 
+        ? `WapiBei: Votre colis contenant "${product.name}" est en route vers chez vous !`
+        : `WapiBei: Votre colis "${product.name}" a été livré. Profitez-en bien !`;
+      
+      this.smsService.sendSms(client.phone, smsMessage)
+        .catch(err => this.logger.error(`SMS status update failed for client ${client.id}`, err));
+    }
+
     if (!prefs || prefs.ordersEmail) {
       if (status === 'CONFIRMED') {
         this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });

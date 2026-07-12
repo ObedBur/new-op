@@ -29,8 +29,12 @@ export const getNotificationPreferences = async (): Promise<NotificationPreferen
  * Met à jour partiellement les préférences de notifications (PATCH).
  */
 export const saveNotificationPreferences = async (
-  data: Partial<NotificationPreferences>,
+  data: Partial<NotificationPreferences> & { id?: string; userId?: string; createdAt?: string; updatedAt?: string; },
 ): Promise<NotificationPreferences> => {
-  const res = await api.patch('/auth/notification-preferences', data);
+  // Le backend (ValidationPipe avec forbidNonWhitelisted: true) rejette la requête 
+  // si on lui envoie 'id', 'userId', etc. On les retire donc de l'objet envoyé.
+  const { id, userId, createdAt, updatedAt, ...cleanData } = data;
+  
+  const res = await api.patch('/auth/notification-preferences', cleanData);
   return res.data;
 };
