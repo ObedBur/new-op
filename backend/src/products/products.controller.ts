@@ -110,7 +110,7 @@ export class ProductsController {
    * Cache de 15 minutes pour optimiser l'expérience de saisie.
    */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(900)
+  @CacheTTL(10)
   @Get('suggestions')
   async getSuggestions(@Query('q') query: string) {
     if (!query || query.length < 2) return { success: true, data: [] };
@@ -122,18 +122,15 @@ export class ProductsController {
    * Compare les prix des produits sur différents vendeurs.
    */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(900)
+  @CacheTTL(10)
   @Get('compare')
   async compare(@Query('search') search: string) {
     const data = await this.productsService.compareProducts(search || '');
     return { success: true, ...data };
   }
 
-  /**
-   * Liste publique des produits avec filtres.
-   */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(900)
+  @CacheTTL(10)
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,

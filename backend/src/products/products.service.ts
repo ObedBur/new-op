@@ -32,6 +32,42 @@ export class ProductsService {
   ) {}
 
   /**
+   * Helper pour récupérer les IDs de produits correspondants à une recherche textuelle avancée (ILIKE)
+   * Évite les limitations de mode: 'insensitive' avec Prisma Accelerate.
+   */
+  private async getSearchProductIds(search: string, limit: number = 100): Promise<string[] | undefined> {
+    try {
+      if (!search) return undefined;
+      const terms = search.trim().split(/\s+/).filter(t => t.length > 0);
+      if (terms.length === 0) return undefined;
+
+      const conditions = terms.map((_, i) => `("name" ILIKE $${(i * 2) + 1} OR "description" ILIKE $${(i * 2) + 2})`);
+      const joinedConditions = conditions.join(' AND ');
+      
+      const params: string[] = [];
+      terms.forEach(term => {
+        params.push(`%${term}%`);
+        params.push(`%${term}%`);
+      });
+
+      const queryString = `
+        SELECT id FROM "Product"
+        WHERE "isPublic" = true
+        AND ${joinedConditions}
+        LIMIT ${limit}
+      `;
+
+      const results = await this.prisma.$queryRawUnsafe<{id: string}[]>(queryString, ...params);
+      
+      return results.map(r => r.id);
+    } catch (e: any) {
+      require('fs').writeFileSync('search-error.txt', (e.message || e.toString()) + '\n' + (e.stack || ''));
+      // Fallback
+      return undefined;
+    }
+  }
+
+  /**
    * Récupère les offres promotionnelles du moment.
    * Filtre les produits marqués explicitement comme étant en solde.
    */
@@ -145,17 +181,17 @@ export class ProductsService {
     const { userId, categoryId, search, market, page = 1, limit = 10, onlyPublic } = query;
     const skip = (page - 1) * limit;
 
+    const searchIds = await this.getSearchProductIds(search, 1000);
+    if (searchIds && searchIds.length === 0) {
+      return { items: [], total: 0, page, limit, pages: 0 };
+    }
+
     const where: any = {
       ...(userId && { userId }),
       ...(categoryId && { categoryId }),
       ...(market && { market: market as any }),
       ...(onlyPublic !== undefined ? { isPublic: onlyPublic } : !userId && { isPublic: true }),
-      ...(search && {
-        OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-        ],
-      }),
+      ...(searchIds && { id: { in: searchIds } }),
     };
 
     try {
@@ -193,15 +229,15 @@ export class ProductsService {
     const { search, categoryId, page = 1, limit = 50 } = opts || {};
     const skip = (page - 1) * limit;
 
+    const searchIds = await this.getSearchProductIds(search, 1000);
+    if (searchIds && searchIds.length === 0) {
+      return { items: [], total: 0, page: opts?.page || 1, limit: opts?.limit || 10, pages: 0 };
+    }
+
     const where: any = {
       userId,
       ...(categoryId && { categoryId }),
-      ...(search && {
-        OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-        ],
-      }),
+      ...(searchIds && { id: { in: searchIds } }),
     };
 
     const [items, total] = await Promise.all([
@@ -344,10 +380,12 @@ export class ProductsService {
    * Fournit des suggestions de recherche basées sur les noms de produits publics.
    */
   async getSuggestions(query: string) {
+    const searchIds = await this.getSearchProductIds(query, 20);
+
     const products = await this.prisma.product.findMany({
       where: {
         isPublic: true,
-        name: { contains: query },  // Suppression de mode:'insensitive' pour Accelerate
+        ...(searchIds && { id: { in: searchIds } }),
       } as any,
       select: { name: true, category: { select: { name: true } } },
       take: 20,
@@ -378,16 +416,19 @@ export class ProductsService {
       return { query: search, products: [] };
     }
 
+    const searchIds = await this.getSearchProductIds(search, 100);
+    
+    if (searchIds && searchIds.length === 0) {
+      return { query: search, products: [] };
+    }
+
     const products = await this.prisma.product.findMany({
       where: {
         isPublic: true,
-        OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-        ],
+        ...(searchIds && { id: { in: searchIds } }),
       } as any,
       orderBy: { price: 'asc' },
-      take: 20,
+      take: 100,
       include: {
         category: true,
         user: {

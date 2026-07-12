@@ -28,6 +28,21 @@ export interface CompareProduct {
     id: number;
     name: string;
   };
+  // Nouveaux champs pour la V2 (simulés ou optionnels en attendant l'API)
+  deliveryOptions?: {
+    homeDelivery: boolean;
+    storePickup: boolean;
+  };
+  isShopOpen?: boolean;
+  hasPromo?: boolean;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  priceHistory?: {
+    date: string;
+    price: number;
+  }[];
 }
 
 export interface CompareStats {
