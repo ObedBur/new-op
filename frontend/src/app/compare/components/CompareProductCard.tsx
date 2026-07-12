@@ -38,158 +38,109 @@ export const CompareProductCard: React.FC<CompareProductCardProps> = ({
 
   return (
     <div
-      className={`relative bg-white dark:bg-[#1a1a1a] border ${isBestPrice
-        ? 'border-emerald-500 shadow-xl sm:shadow-2xl sm:scale-[1.02] z-10'
-        : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
-        } rounded-[2rem] p-4 sm:p-5 flex flex-col transition-all duration-500 group overflow-hidden`}
+      className={`relative bg-white dark:bg-[#1a1a1a] border ${
+        isBestPrice
+          ? 'border-emerald-500 shadow-md z-10'
+          : 'border-gray-200 dark:border-white/10 shadow-sm hover:shadow-lg hover:-translate-y-0.5'
+      } rounded-xl flex flex-col transition-all duration-300 group overflow-hidden`}
     >
-      {/* Badges */}
-      <div className="absolute top-4 left-4 right-4 flex justify-between z-20">
-        <div className="flex gap-2">
-          {isBestPrice && (
-            <div className="px-3 py-1 bg-emerald-500 text-[9px] font-black uppercase tracking-widest text-white rounded-full shadow-lg whitespace-nowrap">
-              Meilleur Prix
-            </div>
-          )}
-          {hasPromo && (
-            <div className="px-3 py-1 bg-[#E67E22] text-[9px] font-black uppercase tracking-widest text-white rounded-full shadow-lg whitespace-nowrap flex items-center gap-1">
-              <Tag className="w-3 h-3" /> Promo
-            </div>
-          )}
-        </div>
-        <button className="size-8 bg-white/80 dark:bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white dark:hover:bg-[#2a2a2a] transition-all shadow-sm">
-          <Heart className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Image du Produit */}
-      <div className="relative w-full h-40 sm:h-48 mt-12 mb-5 rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 shrink-0">
+      {/* Image (Top) */}
+      <div className="relative w-full aspect-[4/5] bg-gray-50 dark:bg-white/5 shrink-0 overflow-hidden">
         {product.image ? (
           <Image 
             src={product.image} 
             alt={product.name} 
             fill 
-            className="object-cover group-hover:scale-105 transition-transform duration-700" 
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500" 
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-10 h-10 text-gray-300 dark:text-white/10" />
+            <Package className="w-8 h-8 text-gray-300 dark:text-white/10" />
           </div>
         )}
-      </div>
-
-      {/* Header: Avatar + Nom */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative shrink-0">
-          <div className="size-10 rounded-full overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-[#2a2a2a] shadow-sm">
-            <Image
-              src={
-                product.user.avatarUrl ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=random&size=100`
-              }
-              alt={shopName}
-              width={40}
-              height={40}
-              className={`w-full h-full object-cover rounded-full transition-all duration-500 ${!isShopOpen ? 'grayscale opacity-50' : ''}`}
-            />
-          </div>
-          {product.user.isVerified && (
-            <div className="absolute -bottom-1 -right-1 bg-white dark:bg-[#1a1a1a] rounded-full p-0.5">
-              <CheckCircle className="w-4 h-4 text-blue-500" fill="currentColor" />
-            </div>
+        
+        {/* Badges on image */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
+          {isBestPrice && (
+            <span className="px-1.5 py-0.5 bg-emerald-500 text-[8px] sm:text-[9px] font-black uppercase text-white rounded shadow-sm">
+              Meilleur Prix
+            </span>
           )}
-          {!isShopOpen && (
-            <div className="absolute -top-1 -right-1 size-3 bg-red-500 rounded-full border-2 border-white dark:border-[#1a1a1a]"></div>
-          )}
-          {isShopOpen && (
-            <div className="absolute -top-1 -right-1 size-3 bg-emerald-500 rounded-full border-2 border-white dark:border-[#1a1a1a]"></div>
+          {hasPromo && (
+            <span className="px-1.5 py-0.5 bg-[#FF4747] text-[8px] sm:text-[9px] font-black uppercase text-white rounded shadow-sm">
+              Promo
+            </span>
           )}
         </div>
-        <div className="flex-1 min-w-0">
-          <Link href={`/sellers/${product.user.id}`} className="hover:underline">
-            <h4 className="text-sm font-black text-deep-blue dark:text-white truncate uppercase tracking-tight leading-tight flex items-center gap-1.5">
-              {shopName}
-            </h4>
-          </Link>
-          <div className="flex items-center gap-1 mt-1">
-            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-            <span className="text-[10px] font-black text-gray-500">
-              {rating}.0 / 5
+
+        {/* Favorite Button */}
+        <button className="absolute top-2 right-2 size-6 sm:size-7 bg-white/80 dark:bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white transition-all shadow-sm z-10">
+          <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+        </button>
+      </div>
+
+      {/* Info (Bottom) */}
+      <div className="p-2 sm:p-3 flex flex-col flex-1">
+        {/* Title */}
+        <Link href={`/products/${product.id}`} className="hover:underline">
+          <p className="text-[11px] sm:text-xs font-medium text-gray-800 dark:text-gray-200 line-clamp-2 leading-[1.3] mb-1.5">
+            {product.name}
+          </p>
+        </Link>
+
+        {/* Price & Rating */}
+        <div className="mt-auto pt-1">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-base sm:text-lg font-black text-[#FF4747] tracking-tight">
+              {product.displayPrice || `${product.price} $`}
+            </span>
+            {hasPromo && (
+              <span className="text-[9px] sm:text-[10px] text-gray-400 line-through">{(product.price * 1.2).toFixed(1)}$</span>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-0.5">
+            <div className="flex items-center gap-0.5">
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
+              <span className="text-[9px] sm:text-[10px] text-gray-500">{rating}.0</span>
+            </div>
+            <span className="text-[8px] sm:text-[9px] text-gray-400 truncate max-w-[70px] flex items-center gap-0.5">
+              <MapPin className="w-2.5 h-2.5" /> {city}
             </span>
           </div>
-        </div>
-      </div>
 
-      {/* Nom du produit */}
-      <p className="text-xs font-bold text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 flex-1">
-        {product.name}
-      </p>
-
-      {/* Stats */}
-      <div className="space-y-2 mb-5">
-        <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
-          <MapPin className="w-3.5 h-3.5 text-[#E67E22]" />
-          <span className="truncate">{city}</span>
-        </div>
-        <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 dark:text-gray-400">
-          <Package className="w-3.5 h-3.5 text-blue-500" />
-          <span>{product.availability === 'IN_STOCK' ? 'En stock' : product.availability === 'LIMITED_STOCK' ? 'Stock limité' : 'Rupture'}</span>
-        </div>
-        {product.deliveryOptions?.homeDelivery && (
-          <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-600 dark:text-emerald-500">
-            <CheckCircle className="w-3.5 h-3.5" />
-            <span>Livraison disponible</span>
+          {/* Shop Info (Miniature) */}
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-white/5">
+            <Link href={`/sellers/${product.user.id}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:underline">
+              <div className="relative size-4 sm:size-5 rounded-full overflow-hidden bg-gray-100 shrink-0">
+                <Image
+                  src={product.user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=random&size=32`}
+                  alt={shopName}
+                  width={20}
+                  height={20}
+                  className={`w-full h-full object-cover ${!isShopOpen ? 'grayscale opacity-50' : ''}`}
+                />
+              </div>
+              <span className="text-[9px] sm:text-[10px] font-semibold text-gray-600 dark:text-gray-300 truncate">{shopName}</span>
+            </Link>
+            {product.user.isVerified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0 ml-1" fill="currentColor" />}
           </div>
-        )}
-      </div>
-
-      {/* Prix */}
-      <div
-        className={`mb-5 p-4 rounded-2xl text-center ${isBestPrice
-          ? 'bg-emerald-50 dark:bg-emerald-500/10'
-          : 'bg-gray-50 dark:bg-white/5'
-          }`}
-      >
-        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
-          Prix
-        </p>
-        <div className="flex items-center justify-center gap-2">
-          {hasPromo && <span className="text-sm font-bold text-gray-400 line-through">{(product.price * 1.2).toFixed(1)}$</span>}
-          <span
-            className={`text-2xl sm:text-3xl font-black tracking-tighter break-words ${isBestPrice
-              ? 'text-emerald-600 dark:text-emerald-400'
-              : 'text-deep-blue dark:text-white'
-              }`}
-          >
-            {product.displayPrice || `${product.price} $`}
-          </span>
+          
+          {/* Quick Action buttons */}
+          <div className="grid grid-cols-2 gap-1.5 mt-2.5">
+             <Link href={`/products/${product.id}`}>
+               <Button className="w-full h-7 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white rounded-md flex items-center justify-center p-0 transition-all active:scale-95 shadow-sm">
+                 <ShoppingCart className="w-3.5 h-3.5" />
+               </Button>
+             </Link>
+             <Link href={waLink} target="_blank">
+               <Button variant="outline" className="w-full h-7 border-emerald-200 text-emerald-600 dark:border-emerald-500/30 dark:text-emerald-400 rounded-md flex items-center justify-center p-0 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all active:scale-95">
+                 <Phone className="w-3.5 h-3.5" />
+               </Button>
+             </Link>
+          </div>
         </div>
-      </div>
-
-      {/* Boutons */}
-      <div className="grid grid-cols-2 gap-2 mt-auto">
-        <Link href={`/products/${product.id}`} className="block col-span-2">
-          <Button className="w-full h-10 bg-[#2D5A27] hover:bg-[#1e3f1a] text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-green-900/10 transition-all active:scale-95">
-            <ShoppingCart className="w-3.5 h-3.5 mr-2 shrink-0" /> Commander
-          </Button>
-        </Link>
-        <Link href={waLink} target="_blank" className="block">
-          <Button
-            variant="outline"
-            className="w-full h-9 bg-emerald-50/50 hover:bg-emerald-50 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all"
-          >
-            <Phone className="w-3 h-3 mr-1.5 shrink-0" /> WhatsApp
-          </Button>
-        </Link>
-        <Link href={`/sellers/${product.user.id}`} className="block">
-          <Button
-            variant="outline"
-            className="w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
-          >
-            <Store className="w-3 h-3 mr-1.5 shrink-0" /> Boutique
-          </Button>
-        </Link>
       </div>
     </div>
   );
