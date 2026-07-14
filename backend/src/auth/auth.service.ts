@@ -178,7 +178,9 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    if (!user) return { success: true };
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
 
     const { token, hash: tokenHash } = await this.passwordService.generateResetToken();
 

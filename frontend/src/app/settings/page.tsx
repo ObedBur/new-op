@@ -12,6 +12,7 @@ import {
   Edit3, Camera, Trash2
 } from "lucide-react";
 import EditProfileModal from "../modal/EditProfileModal";
+import { DeleteConfirmationModal } from "@/app/dashboard/products/components/DeleteConfirmationModal";
 
 import { useAuth } from "@/context/AuthContext";
 import { Language, Theme, Currency, useSettings } from "@/context/SettingsContext";
@@ -74,11 +75,17 @@ function SettingsPageContent() {
   const { wishlist, toggleFavorite } = useWishlist();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [isClearFavoritesModalOpen, setIsClearFavoritesModalOpen] = useState(false);
+  const [isClearingFavorites, setIsClearingFavorites] = useState(false);
 
-  const handleClearAllFavorites = () => {
-    if (confirm("Voulez-vous vraiment vider votre liste de favoris ?")) {
+  const handleClearAllFavorites = async () => {
+    setIsClearingFavorites(true);
+    try {
       [...wishlist].forEach(p => toggleFavorite(p));
       toast.success("Tous vos favoris ont été supprimés.");
+    } finally {
+      setIsClearingFavorites(false);
+      setIsClearFavoritesModalOpen(false);
     }
   };
 
@@ -134,6 +141,14 @@ function SettingsPageContent() {
         <div className="container mx-auto max-w-5xl">
           <div className="w-full">
             <div className="space-y-6">
+
+              <DeleteConfirmationModal
+                isOpen={isClearFavoritesModalOpen}
+                onClose={() => setIsClearFavoritesModalOpen(false)}
+                onConfirm={handleClearAllFavorites}
+                itemName="tous vos favoris"
+                isDeleting={isClearingFavorites}
+              />
 
               {/* --- DYNAMIC SECTION --- */}
               <AnimatePresence mode="wait">
@@ -814,7 +829,7 @@ function SettingsPageContent() {
                           {wishlist.length > 0 && (
                             <button
                               type="button"
-                              onClick={handleClearAllFavorites}
+                              onClick={() => setIsClearFavoritesModalOpen(true)}
                               className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl text-[11px] font-bold transition-all cursor-pointer"
                             >
                               <Trash2 size={13} /> Vider les favoris
@@ -860,7 +875,7 @@ function SettingsPageContent() {
                     </div>
                   )}
 
-                  {activeTab !== 'notifications' && activeTab !== 'profile' && activeTab !== 'orders' && activeTab !== 'security' && activeTab !== 'preferences' && activeTab !== 'favorites' && (
+                  {activeTab !== 'notifications' && activeTab !== 'profile' && activeTab !== 'orders' && activeTab !== 'security' && activeTab !== 'preferences' && activeTab !== 'favorites' && activeTab !== 'addresses' && (
                     <section className="bg-white dark:bg-[#111827] rounded-none sm:rounded-[2.5rem] p-12 sm:p-24 text-center border-y sm:border border-gray-100 sm:border-white dark:border-white/5 shadow-xl flex flex-col items-center justify-center space-y-10 min-h-[50vh] sm:min-h-0">
                       <div className="size-24 sm:size-32 bg-gray-50 dark:bg-white/5 rounded-[2.5rem] sm:rounded-[3rem] flex items-center justify-center text-gray-200">
                         <ShoppingBag size={48} className="size-10 sm:size-12" />
