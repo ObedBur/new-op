@@ -62,7 +62,7 @@ export class CartCronService {
           userId: user.id,
           title: 'Panier en attente',
           message: `Vous avez laissé ${itemCount} article(s) dans votre panier ! Finalisez votre commande maintenant.`,
-          type: NotificationType.GENERAL_ANNOUNCEMENT,
+          type: NotificationType.PROMOTION,
           metadata: {
             url: '/cart',
           },

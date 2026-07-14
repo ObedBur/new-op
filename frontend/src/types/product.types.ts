@@ -1,5 +1,6 @@
 
 export interface Seller {
+  id: string;
   fullName?: string;
   boutiqueName?: string;
   isVerified?: boolean;
