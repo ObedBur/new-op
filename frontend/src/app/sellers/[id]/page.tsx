@@ -95,6 +95,7 @@ export default function SellerDetailPage() {
     stockQuantity: product.stockQuantity,
     unit: product.unit,
     user: {
+      id: sellerData.id || (id as string),
       boutiqueName: sellerData.boutiqueName,
       fullName: sellerData.fullName,
       isVerified: sellerData.isVerified,

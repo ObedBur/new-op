@@ -84,10 +84,10 @@ fetchedProducts.forEach(p => {
   if (p.user && !uniqueShopsMap.has(p.user.id)) {
     uniqueShopsMap.set(p.user.id, {
       id: p.user.id,
-      boutiqueName: p.user.boutiqueName || p.user.fullName,
+      boutiqueName: p.user.boutiqueName || p.user.fullName || 'Inconnu',
       avatarUrl: p.user.avatarUrl,
-      trustScore: p.user.trustScore,
-      isVerified: p.user.isVerified
+      trustScore: p.user.trustScore || 0,
+      isVerified: p.user.isVerified || false
     });
   }
 });

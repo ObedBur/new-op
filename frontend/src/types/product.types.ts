@@ -6,6 +6,7 @@ export interface Seller {
   isVerified?: boolean;
   trustScore?: number;
   phone?: string;
+  avatarUrl?: string;
 }
 
 export interface Product {
