@@ -61,17 +61,19 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
         </div>
       )}
 
-      {/* Product Image (if available) */}
-      {(product.images && product.images.length > 0 || product.image) && (
-        <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5 relative">
+      {/* Product Image (with placeholder) */}
+      <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5 relative flex items-center justify-center">
+        {(product.images && product.images.length > 0 || product.image) ? (
           <Image
             src={(product.images && product.images.length > 0) ? product.images[0] : product.image}
             alt={product.name}
             fill
             className="w-full h-full object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <Package className="w-12 h-12 text-gray-300 dark:text-white/20" />
+        )}
+      </div>
 
       {/* Nom du produit (prominent) */}
       <h3 className="text-[14px] font-black text-deep-blue dark:text-white line-clamp-2 mb-3">
