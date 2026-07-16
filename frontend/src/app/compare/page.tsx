@@ -61,75 +61,79 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
         </div>
       )}
 
-      {/* Header: Avatar + Nom */}
-      <div className="flex items-center gap-3 mb-4">
+      {/* Product Image (if available) */}
+      {product.images && product.images.length > 0 && (
+        <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5">
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      {/* Nom du produit (prominent) */}
+      <h3 className="text-[14px] font-black text-deep-blue dark:text-white line-clamp-2 mb-3">
+        {product.name}
+      </h3>
+
+      {/* Prix (very prominent) */}
+      <div
+        className={`mb-3 p-2 rounded-xl text-center ${isBestPrice
+          ? 'bg-emerald-50 dark:bg-emerald-500/5'
+          : 'bg-gray-50 dark:bg-white/5'
+          }`}
+      >
+        <span
+          className={`text-2xl sm:text-3xl font-black tracking-tighter break-words ${isBestPrice
+            ? 'text-emerald-600 dark:text-emerald-400'
+            : 'text-[#E67E22] dark:text-orange-400'
+            }`}
+        >
+          {product.displayPrice || `${product.price} $`}
+        </span>
+      </div>
+
+      {/* Seller info (less prominent) */}
+      <div className="flex items-center gap-2 mb-3">
         <div className="relative shrink-0">
-          <div className="size-12 rounded-full overflow-hidden bg-gray-100 dark:bg-white/5">
+          <div className="size-8 rounded-full overflow-hidden bg-gray-100 dark:bg-white/5">
             <Image
               src={
                 product.user.avatarUrl ||
                 `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=random&size=100`
               }
               alt={shopName}
-              width={48}
-              height={48}
-              className="w-full h-full object-cover rounded-full grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500"
+              width={32}
+              height={32}
+              className="w-full h-full object-cover rounded-full"
             />
           </div>
-          {product.user.isVerified && (
-            <div className="absolute -bottom-0.5 -right-0.5 bg-white dark:bg-[#1a1a1a] rounded-full">
-              <CheckCircle className="w-3.5 h-3.5 text-blue-500" fill="currentColor" />
-            </div>
-          )}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-[13px] font-black text-deep-blue dark:text-white truncate uppercase tracking-tight leading-tight">
+          <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 truncate">
             {shopName}
-          </h4>
-          <div className="flex items-center gap-1 mt-0.5">
-            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-            <span className="text-[9px] font-black text-gray-400">
+          </p>
+          <div className="flex items-center gap-1">
+            <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
+            <span className="text-[8px] font-bold text-gray-400">
               {rating}.0 / 5
             </span>
           </div>
         </div>
       </div>
 
-      {/* Nom du produit */}
-      <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 flex-1">
-        {product.name}
-      </p>
-
       {/* Stats */}
-      <div className="space-y-1.5 mb-4">
-        <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500">
-          <MapPin className="w-3 h-3 text-emerald-600" />
+      <div className="space-y-1 mb-3">
+        <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500">
+          <MapPin className="w-2.5 h-2.5 text-emerald-600" />
           <span className="truncate">{city}</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500">
-          <Package className="w-3 h-3" />
+        <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500">
+          <Package className="w-2.5 h-2.5" />
           <span>{product.availability === 'IN_STOCK' ? 'En stock' : product.availability === 'LIMITED_STOCK' ? 'Stock limité' : 'Rupture'}</span>
         </div>
-      </div>
-
-      {/* Prix */}
-      <div
-        className={`mb-4 p-3 rounded-2xl text-center ${isBestPrice
-          ? 'bg-emerald-50 dark:bg-emerald-500/5'
-          : 'bg-gray-50 dark:bg-white/5'
-          }`}
-      >
-        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
-          Prix
-        </p>
-        <span
-          className={`text-xl sm:text-2xl font-black tracking-tighter break-words ${isBestPrice
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-deep-blue dark:text-white'
-            }`}
-        >
-          {product.displayPrice || `${product.price} $`}
-        </span>
       </div>
 
       {/* Boutons */}
