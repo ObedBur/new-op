@@ -35,14 +35,21 @@ export class SellersService {
         include: {
           products: {
             orderBy: { createdAt: 'desc' },
-            select: { 
-              id: true, 
-              name: true, 
-              price: true, 
-              image: true,
-              images: true,
-              isPublic: true as any
+            include: {
+              category: true,
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  boutiqueName: true,
+                  isVerified: true,
+                  trustScore: true,
+                  phone: true,
+                  avatarUrl: true,
+                },
+              },
             },
+            where: { isPublic: true },
           },
         } as any,
       }) as any,

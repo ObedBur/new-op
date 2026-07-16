@@ -11,10 +11,13 @@ const productInclude = {
   category: true,
   user: {
     select: {
+      id: true,
       fullName: true,
       boutiqueName: true,
       isVerified: true,
       trustScore: true,
+      phone: true,
+      avatarUrl: true,
     },
   },
 };
@@ -142,7 +145,7 @@ export class ProductsService {
     limit?: number;
     onlyPublic?: boolean;
   }) {
-    const { userId, categoryId, search, market, page = 1, limit = 10, onlyPublic } = query;
+    const { userId, categoryId, search, market, page = 1, limit = 50, onlyPublic } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {

@@ -29,7 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const { toggleFavorite, isFavorited } = useWishlist();
 
   const isFav = isFavorited(product.id);
-  const isOutOfStock = product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0;
+  const isOutOfStock = product.availability === 'OUT_OF_STOCK' || (product.stockQuantity !== undefined && product.stockQuantity !== null && product.stockQuantity === 0);
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();

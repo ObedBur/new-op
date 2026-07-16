@@ -2,242 +2,30 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import ReactDOM from 'react-dom';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  CheckCircle,
-  Phone,
-  ShoppingCart,
-  Star,
-  MapPin,
-  Package,
   Filter,
   Loader2,
   TrendingUp,
   Search,
   Scale,
   MessageCircle,
-  ArrowRight,
   X,
   Store,
+  ArrowRight,
+  CheckCircle,
+  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { compareProducts, CompareProduct } from '@/features/compare/compare.service';
 import { getBestSellers } from '@/features/products/services/product.service';
-import { Product } from '@/types';
+import { Product } from '@/features/products/types';
+import { ProductCard } from '@/features/products/components/ProductCard';
+import { ProductQuickView } from '@/features/products/components/ProductQuickView';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/features/cart/context/CartContext';
 
-
-// ─────────────────────────────────────────────
-// SELLER CARD
-// ─────────────────────────────────────────────
-const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = ({
-  product,
-  isBestPrice,
-}) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const { showToast } = useToast();
-  const { addItem } = useCart();
-  const shopName = product.user.boutiqueName || product.user.fullName;
-  const rating = Math.min(5, Math.max(1, Math.round(product.user.trustScore / 20)));
-  const city = product.user.city || product.city || product.user.province;
-  const waMsg = encodeURIComponent(
-    `Bonjour ${shopName}, je souhaite commander "${product.name}" vu sur WapiBei.`
-  );
-  const waLink = `https://wa.me/${(product.user.phone || '').replace(/[^0-9]/g, '')}?text=${waMsg}`;
-
-  return (
-    <div
-      className={`relative bg-white dark:bg-[#1a1a1a] border ${isBestPrice
-        ? 'border-emerald-500 shadow-xl sm:shadow-2xl sm:scale-[1.02] z-10'
-        : 'border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1'
-        } rounded-2xl sm:rounded-[2rem] p-4 flex flex-col transition-all duration-500 group`}
-    >
-      {isBestPrice && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-emerald-600 text-[8px] font-black uppercase tracking-widest text-white rounded-full shadow-lg z-20 whitespace-nowrap">
-          Meilleur Prix
-        </div>
-      )}
-
-      {/* Product Image (with placeholder) */}
-      <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5 relative flex items-center justify-center">
-        {(product.images && product.images.length > 0 || product.image) ? (
-          <Image
-            src={(product.images && product.images.length > 0) ? product.images[0] : product.image}
-            alt={product.name}
-            fill
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <Package className="w-12 h-12 text-gray-300 dark:text-white/20" />
-        )}
-      </div>
-
-      {/* Nom du produit (prominent) */}
-      <h3 className="text-[14px] font-black text-deep-blue dark:text-white line-clamp-2 mb-3">
-        {product.name}
-      </h3>
-
-      {/* Prix (very prominent) */}
-      <div
-        className={`mb-3 p-2 rounded-xl text-center ${isBestPrice
-          ? 'bg-emerald-50 dark:bg-emerald-500/5'
-          : 'bg-gray-50 dark:bg-white/5'
-          }`}
-      >
-        <span
-          className={`text-2xl sm:text-3xl font-black tracking-tighter break-words ${isBestPrice
-            ? 'text-emerald-600 dark:text-emerald-400'
-            : 'text-[#E67E22] dark:text-orange-400'
-            }`}
-        >
-          {product.displayPrice || `${product.price} $`}
-        </span>
-      </div>
-
-      {/* Seller info (less prominent) */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="relative shrink-0">
-          <div className="size-8 rounded-full overflow-hidden bg-gray-100 dark:bg-white/5">
-            <Image
-              src={
-                product.user.avatarUrl ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=random&size=100`
-              }
-              alt={shopName}
-              width={32}
-              height={32}
-              className="w-full h-full object-cover rounded-full"
-            />
-          </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 truncate">
-            {shopName}
-          </p>
-          <div className="flex items-center gap-1">
-            <Star className="w-2 h-2 fill-amber-400 text-amber-400" />
-            <span className="text-[8px] font-bold text-gray-400">
-              {rating}.0 / 5
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="space-y-1 mb-3">
-        <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500">
-          <MapPin className="w-2.5 h-2.5 text-emerald-600" />
-          <span className="truncate">{city}</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 dark:text-gray-500">
-          <Package className="w-2.5 h-2.5" />
-          <span>{product.availability === 'IN_STOCK' ? 'En stock' : product.availability === 'LIMITED_STOCK' ? 'Stock limité' : 'Rupture'}</span>
-        </div>
-      </div>
-
-      {/* Boutons */}
-      <div className="grid grid-cols-2 gap-2 mt-auto">
-        <Link 
-          href={waLink} 
-          target="_blank" 
-          className="flex items-center justify-center w-full h-9 text-[9px] font-black uppercase tracking-widest rounded-xl border-2 border-gray-100 dark:border-white/5 px-1 hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95 text-gray-700 dark:text-gray-300"
-        >
-          <Phone className="w-3 h-3 mr-1.5 text-emerald-600 shrink-0" /> <span className="truncate">WhatsApp</span>
-        </Link>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center justify-center w-full h-9 bg-[#E67E22] hover:bg-[#d5731f] text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-orange-900/10 transition-all active:scale-95 px-1"
-        >
-          <ShoppingCart className="w-3 h-3 mr-1.5 shrink-0" /> <span className="truncate">Voir</span>
-        </button>
-      </div>
-
-      {/* QUICK VIEW MODAL — rendu via Portal pour échapper au contexte transform de la carte */}
-      {isModalOpen && typeof document !== 'undefined' && ReactDOM.createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-8">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
-          <div className="relative w-full max-w-2xl bg-white dark:bg-[#1a1a1a] rounded-[2rem] shadow-2xl p-5 sm:p-10 animate-in fade-in zoom-in-95 duration-200 max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] overflow-y-auto">
-            
-            <button 
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-full transition-colors z-10"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-4 mb-6 pr-8">
-              <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gray-100 overflow-hidden shrink-0 border border-gray-200 dark:border-white/10">
-                <Image
-                  src={product.images?.[0] || product.image || '/placeholder-product.png'}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white leading-tight mb-1">{product.name}</h3>
-                <span className="text-3xl font-black text-[#E67E22]">{product.displayPrice || `${product.price} $`}</span>
-              </div>
-            </div>
-
-            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl mb-6">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Vendu par</h4>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-white border border-gray-200 shrink-0">
-                  <Image
-                    src={product.user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=random`}
-                    alt={shopName}
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base font-black text-deep-blue dark:text-white">{shopName}</span>
-                    {product.user.isVerified && <CheckCircle className="w-4 h-4 text-blue-500" fill="currentColor" />}
-                  </div>
-                  <div className="flex items-center gap-2 mt-0.5 text-xs font-bold text-gray-500">
-                    <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" /> {Math.min(5, Math.max(1, Math.round(product.user.trustScore / 20)))}/5</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {city}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link href={`/sellers/${product.user.id}`} onClick={() => setIsModalOpen(false)} className="flex-1">
-                <Button variant="outline" className="w-full rounded-xl border-2 font-black uppercase tracking-widest text-[10px] h-12 hover:bg-gray-50 dark:hover:bg-white/5">
-                  <Store className="w-4 h-4 mr-2 text-[#2D5A27]" />
-                  Visiter la boutique
-                </Button>
-              </Link>
-              <Button 
-                className="w-full rounded-xl bg-[#E67E22] hover:bg-[#d5731f] text-white font-black uppercase tracking-widest text-[10px] h-12 shadow-lg shadow-orange-900/10"
-                onClick={() => {
-                  try {
-                    addItem(product as unknown as Product, 1);
-                  } catch {/* ignore */}
-                  setIsModalOpen(false);
-                  showToast(`"${product.name}" ajouté au panier !`, 'success');
-                }}
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Ajouter au panier
-              </Button>
-            </div>
-            
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────────
 // EMPTY STATE (ACCUEIL COMPARATEUR)
@@ -269,11 +57,11 @@ function EmptyCompareState() {
         {/* Decorative background */}
         <div className="absolute inset-0 opacity-20 dark:opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#2D5A27 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
         
-        <div className="relative z-10 max-w-2xl mx-auto">
+        <div className="relative z-10 max-w-lg mx-auto">
           <div className="w-20 h-20 bg-emerald-50 dark:bg-emerald-900/20 rounded-[2rem] flex items-center justify-center mx-auto mb-6 rotate-3">
             <Scale className="w-10 h-10 text-[#2D5A27] dark:text-emerald-400 -rotate-3" />
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tighter mb-4 uppercase">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight mb-4 uppercase">
             Le Marché <span className="text-[#E67E22]">Transparent</span>
           </h1>
           <p className="text-sm md:text-base font-bold text-gray-500 dark:text-gray-400 mb-8 max-w-lg mx-auto leading-relaxed">
@@ -316,7 +104,7 @@ function EmptyCompareState() {
         
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[...Array(6)].map((_, i) => (
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-24 bg-gray-100 dark:bg-white/5 rounded-2xl animate-pulse" />
             ))}
           </div>
@@ -357,6 +145,7 @@ function CompareContent() {
   const [products, setProducts] = useState<CompareProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const latestRequestRef = useRef(0);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Filtres & Tri
   const [isVerifiedOnly, setIsVerifiedOnly] = useState(false);
@@ -365,11 +154,7 @@ function CompareContent() {
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedShops, setSelectedShops] = useState<string[]>([]);
   const [availability, setAvailability] = useState<'ALL' | 'IN_STOCK'>('ALL');
-  const [condition, setCondition] = useState<'ALL' | 'NEW' | 'USED'>('ALL');
   const [sortBy, setSortBy] = useState('price_asc');
-  
-  // UI Mobile
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // 1. Fetch Data
   const fetchCompare = useCallback(async (q: string, signal?: AbortSignal) => {
@@ -418,8 +203,36 @@ function CompareContent() {
     return [...new Set(shops)];
   }, [products]);
 
-  // 3. Appliquer Filtres et Tri
-  const filtered = useMemo(() => {
+  // 3. Convert CompareProduct to Product type
+  const convertToProduct = (cp: CompareProduct): Product => ({
+    id: cp.id,
+    name: cp.name,
+    description: cp.description || '',
+    location: cp.location || '',
+    city: cp.city,
+    country: cp.country,
+    price: cp.price,
+    displayPrice: cp.displayPrice || undefined,
+    categoryId: String(cp.category?.id) || '',
+    image: cp.images?.[0] || cp.image || '/images/placeholder.png',
+    images: cp.images,
+    updatedAt: new Date().toISOString(),
+    availability: cp.availability as 'IN_STOCK' | 'LIMITED_STOCK' | 'OUT_OF_STOCK',
+    stockQuantity: undefined,
+    unit: undefined,
+    user: {
+      id: cp.user.id,
+      fullName: cp.user.fullName,
+      boutiqueName: cp.user.boutiqueName || undefined,
+      isVerified: cp.user.isVerified,
+      trustScore: cp.user.trustScore,
+      phone: cp.user.phone,
+      avatarUrl: cp.user.avatarUrl || undefined,
+    },
+  });
+
+  // 4. Appliquer Filtres et Tri
+  const filteredAndConverted = useMemo(() => {
     let result = [...products];
 
     if (isVerifiedOnly) {
@@ -446,15 +259,17 @@ function CompareContent() {
       result = result.filter(p => selectedShops.includes(p.user.boutiqueName || p.user.fullName));
     }
 
-    return result.sort((a, b) => {
+    const sorted = result.sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
       if (sortBy === 'rating') return b.user.trustScore - a.user.trustScore;
       return 0;
     });
+
+    return sorted.map(convertToProduct);
   }, [products, isVerifiedOnly, minPrice, maxPrice, selectedCities, selectedShops, sortBy, availability]);
 
-  const filteredPrices = filtered.map((p) => p.price);
+  const filteredPrices = filteredAndConverted.map((p) => p.price);
   const filteredMin = filteredPrices.length > 0 ? Math.min(...filteredPrices) : 0;
 
   // Toggle helpers
@@ -473,7 +288,6 @@ function CompareContent() {
     setSelectedCities([]);
     setSelectedShops([]);
     setAvailability('ALL');
-    setCondition('ALL');
   };
 
   // Composant: Contenu des filtres (utilisé en desktop et mobile)
@@ -551,27 +365,6 @@ function CompareContent() {
         </div>
       </div>
 
-      {/* État (Condition) */}
-      <div className="space-y-3">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">État</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <button 
-            type="button"
-            onClick={() => setCondition('ALL')}
-            className={`py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all ${condition === 'ALL' ? 'bg-[#2D5A27] border-[#2D5A27] text-white shadow-md' : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-[#2D5A27] hover:text-[#2D5A27] dark:hover:border-emerald-500 dark:hover:text-emerald-500'}`}
-          >
-            Tout
-          </button>
-          <button 
-            type="button"
-            onClick={() => setCondition('NEW')}
-            className={`py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all ${condition === 'NEW' ? 'bg-[#2D5A27] border-[#2D5A27] text-white shadow-md' : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-500 hover:border-[#2D5A27] hover:text-[#2D5A27] dark:hover:border-emerald-500 dark:hover:text-emerald-500'}`}
-          >
-            Neuf
-          </button>
-        </div>
-      </div>
-
       {/* Localisation */}
       {availableCities.length > 0 && (
         <div className="space-y-3">
@@ -620,18 +413,8 @@ function CompareContent() {
                 Comparaison: <span className="text-[#E67E22]">&ldquo;{query}&rdquo;</span>
               </h1>
               <p className="text-xs font-bold text-gray-400 mt-1">
-                {products.length} offre{products.length !== 1 ? 's' : ''} trouvée{products.length !== 1 ? 's' : ''}
+                {filteredAndConverted.length} offre{filteredAndConverted.length !== 1 ? 's' : ''} trouvée{filteredAndConverted.length !== 1 ? 's' : ''}
               </p>
-            </div>
-            
-            {/* Bouton Filtres Mobile */}
-            <div className="lg:hidden flex items-center">
-              <button 
-                onClick={() => setIsMobileFilterOpen(true)}
-                className="w-full flex items-center justify-center gap-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 shadow-sm active:scale-95 transition-all"
-              >
-                <Filter className="w-4 h-4 text-[#E67E22]" /> Filtrer & Trier
-              </button>
             </div>
           </div>
         )}
@@ -648,10 +431,10 @@ function CompareContent() {
           <div className="flex-1 w-full min-w-0">
             
             {/* Barre de Tri (Desktop) */}
-            {products.length > 0 && !loading && (
+            {filteredAndConverted.length > 0 && !loading && (
               <div className="hidden lg:flex items-center justify-between bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-3 shadow-sm mb-6">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  {filtered.length} Résultat{filtered.length !== 1 ? 's' : ''}
+                  {filteredAndConverted.length} Résultat{filteredAndConverted.length !== 1 ? 's' : ''}
                 </span>
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trier par:</span>
@@ -674,18 +457,16 @@ function CompareContent() {
                 <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">Analyse du marché en cours...</p>
               </div>
-            ) : filtered.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-                {filtered.map((product, idx) => (
-                  <div
-                    key={product.id}
-                    className="animate-in fade-in slide-in-from-bottom-6 duration-500 h-full"
-                    style={{ animationDelay: `${idx * 50}ms` }}
-                  >
-                    <SellerCard
-                      product={product}
-                      isBestPrice={product.price === filteredMin && filtered.length > 1}
-                    />
+            ) : filteredAndConverted.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-6">
+                {filteredAndConverted.map((product, idx) => (
+                  <div key={product.id} className="relative animate-in fade-in slide-in-from-bottom-6 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                    {product.price === filteredMin && filteredAndConverted.length > 1 && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-emerald-600 text-[8px] font-black uppercase tracking-widest text-white rounded-full shadow-lg whitespace-nowrap">
+                        Meilleur Prix
+                      </div>
+                    )}
+                    <ProductCard product={product} onQuickView={setSelectedProduct} />
                   </div>
                 ))}
               </div>
@@ -712,66 +493,8 @@ function CompareContent() {
         </div>
       </div>
 
-      {/* BOTTOM SHEET MOBILE POUR LES FILTRES */}
-      {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden">
-          {/* Backdrop sombre */}
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-            onClick={() => setIsMobileFilterOpen(false)}
-          />
-          
-          {/* Panel */}
-          <div className="relative w-full bg-white dark:bg-[#121212] rounded-t-[2rem] p-6 pb-safe max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
-            {/* Grip de tirage */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full bg-gray-200 dark:bg-white/20" />
-            
-            <div className="flex items-center justify-between mb-6 mt-2">
-              <h2 className="text-lg font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400">Filtrer & Trier</h2>
-              <button 
-                onClick={() => setIsMobileFilterOpen(false)}
-                className="w-8 h-8 flex items-center justify-center bg-gray-100 dark:bg-white/10 text-gray-500 rounded-full"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto no-scrollbar space-y-8 pb-10">
-              {/* Tri mobile */}
-              <div className="space-y-3">
-                <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">Trier par</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { val: 'price_asc', label: 'Moins cher' },
-                    { val: 'price_desc', label: 'Plus cher' },
-                    { val: 'rating', label: 'Mieux notés' },
-                  ].map(opt => (
-                    <button
-                      key={opt.val}
-                      onClick={() => setSortBy(opt.val)}
-                      className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${sortBy === opt.val ? 'bg-[#2D5A27] border-[#2D5A27] text-white' : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500'}`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="h-px bg-gray-100 dark:bg-white/5" />
-              
-              <FilterOptions />
-            </div>
-            
-            <div className="pt-4 border-t border-gray-100 dark:border-white/5 mt-auto">
-              <button 
-                onClick={() => setIsMobileFilterOpen(false)}
-                className="w-full py-4 bg-[#E67E22] text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-[#E67E22]/20 active:scale-95 transition-all"
-              >
-                Afficher ({filtered.length})
-              </button>
-            </div>
-          </div>
-        </div>
+      {selectedProduct && (
+        <ProductQuickView product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </main>
   );

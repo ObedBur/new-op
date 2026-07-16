@@ -6,19 +6,20 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { getSellerById, toggleFollowVendor } from '@/features/home/services/seller.service';
 import { useAuth } from '@/context/AuthContext';
-import { useCart } from '@/features/cart/context/CartContext';
-import { Product } from '@/types/product.types';
+import { ProductCard } from '@/features/products/components/ProductCard';
+import { ProductQuickView } from '@/features/products/components/ProductQuickView';
+import { Product } from '@/features/products/types';
 
 export default function SellerDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const { addItem } = useCart();
   const [activeCategory, setActiveCategory] = useState('Tout');
   const [isLoading, setIsLoading] = useState(true);
   const [sellerData, setSellerData] = useState<any>(null);
   const [isFollowed, setIsFollowed] = useState(false);
   const [isTogglingFollow, setIsTogglingFollow] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchFullData = async () => {
@@ -57,8 +58,6 @@ export default function SellerDetailPage() {
     }
   };
 
-  const categories = ['Tout', 'Chaussures', 'Chemises', 'Accessoires'];
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-24">
@@ -78,7 +77,7 @@ export default function SellerDetailPage() {
 
   const products = sellerData.products || [];
 
-  const toCartProduct = (product: any): Product => ({
+  const toProduct = (product: any): Product => ({
     id: product.id,
     name: product.name,
     description: product.description,
@@ -94,15 +93,18 @@ export default function SellerDetailPage() {
     availability: product.availability,
     stockQuantity: product.stockQuantity,
     unit: product.unit,
-    user: {
+    user: product.user || {
       id: sellerData.id || (id as string),
       boutiqueName: sellerData.boutiqueName,
       fullName: sellerData.fullName,
       isVerified: sellerData.isVerified,
       trustScore: sellerData.trustScore,
       phone: sellerData.phone,
+      avatarUrl: sellerData.avatarUrl,
     },
   });
+
+  const mappedProducts = products.filter((p: any) => p.isPublic).map(toProduct);
 
   return (
     <main className="flex-1 bg-gray-50/50 dark:bg-background-dark/50 pt-24 pb-20">
@@ -132,7 +134,7 @@ export default function SellerDetailPage() {
             {/* INFO SECTION */}
             <div className="flex-1 text-center sm:text-left space-y-4 sm:space-y-6 w-full">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-black text-deep-blue dark:text-white uppercase tracking-tight leading-tight">
+                <h1 className="text-3xl sm:text-4xl font-black text-deep-blue dark:text-white uppercase tracking-tight leading-none">
                   {sellerData.boutiqueName}
                 </h1>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-10 mt-4">
@@ -155,7 +157,7 @@ export default function SellerDetailPage() {
                   className={`flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black text-sm shadow-xl transition-all hover:translate-y-[-2px] active:scale-95 ${
                     isFollowed 
                       ? 'bg-gray-200 dark:bg-gray-800 text-deep-blue dark:text-white border border-gray-300 dark:border-gray-700 shadow-none' 
-                      : 'bg-[#E67E22] text-white shadow-orange-900/20'
+                      : 'bg-[#E67E22] text-white shadow-[#E67E22]/20'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isFollowed ? "'FILL' 1" : "'FILL' 0" }}>
@@ -165,7 +167,7 @@ export default function SellerDetailPage() {
                 </button>
 
                 <Link 
-                  href={`https://wa.me/${sellerData.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent(`Bonjour ${sellerData.boutiqueName}, je suis intéressé par vos produits sur WapiBei.`)}`}
+                  href={`https://wa.me/${sellerData.phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Bonjour ${sellerData.boutiqueName}, je suis intéressé par vos produits sur WapiBei.`)}`}
                   target="_blank"
                   className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-[#2D5A27] text-white rounded-2xl font-black text-sm shadow-xl shadow-green-900/20 transition-all hover:translate-y-[-2px] active:scale-95"
                 >
@@ -197,8 +199,8 @@ export default function SellerDetailPage() {
                 onClick={() => setActiveCategory(cat)}
                 className={`whitespace-nowrap px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeCategory === cat
-                  ? 'bg-[#2D5A27] text-white shadow-xl shadow-green-900/20'
-                  : 'bg-white dark:bg-[#111827] text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-white/5'
+                    ? 'bg-[#2D5A27] text-white shadow-xl shadow-green-900/20'
+                    : 'bg-white dark:bg-[#111827] text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-white/5'
                 }`}
               >
                 {cat}
@@ -208,42 +210,14 @@ export default function SellerDetailPage() {
         </div>
 
         {/* PRODUCTS */}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
-            {products.map((product: any) => (
-              <div 
+        {mappedProducts.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-6">
+            {mappedProducts.map((product: Product) => (
+              <ProductCard 
                 key={product.id} 
-                className="group bg-white dark:bg-[#111827] rounded-[2rem] border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden"
-              >
-                <div className="relative aspect-square overflow-hidden bg-gray-50 dark:bg-white/2">
-                  <Image 
-                    src={product.images?.[0] || product.image || '/images/placeholder.png'} 
-                    alt={product.name} 
-                    fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
-
-                <div className="p-4 sm:p-6 space-y-3">
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-black text-deep-blue dark:text-white line-clamp-1 uppercase tracking-tight">
-                      {product.name}
-                    </h3>
-                    <p className="text-lg sm:text-xl font-black text-[#E67E22] mt-1">${product.price}</p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => addItem(toCartProduct(product), 1)}
-                    disabled={product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0}
-                    className="w-full py-3 bg-[#E67E22]/10 text-[#E67E22] hover:bg-[#E67E22] hover:text-white rounded-xl font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0
-                      ? 'ÉPUISÉ'
-                      : 'AJOUTER AU PANIER'}
-                  </button>
-                </div>
-              </div>
+                product={product} 
+                onQuickView={setSelectedProduct}
+              />
             ))}
           </div>
         ) : (
@@ -254,6 +228,13 @@ export default function SellerDetailPage() {
         )}
 
       </div>
+
+      {selectedProduct && (
+        <ProductQuickView 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
+      )}
     </main>
   );
 }

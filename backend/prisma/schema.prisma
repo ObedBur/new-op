@@ -100,7 +100,7 @@ model Product {
   country       String              @default("RD Congo")
   images        String[]            @default([])
   isPublic      Boolean             @default(true)
-  stockQuantity Int?                @default(0)
+  stockQuantity Int?
   unit          String?             @default("Pièce")
   orders        Order[]
   cartItems     CartItem[]

@@ -16,7 +16,7 @@ import { ProductMapper } from '../services/product.mapper';
 export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onClose }) => {
   const { addItem } = useCart();
   const { amount, currency } = ProductMapper.parsePrice(product.displayPrice || product.price);
-  const isOutOfStock = product.availability === 'OUT_OF_STOCK' || product.stockQuantity === 0;
+  const isOutOfStock = product.availability === 'OUT_OF_STOCK' || (product.stockQuantity !== undefined && product.stockQuantity !== null && product.stockQuantity === 0);
 
   const handleAddToCart = () => {
     addItem(product);
