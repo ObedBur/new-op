@@ -16,6 +16,7 @@ export function useProductFilters() {
     maxPrice: searchParams.get('maxPrice') || '',
     sortBy: (searchParams.get('sortBy') as SortOption) || 'relevance',
     page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
+    search: searchParams.get('search') || null,
   }), [searchParams]);
 
   const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {

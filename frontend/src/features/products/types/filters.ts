@@ -9,4 +9,5 @@ export interface ProductFilters {
   maxPrice: string;
   sortBy: SortOption;
   page: number;
+  search: string | null;
 }

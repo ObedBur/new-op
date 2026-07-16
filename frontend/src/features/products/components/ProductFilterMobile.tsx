@@ -16,20 +16,22 @@ interface MobileDrawerProps {
 export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClose, categories, filters, onUpdate }) => {
   const [minPrice, setMinPrice] = useState<string>(filters.minPrice || '');
   const [maxPrice, setMaxPrice] = useState<string>(filters.maxPrice || '');
+  const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
 
   const handleCategoryClick = (categoryId: string | null) => {
     onUpdate({ categoryId, page: 1 });
   };
 
   const handleApply = () => {
-    onUpdate({ minPrice, maxPrice });
+    onUpdate({ minPrice, maxPrice, search: searchQuery || null });
     onClose();
   };
 
   const handleReset = () => {
     setMinPrice('');
     setMaxPrice('');
-    onUpdate({ minPrice: '', maxPrice: '', categoryId: null, page: 1 });
+    setSearchQuery('');
+    onUpdate({ minPrice: '', maxPrice: '', categoryId: null, search: null, page: 1 });
     onClose();
   };
 
@@ -68,6 +70,26 @@ export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClo
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8">
+
+          {/* Recherche */}
+          <div>
+            <h3 className="text-[12px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4">
+              Rechercher
+            </h3>
+            <div className="flex border border-slate-200 dark:border-white/5 rounded-xl overflow-hidden focus-within:border-[#E67E22] focus-within:ring-1 focus-within:ring-[#E67E22] transition-all bg-slate-50 dark:bg-white/5">
+              <div className="px-4 py-3 flex items-center justify-center border-r border-slate-200 dark:border-white/10">
+                <span className="material-symbols-outlined text-slate-400">search</span>
+              </div>
+              <input
+                type="text"
+                placeholder="Rechercher un produit..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Rechercher un produit"
+                className="flex-1 w-full px-4 py-3 text-[15px] outline-none text-slate-700 dark:text-white bg-transparent"
+              />
+            </div>
+          </div>
 
           {/* Catégories */}
           <div>

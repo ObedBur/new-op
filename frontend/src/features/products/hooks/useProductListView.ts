@@ -22,6 +22,13 @@ export function useProductListView(products: Product[], filters: ProductFilters)
       if (!isNaN(min) && product.price < min) return false;
       if (!isNaN(max) && product.price > max) return false;
       
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        const nameMatch = product.name.toLowerCase().includes(searchLower);
+        const descMatch = product.description?.toLowerCase().includes(searchLower) ?? false;
+        if (!nameMatch && !descMatch) return false;
+      }
+      
       return true;
     });
 

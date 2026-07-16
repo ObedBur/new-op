@@ -152,8 +152,8 @@ export class ProductsService {
       ...(onlyPublic !== undefined ? { isPublic: onlyPublic } : !userId && { isPublic: true }),
       ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
         ],
       }),
     };
@@ -198,8 +198,8 @@ export class ProductsService {
       ...(categoryId && { categoryId }),
       ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
         ],
       }),
     };
@@ -347,7 +347,7 @@ export class ProductsService {
     const products = await this.prisma.product.findMany({
       where: {
         isPublic: true,
-        name: { contains: query },  // Suppression de mode:'insensitive' pour Accelerate
+        name: { contains: query, mode: 'insensitive' },
       } as any,
       select: { name: true, category: { select: { name: true } } },
       take: 20,
@@ -382,8 +382,8 @@ export class ProductsService {
       where: {
         isPublic: true,
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
         ],
       } as any,
       orderBy: { price: 'asc' },

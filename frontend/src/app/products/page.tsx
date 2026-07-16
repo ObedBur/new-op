@@ -5,10 +5,18 @@ import { ProductGridSkeleton, CategoryGridSkeleton } from '@/components/ui/Skele
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProductsPage() {
+interface ProductsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const params = await searchParams;
   // Parallel fetching in Server Component
   const [productsRes, categoriesRes] = await Promise.all([
-    getProducts({}),
+    getProducts({ 
+      search: params.search as string | undefined,
+      categoryId: params.category ? Number(params.category) : undefined
+    }),
     getCategories()
   ]);
 
