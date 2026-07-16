@@ -446,7 +446,7 @@ function CompareContent() {
       if (sortBy === 'rating') return b.user.trustScore - a.user.trustScore;
       return 0;
     });
-  }, [products, isVerifiedOnly, minPrice, maxPrice, selectedCities, selectedShops, sortBy]);
+  }, [products, isVerifiedOnly, minPrice, maxPrice, selectedCities, selectedShops, sortBy, availability]);
 
   const filteredPrices = filtered.map((p) => p.price);
   const filteredMin = filteredPrices.length > 0 ? Math.min(...filteredPrices) : 0;
@@ -524,6 +524,8 @@ function CompareContent() {
               placeholder="Min" 
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
+              onBlur={(e) => setMinPrice(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setMinPrice(e.currentTarget.value)}
               className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
             />
           </div>
@@ -535,6 +537,8 @@ function CompareContent() {
               placeholder="Max" 
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
+              onBlur={(e) => setMaxPrice(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && setMaxPrice(e.currentTarget.value)}
               className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
             />
           </div>
