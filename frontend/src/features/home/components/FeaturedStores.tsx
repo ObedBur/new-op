@@ -88,50 +88,49 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
               </div>
             </div>
 
-            {/* 2. Showcase Gallery */}
-            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 h-28 sm:h-44 mb-4 sm:mb-5">
-              {/* Large Image (Left) */}
-              <div className="relative row-span-2 rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5">
-                {store.productPreviews[0] ? (
-                  <Image
-                    src={store.productPreviews[0]}
-                    alt={`${store.boutiqueName} preview 1`}
-                    fill
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 dark:bg-white/5" />
+            {/* 2. Showcase Gallery — Only if seller has product previews */}
+            {store.productPreviews.length > 0 && (
+              <div className={store.productPreviews.length === 1 ? "grid grid-cols-1 gap-1.5 sm:gap-2 h-28 sm:h-44 mb-4 sm:mb-5" : "grid grid-cols-2 gap-1.5 sm:gap-2 h-28 sm:h-44 mb-4 sm:mb-5"}>
+                {/* Large Image (Left) */}
+                <div className={store.productPreviews.length === 1 ? "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 col-span-1" : "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 row-span-2"}>
+                  {store.productPreviews[0] && (
+                    <Image
+                      src={store.productPreviews[0]}
+                      alt={`${store.boutiqueName} preview 1`}
+                      fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  )}
+                </div>
+
+                {/* Second Image (Right, if exists) */}
+                {store.productPreviews.length >= 2 && (
+                  <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+                    <Image
+                      src={store.productPreviews[1]}
+                      alt={`${store.boutiqueName} preview 2`}
+                      fill
+                      sizes="(max-width: 768px) 25vw, (max-width: 1024px) 12vw, 10vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
+                )}
+
+                {/* Third Image (Right bottom, if exists) */}
+                {store.productPreviews.length >= 3 && (
+                  <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+                    <Image
+                      src={store.productPreviews[2]}
+                      alt={`${store.boutiqueName} preview 3`}
+                      fill
+                      sizes="(max-width: 768px) 25vw, (max-width: 1024px) 12vw, 10vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
                 )}
               </div>
-              {/* Two small images (Right) */}
-              <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
-                {store.productPreviews[1] ? (
-                  <Image
-                    src={store.productPreviews[1]}
-                    alt={`${store.boutiqueName} preview 2`}
-                    fill
-                    sizes="(max-width: 768px) 25vw, (max-width: 1024px) 12vw, 10vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 dark:bg-white/5" />
-                )}
-              </div>
-              <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
-                {store.productPreviews[2] ? (
-                  <Image
-                    src={store.productPreviews[2]}
-                    alt={`${store.boutiqueName} preview 3`}
-                    fill
-                    sizes="(max-width: 768px) 25vw, (max-width: 1024px) 12vw, 10vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 dark:bg-white/5" />
-                )}
-              </div>
-            </div>
+            )}
 
             {/* 3. Footer Info & Action */}
             <div className="mt-auto">

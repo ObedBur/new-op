@@ -50,12 +50,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const root = window.document.documentElement;
-            root.classList.remove('theme-light', 'theme-dark', 'theme-emerald', 'theme-ocean');
+            root.classList.remove('theme-light', 'theme-dark', 'theme-emerald', 'theme-ocean', 'dark');
             const resolvedTheme =
                 theme === 'system'
                     ? window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
                     : theme;
             root.classList.add(`theme-${resolvedTheme}`);
+            if (resolvedTheme === 'dark') {
+                root.classList.add('dark');
+            }
         }
     }, [theme]);
 

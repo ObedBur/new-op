@@ -50,7 +50,9 @@ export const storage = {
     if (typeof window === 'undefined') return;
     
     try {
-      const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      // Always stringify values to ensure consistency
+      // So even strings are stored as "value" (valid JSON)
+      const stringValue = JSON.stringify(value);
       localStorage.setItem(key, stringValue);
     } catch (error) {
       console.error(`Failed to save ${key} to localStorage`, error);

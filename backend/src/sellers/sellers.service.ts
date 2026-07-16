@@ -13,7 +13,8 @@ export class SellersService {
         products: {
           take: 3,
           orderBy: { createdAt: 'desc' },
-          select: { images: true },
+          where: { isPublic: true }, // only public products
+          select: { images: true, image: true },
         },
       },
     });
@@ -24,7 +25,12 @@ export class SellersService {
       trustScore: vendor.trustScore,
       isVerified: vendor.isVerified,
       avatarUrl: vendor.avatarUrl,
-      productPreviews: vendor.products.flatMap((p) => p.images).slice(0, 3),
+      productPreviews: vendor.products.flatMap((p) => {
+        if (p.images && p.images.length > 0) {
+          return p.images;
+        }
+        return p.image ? [p.image] : [];
+      }).slice(0, 3),
     }));
   }
 

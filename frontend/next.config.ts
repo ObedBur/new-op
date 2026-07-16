@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     // Bypass Next.js image optimization for external images (Unsplash blocks Vercel's optimizer)
-    unoptimized: false,
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',

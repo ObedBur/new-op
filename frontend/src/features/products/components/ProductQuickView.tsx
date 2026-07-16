@@ -171,7 +171,7 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({ product, onC
               {/* WhatsApp */}
               <a
                 href={`https://wa.me/${product.user?.phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                  `Bonjour, je suis intéressé par votre produit : *${product.name}* au prix de *${product.displayPrice || product.price}*.\n\nVoici le produit : ${product.image}`
+                  `Bonjour, je suis intéressé par votre produit : *${product.name}* au prix de *${product.displayPrice || product.price}*.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

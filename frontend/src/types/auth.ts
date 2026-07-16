@@ -10,6 +10,7 @@ export interface User {
   boutiqueName?: string;
   kycStatus: KycStatus;
   isVerified: boolean;
+  phoneVerified?: boolean;
   trustScore: number;
   avatarUrl?: string;
   coverUrl?: string;

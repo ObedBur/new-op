@@ -74,6 +74,50 @@ export default function SellersPage() {
                           RDC
                       </div>
 
+                      {/* Showcase Gallery — Only if seller has product previews */}
+                      {seller.productPreviews.length > 0 && (
+                        <div className={seller.productPreviews.length === 1 ? "grid grid-cols-1 gap-1.5 sm:gap-2 h-24 sm:h-40 mb-4 sm:mb-5 w-full" : "grid grid-cols-2 gap-1.5 sm:gap-2 h-24 sm:h-40 mb-4 sm:mb-5 w-full"}>
+                          {/* Large Image (Left) */}
+                          <div className={seller.productPreviews.length === 1 ? "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 col-span-1" : "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 row-span-2"}>
+                            {seller.productPreviews[0] && (
+                              <Image
+                                src={seller.productPreviews[0]}
+                                alt={`${seller.boutiqueName} preview 1`}
+                                fill
+                                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                            )}
+                          </div>
+
+                          {/* Second Image (Right, if exists) */}
+                          {seller.productPreviews.length >= 2 && (
+                            <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+                              <Image
+                                src={seller.productPreviews[1]}
+                                alt={`${seller.boutiqueName} preview 2`}
+                                fill
+                                sizes="(max-width: 768px) 25vw, (max-width: 1024px) 17vw, 12vw"
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                            </div>
+                          )}
+
+                          {/* Third Image (Right bottom, if exists) */}
+                          {seller.productPreviews.length >= 3 && (
+                            <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
+                              <Image
+                                src={seller.productPreviews[2]}
+                                alt={`${seller.boutiqueName} preview 3`}
+                                fill
+                                sizes="(max-width: 768px) 25vw, (max-width: 1024px) 17vw, 12vw"
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-2 gap-2 sm:gap-4 w-full border-t border-b border-gray-100 dark:border-white/10 py-3 sm:py-4 mb-4 sm:mb-6">
                            <div className="flex flex-col">
                                <div className="flex items-center justify-center gap-0.5 text-orange-400">
