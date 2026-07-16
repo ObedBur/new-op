@@ -62,10 +62,10 @@ const SellerCard: React.FC<{ product: CompareProduct; isBestPrice: boolean }> = 
       )}
 
       {/* Product Image (if available) */}
-      {product.images && product.images.length > 0 && (
-        <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5">
+      {(product.images && product.images.length > 0 || product.image) && (
+        <div className="w-full aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-white/5 relative">
           <Image
-            src={product.images[0]}
+            src={(product.images && product.images.length > 0) ? product.images[0] : product.image}
             alt={product.name}
             fill
             className="w-full h-full object-cover"
