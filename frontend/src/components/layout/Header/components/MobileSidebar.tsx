@@ -131,7 +131,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             </div>
 
             <div className="grid gap-1 px-2">
-              {navLinks?.map((link) => (
+              {navLinks?.filter(l => l.id !== '/compare').map((link) => (
                 <Link 
                   key={link.id}
                   href={link.id}
@@ -141,14 +141,6 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
                   {link.label}
                 </Link>
               ))}
-
-              <Link 
-                href="/cart" 
-                onClick={onClose}
-                className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all mt-2 ${isActive('/cart') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
-              >
-                Mon Panier
-              </Link>
             </div>
           </div>
 
@@ -177,25 +169,6 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
                 >
                   Mon Compte
                 </Link>
-
-                {user?.role !== 'VENDOR' && (
-                  <>
-                    <Link 
-                      href="/settings?tab=orders" 
-                      onClick={onClose}
-                      className="w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5"
-                    >
-                      Mes Commandes
-                    </Link>
-                    <Link 
-                      href="/settings?tab=favorites" 
-                      onClick={onClose}
-                      className="w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5"
-                    >
-                      Mes Favoris
-                    </Link>
-                  </>
-                )}
               </div>
             </div>
           )}

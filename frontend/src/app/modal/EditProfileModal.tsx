@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import {
     X, User, Mail, Phone, MapPin, ShieldCheck,
-    Lock, Camera, BadgeCheck, CheckCircle2, Loader2, Store
+    Camera, BadgeCheck, CheckCircle2, Loader2, Store
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/services/auth.service';
@@ -28,10 +27,6 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         province: '',
         commune: '',
         boutiqueName: '',
-        oldPassword: '',
-        password: '',
-        confirmPassword: '',
-        transactionPin: '',
     });
 
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
@@ -48,10 +43,6 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                 province: user.province || '',
                 commune: user.commune || '',
                 boutiqueName: user.boutiqueName || '',
-                oldPassword: '',
-                password: '',
-                confirmPassword: '',
-                transactionPin: '',
             });
             setPreviewUrl(user.avatarUrl || null);
             setCoverPreviewUrl(user.coverUrl || null);
@@ -69,8 +60,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         const file = e.target.files?.[0];
         if (file) {
             setProfilePicture(file);
-            const url = URL.createObjectURL(file);
-            setPreviewUrl(url);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -78,111 +68,46 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         const file = e.target.files?.[0];
         if (file) {
             setCoverPicture(file);
-            const url = URL.createObjectURL(file);
-            setCoverPreviewUrl(url);
+            setCoverPreviewUrl(URL.createObjectURL(file));
         }
     };
 
+    const compressImage = (file: File, maxW: number, maxH: number): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new window.Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > maxW) { h *= maxW / w; w = maxW; } }
+                    else { if (h > maxH) { w *= maxH / h; h = maxH; } }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d')?.drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', 0.8));
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (formData.password && formData.password !== formData.confirmPassword) {
-            toast.error("Les nouveaux mots de passe ne correspondent pas");
-            return;
-        }
-
         setLoading(true);
         try {
             const updateData: any = { ...formData };
 
-            if (profilePicture) {
-                const base64Promise = new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(profilePicture);
-                    reader.onload = (event) => {
-                        const img = new window.Image();
-                        img.src = event.target?.result as string;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const MAX_WIDTH = 400; // Profile pictures don't need to be huge
-                            const MAX_HEIGHT = 400;
-                            let width = img.width;
-                            let height = img.height;
-
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
-                                }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx?.drawImage(img, 0, 0, width, height);
-                            // Compress as JPEG
-                            resolve(canvas.toDataURL('image/jpeg', 0.8));
-                        };
-                        img.onerror = (error) => reject(error);
-                    };
-                    reader.onerror = (error) => reject(error);
-                });
-                updateData.profilePicture = await base64Promise;
-            }
-
-            if (coverPicture) {
-                const coverBase64Promise = new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(coverPicture);
-                    reader.onload = (event) => {
-                        const img = new window.Image();
-                        img.src = event.target?.result as string;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const MAX_WIDTH = 1200; // Wider for covers
-                            const MAX_HEIGHT = 600;
-                            let width = img.width;
-                            let height = img.height;
-
-                            if (width > height) {
-                                if (width > MAX_WIDTH) {
-                                    height *= MAX_WIDTH / width;
-                                    width = MAX_WIDTH;
-                                }
-                            } else {
-                                if (height > MAX_HEIGHT) {
-                                    width *= MAX_HEIGHT / height;
-                                    height = MAX_HEIGHT;
-                                }
-                            }
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx?.drawImage(img, 0, 0, width, height);
-                            // Compress as JPEG
-                            resolve(canvas.toDataURL('image/jpeg', 0.8));
-                        };
-                        img.onerror = (error) => reject(error);
-                    };
-                    reader.onerror = (error) => reject(error);
-                });
-                updateData.coverPicture = await coverBase64Promise;
-            }
+            if (profilePicture) updateData.profilePicture = await compressImage(profilePicture, 400, 400);
+            if (coverPicture) updateData.coverPicture = await compressImage(coverPicture, 1200, 600);
 
             // Nettoyage des champs vides
             Object.keys(updateData).forEach(key => {
-                if (updateData[key] === '' || updateData[key] === null) {
-                    delete updateData[key];
-                }
+                if (updateData[key] === '' || updateData[key] === null) delete updateData[key];
             });
-            delete updateData.confirmPassword;
 
             const response = await authService.updateProfile(updateData);
-
             if (response.success) {
                 updateUser(response.user);
                 toast.success("Profil mis à jour avec succès");
@@ -199,311 +124,253 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 overflow-y-auto">
-            <div className="relative w-full max-w-5xl bg-white dark:bg-[#151b2c] rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
+            <div className="relative w-full sm:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#111] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95dvh] sm:max-h-[90vh]">
 
-                {/* Header */}
-                <div className="flex justify-between items-center p-8 border-b border-gray-50 dark:border-white/5 bg-white/50 backdrop-blur-sm sticky top-0 z-10">
+                {/* ── Header ── */}
+                <div className="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-gray-100 dark:border-white/5 shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="size-10 rounded-xl bg-[#eef2ff] flex items-center justify-center">
-                            <User className="size-5 text-[#4f46e5]" />
+                        <div className="size-9 sm:size-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                            <User className="size-4 sm:size-5 text-[#E67E22]" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-[#1e293b] dark:text-white leading-none">Modifier mon profil</h2>
-                            <p className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-widest mt-1.5">Mise à jour de vos informations</p>
+                            <h2 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-none">Modifier mon profil</h2>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Mise à jour de vos informations</p>
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="p-3 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 rounded-2xl transition-all active:scale-90"
+                        className="p-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 rounded-xl transition-all active:scale-90"
                     >
-                        <X className="size-5 text-[#64748b]" />
+                        <X className="size-4 sm:size-5 text-gray-500" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 lg:p-12 max-h-[75vh] overflow-y-auto">
-                    <div className="flex flex-col lg:flex-row gap-12">
+                {/* ── Scrollable Body ── */}
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                    <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto">
 
-                        {/* Sidebar / Profile Overview */}
-                        <aside className="w-full lg:w-1/3 space-y-8">
-                            <div className="bg-[#f8fafc] dark:bg-white/2 p-10 rounded-[2.5rem] flex flex-col items-center border border-gray-50 dark:border-white/5">
-                                <div className="relative group">
-                                    <div className="size-40 rounded-full overflow-hidden border-8 border-white dark:border-[#151b2c] shadow-2xl relative bg-gray-100">
-                                        {previewUrl ? (
-                                            <img
-                                                className="w-full h-full object-cover"
-                                                src={previewUrl}
-                                                alt="Aperçu du profil"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <User className="size-20 text-gray-300" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                        accept="image/*"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="absolute bottom-2 right-2 bg-[#002db3] text-white p-3 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all border-4 border-white dark:border-[#151b2c]"
-                                    >
-                                        <Camera className="size-5" />
-                                    </button>
+                        {/* ── Left panel: Avatar ── */}
+                        <aside className="lg:w-52 xl:w-56 shrink-0 flex flex-col items-center gap-4 px-6 sm:px-8 py-6 lg:py-8 bg-gray-50/70 dark:bg-white/2 border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-white/5">
+
+                            {/* Avatar */}
+                            <div className="relative">
+                                <div className="size-24 sm:size-28 rounded-full overflow-hidden border-4 border-white dark:border-[#222] shadow-xl bg-gradient-to-br from-[#E67E22] to-[#2D5A27]">
+                                    {previewUrl ? (
+                                        <img className="w-full h-full object-cover" src={previewUrl} alt="Avatar" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <User className="size-10 text-white/80" />
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="mt-8 text-center text-ellipsis overflow-hidden w-full px-2">
-                                    <h1 className="text-2xl font-black text-[#1e293b] dark:text-white leading-tight flex items-center justify-center gap-2">
-                                        {formData.fullName || 'Utilisateur'}
-                                        <BadgeCheck className="size-5 text-[#0033ff]" fill="currentColor" />
-                                    </h1>
-                                    <p className="text-[#64748b] font-bold text-sm mt-1 uppercase tracking-wider">
-                                        {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
-                                    </p>
-                                </div>
+                                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="w-full mt-10 py-4 px-6 border-2 border-gray-100 dark:border-white/10 text-[#1e293b] dark:text-white rounded-[1.5rem] font-black text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95"
+                                    className="absolute bottom-0 right-0 bg-[#E67E22] hover:bg-[#cf6d18] text-white p-2 rounded-full shadow-lg active:scale-95 transition-all border-2 border-white dark:border-[#222]"
                                 >
-                                    Changer la photo
+                                    <Camera className="size-3.5" />
                                 </button>
-
-                                <input
-                                    type="file"
-                                    ref={coverInputRef}
-                                    onChange={handleCoverChange}
-                                    className="hidden"
-                                    accept="image/*"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => coverInputRef.current?.click()}
-                                    className="w-full mt-4 py-4 px-6 bg-gradient-to-r from-orange-50 to-green-50 dark:from-orange-500/10 dark:to-green-500/10 border-2 border-orange-100 dark:border-white/10 text-[#E67E22] dark:text-white rounded-[1.5rem] font-black text-sm hover:opacity-80 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                >
-                                    <Camera className="size-4" />
-                                    Changer la couverture
-                                </button>
-                                {coverPreviewUrl && (
-                                    <div className="w-full h-20 mt-4 rounded-xl overflow-hidden opacity-50">
-                                        <img src={coverPreviewUrl} alt="Cover preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
                             </div>
 
-                            {/* Trust Badge Card */}
-                            <div className="bg-[#eef2ff] p-6 rounded-[2rem] flex items-center gap-5 border border-blue-50">
-                                <div className="size-14 rounded-2xl bg-[#4f46e5] flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                                    <ShieldCheck className="size-7" />
+                            {/* Name + role badge */}
+                            <div className="text-center">
+                                <p className="text-sm font-black text-gray-900 dark:text-white truncate max-w-[160px]">
+                                    {formData.fullName || 'Utilisateur'}
+                                </p>
+                                <span className={`inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${user?.role === 'VENDOR' ? 'bg-orange-50 text-[#E67E22]' : 'bg-green-50 text-[#2D5A27]'}`}>
+                                    <BadgeCheck className="size-2.5" />
+                                    {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                                </span>
+                            </div>
+
+                            {/* Photo actions */}
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-full py-2.5 px-3 border-2 border-dashed border-[#E67E22]/30 hover:border-[#E67E22] hover:bg-orange-50 text-[#E67E22] rounded-xl font-bold text-xs transition-all active:scale-95"
+                            >
+                                Changer la photo
+                            </button>
+
+                            <input type="file" ref={coverInputRef} onChange={handleCoverChange} className="hidden" accept="image/*" />
+                            <button
+                                type="button"
+                                onClick={() => coverInputRef.current?.click()}
+                                className="w-full py-2.5 px-3 bg-[#2D5A27]/5 hover:bg-[#2D5A27]/10 border border-[#2D5A27]/20 hover:border-[#2D5A27]/40 text-[#2D5A27] dark:text-green-400 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                            >
+                                <Camera className="size-3.5" />
+                                Photo de couverture
+                            </button>
+
+                            {coverPreviewUrl && (
+                                <div className="w-full h-16 rounded-xl overflow-hidden border border-gray-100 opacity-80">
+                                    <img src={coverPreviewUrl} alt="Couverture" className="w-full h-full object-cover" />
                                 </div>
-                                <div>
-                                    <p className="font-black text-[#4f46e5] text-xs uppercase tracking-[0.15em]">Statut du compte</p>
-                                    <p className="text-[11px] font-bold text-[#64748b] mt-0.5">
-                                        {user?.isVerified ? '✓ Compte Vérifié' : 'Compte en attente'}
-                                    </p>
+                            )}
+
+                            {/* Statut */}
+                            <div className="w-full mt-auto pt-2 lg:pt-0">
+                                <div className="bg-white dark:bg-white/5 rounded-2xl p-3.5 border border-gray-100 dark:border-white/5 flex items-center gap-3">
+                                    <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${user?.isVerified ? 'bg-green-50' : 'bg-orange-50'}`}>
+                                        <ShieldCheck className={`size-4 ${user?.isVerified ? 'text-[#2D5A27]' : 'text-[#E67E22]'}`} />
+                                    </div>
+                                    <div>
+                                        <p className={`font-black text-[10px] uppercase tracking-[0.12em] ${user?.isVerified ? 'text-[#2D5A27]' : 'text-[#E67E22]'}`}>
+                                            Statut du compte
+                                        </p>
+                                        <p className="text-[10px] font-semibold text-gray-400 mt-0.5">
+                                            {user?.isVerified ? '✓ Compte Vérifié' : 'En attente de vérification'}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </aside>
 
-                        {/* Main Form Content */}
-                        <div className="w-full lg:w-2/3 space-y-10">
+                        {/* ── Right panel: Form fields ── */}
+                        <div className="flex-1 px-5 sm:px-8 py-6 lg:py-8 space-y-5">
 
-                            {/* Informations Personnelles */}
-                            <section className="space-y-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-8 rounded-lg bg-[#f0fdf4] flex items-center justify-center">
-                                        <CheckCircle2 className="size-4 text-[#16a34a]" />
+                            {/* Section title */}
+                            <div className="flex items-center gap-2.5">
+                                <div className="size-7 rounded-lg bg-green-50 flex items-center justify-center">
+                                    <CheckCircle2 className="size-3.5 text-[#2D5A27]" />
+                                </div>
+                                <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
+                                    Informations Personnelles
+                                </h3>
+                            </div>
+
+                            {/* Fields grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                                {/* Nom Complet */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Nom Complet</label>
+                                    <div className="relative">
+                                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
+                                        <input
+                                            name="fullName"
+                                            value={formData.fullName}
+                                            onChange={handleChange}
+                                            placeholder="Votre nom complet"
+                                            type="text"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
+                                        />
                                     </div>
-                                    <h2 className="text-lg font-black text-[#1e293b] dark:text-white uppercase tracking-wider">Informations Personnelles</h2>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Nom Complet</label>
+                                {/* Email */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Adresse e-mail</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
+                                        <input
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            placeholder="email@exemple.com"
+                                            type="email"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Téléphone */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Numéro de téléphone</label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
+                                        <input
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            placeholder="+243 xxx xxx xxx"
+                                            type="tel"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/30 focus:border-[#2D5A27]/50 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Province */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Province</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
+                                        <input
+                                            name="province"
+                                            value={formData.province}
+                                            onChange={handleChange}
+                                            placeholder="Ex: Nord-Kivu"
+                                            type="text"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/30 focus:border-[#2D5A27]/50 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Commune */}
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Ville / Commune</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
+                                        <input
+                                            name="commune"
+                                            value={formData.commune}
+                                            onChange={handleChange}
+                                            placeholder="Ex: Goma"
+                                            type="text"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#2D5A27]/30 focus:border-[#2D5A27]/50 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Boutique — Vendeur uniquement, pleine largeur */}
+                                {user?.role === 'VENDOR' && (
+                                    <div className="space-y-1.5 sm:col-span-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Nom de la Boutique</label>
                                         <div className="relative">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
+                                            <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
                                             <input
-                                                name="fullName"
-                                                value={formData.fullName}
+                                                name="boutiqueName"
+                                                value={formData.boutiqueName}
                                                 onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
+                                                placeholder="Nom de votre boutique"
                                                 type="text"
+                                                className="w-full bg-orange-50/50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/20 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
                                             />
                                         </div>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">E-mail Professionnel</label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                            <input
-                                                name="email"
-                                                value={formData.email}
-                                                onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                type="email"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Numéro de téléphone</label>
-                                        <div className="relative">
-                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                            <input
-                                                name="phone"
-                                                value={formData.phone}
-                                                onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                type="tel"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Province</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                            <input
-                                                name="province"
-                                                value={formData.province}
-                                                onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                type="text"
-                                                placeholder="Ex: Nord-Kivu"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Ville / Commune</label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                            <input
-                                                name="commune"
-                                                value={formData.commune}
-                                                onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                type="text"
-                                                placeholder="Ex: Goma"
-                                            />
-                                        </div>
-                                    </div>
-                                    {user?.role === 'VENDOR' && (
-                                        <div className="space-y-2 md:col-span-2">
-                                            <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Nom de la Boutique</label>
-                                            <div className="relative">
-                                                <Store className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                                <input
-                                                    name="boutiqueName"
-                                                    value={formData.boutiqueName}
-                                                    onChange={handleChange}
-                                                    className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#ea580c]/20 text-[#1e293b] dark:text-white font-black text-sm transition-all"
-                                                    type="text"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-
-                            {/* Sécurité */}
-                            <section className="space-y-8 pt-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-8 rounded-lg bg-[#fff7ed] flex items-center justify-center">
-                                        <ShieldCheck className="size-4 text-[#ea580c]" />
-                                    </div>
-                                    <h2 className="text-lg font-black text-[#1e293b] dark:text-white uppercase tracking-wider">Sécurité</h2>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Ancien Mot de Passe</label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                                <input
-                                                    name="oldPassword"
-                                                    value={formData.oldPassword}
-                                                    onChange={handleChange}
-                                                    className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                    placeholder="••••••••"
-                                                    type="password"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Nouveau</label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                                <input
-                                                    name="password"
-                                                    value={formData.password}
-                                                    onChange={handleChange}
-                                                    className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                    placeholder="••••••••"
-                                                    type="password"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Confirmer</label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-[#94a3b8]" />
-                                                <input
-                                                    name="confirmPassword"
-                                                    value={formData.confirmPassword}
-                                                    onChange={handleChange}
-                                                    className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-[1.2rem] pl-12 pr-4 py-4 focus:ring-2 focus:ring-[#002db3]/20 text-[#1e293b] dark:text-white font-bold text-sm transition-all"
-                                                    placeholder="••••••••"
-                                                    type="password"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-8 border-t border-gray-50 dark:border-white/5">
-                                        <div className="max-w-xs space-y-3">
-                                            <label className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.15em] ml-1">Code PIN de transaction (4 chiffres)</label>
-                                            <input
-                                                name="transactionPin"
-                                                value={formData.transactionPin}
-                                                onChange={handleChange}
-                                                className="w-full bg-[#f8fafc] dark:bg-white/5 border-none rounded-2xl px-6 py-5 focus:ring-2 focus:ring-[#002db3]/20 text-center text-2xl font-black tracking-[1.5em] text-[#002db3]"
-                                                maxLength={4}
-                                                placeholder="****"
-                                                type="password"
-                                            />
-                                            <p className="text-[10px] font-bold text-gray-400 italic text-center">Requis pour valider vos achats et ventes</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="p-8 mt-8 bg-[#f8fafc] dark:bg-white/2 border-t border-gray-50 dark:border-white/5 flex flex-col sm:flex-row justify-end gap-5 -mx-8 -mb-8 lg:-mx-12 lg:-mb-12">
+                    {/* ── Footer Actions ── */}
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 px-5 sm:px-8 py-4 sm:py-5 border-t border-gray-100 dark:border-white/5 bg-gray-50/80 dark:bg-white/2 shrink-0">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={loading}
-                            className="px-10 py-4 bg-white dark:bg-white/5 border-2 border-gray-100 dark:border-white/10 text-[#64748b] dark:text-gray-300 rounded-[1.5rem] font-black text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all active:scale-95 disabled:opacity-50"
+                            className="sm:w-auto px-6 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-gray-100 dark:hover:bg-white/10 transition-all active:scale-95 disabled:opacity-50"
                         >
                             Annuler
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="px-12 py-4 bg-[#002db3] text-white rounded-[1.5rem] font-black text-sm shadow-2xl shadow-blue-500/30 hover:brightness-110 active:scale-95 transition-all tracking-wide flex items-center justify-center gap-2 min-w-[200px] disabled:opacity-80"
+                            className="sm:w-auto px-8 py-3 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-xl font-black text-sm shadow-lg shadow-orange-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 min-w-[180px]"
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="size-5 animate-spin" />
-                                    Enregistrement en cours...
+                                    <Loader2 className="size-4 animate-spin" />
+                                    Enregistrement...
                                 </>
                             ) : (
-                                'Enregistrer les modifications'
+                                <>
+                                    <CheckCircle2 className="size-4" />
+                                    Enregistrer
+                                </>
                             )}
                         </button>
                     </div>

@@ -645,18 +645,31 @@ function SettingsPageContent() {
                     )}
 
                     {activeTab === 'orders' && (
-                      <motion.div variants={fadeUp} className="bg-white p-4 min-h-[80vh] sm:min-h-0">
+                      <motion.div variants={fadeUp} className="bg-white p-4 sm:p-6">
                         {user?.role === 'VENDOR' ? (
                           <div className="text-center py-12">
-                            <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
+                            <h3 className="text-xl font-black text-black mb-4">Accès non autorisé</h3>
                             <p className="text-sm font-medium text-gray-500 mb-6">L'historique des achats est réservé aux comptes clients. Veuillez vous rendre sur votre Tableau de Bord Vendeur pour voir vos ventes.</p>
                             <Link href="/dashboard/orders" className="px-6 py-3 bg-[#E67E22] text-white rounded-xl font-bold hover:bg-[#cf6d18] transition-colors inline-block">Aller au Tableau de Bord</Link>
                           </div>
                         ) : (
                           <>
-                            <div className="mb-6">
-                              <h3 className="text-xl md:text-xl font-black text-black tracking-tight leading-none">Mes Commandes</h3>
-                              <p className="text-xs md:text-xs font-semibold text-gray-400 mt-2">Suivez vos achats et contactez les vendeurs</p>
+                            {/* Header + stats */}
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
+                              <div>
+                                <h3 className="text-xl font-black text-black tracking-tight leading-none">Mes Commandes</h3>
+                                <p className="text-xs font-semibold text-gray-400 mt-1">Suivez vos achats et contactez les vendeurs</p>
+                              </div>
+                              {clientOrders.length > 0 && (
+                                <div className="flex items-center gap-3">
+                                  <span className="px-3 py-1.5 bg-orange-50 text-[#E67E22] rounded-full text-xs font-black">
+                                    {clientOrders.length} commande{clientOrders.length > 1 ? 's' : ''}
+                                  </span>
+                                  <span className="px-3 py-1.5 bg-green-50 text-[#2D5A27] rounded-full text-xs font-black">
+                                    {clientOrders.filter(o => o.status === 'DELIVERED').length} livré{clientOrders.filter(o => o.status === 'DELIVERED').length > 1 ? 's' : ''}
+                                  </span>
+                                </div>
+                              )}
                             </div>
 
                             {isLoadingOrders ? (
@@ -670,33 +683,62 @@ function SettingsPageContent() {
                                 </Link>
                               </div>
                             ) : (
-                              <div className="space-y-4">
+                              <div className="divide-y divide-gray-100">
                                 {clientOrders.map((order) => (
-                                  <div key={order.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl border border-gray-100 hover:border-orange-200 transition-all bg-gray-50/30">
-                                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white shrink-0">
-                                      <Image src={order.product?.image || ""} alt={order.product?.name || ""} width={80} height={80} className="object-cover h-full w-full" />
+                                  <div
+                                    key={order.id}
+                                    className="flex items-center gap-3 sm:gap-5 py-4 first:pt-0 last:pb-0 hover:bg-orange-50/30 -mx-2 px-2 sm:-mx-4 sm:px-4 rounded-xl transition-colors"
+                                  >
+                                    {/* Image — toujours à gauche */}
+                                    <div className="size-14 sm:size-16 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-100">
+                                      <Image
+                                        src={order.product?.image || ""}
+                                        alt={order.product?.name || ""}
+                                        width={64}
+                                        height={64}
+                                        className="object-cover h-full w-full"
+                                      />
                                     </div>
-                                    <div className="flex-1 text-center sm:text-left">
-                                      <h4 className="font-black text-black text-lg leading-tight mb-1">{order.product?.name}</h4>
-                                      <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2">
-                                        <span className="px-3 py-1 bg-white rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-100">
-                                          ID: {order.id.substring(0, 8)}
+
+                                    {/* Info produit — au centre, flex-1 */}
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-black text-gray-900 text-sm sm:text-base leading-tight truncate">
+                                        {order.product?.name}
+                                      </h4>
+                                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                                        <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                          ID: {order.id.substring(0, 8).toUpperCase()}
                                         </span>
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
-                                          order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                            'bg-orange-100 text-orange-700'
-                                          }`}>
-                                          {order.status}
+                                        <span className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${
+                                          order.status === 'DELIVERED'
+                                            ? 'bg-green-50 text-[#2D5A27]'
+                                            : order.status === 'CANCELLED'
+                                            ? 'bg-red-50 text-red-600'
+                                            : 'bg-orange-50 text-[#E67E22]'
+                                        }`}>
+                                          {order.status === 'DELIVERED' ? 'Livré'
+                                            : order.status === 'CANCELLED' ? 'Annulé'
+                                            : order.status === 'PENDING' ? 'En attente'
+                                            : order.status}
                                         </span>
                                       </div>
                                     </div>
+
+                                    {/* Prix + date — toujours à droite */}
                                     <div className="text-right shrink-0">
-                                      <p className="text-xl font-black text-[#E67E22]">{formatPrice(order.totalPrice)}</p>
-                                      <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                      <p className="text-sm sm:text-base font-black text-[#E67E22]">
+                                        {formatPrice(order.totalPrice)}
+                                      </p>
+                                      <p className="text-[9px] sm:text-[10px] font-semibold text-gray-400 mt-0.5">
+                                        {new Date(order.createdAt).toLocaleDateString('fr-FR', {
+                                          day: '2-digit', month: 'short', year: 'numeric'
+                                        })}
+                                      </p>
                                     </div>
                                   </div>
                                 ))}
                               </div>
+
                             )}
                           </>
                         )}
@@ -704,21 +746,28 @@ function SettingsPageContent() {
                     )}
 
                     {activeTab === 'favorites' && (
-                      <div className="space-y-8">
-                        <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-6">
+                      <div className="space-y-4">
+                        <div className="bg-white p-4 sm:p-6 border border-slate-100 shadow-sm space-y-5">
                           {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
+                              <h3 className="text-xl font-black text-black mb-4">Accès non autorisé</h3>
                               <p className="text-sm font-medium text-gray-500 mb-6">Les favoris sont réservés aux comptes clients.</p>
                             </div>
                           ) : (
                             <>
-                              <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-bold text-black">Mes Favoris</h2>
+                              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                                <div>
+                                  <h2 className="text-xl font-black text-black">Mes Favoris</h2>
+                                  {wishlist.length > 0 && (
+                                    <p className="text-xs font-semibold text-gray-400 mt-0.5">
+                                      {wishlist.length} article{wishlist.length > 1 ? 's' : ''} sauvegardé{wishlist.length > 1 ? 's' : ''}
+                                    </p>
+                                  )}
+                                </div>
                                 {wishlist.length > 0 && (
                                   <button
                                     onClick={() => setIsClearFavoritesModalOpen(true)}
-                                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                                    className="text-xs font-bold text-red-500 hover:text-red-600 border border-red-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all"
                                   >
                                     Vider la liste
                                   </button>
@@ -734,7 +783,7 @@ function SettingsPageContent() {
                                   </Link>
                                 </div>
                               ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                                   {wishlist.map((product) => (
                                     <ProductCard
                                       key={product.id}
