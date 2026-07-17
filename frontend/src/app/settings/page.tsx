@@ -1026,51 +1026,133 @@ function SettingsPageContent() {
         </div>
       </div>
 
-      {/* ===== DESKTOP : Affiche le profil par défaut (VendorSidebar gère la nav) ===== */}
+      {/* ===== DESKTOP : Affiche le profil complet par défaut ===== */}
       <div className="hidden lg:block px-8 py-8">
         <EditProfileModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
         />
-        <div className="max-w-3xl">
-          <h1 className="text-2xl font-bold text-black mb-6">Mon Profil</h1>
-          {/* Profile card */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-6 shadow-sm">
-            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600 overflow-hidden shrink-0">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
-              ) : (
-                <span>{getInitials(user?.fullName || '')}</span>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-black text-black">{user?.fullName || 'Utilisateur'}</h2>
-              <p className="text-sm text-gray-500">{user?.email}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${user?.role === 'VENDOR' ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                  {user?.role === 'VENDOR' ? 'Vendeur' : 'Client'}
-                </span>
+        <div className="max-w-3xl space-y-8">
+          <div className="bg-white overflow-hidden">
+            {/* Header avatar + bouton */}
+            <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 pt-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
+                <div className="relative group shrink-0">
+                  <div className="w-24 sm:w-28 rounded-full overflow-hidden bg-gradient-to-br from-[#E67E22] to-[#2D5A27] flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg relative">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl font-black tracking-tight">{getInitials(user?.fullName || '')}</span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="absolute bottom-0 right-0 p-2 bg-[#E67E22] text-white rounded-full border-2 border-white shadow-md hover:scale-105 transition-transform active:scale-95 z-20"
+                  >
+                    <Edit3 size={11} />
+                  </button>
+                </div>
+                <div className="sm:pb-1">
+                  <h2 className="text-lg sm:text-xl font-bold text-black flex items-center justify-center sm:justify-start gap-2">
+                    {user?.fullName || 'Utilisateur'}
+                    {user?.isVerified && (
+                      <span className="text-[#2D5A27] bg-green-50 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                        Actif
+                      </span>
+                    )}
+                  </h2>
+                  <p className="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
+                    {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                  </p>
+                </div>
+              </div>
+              <div className="sm:pb-1 z-10">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-full text-xs font-semibold transition-all shadow-sm shadow-orange-500/10 active:scale-95 shrink-0"
+                >
+                  <Edit3 size={14} />
+                  Modifier le Profil
+                </button>
               </div>
             </div>
-            <button
-              onClick={() => setIsEditModalOpen(true)}
-              className="shrink-0 px-4 py-2 bg-black text-white text-sm font-semibold rounded-full hover:bg-gray-800 transition-colors"
-            >
-              Modifier le profil
-            </button>
-          </div>
-          {/* Quick links */}
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            {menuItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-[#E67E22]/40 hover:bg-orange-50/30 transition-all group"
-              >
-                <span className="font-medium text-black group-hover:text-[#E67E22] transition-colors">{item.label}</span>
-                <ChevronRight size={16} className="text-gray-400 group-hover:text-[#E67E22]" />
-              </Link>
-            ))}
+
+            {/* Champs d'information */}
+            <div className="px-6 pb-8 space-y-6 pt-6">
+              <div>
+                <h2 className="text-lg font-bold text-black">Informations du compte</h2>
+                <p className="text-xs text-gray-500 font-semibold mt-1">Mettez à jour les détails de votre profil d'utilisateur ici.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Prénom</label>
+                  <input type="text" readOnly value={user?.fullName?.split(' ')[0] || ''}
+                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Nom de famille</label>
+                  <input type="text" readOnly value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
+                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Adresse e-mail</label>
+                  <div className="relative">
+                    <input type="email" readOnly value={user?.email || ''}
+                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
+                      <CheckCircle2 size={10} />
+                      Vérifié
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Numéro de téléphone</label>
+                  <div className="relative">
+                    <input type="text" readOnly value={user?.phone || 'Non renseigné'}
+                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    {user?.phoneVerified && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
+                        <CheckCircle2 size={10} />
+                        Actif
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Province</label>
+                  <input type="text" readOnly value={user?.province || 'Non définie'}
+                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-500">Ville / Commune</label>
+                  <input type="text" readOnly value={user?.commune || 'Non définie'}
+                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                </div>
+
+                {user?.role === 'VENDOR' && (
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-xs font-semibold text-gray-500">Nom de la Boutique</label>
+                    <input type="text" readOnly value={user?.boutiqueName || 'Aucune boutique associée'}
+                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                  </div>
+                )}
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-semibold text-gray-500">Membre depuis</label>
+                  <input type="text" readOnly
+                    value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Récemment'}
+                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
