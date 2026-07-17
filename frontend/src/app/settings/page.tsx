@@ -170,15 +170,20 @@ function SettingsPageContent() {
     }
   };
 
-  // Define menu items
+  // Define menu items based on user role
   const menuItems = [
-    { label: "Contact information", href: "/settings?tab=profile" },
-    { label: "Abonnements", href: "#" },
-    { label: "Historique des commandes", href: "/settings?tab=orders" },
-    { label: "Méthode de paiement", href: "#" },
+    { label: "Mon Profil", href: "/settings?tab=profile" },
+    ...(user?.role === 'VENDOR' ? [
+      { label: "Tableau de bord Vendeur", href: "/dashboard" },
+    ] : [
+      { label: "Mes Commandes", href: "/settings?tab=orders" },
+      { label: "Mes Favoris", href: "/settings?tab=favorites" },
+    ]),
+    { label: "Notifications", href: "/settings?tab=notifications" },
+    { label: "Sécurité", href: "/settings?tab=security" },
+    { label: "Carnet d'adresses", href: "/settings?tab=addresses" },
+    { label: "Préférences", href: "/settings?tab=preferences" },
     { label: "Centre d'aide", href: "#" },
-    { label: "Confidentialité", href: "#" },
-    { label: "Signaler un bug", href: "#" },
   ];
 
   // If there is an active tab, render that tab's content
@@ -247,8 +252,10 @@ function SettingsPageContent() {
                             {[
                               {
                                 id: 'orders',
-                                title: 'Commandes & Ventes',
-                                desc: 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
+                                title: user?.role === 'VENDOR' ? 'Ventes & Boutique' : 'Mes Commandes',
+                                desc: user?.role === 'VENDOR'
+                                  ? 'Alertes sur les nouvelles commandes reçues, statuts de paiement et demandes de retraits.'
+                                  : 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
                                 channels: [
                                   { label: 'Push', key: 'ordersPush' as keyof NotificationPreferences },
                                   { label: 'Email', key: 'ordersEmail' as keyof NotificationPreferences },
@@ -256,27 +263,29 @@ function SettingsPageContent() {
                                   { label: 'SMS', key: 'ordersSms' as keyof NotificationPreferences },
                                 ]
                               },
-                              {
-                                id: 'follows',
-                                title: 'Vendeurs Favoris',
-                                desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
-                                channels: [
-                                  { label: 'Push', key: 'followsPush' as keyof NotificationPreferences },
-                                  { label: 'Email', key: 'followsEmail' as keyof NotificationPreferences },
-                                  { label: 'In-App', key: 'followsInApp' as keyof NotificationPreferences },
-                                  { label: 'SMS', key: 'followsSms' as keyof NotificationPreferences },
-                                ]
-                              },
-                              {
-                                id: 'promos',
-                                title: 'Offres & Promotions',
-                                desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
-                                channels: [
-                                  { label: 'Push', key: 'promosPush' as keyof NotificationPreferences },
-                                  { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
-                                  { label: 'SMS', key: 'promosSms' as keyof NotificationPreferences },
-                                ]
-                              },
+                              ...(user?.role !== 'VENDOR' ? [
+                                {
+                                  id: 'follows',
+                                  title: 'Vendeurs Favoris',
+                                  desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
+                                  channels: [
+                                    { label: 'Push', key: 'followsPush' as keyof NotificationPreferences },
+                                    { label: 'Email', key: 'followsEmail' as keyof NotificationPreferences },
+                                    { label: 'In-App', key: 'followsInApp' as keyof NotificationPreferences },
+                                    { label: 'SMS', key: 'followsSms' as keyof NotificationPreferences },
+                                  ]
+                                },
+                                {
+                                  id: 'promos',
+                                  title: 'Offres & Promotions',
+                                  desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
+                                  channels: [
+                                    { label: 'Push', key: 'promosPush' as keyof NotificationPreferences },
+                                    { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
+                                    { label: 'SMS', key: 'promosSms' as keyof NotificationPreferences },
+                                  ]
+                                }
+                              ] : []),
                               {
                                 id: 'security',
                                 title: 'Sécurité & Compte',
@@ -637,49 +646,59 @@ function SettingsPageContent() {
 
                     {activeTab === 'orders' && (
                       <motion.div variants={fadeUp} className="bg-white p-4 min-h-[80vh] sm:min-h-0">
-                        <div className="mb-6">
-                          <h3 className="text-xl md:text-xl font-black text-black tracking-tight leading-none">Mes Commandes</h3>
-                          <p className="text-xs md:text-xs font-semibold text-gray-400 mt-2">Suivez vos achats et contactez les vendeurs</p>
-                        </div>
-
-                        {isLoadingOrders ? (
-                          <TableSkeleton rows={5} cols={4} />
-                        ) : clientOrders.length === 0 ? (
+                        {user?.role === 'VENDOR' ? (
                           <div className="text-center py-12">
-                            <Package className="size-16 text-gray-200 mx-auto mb-4" />
-                            <p className="text-lg font-black text-black">Aucune commande pour le moment</p>
-                            <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
-                              Découvrir les produits
-                            </Link>
+                            <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
+                            <p className="text-sm font-medium text-gray-500 mb-6">L'historique des achats est réservé aux comptes clients. Veuillez vous rendre sur votre Tableau de Bord Vendeur pour voir vos ventes.</p>
+                            <Link href="/dashboard/orders" className="px-6 py-3 bg-[#E67E22] text-white rounded-xl font-bold hover:bg-[#cf6d18] transition-colors inline-block">Aller au Tableau de Bord</Link>
                           </div>
                         ) : (
-                          <div className="space-y-4">
-                            {clientOrders.map((order) => (
-                              <div key={order.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl border border-gray-100 hover:border-orange-200 transition-all bg-gray-50/30">
-                                <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white shrink-0">
-                                  <Image src={order.product?.image || ""} alt={order.product?.name || ""} width={80} height={80} className="object-cover h-full w-full" />
-                                </div>
-                                <div className="flex-1 text-center sm:text-left">
-                                  <h4 className="font-black text-black text-lg leading-tight mb-1">{order.product?.name}</h4>
-                                  <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2">
-                                    <span className="px-3 py-1 bg-white rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-100">
-                                      ID: {order.id.substring(0, 8)}
-                                    </span>
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
-                                      order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                                        'bg-orange-100 text-orange-700'
-                                      }`}>
-                                      {order.status}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="text-right shrink-0">
-                                  <p className="text-xl font-black text-[#E67E22]">{formatPrice(order.totalPrice)}</p>
-                                  <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
-                                </div>
+                          <>
+                            <div className="mb-6">
+                              <h3 className="text-xl md:text-xl font-black text-black tracking-tight leading-none">Mes Commandes</h3>
+                              <p className="text-xs md:text-xs font-semibold text-gray-400 mt-2">Suivez vos achats et contactez les vendeurs</p>
+                            </div>
+
+                            {isLoadingOrders ? (
+                              <TableSkeleton rows={5} cols={4} />
+                            ) : clientOrders.length === 0 ? (
+                              <div className="text-center py-12">
+                                <Package className="size-16 text-gray-200 mx-auto mb-4" />
+                                <p className="text-lg font-black text-black">Aucune commande pour le moment</p>
+                                <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
+                                  Découvrir les produits
+                                </Link>
                               </div>
-                            ))}
-                          </div>
+                            ) : (
+                              <div className="space-y-4">
+                                {clientOrders.map((order) => (
+                                  <div key={order.id} className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl border border-gray-100 hover:border-orange-200 transition-all bg-gray-50/30">
+                                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white shrink-0">
+                                      <Image src={order.product?.image || ""} alt={order.product?.name || ""} width={80} height={80} className="object-cover h-full w-full" />
+                                    </div>
+                                    <div className="flex-1 text-center sm:text-left">
+                                      <h4 className="font-black text-black text-lg leading-tight mb-1">{order.product?.name}</h4>
+                                      <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-2">
+                                        <span className="px-3 py-1 bg-white rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest border border-gray-100">
+                                          ID: {order.id.substring(0, 8)}
+                                        </span>
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' :
+                                          order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                                            'bg-orange-100 text-orange-700'
+                                          }`}>
+                                          {order.status}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                      <p className="text-xl font-black text-[#E67E22]">{formatPrice(order.totalPrice)}</p>
+                                      <p className="text-[10px] font-bold text-gray-400 uppercase mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
                         )}
                       </motion.div>
                     )}
@@ -687,39 +706,48 @@ function SettingsPageContent() {
                     {activeTab === 'favorites' && (
                       <div className="space-y-8">
                         <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-6">
-                          <div className="flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-black">Mes Favoris</h2>
-                            {wishlist.length > 0 && (
-                              <button
-                                onClick={() => setIsClearFavoritesModalOpen(true)}
-                                className="text-xs font-semibold text-red-600 hover:text-red-700"
-                              >
-                                Vider la liste
-                              </button>
-                            )}
-                          </div>
-
-                          {wishlist.length === 0 ? (
+                          {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <Heart className="size-16 text-gray-200 mx-auto mb-4" />
-                              <p className="text-lg font-black text-black">Aucun favori pour le moment</p>
-                              <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
-                                Découvrir les produits
-                              </Link>
+                              <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
+                              <p className="text-sm font-medium text-gray-500 mb-6">Les favoris sont réservés aux comptes clients.</p>
                             </div>
                           ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                              {wishlist.map((product) => (
-                                <ProductCard
-                                  key={product.id}
-                                  product={product}
-                                  onQuickView={() => {
-                                    setSelectedProduct(product);
-                                    setIsQuickViewOpen(true);
-                                  }}
-                                />
-                              ))}
-                            </div>
+                            <>
+                              <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold text-black">Mes Favoris</h2>
+                                {wishlist.length > 0 && (
+                                  <button
+                                    onClick={() => setIsClearFavoritesModalOpen(true)}
+                                    className="text-xs font-semibold text-red-600 hover:text-red-700"
+                                  >
+                                    Vider la liste
+                                  </button>
+                                )}
+                              </div>
+
+                              {wishlist.length === 0 ? (
+                                <div className="text-center py-12">
+                                  <Heart className="size-16 text-gray-200 mx-auto mb-4" />
+                                  <p className="text-lg font-black text-black">Aucun favori pour le moment</p>
+                                  <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
+                                    Découvrir les produits
+                                  </Link>
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                  {wishlist.map((product) => (
+                                    <ProductCard
+                                      key={product.id}
+                                      product={product}
+                                      onQuickView={() => {
+                                        setSelectedProduct(product);
+                                        setIsQuickViewOpen(true);
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
@@ -848,6 +876,21 @@ function SettingsPageContent() {
                         </div>
                       </div>
                     )}
+
+                    {activeTab === 'addresses' && (
+                      <div className="space-y-8 animate-fade-in">
+                        <div className="bg-white p-6 border border-slate-100 shadow-sm rounded-2xl">
+                          {user?.role === 'VENDOR' ? (
+                            <div className="text-center py-12">
+                              <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
+                              <p className="text-sm font-medium text-gray-500">Le carnet d'adresses de livraison est réservé aux comptes clients. Les adresses de boutique sont gérées dans votre profil vendeur (Dashboard).</p>
+                            </div>
+                          ) : (
+                            <AddressBookSection />
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -877,8 +920,8 @@ function SettingsPageContent() {
           </div>
 
           {/* User Info */}
-          <div className="px-6 pb-8 flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600 overflow-hidden">
+          <div className="px-6 pb-8 flex flex-col items-center justify-center text-center gap-4">
+            <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-600 overflow-hidden ring-4 ring-gray-50">
               {user?.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
@@ -889,9 +932,13 @@ function SettingsPageContent() {
                 <span>{getInitials(user?.fullName || '')}</span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-black truncate">{user?.fullName || 'Utilisateur'}</h2>
-              <p className="text-sm text-gray-500 truncate">{user?.email || 'email@example.com'}</p>
+            <div className="flex-1 min-w-0 w-full px-4">
+              <h2 className="font-bold text-black text-xl truncate">{user?.fullName || 'Utilisateur'}</h2>
+              <p className="text-sm text-gray-500 truncate mt-0.5">{user?.email || 'email@example.com'}</p>
+              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
+                <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
+                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{user?.role === 'VENDOR' ? 'Vendeur Actif' : 'Client Vérifié'}</span>
+              </div>
             </div>
           </div>
 

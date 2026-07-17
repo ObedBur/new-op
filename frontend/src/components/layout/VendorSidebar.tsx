@@ -34,7 +34,9 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
         ]),
         { id: 'notifications', label: 'Notifications', href: '/settings?tab=notifications', icon: Bell },
         { id: 'security', label: 'Sécurité', href: '/settings?tab=security', icon: ShieldCheck },
-        { id: 'addresses', label: 'Carnet d\'adresses', href: '/settings?tab=addresses', icon: MapPin },
+        ...(user?.role !== 'VENDOR' ? [
+            { id: 'addresses', label: 'Carnet d\'adresses', href: '/settings?tab=addresses', icon: MapPin },
+        ] : []),
         { id: 'preferences', label: 'Préférences', href: '/settings?tab=preferences', icon: SettingsIcon },
     ];
 
