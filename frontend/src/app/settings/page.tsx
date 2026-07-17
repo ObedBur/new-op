@@ -41,7 +41,6 @@ import { DeleteConfirmationModal } from "@/app/dashboard/products/components/Del
 import { useAuth } from "@/context/AuthContext";
 import { Language, Theme, Currency, useSettings } from "@/context/SettingsContext";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAppNotifications } from "@/hooks/useAppNotifications";
 import { getNotificationPreferences, saveNotificationPreferences, NotificationPreferences } from "@/features/notifications/services/preferences.service";
 import { resolveNotificationUrl } from "@/types/notification";
@@ -183,20 +182,22 @@ function SettingsPageContent() {
   ];
 
   // If there is an active tab, render that tab's content
+  // This unified view works on both mobile (full screen) and desktop (content area beside VendorSidebar)
   if (activeTab) {
     return (
-      <div className="min-h-screen bg-[#F6F1E0]">
-        <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl">
+      <div className="min-h-screen bg-[#F6F1E0] lg:bg-transparent">
+        <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-2">
           {/* Modale d'édition */}
           <EditProfileModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
           />
-          <header className="px-6 pt-12 pb-6">
+          {/* Header — back button only on mobile (desktop has VendorSidebar for nav) */}
+          <header className="px-6 pt-12 pb-6 lg:pt-8 lg:pb-4">
             <div className="flex items-center">
               <button
                 onClick={() => router.back()}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors mr-4"
+                className="lg:hidden p-2 rounded-full hover:bg-gray-100 transition-colors mr-4"
               >
                 <ChevronLeft size={24} />
               </button>
@@ -215,7 +216,6 @@ function SettingsPageContent() {
           <main className="flex-grow px-6 pb-20">
             <div className="w-full">
               <div className="space-y-6">
-
                 <DeleteConfirmationModal
                   isOpen={isClearFavoritesModalOpen}
                   onClose={() => setIsClearFavoritesModalOpen(false)}
@@ -223,6 +223,7 @@ function SettingsPageContent() {
                   itemName="tous vos favoris"
                   isDeleting={isClearingFavorites}
                 />
+
 
                 {/* --- DYNAMIC SECTION --- */}
                 <AnimatePresence mode="wait">
@@ -857,80 +858,126 @@ function SettingsPageContent() {
     );
   }
 
-  // Otherwise, render the main menu
+  // Otherwise, render the main menu (mobile/tablet only — desktop uses VendorSidebar navigation)
   return (
-    <div className="min-h-screen bg-[#F6F1E0]">
-      {/* Container */}
-      <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl">
-        {/* Modale d'édition */}
+    <>
+      {/* ===== MOBILE / TABLET : App Shell account ===== */}
+      <div className="lg:hidden min-h-screen bg-[#F6F1E0]">
+        {/* Container */}
+        <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl">
+          {/* Modale d'édition */}
+          <EditProfileModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+          />
+
+          {/* Header */}
+          <div className="px-6 pt-12 pb-8">
+            <h1 className="text-3xl font-bold text-black">Account</h1>
+          </div>
+
+          {/* User Info */}
+          <div className="px-6 pb-8 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600 overflow-hidden">
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>{getInitials(user?.fullName || '')}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-bold text-black truncate">{user?.fullName || 'Utilisateur'}</h2>
+              <p className="text-sm text-gray-500 truncate">{user?.email || 'email@example.com'}</p>
+            </div>
+          </div>
+
+          {/* Menu Items */}
+          <div className="border-t border-gray-200">
+            {menuItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center justify-between px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+              >
+                <span className="font-medium text-black">{item.label}</span>
+                <ChevronRight size={20} className="text-gray-400" />
+              </Link>
+            ))}
+          </div>
+
+          {/* Log Out Button */}
+          <div className="px-6 pt-10 pb-4">
+            <button
+              onClick={handleLogout}
+              className="w-full py-4 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
+            >
+              <LogOut size={18} />
+              Log out
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 pb-12 pt-4 text-center">
+            <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
+              App v4.32.0 b3564
+              <Globe size={16} />
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== DESKTOP : Affiche le profil par défaut (VendorSidebar gère la nav) ===== */}
+      <div className="hidden lg:block px-8 py-8">
         <EditProfileModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
         />
-
-        {/* Header */}
-        <div className="px-6 pt-12 pb-8">
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors mb-6"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-3xl font-bold text-black">Account</h1>
-        </div>
-
-        {/* User Info */}
-        <div className="px-6 pb-8 flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600">
-            {user?.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user.fullName}
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <span>{getInitials(user?.fullName || '')}</span>
-            )}
-          </div>
-          <div className="flex-1">
-            <h2 className="font-bold text-black">{user?.fullName || 'Utilisateur'}</h2>
-            <p className="text-sm text-gray-500">{user?.email || 'email@example.com'}</p>
-          </div>
-        </div>
-
-        {/* Menu Items */}
-        <div className="border-t border-gray-200">
-          {menuItems.map((item, index) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className="flex items-center justify-between px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+        <div className="max-w-3xl">
+          <h1 className="text-2xl font-bold text-black mb-6">Mon Profil</h1>
+          {/* Profile card */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-6 shadow-sm">
+            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-600 overflow-hidden shrink-0">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+              ) : (
+                <span>{getInitials(user?.fullName || '')}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-black text-black">{user?.fullName || 'Utilisateur'}</h2>
+              <p className="text-sm text-gray-500">{user?.email}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${user?.role === 'VENDOR' ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                  {user?.role === 'VENDOR' ? 'Vendeur' : 'Client'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="shrink-0 px-4 py-2 bg-black text-white text-sm font-semibold rounded-full hover:bg-gray-800 transition-colors"
             >
-              <span className="font-medium text-black">{item.label}</span>
-              <ChevronRight size={20} className="text-gray-400" />
-            </Link>
-          ))}
-        </div>
-
-        {/* Log Out Button */}
-        <div className="px-6 pt-10 pb-4">
-          <button
-            onClick={handleLogout}
-            className="w-full py-4 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
-          >
-            <LogOut size={18} />
-            Log out
-          </button>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 pb-12 pt-4 text-center">
-          <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
-            App v4.32.0 b3564
-            <Globe size={16} />
-          </p>
+              Modifier le profil
+            </button>
+          </div>
+          {/* Quick links */}
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            {menuItems.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-[#E67E22]/40 hover:bg-orange-50/30 transition-all group"
+              >
+                <span className="font-medium text-black group-hover:text-[#E67E22] transition-colors">{item.label}</span>
+                <ChevronRight size={16} className="text-gray-400 group-hover:text-[#E67E22]" />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

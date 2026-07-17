@@ -127,7 +127,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
           
           <div className="space-y-1">
             <div className="px-6 mb-2">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Navigation</span>
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Navigation Principale</span>
             </div>
 
             <div className="grid gap-1 px-2">
@@ -149,18 +149,56 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
               >
                 Mon Panier
               </Link>
+            </div>
+          </div>
 
-              {isAuthenticated && (
+          {isAuthenticated && (
+            <div className="space-y-1 pt-2">
+              <div className="px-6 mb-2">
+                <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">
+                  {user?.role === 'VENDOR' ? 'Espace Vendeur' : 'Espace Client'}
+                </span>
+              </div>
+              <div className="grid gap-1 px-2">
+                {user?.role === 'VENDOR' && (
+                  <Link 
+                    href="/dashboard" 
+                    onClick={onClose}
+                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/dashboard') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  >
+                    Tableau de bord
+                  </Link>
+                )}
+                
                 <Link 
                   href="/settings" 
                   onClick={onClose}
                   className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
-                  Paramètres
+                  Mon Compte
                 </Link>
-              )}
+
+                {user?.role !== 'VENDOR' && (
+                  <>
+                    <Link 
+                      href="/settings?tab=orders" 
+                      onClick={onClose}
+                      className="w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5"
+                    >
+                      Mes Commandes
+                    </Link>
+                    <Link 
+                      href="/settings?tab=favorites" 
+                      onClick={onClose}
+                      className="w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5"
+                    >
+                      Mes Favoris
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Logout Section */}
           {isAuthenticated && (
