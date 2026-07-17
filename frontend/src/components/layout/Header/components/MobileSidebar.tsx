@@ -67,7 +67,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
       ></div>
       
       <div 
-        className={`absolute right-0 top-0 bottom-0 w-[260px] max-w-[70vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-xl overflow-hidden`}
+        className={`absolute right-0 top-0 bottom-0 w-[220px] max-w-[70vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-xl overflow-hidden`}
       >
         {/* Header - Minimalist Profile */}
         <div className="relative pt-6 pb-6 px-6 sm:px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
@@ -176,15 +176,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </div>
 
         {/* Brand Footer */}
-        <div className="p-4 px-6 border-t border-gray-100 dark:border-white/5">
-            <Link 
-              href="/register?role=VENDOR"
-              onClick={onClose}
-              className="w-full py-3 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
-            >
-                <span>Vendre sur WapiBei</span>
-            </Link>
-        </div>
+        {!isAuthenticated && (
+          <div className="p-4 px-6 border-t border-gray-100 dark:border-white/5">
+              <Link 
+                href="/register?role=VENDOR"
+                onClick={onClose}
+                className="w-full py-3 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+              >
+                  <span>Vendre sur WapiBei</span>
+              </Link>
+          </div>
+        )}
       </div>
     </div>
   );

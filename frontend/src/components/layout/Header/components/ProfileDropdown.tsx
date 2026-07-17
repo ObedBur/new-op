@@ -41,26 +41,20 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   // Build dynamic navigation based on user role
   const getNavItems = () => {
-    const items = [
-      { label: 'Accueil', href: '/' },
-      { label: 'Mon Compte', href: '/settings' },
-    ];
-
     if (user?.role === 'VENDOR') {
       // Links specific to Sellers
-      items.push(
-        { label: 'Mes Ventes', href: '/dashboard/orders' },
-        { label: 'Ma Boutique', href: '/dashboard/store' },
-        { label: 'Mes Produits', href: '/dashboard/products' }
-      );
-    } else {
-      // Links specific to Customers
-      items.push(
-        { label: 'Mes Commandes', href: '/settings?tab=orders' },
-        { label: 'Mes Favoris', href: '/settings?tab=favorites' }
-      );
-    }
-    return items;
+      return [
+        { label: 'Tableau de bord', href: '/dashboard' },
+        { label: 'Mon Compte', href: '/settings' }
+      ];
+    } 
+    
+    // Links specific to Customers (and Admin)
+    return [
+      { label: 'Mon Compte', href: '/settings' },
+      { label: 'Mes Commandes', href: '/settings?tab=orders' },
+      { label: 'Mes Favoris', href: '/settings?tab=favorites' }
+    ];
   };
 
   const navItems = getNavItems();
