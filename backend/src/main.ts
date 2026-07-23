@@ -1,5 +1,8 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as dns from 'dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const envPaths = [
   path.join(process.cwd(), '.env'),

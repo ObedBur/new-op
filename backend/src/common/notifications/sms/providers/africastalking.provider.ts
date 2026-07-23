@@ -11,7 +11,7 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async send(phone: string, message: string): Promise<ProviderResponse> {
+  async send(phone: string, message: string, signal?: AbortSignal): Promise<ProviderResponse> {
     const username = this.configService.get<string>('AFRICASTALKING_USERNAME')?.trim();
     const apiKey = this.configService.get<string>('AFRICASTALKING_API_KEY')?.trim();
     const from = this.configService.get<string>('AFRICASTALKING_FROM')?.trim();
@@ -44,6 +44,7 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
           apiKey,
         },
         timeout: this.configService.get<number>('AFRICASTALKING_TIMEOUT_MS', 30000),
+        signal,
       });
 
       this.logger.debug(`[SMS AFRICASTALKING] Raw response: ${JSON.stringify(response.data)}`);
@@ -70,6 +71,10 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
       }
 
       const axiosError = error as AxiosError;
+
+      if (axios.isCancel(error) || axiosError.code === 'ERR_CANCELED') {
+        throw error;
+      }
 
       if (axiosError.response) {
         this.logger.error(

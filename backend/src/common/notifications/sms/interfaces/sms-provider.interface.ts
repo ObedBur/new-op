@@ -9,5 +9,5 @@ export interface ISmsProvider {
   readonly name: string;
   
   /** Envoie le SMS au fournisseur externe */
-  send(phone: string, message: string): Promise<ProviderResponse>;
+  send(phone: string, message: string, signal?: AbortSignal): Promise<ProviderResponse>;
 }

@@ -247,12 +247,16 @@ export class SmsService {
   }
 
   private callWithTimeout(phone: string, message: string): Promise<ProviderResponse> {
+    const controller = new AbortController();
     const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new SmsTimeoutError(this.timeoutMs)), this.timeoutMs),
+      setTimeout(() => {
+        controller.abort();
+        reject(new SmsTimeoutError(this.timeoutMs));
+      }, this.timeoutMs),
     );
 
     return Promise.race([
-      this.provider.send(phone, message),
+      this.provider.send(phone, message, controller.signal),
       timeoutPromise,
     ]);
   }
