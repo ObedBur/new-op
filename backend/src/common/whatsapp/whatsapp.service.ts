@@ -24,7 +24,7 @@ export class WhatsAppService {
   // WhatsApp n'est jamais modifié.
   private sanitizeForLog(message: string): string {
     return message.replace(
-      /data:[a-zA-Z0-9/+]+;base64,[A-Za-z0-9+/=]+/g,
+      /data:[^;]+;base64,[A-Za-z0-9+/=\-_\s]+/g,
       (match) => `[image base64 tronquée, ${match.length} chars]`,
     );
   }

@@ -43,7 +43,7 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
           'Content-Type': 'application/x-www-form-urlencoded',
           apiKey,
         },
-        timeout: this.configService.get<number>('AFRICASTALKING_TIMEOUT_MS', 10000),
+        timeout: this.configService.get<number>('AFRICASTALKING_TIMEOUT_MS', 30000),
       });
 
       this.logger.debug(`[SMS AFRICASTALKING] Raw response: ${JSON.stringify(response.data)}`);
