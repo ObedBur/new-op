@@ -19,6 +19,16 @@ export class WhatsAppService {
     return phone.replace(/[\s\-\(\)\+]/g, '');
   }
 
+  // Remplace les data URI base64 (images) par un aperçu court, uniquement
+  // pour l'affichage dans les logs. Le message original envoyé à l'API
+  // WhatsApp n'est jamais modifié.
+  private sanitizeForLog(message: string): string {
+    return message.replace(
+      /data:[a-zA-Z0-9/+]+;base64,[A-Za-z0-9+/=]+/g,
+      (match) => `[image base64 tronquée, ${match.length} chars]`,
+    );
+  }
+
   
   // Formate le message WhatsApp pour le vendeur.
    
@@ -52,7 +62,7 @@ export class WhatsAppService {
     // Mode simulation si l'API n'est pas configurée
     if (!apiUrl || !apiToken) {
       this.logger.warn(
-        `[WHATSAPP - SIMULATION] API non configurée. Message pour ${sanitizedPhone}:\n${message}`,
+        `[WHATSAPP - SIMULATION] API non configurée. Message pour ${sanitizedPhone}:\n${this.sanitizeForLog(message)}`,
       );
       return true;
     }
@@ -69,7 +79,7 @@ export class WhatsAppService {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${apiToken}`,
           },
-          timeout: 10000, // 10s timeout pour éviter de bloquer
+          timeout: 10000, 
         },
       );
 
@@ -80,7 +90,6 @@ export class WhatsAppService {
       this.logger.error(
         `Échec envoi WhatsApp à ${sanitizedPhone}: ${errMsg}`,
       );
-      // On ne relance PAS l'erreur : la commande reste enregistrée
       return false;
     }
   }

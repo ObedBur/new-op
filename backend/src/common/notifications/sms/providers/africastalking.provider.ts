@@ -12,9 +12,9 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
   constructor(private readonly configService: ConfigService) {}
 
   async send(phone: string, message: string): Promise<ProviderResponse> {
-    const username = this.configService.get<string>('AFRICASTALKING_USERNAME');
-    const apiKey = this.configService.get<string>('AFRICASTALKING_API_KEY');
-    const from = this.configService.get<string>('AFRICASTALKING_FROM');
+    const username = this.configService.get<string>('AFRICASTALKING_USERNAME')?.trim();
+    const apiKey = this.configService.get<string>('AFRICASTALKING_API_KEY')?.trim();
+    const from = this.configService.get<string>('AFRICASTALKING_FROM')?.trim();
     const isSandbox = this.configService.get<string>('AFRICASTALKING_SANDBOX') === 'true' || username === 'sandbox';
     
     const baseUrl = isSandbox
@@ -64,19 +64,36 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
         providerErrorCode: recipient?.statusCode,
         providerErrorMessage: recipient?.status,
       };
-    } catch (error) {
+        } catch (error) {
       if (error instanceof SmsHttpError) {
         throw error;
       }
-      
+
       const axiosError = error as AxiosError;
+
       if (axiosError.response) {
+        this.logger.error(
+          `[SMS AFRICASTALKING] HTTP ${axiosError.response.status}: ${JSON.stringify(
+            axiosError.response.data,
+          )}`,
+        );
+
         throw new SmsHttpError(axiosError.response.status);
-      } else if (axiosError.request) {
-        throw new SmsNetworkError(axiosError.message);
-      } else {
-        throw new Error((error as Error).message);
       }
+
+      if (axiosError.request) {
+        this.logger.error(
+          `[SMS AFRICASTALKING] Network error: ${axiosError.message}`,
+        );
+
+        throw new SmsNetworkError(axiosError.message);
+      }
+
+      this.logger.error(
+        `[SMS AFRICASTALKING] Unknown error: ${String(error)}`,
+      );
+
+      throw error;
     }
   }
 }
