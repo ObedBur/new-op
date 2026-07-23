@@ -42,6 +42,7 @@ export class AfricastalkingSmsProvider implements ISmsProvider {
           Accept: 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded',
           apiKey,
+          'User-Agent': 'Mozilla/5.0 (compatible; Africastalking-Client/1.0)',
         },
         timeout: this.configService.get<number>('AFRICASTALKING_TIMEOUT_MS', 30000),
         signal,
