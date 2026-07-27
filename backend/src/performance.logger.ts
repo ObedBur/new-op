@@ -8,7 +8,6 @@ export function logPerformance(moduleName: string) {
     done: () => {
       const duration = Date.now() - start;
       logger.log(`Module ${moduleName} chargé en ${duration}ms`);
-    }
+    },
   };
 }
-

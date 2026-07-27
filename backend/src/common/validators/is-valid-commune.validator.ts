@@ -16,14 +16,14 @@ export class IsValidCommuneConstraint implements ValidatorConstraintInterface {
   validate(commune: string, args: ValidationArguments): boolean {
     const province = (args.object as any).province;
     if (!province || !commune) return false;
-    
+
     return this.locationService.isValidCommune(province, commune);
   }
 
   defaultMessage(args: ValidationArguments): string {
     const province = (args.object as any).province;
     if (!province) return 'Province manquante';
-    
+
     const communes = this.locationService.getCommunes(province);
     return `Commune invalide pour ${province}. Communes valides: ${communes.join(', ')}`;
   }
@@ -40,4 +40,3 @@ export function IsValidCommune(validationOptions?: ValidationOptions) {
     });
   };
 }
-

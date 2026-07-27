@@ -19,12 +19,12 @@ import {
 export class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
   validate(password: string, args: ValidationArguments): boolean {
     if (!password || password.length < 8) return false;
-    
+
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-    
+
     return hasUppercase && hasLowercase && hasNumber && hasSpecial;
   }
 
@@ -44,4 +44,3 @@ export function IsStrongPassword(validationOptions?: ValidationOptions) {
     });
   };
 }
-

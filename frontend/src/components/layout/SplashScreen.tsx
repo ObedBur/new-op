@@ -12,7 +12,7 @@ export const SplashScreen: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [messageIndex, setMessageIndex] = useState(0);
 
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const MIN_DISPLAY_TIME = 800;
 
   const messages = [
@@ -24,6 +24,7 @@ export const SplashScreen: React.FC = () => {
   // Safety fallback: always dismiss after MAX_DISPLAY_TIME
   // This prevents the splash screen from getting stuck on pages that never call setAppReady
   useEffect(() => {
+    startTimeRef.current = Date.now();
     const fallback = setTimeout(() => {
       setIsVisible(false);
     }, MAX_DISPLAY_TIME);

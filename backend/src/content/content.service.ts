@@ -21,26 +21,30 @@ export class ContentService {
    * Utilise Promise.all pour paralléliser les requêtes vers la base de données.
    */
   async getHomepageContent(): Promise<HomepageContentDto> {
-    return this.cache.getOrSet(HOMEPAGE_CONTENT_CACHE_KEY, HOMEPAGE_CONTENT_TTL_MS, async () => {
-      const [heroSlides, steps] = await Promise.all([
-        this.prisma.heroSlide.findMany({ orderBy: { order: 'asc' } }),
-        this.prisma.howItWorksStep.findMany({ orderBy: { order: 'asc' } }),
-      ]);
+    return this.cache.getOrSet(
+      HOMEPAGE_CONTENT_CACHE_KEY,
+      HOMEPAGE_CONTENT_TTL_MS,
+      async () => {
+        const [heroSlides, steps] = await Promise.all([
+          this.prisma.heroSlide.findMany({ orderBy: { order: 'asc' } }),
+          this.prisma.howItWorksStep.findMany({ orderBy: { order: 'asc' } }),
+        ]);
 
-      return {
-        heroSlides: heroSlides.map((s) => ({
-          id: s.id,
-          title: s.title,
-          imageUrl: s.imageUrl,
-          label: s.label,
-        })),
-        howItWorksSteps: steps.map((s) => ({
-          id: s.id,
-          icon: s.icon,
-          title: s.title,
-          description: s.description,
-        })),
-      };
-    });
+        return {
+          heroSlides: heroSlides.map((s) => ({
+            id: s.id,
+            title: s.title,
+            imageUrl: s.imageUrl,
+            label: s.label,
+          })),
+          howItWorksSteps: steps.map((s) => ({
+            id: s.id,
+            icon: s.icon,
+            title: s.title,
+            description: s.description,
+          })),
+        };
+      },
+    );
   }
 }

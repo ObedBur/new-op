@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, UserRole, KycStatus } from '@prisma/client';
 import { ActivityDto } from './dto/activity.dto';
@@ -12,7 +17,7 @@ import { ActivityDto } from './dto/activity.dto';
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   /**
    * Récupère la liste paginée et filtrée de tous les utilisateurs.
@@ -108,7 +113,7 @@ export class AdminService {
 
   /**
    * Supprime un utilisateur et purge toutes ses données associées de manière atomique.
-   * Gère la suppression des produits, commandes (en tant que client ou vendeur), 
+   * Gère la suppression des produits, commandes (en tant que client ou vendeur),
    * notifications et tokens de session.
    */
   async deleteUser(userId: string) {
@@ -126,27 +131,37 @@ export class AdminService {
         // Identification et suppression des dépendances liées aux produits
         const userProducts = await tx.product.findMany({
           where: { userId },
-          select: { id: true }
+          select: { id: true },
         });
         const productIds = userProducts.map((p) => p.id);
 
         if (productIds.length > 0) {
-          await tx.order.deleteMany({ where: { productId: { in: productIds } } });
+          await tx.order.deleteMany({
+            where: { productId: { in: productIds } },
+          });
         }
 
         // Suppression des commandes où l'utilisateur est impliqué directement
         await tx.order.deleteMany({
-          where: { OR: [{ clientId: userId }, { vendorId: userId }] }
+          where: { OR: [{ clientId: userId }, { vendorId: userId }] },
         });
 
         await tx.product.deleteMany({ where: { userId } });
         await tx.user.delete({ where: { id: userId } });
       });
 
-      return { success: true, message: 'Utilisateur et données associées supprimés avec succès' };
+      return {
+        success: true,
+        message: 'Utilisateur et données associées supprimés avec succès',
+      };
     } catch (error) {
-      this.logger.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
-      throw new BadRequestException('Impossible de supprimer l\'utilisateur à cause d\'une contrainte de base de données.');
+      this.logger.error(
+        `Erreur lors de la suppression de l'utilisateur ${userId}:`,
+        error,
+      );
+      throw new BadRequestException(
+        "Impossible de supprimer l'utilisateur à cause d'une contrainte de base de données.",
+      );
     }
   }
 
@@ -154,10 +169,16 @@ export class AdminService {
    * Valide ou rejette un dossier KYC.
    * L'approbation augmente le score de confiance initial du vendeur (+30 points).
    */
-  async updateKycStatus(userId: string, status: string, rejectionReason?: string) {
+  async updateKycStatus(
+    userId: string,
+    status: string,
+    rejectionReason?: string,
+  ) {
     const validStatuses: string[] = Object.values(KycStatus);
     if (!validStatuses.includes(status)) {
-      throw new BadRequestException(`Statut invalide. Doit être parmi : ${validStatuses.join(', ')}`);
+      throw new BadRequestException(
+        `Statut invalide. Doit être parmi : ${validStatuses.join(', ')}`,
+      );
     }
 
     const user = await this.prisma.user.findUnique({
@@ -169,18 +190,23 @@ export class AdminService {
     }
 
     if (user.role !== 'VENDOR') {
-      throw new BadRequestException('Seuls les vendeurs nécessitent une approbation KYC.');
+      throw new BadRequestException(
+        'Seuls les vendeurs nécessitent une approbation KYC.',
+      );
     }
 
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
         kycStatus: status as KycStatus,
-        trustScore: status === 'APPROVED' ? user.trustScore + 30 : user.trustScore,
+        trustScore:
+          status === 'APPROVED' ? user.trustScore + 30 : user.trustScore,
       },
     });
 
-    this.logger.log(`Statut KYC mis à jour (${status}) pour le vendeur : ${user.email}`);
+    this.logger.log(
+      `Statut KYC mis à jour (${status}) pour le vendeur : ${user.email}`,
+    );
 
     return {
       success: true,
@@ -244,8 +270,12 @@ export class AdminService {
       this.prisma.user.count({ where: { isVerified: true } }),
       this.prisma.product.count(),
       this.prisma.order.aggregate({ _sum: { totalPrice: true } }),
-      this.prisma.user.count({ where: { role: UserRole.VENDOR, kycStatus: KycStatus.PENDING } }),
-      this.prisma.user.count({ where: { role: UserRole.VENDOR, kycStatus: KycStatus.APPROVED } }),
+      this.prisma.user.count({
+        where: { role: UserRole.VENDOR, kycStatus: KycStatus.PENDING },
+      }),
+      this.prisma.user.count({
+        where: { role: UserRole.VENDOR, kycStatus: KycStatus.APPROVED },
+      }),
     ]);
 
     return {
@@ -276,12 +306,20 @@ export class AdminService {
    * Analyse et agrège les activités récentes sur la plateforme.
    * Fusionne les nouvelles commandes, inscriptions de vendeurs et validations KYC.
    */
-  async getRecentActivities(): Promise<{ success: boolean; data: ActivityDto[] }> {
+  async getRecentActivities(): Promise<{
+    success: boolean;
+    data: ActivityDto[];
+  }> {
     // Collecte des commandes récentes
     const recentOrders = await this.prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
-      select: { id: true, customerName: true, totalPrice: true, createdAt: true },
+      select: {
+        id: true,
+        customerName: true,
+        totalPrice: true,
+        createdAt: true,
+      },
     });
 
     const orderActivities: ActivityDto[] = recentOrders.map((order) => ({
@@ -289,7 +327,11 @@ export class AdminService {
       type: 'order' as const,
       description: `Nouvelle commande de ${order.customerName}`,
       timestamp: order.createdAt.toISOString(),
-      metadata: { orderId: order.id, total: order.totalPrice, customerName: order.customerName },
+      metadata: {
+        orderId: order.id,
+        total: order.totalPrice,
+        customerName: order.customerName,
+      },
     }));
 
     // Collecte des nouveaux vendeurs
@@ -305,7 +347,11 @@ export class AdminService {
       type: 'vendor_registration' as const,
       description: `Nouveau vendeur : ${vendor.boutiqueName || vendor.fullName}`,
       timestamp: vendor.createdAt.toISOString(),
-      metadata: { userId: vendor.id, boutiqueName: vendor.boutiqueName || '', fullName: vendor.fullName },
+      metadata: {
+        userId: vendor.id,
+        boutiqueName: vendor.boutiqueName || '',
+        fullName: vendor.fullName,
+      },
     }));
 
     // Collecte des mises à jour KYC récentes
@@ -316,7 +362,13 @@ export class AdminService {
       },
       take: 5,
       orderBy: { updatedAt: 'desc' },
-      select: { id: true, fullName: true, boutiqueName: true, kycStatus: true, updatedAt: true },
+      select: {
+        id: true,
+        fullName: true,
+        boutiqueName: true,
+        kycStatus: true,
+        updatedAt: true,
+      },
     });
 
     const kycActivities: ActivityDto[] = recentKycUpdates.map((vendor) => ({
@@ -324,7 +376,11 @@ export class AdminService {
       type: 'kyc_update' as const,
       description: `Statut KYC de ${vendor.boutiqueName || vendor.fullName} passé à ${vendor.kycStatus}`,
       timestamp: vendor.updatedAt.toISOString(),
-      metadata: { userId: vendor.id, boutiqueName: vendor.boutiqueName || '', newStatus: vendor.kycStatus },
+      metadata: {
+        userId: vendor.id,
+        boutiqueName: vendor.boutiqueName || '',
+        newStatus: vendor.kycStatus,
+      },
     }));
 
     // Fusion, tri chronologique et limitation du flux d'activité
@@ -333,7 +389,10 @@ export class AdminService {
       ...vendorActivities,
       ...kycActivities,
     ]
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      )
       .slice(0, 10);
 
     return {

@@ -9,8 +9,7 @@ export class EmailService {
   constructor() {
     this.apiInstance = new Brevo.TransactionalEmailsApi();
 
-
-    require('dns').setDefaultResultOrder('ipv4first')
+    require('dns').setDefaultResultOrder('ipv4first');
 
     const apiKey = process.env.BREVO_API_KEY;
     this.logger.debug(`EmailService initialized. API Key present: ${!!apiKey}`);
@@ -79,7 +78,11 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -87,14 +90,18 @@ export class EmailService {
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       // On ne logue QUE le messageId — jamais les headers (qui contiennent la clé API)
       const messageId = result?.body?.messageId || 'unknown';
-      this.logger.log(`Email OTP sent to ${email} via Brevo. messageId: ${messageId}`);
+      this.logger.log(
+        `Email OTP sent to ${email} via Brevo. messageId: ${messageId}`,
+      );
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       const fullError = error instanceof Error ? error.stack : String(error);
       this.logger.error(`Failed to send email to ${email}: ${message}`);
       this.logger.error(`Full error details: ${fullError}`);
-      this.logger.error(`Email config - From: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM}, Has API Key: ${!!process.env.BREVO_API_KEY}`);
+      this.logger.error(
+        `Email config - From: ${process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM}, Has API Key: ${!!process.env.BREVO_API_KEY}`,
+      );
       return false;
     }
   }
@@ -143,7 +150,11 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei Support',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
     };
     sendSmtpEmail.to = [{ email: email }];
 
@@ -164,12 +175,19 @@ export class EmailService {
   async sendBulkOrderConfirmation(data: {
     customerEmail: string;
     customerName: string;
-    items: { productName: string; price: number; quantity: number; productImage?: string }[];
+    items: {
+      productName: string;
+      price: number;
+      quantity: number;
+      productImage?: string;
+    }[];
     totalPrice: number;
     orderIds: string[];
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
-      this.logger.log(`[SIMULATION] Bulk Order confirmation for ${data.customerEmail}: ${data.items.length} items - ${data.totalPrice} $`);
+      this.logger.log(
+        `[SIMULATION] Bulk Order confirmation for ${data.customerEmail}: ${data.items.length} items - ${data.totalPrice} $`,
+      );
       return true;
     }
 
@@ -186,8 +204,8 @@ export class EmailService {
         </td>
         <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: center; color: #64748b; font-weight: 700;">${item.quantity}</td>
         <td style="padding: 15px 10px; border-bottom: 1px solid #edf2f7; text-align: right; font-weight: 800; color: #E67E22; font-size: 16px;">${(
-            item.price * item.quantity
-          ).toLocaleString()} $</td>
+          item.price * item.quantity
+        ).toLocaleString()} $</td>
       </tr>
     `,
       )
@@ -243,7 +261,11 @@ export class EmailService {
     `;
     sendSmtpEmail.sender = {
       name: 'WapiBei Market',
-      email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com'
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
     };
     sendSmtpEmail.to = [{ email: data.customerEmail }];
 
@@ -253,7 +275,9 @@ export class EmailService {
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Failed to send bulk order email to ${data.customerEmail}: ${message}`);
+      this.logger.error(
+        `Failed to send bulk order email to ${data.customerEmail}: ${message}`,
+      );
       return false;
     }
   }
@@ -272,7 +296,9 @@ export class EmailService {
     orderId: string;
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
-      this.logger.log(`[SIMULATION] Vendor Email for ${data.vendorEmail}: ${data.productName}`);
+      this.logger.log(
+        `[SIMULATION] Vendor Email for ${data.vendorEmail}: ${data.productName}`,
+      );
       return true;
     }
 
@@ -317,14 +343,24 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Sales', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'sales@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei Sales',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'sales@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.vendorEmail }];
 
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send vendor email: ${data.vendorEmail}`, error);
+      this.logger.error(
+        `Failed to send vendor email: ${data.vendorEmail}`,
+        error,
+      );
       return false;
     }
   }
@@ -340,7 +376,9 @@ export class EmailService {
     items: { productName: string; productImage?: string }[];
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
-      this.logger.log(`[SIMULATION] Admin Email: New order from ${data.customerName}`);
+      this.logger.log(
+        `[SIMULATION] Admin Email: New order from ${data.customerName}`,
+      );
       return true;
     }
 
@@ -372,12 +410,16 @@ export class EmailService {
           <div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px;">
             <strong style="display: block; margin-bottom: 12px; font-size: 12px; text-transform: uppercase; color: #64748b;">Produits commandés :</strong>
             <table cellpadding="0" cellspacing="0" style="width: 100%;">
-            ${data.items.map(item => `
+            ${data.items
+              .map(
+                (item) => `
               <tr>
                 ${item.productImage ? `<td style="padding: 4px 10px 4px 0; width: 32px; vertical-align: middle;"><img src="${item.productImage}" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; display: block;" /></td>` : ''}
                 <td style="padding: 4px 0; vertical-align: middle; font-size: 13px; color: #2d3748; font-weight: 500;">${item.productName}</td>
               </tr>
-            `).join('')}
+            `,
+              )
+              .join('')}
             </table>
           </div>
           
@@ -387,14 +429,24 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Monitoring', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'admin@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei Monitoring',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'admin@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.adminEmail }];
 
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send admin email: ${data.adminEmail}`, error);
+      this.logger.error(
+        `Failed to send admin email: ${data.adminEmail}`,
+        error,
+      );
       return false;
     }
   }
@@ -432,7 +484,14 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'no-reply@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'no-reply@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email }];
 
     try {
@@ -447,7 +506,15 @@ export class EmailService {
   /**
    * Alerte de Baisse de Prix
    */
-  async sendPriceDropAlert(data: { email: string, name: string, productName: string, oldPrice: number, newPrice: number, productImage: string, productLink: string }) {
+  async sendPriceDropAlert(data: {
+    email: string;
+    name: string;
+    productName: string;
+    oldPrice: number;
+    newPrice: number;
+    productImage: string;
+    productLink: string;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = ` Baisse de prix sur ${data.productName} !`;
     sendSmtpEmail.htmlContent = `
@@ -472,7 +539,12 @@ export class EmailService {
   /**
    * Relance pour panier abandonné
    */
-  async sendAbandonedCart(data: { email: string, name: string, itemCount: number, cartLink: string }) {
+  async sendAbandonedCart(data: {
+    email: string;
+    name: string;
+    itemCount: number;
+    cartLink: string;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = ` ${data.name}, vous avez oublié des articles dans votre panier !`;
     sendSmtpEmail.htmlContent = `
@@ -491,7 +563,14 @@ export class EmailService {
   /**
    * Rapport de Clôture pour l'Admin
    */
-  async sendClosureAdminReport(data: { adminEmail: string, orderId: string, clientName: string, vendorName: string, productName: string, amount: number }) {
+  async sendClosureAdminReport(data: {
+    adminEmail: string;
+    orderId: string;
+    clientName: string;
+    vendorName: string;
+    productName: string;
+    amount: number;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = ` Transaction Clôturée : ${data.orderId}`;
     sendSmtpEmail.htmlContent = `
@@ -528,7 +607,9 @@ export class EmailService {
     productLink: string;
   }) {
     if (!process.env.BREVO_API_KEY && !process.env.SMTP_PASSWORD) {
-      this.logger.log(`[SIMULATION] New product email for ${data.email}: ${data.productName}`);
+      this.logger.log(
+        `[SIMULATION] New product email for ${data.email}: ${data.productName}`,
+      );
       return true;
     }
 
@@ -557,14 +638,24 @@ export class EmailService {
         </div>
       </div>
     `;
-    sendSmtpEmail.sender = { name: 'WapiBei Nouveautés', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'no-reply@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei Nouveautés',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'no-reply@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.email }];
 
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send new product email to ${data.email}`, error);
+      this.logger.error(
+        `Failed to send new product email to ${data.email}`,
+        error,
+      );
       return false;
     }
   }
@@ -572,7 +663,13 @@ export class EmailService {
   // ─────────────────────────────────────────────────────────────────
   // STATUT COMMANDE : CONFIRMÉE
   // ─────────────────────────────────────────────────────────────────
-  async sendOrderConfirmed(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string }) {
+  async sendOrderConfirmed(data: {
+    customerEmail: string;
+    customerName: string;
+    productName: string;
+    orderId: string;
+    vendorName: string;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = `✅ Commande confirmée — ${data.productName}`;
     sendSmtpEmail.htmlContent = `
@@ -597,13 +694,23 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send order confirmed email to ${data.customerEmail}`, error);
+      this.logger.error(
+        `Failed to send order confirmed email to ${data.customerEmail}`,
+        error,
+      );
       return false;
     }
   }
@@ -611,7 +718,14 @@ export class EmailService {
   // ─────────────────────────────────────────────────────────────────
   // STATUT COMMANDE : EXPÉDIÉE
   // ─────────────────────────────────────────────────────────────────
-  async sendOrderShipped(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string; deliveryAddress: string }) {
+  async sendOrderShipped(data: {
+    customerEmail: string;
+    customerName: string;
+    productName: string;
+    orderId: string;
+    vendorName: string;
+    deliveryAddress: string;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = `📦 Votre colis est en route — ${data.productName}`;
     sendSmtpEmail.htmlContent = `
@@ -637,13 +751,23 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send order shipped email to ${data.customerEmail}`, error);
+      this.logger.error(
+        `Failed to send order shipped email to ${data.customerEmail}`,
+        error,
+      );
       return false;
     }
   }
@@ -651,7 +775,13 @@ export class EmailService {
   // ─────────────────────────────────────────────────────────────────
   // STATUT COMMANDE : ANNULÉE
   // ─────────────────────────────────────────────────────────────────
-  async sendOrderCancelled(data: { customerEmail: string; customerName: string; productName: string; orderId: string; vendorName: string }) {
+  async sendOrderCancelled(data: {
+    customerEmail: string;
+    customerName: string;
+    productName: string;
+    orderId: string;
+    vendorName: string;
+  }) {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = `❌ Commande annulée — ${data.productName}`;
     sendSmtpEmail.htmlContent = `
@@ -676,13 +806,23 @@ export class EmailService {
           <p style="font-size:12px;color:#a0aec0;margin:0;">© WapiBei · L'Afrique qui achète et qui vend</p>
         </div>
       </div>`;
-    sendSmtpEmail.sender = { name: 'WapiBei', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.MAIL_FROM || 'noreply@wapibei.com' };
+    sendSmtpEmail.sender = {
+      name: 'WapiBei',
+      email:
+        process.env.BREVO_SENDER_EMAIL ||
+        process.env.SMTP_FROM ||
+        process.env.MAIL_FROM ||
+        'noreply@wapibei.com',
+    };
     sendSmtpEmail.to = [{ email: data.customerEmail, name: data.customerName }];
     try {
       await this.apiInstance.sendTransacEmail(sendSmtpEmail);
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send order cancelled email to ${data.customerEmail}`, error);
+      this.logger.error(
+        `Failed to send order cancelled email to ${data.customerEmail}`,
+        error,
+      );
       return false;
     }
   }

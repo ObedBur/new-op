@@ -26,20 +26,18 @@ export function useSearch() {
   const [loading, setLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const latestRequestRef = useRef(0);
-
-  // Load recent searches on mount
-  useEffect(() => {
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
     try {
-      const stored = localStorage.getItem('wapibei_recent_searches');
-      if (stored) {
-        setRecentSearches(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error(e);
+      const stored = window.localStorage.getItem('wapibei_recent_searches');
+      if (!stored) return [];
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
     }
-  }, []);
+  });
+  const latestRequestRef = useRef(0);
 
   const addRecentSearch = (term: string) => {
     if (!term.trim()) return;
@@ -60,9 +58,11 @@ export function useSearch() {
     const normalizedQuery = query.trim();
     
     if (normalizedQuery.length < 3) {
-      setResults({ suggestions: [], shops: [], products: [] });
-      setLoading(false);
-      return;
+      const timer = setTimeout(() => {
+        setResults({ suggestions: [], shops: [], products: [] });
+        setLoading(false);
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     const timer = setTimeout(async () => {
@@ -80,17 +80,17 @@ export function useSearch() {
           // Extraire des shops uniques depuis les produits retournés (simulation si pas d'API vendors dédiée)
           
           const uniqueShopsMap = new Map<string, SearchVendor>();
-fetchedProducts.forEach(p => {
-  if (p.user && !uniqueShopsMap.has(p.user.id)) {
-    uniqueShopsMap.set(p.user.id, {
-      id: p.user.id,
-      boutiqueName: p.user.boutiqueName || p.user.fullName || 'Inconnu',
-      avatarUrl: p.user.avatarUrl,
-      trustScore: p.user.trustScore || 0,
-      isVerified: p.user.isVerified || false
-    });
-  }
-});
+          fetchedProducts.forEach(p => {
+            if (p.user && !uniqueShopsMap.has(p.user.id)) {
+              uniqueShopsMap.set(p.user.id, {
+                id: p.user.id,
+                boutiqueName: p.user.boutiqueName || p.user.fullName || 'Inconnu',
+                avatarUrl: p.user.avatarUrl,
+                trustScore: p.user.trustScore || 0,
+                isVerified: p.user.isVerified || false
+              });
+            }
+          });
           // Extraire des suggestions simples
           const suggestions = Array.from(new Set(fetchedProducts.map(p => p.name.toLowerCase()))).slice(0, 4);
 

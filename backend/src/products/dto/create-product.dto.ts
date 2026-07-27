@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, Min, IsBoolean } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  Min,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -21,7 +28,7 @@ export class CreateProductDto {
   description?: string;
 
   /**
-   * Prix unitaire du produit. 
+   * Prix unitaire du produit.
    * Doit être un nombre positif.
    */
   @IsNotEmpty({ message: 'Le prix est obligatoire.' })
@@ -35,7 +42,7 @@ export class CreateProductDto {
    */
   @IsNotEmpty({ message: 'La catégorie est obligatoire.' })
   @Type(() => Number)
-  @IsNumber({}, { message: 'L\'identifiant de catégorie doit être un nombre.' })
+  @IsNumber({}, { message: "L'identifiant de catégorie doit être un nombre." })
   categoryId: number;
 
   /**

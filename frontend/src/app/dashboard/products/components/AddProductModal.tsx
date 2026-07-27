@@ -183,8 +183,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                 <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-y-auto scrollbar-hide">
 
-                    {/* --- LEFT SIDE: IMAGE PREVIEW --- */}
-                    <div className="w-full md:w-5/12 bg-white/50 dark:bg-white/5 p-8 flex flex-col border-b md:border-b-0 md:border-r border-black/10 dark:border-white/5">
+                    {/* --- LEFT SIDE: IMAGE PREVIEW (Desktop Only) --- */}
+                    <div className="hidden md:flex w-full md:w-5/12 bg-white/50 dark:bg-white/5 p-8 flex-col border-r border-black/10 dark:border-white/5">
                         <div className="space-y-4 mb-6">
                             <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">Visuel Produit</h3>
                             <p className="text-xs font-medium text-black/50 uppercase tracking-widest">Aperçu de l'image principale</p>
@@ -248,6 +248,39 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 </div>
                             )}
 
+                            {/* Mobile Image Upload */}
+                            <div className="md:hidden space-y-2">
+                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Photo du produit</label>
+                                <label htmlFor="image-mobile" className="relative flex items-center gap-4 w-full p-2 border-2 border-dashed border-black/20 dark:border-white/10 rounded-2xl cursor-pointer hover:border-[#E67E22] hover:bg-[#E67E22]/5 transition-all bg-white dark:bg-black/50">
+                                    <input type="file" id="image-mobile" accept="image/*" onChange={(e) => {
+                                        if (e.target.files?.[0]) {
+                                            setImage(e.target.files[0]);
+                                            setImagePreview(URL.createObjectURL(e.target.files[0]));
+                                        }
+                                    }} className="hidden" />
+                                    
+                                    {imagePreview ? (
+                                        <>
+                                            <img src={imagePreview} alt="Preview" className="w-12 h-12 object-cover rounded-xl shrink-0" />
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-black dark:text-white">Image sélectionnée</span>
+                                                <span className="text-[9px] text-[#E67E22] font-black uppercase tracking-widest">Modifier la photo</span>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="size-12 bg-black/5 dark:bg-white/5 rounded-xl flex items-center justify-center text-black/40 shrink-0">
+                                                <ImageIcon size={20} />
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-black dark:text-white">Ajouter une photo</span>
+                                                <span className="text-[10px] text-black/40">Tapez ici pour choisir</span>
+                                            </div>
+                                        </>
+                                    )}
+                                </label>
+                            </div>
+
                             {/* Name */}
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Titre de l'annonce</label>
@@ -266,7 +299,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 {/* Price */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">

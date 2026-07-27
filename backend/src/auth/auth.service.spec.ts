@@ -51,14 +51,20 @@ const createMockTokenService = () => ({
   saveRefreshToken: jest.fn().mockResolvedValue(undefined),
   revokeRefreshToken: jest.fn().mockImplementation((userId, token) => {
     if (!token) {
-      throw new HttpException('Refresh token is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Refresh token is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return Promise.resolve(true);
   }),
   revokeAllRefreshTokens: jest.fn().mockResolvedValue(1),
   refreshTokenPair: jest.fn().mockImplementation((userId, token) => {
     if (!token) {
-      throw new HttpException('Refresh token is required', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Refresh token is required',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     return Promise.resolve({
       access_token: 'new.access.token',
@@ -74,11 +80,19 @@ const createMockOtpService = () => ({
 });
 
 const createMockPasswordService = () => ({
-  hash: jest.fn().mockImplementation((p) => Promise.resolve(`$2a$10$hashed_${p}`)),
-  compare: jest.fn().mockImplementation((p, h) => Promise.resolve(h === `$2a$10$hashed_${p}`)),
+  hash: jest
+    .fn()
+    .mockImplementation((p) => Promise.resolve(`$2a$10$hashed_${p}`)),
+  compare: jest
+    .fn()
+    .mockImplementation((p, h) => Promise.resolve(h === `$2a$10$hashed_${p}`)),
   validateComplexity: jest.fn().mockReturnValue(undefined),
-  generateResetToken: jest.fn().mockResolvedValue({ token: 'mock-reset-token', hash: 'mock-reset-hash' }),
-  verifyResetToken: jest.fn().mockImplementation((t, h) => Promise.resolve(h === 'mock-reset-hash')),
+  generateResetToken: jest
+    .fn()
+    .mockResolvedValue({ token: 'mock-reset-token', hash: 'mock-reset-hash' }),
+  verifyResetToken: jest
+    .fn()
+    .mockImplementation((t, h) => Promise.resolve(h === 'mock-reset-hash')),
 });
 
 const createMockUserValidationService = () => ({
@@ -124,15 +138,16 @@ const createMockUser = (overrides: Partial<User> = {}) => ({
   ...overrides,
 });
 
-const createMockVendor = (overrides: Partial<User> = {}) => createMockUser({
-  id: 'vendor-id-123',
-  email: 'vendor@example.com',
-  role: UserRole.VENDOR,
-  kycStatus: KycStatus.APPROVED,
-  boutiqueName: 'Test Boutique',
-  trustScore: 70,
-  ...overrides,
-});
+const createMockVendor = (overrides: Partial<User> = {}) =>
+  createMockUser({
+    id: 'vendor-id-123',
+    email: 'vendor@example.com',
+    role: UserRole.VENDOR,
+    kycStatus: KycStatus.APPROVED,
+    boutiqueName: 'Test Boutique',
+    trustScore: 70,
+    ...overrides,
+  });
 
 const createRegisterDto = (role: 'CLIENT' | 'VENDOR' = 'CLIENT') => {
   const base = {
@@ -208,7 +223,9 @@ describe('AuthService', () => {
     it('should successfully register a new CLIENT', async () => {
       const dto = createRegisterDto('CLIENT');
       prisma.user.findFirst.mockResolvedValue(null); // No existing user
-      prisma.user.create.mockResolvedValue(createMockUser({ email: dto.email, isVerified: false }));
+      prisma.user.create.mockResolvedValue(
+        createMockUser({ email: dto.email, isVerified: false }),
+      );
 
       const result = await service.register(dto);
 
@@ -218,7 +235,10 @@ describe('AuthService', () => {
         requiresKyc: false,
       });
       expect(prisma.user.create).toHaveBeenCalledTimes(1);
-      expect(otpService.generateAndSend).toHaveBeenCalledWith(expect.any(String), dto.email);
+      expect(otpService.generateAndSend).toHaveBeenCalledWith(
+        expect.any(String),
+        dto.email,
+      );
     });
 
     it('should create CLIENT with NOT_REQUIRED KYC status', async () => {
@@ -239,10 +259,18 @@ describe('AuthService', () => {
     it('should successfully register a new VENDOR with boutiqueName', async () => {
       const dto = createRegisterDto('VENDOR');
       userValidationService.getInitialTrustScore.mockReturnValue(50);
-      userValidationService.getInitialKycStatus.mockReturnValue(KycStatus.PENDING);
-      
+      userValidationService.getInitialKycStatus.mockReturnValue(
+        KycStatus.PENDING,
+      );
+
       prisma.user.findFirst.mockResolvedValue(null);
-      prisma.user.create.mockResolvedValue(createMockVendor({ email: dto.email, isVerified: false, kycStatus: KycStatus.PENDING }));
+      prisma.user.create.mockResolvedValue(
+        createMockVendor({
+          email: dto.email,
+          isVerified: false,
+          kycStatus: KycStatus.PENDING,
+        }),
+      );
 
       const result = await service.register(dto);
 
@@ -262,11 +290,17 @@ describe('AuthService', () => {
     });
 
     it('should reject VENDOR registration without boutiqueName', async () => {
-      const dto = { ...createRegisterDto('VENDOR'), boutiqueName: undefined } as any;
+      const dto = {
+        ...createRegisterDto('VENDOR'),
+        boutiqueName: undefined,
+      } as any;
       prisma.user.findFirst.mockResolvedValue(null);
 
       await expect(service.register(dto)).rejects.toThrow(
-        new HttpException('Boutique name is required for vendors', HttpStatus.BAD_REQUEST)
+        new HttpException(
+          'Boutique name is required for vendors',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
@@ -276,17 +310,19 @@ describe('AuthService', () => {
       prisma.user.findFirst.mockResolvedValue(createMockUser());
 
       await expect(service.register(dto)).rejects.toThrow(
-        new HttpException('User already exists', HttpStatus.CONFLICT)
+        new HttpException('User already exists', HttpStatus.CONFLICT),
       );
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
     it('should reject duplicate phone', async () => {
       const dto = createRegisterDto('CLIENT');
-      prisma.user.findFirst.mockResolvedValue(createMockUser({ phone: dto.phone }));
+      prisma.user.findFirst.mockResolvedValue(
+        createMockUser({ phone: dto.phone }),
+      );
 
       await expect(service.register(dto)).rejects.toThrow(
-        new HttpException('User already exists', HttpStatus.CONFLICT)
+        new HttpException('User already exists', HttpStatus.CONFLICT),
       );
     });
 
@@ -319,15 +355,21 @@ describe('AuthService', () => {
 
   describe('verifyOtp', () => {
     const validOtp = '123456';
-    
+
     it('should successfully verify valid OTP', async () => {
       const user = createMockUser({ isVerified: false });
       prisma.user.findUnique.mockResolvedValue(user);
       prisma.user.update.mockResolvedValue({ ...user, isVerified: true });
 
-      const result = await service.verifyOtp({ email: user.email, otp: '123456' });
+      const result = await service.verifyOtp({
+        email: user.email,
+        otp: '123456',
+      });
 
-      expect(result).toEqual({ success: true, message: 'Account verified successfully' });
+      expect(result).toEqual({
+        success: true,
+        message: 'Account verified successfully',
+      });
       expect(otpService.verify).toHaveBeenCalledWith(user.email, '123456');
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: user.id },
@@ -339,8 +381,11 @@ describe('AuthService', () => {
       otpService.verify.mockResolvedValue(true);
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.verifyOtp({ email: 'nonexistent@example.com', otp: '123456' }))
-        .rejects.toThrow(new HttpException('User not found', HttpStatus.NOT_FOUND));
+      await expect(
+        service.verifyOtp({ email: 'nonexistent@example.com', otp: '123456' }),
+      ).rejects.toThrow(
+        new HttpException('User not found', HttpStatus.NOT_FOUND),
+      );
     });
   });
 
@@ -353,7 +398,7 @@ describe('AuthService', () => {
       const user = createMockUser();
       const password = 'Password123!@#';
       user.password = `$2a$10$hashed_${password}`;
-      
+
       prisma.user.findUnique.mockResolvedValue(user);
       prisma.refreshToken.create.mockResolvedValue({});
 
@@ -392,16 +437,22 @@ describe('AuthService', () => {
     it('should reject non-existent user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.login({ email: 'nonexistent@example.com', password: 'any' }))
-        .rejects.toThrow(new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED));
+      await expect(
+        service.login({ email: 'nonexistent@example.com', password: 'any' }),
+      ).rejects.toThrow(
+        new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED),
+      );
     });
 
     it('should reject wrong password', async () => {
       const user = createMockUser();
       prisma.user.findUnique.mockResolvedValue(user);
 
-      await expect(service.login({ email: user.email, password: 'wrongpassword' }))
-        .rejects.toThrow(new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED));
+      await expect(
+        service.login({ email: user.email, password: 'wrongpassword' }),
+      ).rejects.toThrow(
+        new HttpException('Identifiants invalides', HttpStatus.UNAUTHORIZED),
+      );
     });
 
     it('should reject unverified user', async () => {
@@ -414,8 +465,11 @@ describe('AuthService', () => {
         throw new HttpException('Account not verified', HttpStatus.FORBIDDEN);
       });
 
-      await expect(service.login({ email: user.email, password }))
-        .rejects.toThrow(new HttpException('Account not verified', HttpStatus.FORBIDDEN));
+      await expect(
+        service.login({ email: user.email, password }),
+      ).rejects.toThrow(
+        new HttpException('Account not verified', HttpStatus.FORBIDDEN),
+      );
     });
 
     it('should reject VENDOR with pending KYC', async () => {
@@ -425,11 +479,17 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(vendor);
 
       userValidationService.validateLoginEligibility.mockImplementation(() => {
-        throw new HttpException('KYC verification required', HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          'KYC verification required',
+          HttpStatus.FORBIDDEN,
+        );
       });
 
-      await expect(service.login({ email: vendor.email, password }))
-        .rejects.toThrow(new HttpException('KYC verification required', HttpStatus.FORBIDDEN));
+      await expect(
+        service.login({ email: vendor.email, password }),
+      ).rejects.toThrow(
+        new HttpException('KYC verification required', HttpStatus.FORBIDDEN),
+      );
     });
 
     it('should reject VENDOR with rejected KYC', async () => {
@@ -439,11 +499,17 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(vendor);
 
       userValidationService.validateLoginEligibility.mockImplementation(() => {
-        throw new HttpException('KYC verification required', HttpStatus.FORBIDDEN);
+        throw new HttpException(
+          'KYC verification required',
+          HttpStatus.FORBIDDEN,
+        );
       });
 
-      await expect(service.login({ email: vendor.email, password }))
-        .rejects.toThrow(new HttpException('KYC verification required', HttpStatus.FORBIDDEN));
+      await expect(
+        service.login({ email: vendor.email, password }),
+      ).rejects.toThrow(
+        new HttpException('KYC verification required', HttpStatus.FORBIDDEN),
+      );
     });
 
     it('should save refresh token after successful login', async () => {
@@ -487,7 +553,10 @@ describe('AuthService', () => {
       const result = await service.forgotPassword({ email: user.email });
 
       expect(result).toEqual({ success: true });
-      expect(emailService.sendPasswordReset).toHaveBeenCalledWith(user.email, expect.any(String));
+      expect(emailService.sendPasswordReset).toHaveBeenCalledWith(
+        user.email,
+        expect.any(String),
+      );
     });
 
     it('should store hashed reset token', async () => {
@@ -516,7 +585,7 @@ describe('AuthService', () => {
       const updateCall = prisma.user.update.mock.calls[0][0];
       const expiresAt = updateCall.data.resetTokenExpiresAt;
       const oneHourFromNow = Date.now() + 60 * 60 * 1000;
-      
+
       // Should be within 1 second of one hour from now
       expect(Math.abs(expiresAt.getTime() - oneHourFromNow)).toBeLessThan(1000);
     });
@@ -524,7 +593,9 @@ describe('AuthService', () => {
     it('should return success for non-existent user (security)', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      const result = await service.forgotPassword({ email: 'nonexistent@example.com' });
+      const result = await service.forgotPassword({
+        email: 'nonexistent@example.com',
+      });
 
       expect(result).toEqual({ success: true });
       expect(emailService.sendPasswordReset).not.toHaveBeenCalled();
@@ -553,7 +624,10 @@ describe('AuthService', () => {
         newPassword: 'NewPassword123!@#',
       });
 
-      expect(result).toEqual({ success: true, message: 'Password reset successful' });
+      expect(result).toEqual({
+        success: true,
+        message: 'Password reset successful',
+      });
     });
 
     it('should hash the new password', async () => {
@@ -619,11 +693,15 @@ describe('AuthService', () => {
     it('should reject non-existent user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.resetPassword({
-        email: 'nonexistent@example.com',
-        token: validToken,
-        newPassword: 'NewPassword123!@#',
-      })).rejects.toThrow(new HttpException('Invalid or expired token', HttpStatus.BAD_REQUEST));
+      await expect(
+        service.resetPassword({
+          email: 'nonexistent@example.com',
+          token: validToken,
+          newPassword: 'NewPassword123!@#',
+        }),
+      ).rejects.toThrow(
+        new HttpException('Invalid or expired token', HttpStatus.BAD_REQUEST),
+      );
     });
 
     it('should reject invalid token', async () => {
@@ -635,11 +713,15 @@ describe('AuthService', () => {
 
       passwordService.verifyResetToken.mockResolvedValue(false);
 
-      await expect(service.resetPassword({
-        email: user.email,
-        token: 'wrong-token',
-        newPassword: 'NewPassword123!@#',
-      })).rejects.toThrow(new HttpException('Invalid token', HttpStatus.BAD_REQUEST));
+      await expect(
+        service.resetPassword({
+          email: user.email,
+          token: 'wrong-token',
+          newPassword: 'NewPassword123!@#',
+        }),
+      ).rejects.toThrow(
+        new HttpException('Invalid token', HttpStatus.BAD_REQUEST),
+      );
     });
 
     it('should reject expired token', async () => {
@@ -650,11 +732,15 @@ describe('AuthService', () => {
       prisma.user.findUnique.mockResolvedValue(user);
       prisma.user.update.mockResolvedValue(user);
 
-      await expect(service.resetPassword({
-        email: user.email,
-        token: validToken,
-        newPassword: 'NewPassword123!@#',
-      })).rejects.toThrow(new HttpException('Reset token has expired', HttpStatus.BAD_REQUEST));
+      await expect(
+        service.resetPassword({
+          email: user.email,
+          token: validToken,
+          newPassword: 'NewPassword123!@#',
+        }),
+      ).rejects.toThrow(
+        new HttpException('Reset token has expired', HttpStatus.BAD_REQUEST),
+      );
     });
 
     it('should reject if no reset token exists', async () => {
@@ -664,11 +750,15 @@ describe('AuthService', () => {
       });
       prisma.user.findUnique.mockResolvedValue(user);
 
-      await expect(service.resetPassword({
-        email: user.email,
-        token: validToken,
-        newPassword: 'NewPassword123!@#',
-      })).rejects.toThrow(new HttpException('No active reset request', HttpStatus.BAD_REQUEST));
+      await expect(
+        service.resetPassword({
+          email: user.email,
+          token: validToken,
+          newPassword: 'NewPassword123!@#',
+        }),
+      ).rejects.toThrow(
+        new HttpException('No active reset request', HttpStatus.BAD_REQUEST),
+      );
     });
   });
 
@@ -692,12 +782,16 @@ describe('AuthService', () => {
 
       const result = await service.logout('user-id-123', 'unknown-token');
 
-      expect(result).toEqual({ success: true, message: 'Session already terminated' });
+      expect(result).toEqual({
+        success: true,
+        message: 'Session already terminated',
+      });
     });
 
     it('should reject if no refresh token provided', async () => {
-      await expect(service.logout('user-id-123', ''))
-        .rejects.toThrow('Refresh token is required');
+      await expect(service.logout('user-id-123', '')).rejects.toThrow(
+        'Refresh token is required',
+      );
     });
   });
 
@@ -710,7 +804,9 @@ describe('AuthService', () => {
       const result = await service.logoutAll('user-id-123');
 
       expect(result.success).toBe(true);
-      expect(tokenService.revokeAllRefreshTokens).toHaveBeenCalledWith('user-id-123');
+      expect(tokenService.revokeAllRefreshTokens).toHaveBeenCalledWith(
+        'user-id-123',
+      );
     });
   });
 
@@ -723,7 +819,10 @@ describe('AuthService', () => {
       const result = await service.refreshTokens('user-123', 'refresh-token');
 
       expect(result).toHaveProperty('access_token');
-      expect(tokenService.refreshTokenPair).toHaveBeenCalledWith('user-123', 'refresh-token');
+      expect(tokenService.refreshTokenPair).toHaveBeenCalledWith(
+        'user-123',
+        'refresh-token',
+      );
     });
   });
 
@@ -764,8 +863,9 @@ describe('AuthService', () => {
     it('should reject if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.getUserProfile('nonexistent-id'))
-        .rejects.toThrow(new HttpException('User not found', HttpStatus.NOT_FOUND));
+      await expect(service.getUserProfile('nonexistent-id')).rejects.toThrow(
+        new HttpException('User not found', HttpStatus.NOT_FOUND),
+      );
     });
   });
 
@@ -781,7 +881,10 @@ describe('AuthService', () => {
       const result = await service.resendOtp(user.email);
 
       expect(result).toEqual({ success: true, message: 'New OTP sent' });
-      expect(otpService.generateAndSend).toHaveBeenCalledWith(user.id, user.email);
+      expect(otpService.generateAndSend).toHaveBeenCalledWith(
+        user.id,
+        user.email,
+      );
     });
 
     it('should return success for non-existent user (security)', async () => {
@@ -804,4 +907,3 @@ describe('AuthService', () => {
     });
   });
 });
-

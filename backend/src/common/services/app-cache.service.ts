@@ -33,7 +33,11 @@ export class AppCacheService {
     return value;
   }
 
-  async getOrSet<T>(key: string, ttlMs: number, factory: () => Promise<T>): Promise<T> {
+  async getOrSet<T>(
+    key: string,
+    ttlMs: number,
+    factory: () => Promise<T>,
+  ): Promise<T> {
     const cached = this.get<T>(key);
 
     if (cached !== null) {

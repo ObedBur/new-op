@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -32,7 +27,7 @@ export class AuthService {
     private readonly userValidationService: UserValidationService,
     private readonly emailService: EmailService,
     private readonly moderationService: ModerationService,
-  ) { }
+  ) {}
 
   // ========================= REGISTER =========================
 
@@ -59,7 +54,9 @@ export class AuthService {
 
     const passwordHash = await this.passwordService.hash(dto.password);
 
-    const trustScore = this.userValidationService.getInitialTrustScore(dto.role);
+    const trustScore = this.userValidationService.getInitialTrustScore(
+      dto.role,
+    );
     const kycStatus = this.userValidationService.getInitialKycStatus(dto.role);
 
     const user = await this.prisma.user.create({
@@ -71,7 +68,7 @@ export class AuthService {
         province: dto.province,
         commune: dto.commune,
         city: dto.city || dto.commune,
-        country: dto.country || "RD Congo",
+        country: dto.country || 'RD Congo',
         address: dto.address,
         boutiqueName: dto.boutiqueName,
         role: dto.role,
@@ -110,14 +107,18 @@ export class AuthService {
         otpHash: null,
         otpExpiresAt: null,
         otpAttempts: 0,
-        trustScore: this.userValidationService.calculateScoreAfterVerification(user.trustScore),
+        trustScore: this.userValidationService.calculateScoreAfterVerification(
+          user.trustScore,
+        ),
       },
     });
 
     // Envoi du message de bienvenue (CORRIGÉ : sendWelcome -> sendWelcomeEmail)
-    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
-      this.logger.error(`Failed to send welcome email to ${user.email}`, err)
-    );
+    this.emailService
+      .sendWelcomeEmail(user.email, user.fullName)
+      .catch((err) =>
+        this.logger.error(`Failed to send welcome email to ${user.email}`, err),
+      );
 
     return { success: true, message: 'Account verified successfully' };
   }
@@ -132,22 +133,29 @@ export class AuthService {
     if (!user) {
       this.logger.debug(`Utilisateur non trouvé: ${dto.email}`);
       // En prod, message générique pour sécurité. En dev, message spécifique
-      const message = process.env.NODE_ENV === 'production'
-        ? 'Identifiants invalides'
-        : 'Email not found';
+      const message =
+        process.env.NODE_ENV === 'production'
+          ? 'Identifiants invalides'
+          : 'Email not found';
       throw new HttpException(message, HttpStatus.UNAUTHORIZED);
     }
 
-    this.logger.debug(`Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`);
-    const isPasswordValid = await this.passwordService.compare(dto.password, user.password);
+    this.logger.debug(
+      `Tentative de connexion pour: ${dto.email}, Password Length: ${dto.password?.length}`,
+    );
+    const isPasswordValid = await this.passwordService.compare(
+      dto.password,
+      user.password,
+    );
     this.logger.debug(`Mot de passe valide: ${isPasswordValid}`);
 
     if (!isPasswordValid) {
       this.logger.debug(`Mot de passe incorrect pour: ${dto.email}`);
       // En prod, message générique pour sécurité. En dev, message spécifique
-      const message = process.env.NODE_ENV === 'production'
-        ? 'Identifiants invalides'
-        : 'Invalid password';
+      const message =
+        process.env.NODE_ENV === 'production'
+          ? 'Identifiants invalides'
+          : 'Invalid password';
       throw new HttpException(message, HttpStatus.UNAUTHORIZED);
     }
 
@@ -192,7 +200,8 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const { token, hash: tokenHash } = await this.passwordService.generateResetToken();
+    const { token, hash: tokenHash } =
+      await this.passwordService.generateResetToken();
 
     if (process.env.NODE_ENV !== 'production') {
       this.logger.debug(`[DEV RESET TOKEN] ${dto.email} -> ${token}`);
@@ -202,7 +211,9 @@ export class AuthService {
       where: { id: user.id },
       data: {
         resetTokenHash: tokenHash,
-        resetTokenExpiresAt: new Date(Date.now() + AUTH_CONSTANTS.RESET_TOKEN_EXPIRY_MS),
+        resetTokenExpiresAt: new Date(
+          Date.now() + AUTH_CONSTANTS.RESET_TOKEN_EXPIRY_MS,
+        ),
       },
     });
 
@@ -219,11 +230,17 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException('Invalid or expired token', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid or expired token',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (!user.resetTokenHash || !user.resetTokenExpiresAt) {
-      throw new HttpException('No active reset request', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'No active reset request',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (new Date() > user.resetTokenExpiresAt) {
@@ -235,10 +252,16 @@ export class AuthService {
           resetTokenExpiresAt: null,
         },
       });
-      throw new HttpException('Reset token has expired', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Reset token has expired',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const isValid = await this.passwordService.verifyResetToken(dto.token, user.resetTokenHash);
+    const isValid = await this.passwordService.verifyResetToken(
+      dto.token,
+      user.resetTokenHash,
+    );
     if (!isValid) {
       throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
     }
@@ -264,11 +287,16 @@ export class AuthService {
   // ========================= LOGOUT =========================
 
   async logout(userId: string, refreshToken: string) {
-    const revoked = await this.tokenService.revokeRefreshToken(userId, refreshToken);
+    const revoked = await this.tokenService.revokeRefreshToken(
+      userId,
+      refreshToken,
+    );
 
     return {
       success: true,
-      message: revoked ? 'Session logged out successfully' : 'Session already terminated',
+      message: revoked
+        ? 'Session logged out successfully'
+        : 'Session already terminated',
     };
   }
 
@@ -352,17 +380,27 @@ export class AuthService {
     if (dto.boutiqueName) data.boutiqueName = dto.boutiqueName;
     if (dto.avatarUrl) data.avatarUrl = dto.avatarUrl;
     if (dto.profilePicture && typeof dto.profilePicture === 'string') {
-      const isValid = await this.moderationService.validateImage(dto.profilePicture);
+      const isValid = await this.moderationService.validateImage(
+        dto.profilePicture,
+      );
       if (!isValid) {
-        throw new HttpException('Image de profil inappropriée détectée', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Image de profil inappropriée détectée',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       data.avatarUrl = dto.profilePicture;
     }
 
     if (dto.coverPicture && typeof dto.coverPicture === 'string') {
-      const isValid = await this.moderationService.validateImage(dto.coverPicture);
+      const isValid = await this.moderationService.validateImage(
+        dto.coverPicture,
+      );
       if (!isValid) {
-        throw new HttpException('Image de couverture inappropriée détectée', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'Image de couverture inappropriée détectée',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       data.coverUrl = dto.coverPicture;
     }
@@ -370,11 +408,20 @@ export class AuthService {
     // Gestion du mot de passe
     if (dto.password) {
       if (!dto.oldPassword) {
-        throw new HttpException('L\'ancien mot de passe est requis', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          "L'ancien mot de passe est requis",
+          HttpStatus.BAD_REQUEST,
+        );
       }
-      const isOldPasswordValid = await this.passwordService.compare(dto.oldPassword, user.password);
+      const isOldPasswordValid = await this.passwordService.compare(
+        dto.oldPassword,
+        user.password,
+      );
       if (!isOldPasswordValid) {
-        throw new HttpException('L\'ancien mot de passe est incorrect', HttpStatus.UNAUTHORIZED);
+        throw new HttpException(
+          "L'ancien mot de passe est incorrect",
+          HttpStatus.UNAUTHORIZED,
+        );
       }
 
       // Validation de la complexité du nouveau mot de passe
@@ -429,12 +476,24 @@ export class AuthService {
   /**
    * Si l'entrée de notifications n'existe pas.
    */
-  async updateNotificationPreferences(userId: string, dto: Partial<{
-    ordersPush: boolean; ordersEmail: boolean; ordersInApp: boolean; ordersSms: boolean;
-    followsPush: boolean; followsEmail: boolean; followsInApp: boolean; followsSms: boolean;
-    promosPush: boolean; promosEmail: boolean; promosSms: boolean;
-    securityEmail: boolean; securityInApp: boolean;
-  }>) {
+  async updateNotificationPreferences(
+    userId: string,
+    dto: Partial<{
+      ordersPush: boolean;
+      ordersEmail: boolean;
+      ordersInApp: boolean;
+      ordersSms: boolean;
+      followsPush: boolean;
+      followsEmail: boolean;
+      followsInApp: boolean;
+      followsSms: boolean;
+      promosPush: boolean;
+      promosEmail: boolean;
+      promosSms: boolean;
+      securityEmail: boolean;
+      securityInApp: boolean;
+    }>,
+  ) {
     return this.prisma.notificationPreference.upsert({
       where: { userId },
       update: dto,

@@ -25,12 +25,14 @@ export class SellersService {
       trustScore: vendor.trustScore,
       isVerified: vendor.isVerified,
       avatarUrl: vendor.avatarUrl,
-      productPreviews: vendor.products.flatMap((p) => {
-        if (p.images && p.images.length > 0) {
-          return p.images;
-        }
-        return p.image ? [p.image] : [];
-      }).slice(0, 3),
+      productPreviews: vendor.products
+        .flatMap((p) => {
+          if (p.images && p.images.length > 0) {
+            return p.images;
+          }
+          return p.image ? [p.image] : [];
+        })
+        .slice(0, 3),
     }));
   }
 

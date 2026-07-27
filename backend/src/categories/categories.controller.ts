@@ -1,10 +1,16 @@
-import { Controller, Get, Param, ParseIntPipe, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
   // On met en cache les catégories pour 24 heures
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(86400)
@@ -13,7 +19,7 @@ export class CategoriesController {
     const categories = await this.categoriesService.findAll();
     return {
       success: true,
-      data: categories
+      data: categories,
     };
   }
   // Recherche d'une catégorie par id
@@ -22,8 +28,7 @@ export class CategoriesController {
     const category = await this.categoriesService.findOne(id);
     return {
       success: true,
-      data: category
+      data: category,
     };
   }
 }
-

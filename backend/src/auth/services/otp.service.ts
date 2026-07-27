@@ -35,9 +35,11 @@ export class OtpService {
     }
 
     // Envoi en arrire-plan sans "await" pour ne pas bloquer le frontend
-    this.emailService.sendOtp(email, plainOtp).catch(err => 
-      this.logger.error(`Background email send failed: ${err.message}`)
-    );
+    this.emailService
+      .sendOtp(email, plainOtp)
+      .catch((err) =>
+        this.logger.error(`Background email send failed: ${err.message}`),
+      );
 
     return plainOtp;
   }
@@ -76,7 +78,8 @@ export class OtpService {
 
     if (!isValid) {
       await this.incrementAttempts(user.id);
-      const remaining = AUTH_CONSTANTS.MAX_OTP_ATTEMPTS - (user.otpAttempts + 1);
+      const remaining =
+        AUTH_CONSTANTS.MAX_OTP_ATTEMPTS - (user.otpAttempts + 1);
       throw new HttpException(
         `Invalid OTP. ${remaining} attempt(s) remaining.`,
         HttpStatus.BAD_REQUEST,
@@ -115,4 +118,3 @@ export class OtpService {
     return crypto.randomInt(100000, 999999).toString();
   }
 }
-

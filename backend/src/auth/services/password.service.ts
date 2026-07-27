@@ -37,7 +37,9 @@ export class PasswordService {
    * Generates a secure random reset token and its hash
    */
   async generateResetToken(): Promise<{ token: string; hash: string }> {
-    const token = crypto.randomBytes(AUTH_CONSTANTS.RESET_TOKEN_BYTES).toString('hex');
+    const token = crypto
+      .randomBytes(AUTH_CONSTANTS.RESET_TOKEN_BYTES)
+      .toString('hex');
     const hash = await this.hash(token);
     return { token, hash };
   }
@@ -49,4 +51,3 @@ export class PasswordService {
     return this.compare(token, hash);
   }
 }
-

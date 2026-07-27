@@ -26,7 +26,9 @@ export class DevOnlyGuard implements CanActivate {
     const isProduction = process.env.NODE_ENV === 'production';
 
     if (isProduction) {
-      const request = context.switchToHttp().getRequest<{ url?: string; ip?: string }>();
+      const request = context
+        .switchToHttp()
+        .getRequest<{ url?: string; ip?: string }>();
       this.logger.warn(
         `[DevOnlyGuard] Accès refusé à un endpoint de debug en production. ` +
           `URL: ${request?.url ?? 'unknown'} | IP: ${request?.ip ?? 'unknown'}`,

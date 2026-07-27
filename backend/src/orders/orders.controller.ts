@@ -1,4 +1,14 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Param,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
@@ -15,7 +25,7 @@ export class OrdersController {
   async create(@Body() createOrderDto: CreateOrderDto, @Req() req: JwtRequest) {
     const clientId = req.user.id;
     const order = await this.ordersService.create(createOrderDto, clientId);
-    
+
     return {
       success: true,
       message: 'Commande creee avec succes',
@@ -26,10 +36,16 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   @Post('bulk')
   @HttpCode(HttpStatus.CREATED)
-  async createBulk(@Body() createBulkOrderDto: CreateBulkOrderDto, @Req() req: JwtRequest) {
+  async createBulk(
+    @Body() createBulkOrderDto: CreateBulkOrderDto,
+    @Req() req: JwtRequest,
+  ) {
     const clientId = req.user.id;
-    const result = await this.ordersService.createBulk(createBulkOrderDto, clientId);
-    
+    const result = await this.ordersService.createBulk(
+      createBulkOrderDto,
+      clientId,
+    );
+
     return {
       success: true,
       message: 'Commandes traitees avec succes',
@@ -70,13 +86,13 @@ export class OrdersController {
   async updateOrderStatus(
     @Req() req: JwtRequest,
     @Param('id') orderId: string,
-    @Body('status') status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+    @Body('status') status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
   ) {
     const result = await this.ordersService.updateStatus(
       orderId,
       status,
-      req.user.id,    // ← ID de l'utilisateur connecté
-      req.user.role,  // ← Rôle : VENDOR, ADMIN ou CLIENT
+      req.user.id, // ← ID de l'utilisateur connecté
+      req.user.role, // ← Rôle : VENDOR, ADMIN ou CLIENT
     );
 
     return {

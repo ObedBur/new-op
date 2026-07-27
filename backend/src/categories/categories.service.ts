@@ -13,30 +13,33 @@ export class CategoriesService {
   ) {}
 
   async findAll() {
-    return this.cache.getOrSet(CATEGORIES_CACHE_KEY, CATEGORIES_TTL_MS, async () => {
-      const categories = await this.prisma.category.findMany({
-        include: {
-          _count: {
-            select: { products: true }
-          }
-        }
-      });
+    return this.cache.getOrSet(
+      CATEGORIES_CACHE_KEY,
+      CATEGORIES_TTL_MS,
+      async () => {
+        const categories = await this.prisma.category.findMany({
+          include: {
+            _count: {
+              select: { products: true },
+            },
+          },
+        });
 
-      // To match frontend expected type 'productCount'
-      return categories.map(cat => ({
-        ...cat,
-        productCount: cat._count.products
-      }));
-    });
+        // To match frontend expected type 'productCount'
+        return categories.map((cat) => ({
+          ...cat,
+          productCount: cat._count.products,
+        }));
+      },
+    );
   }
 
   async findOne(id: number) {
     return this.prisma.category.findUnique({
       where: { id },
       include: {
-        products: true
-      }
+        products: true,
+      },
     });
   }
 }
-

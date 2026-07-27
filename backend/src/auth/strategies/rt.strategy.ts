@@ -8,7 +8,9 @@ import { RefreshTokenPayload } from '../types/auth-request.types';
 function getRefreshSecret(): string {
   const secret = process.env.JWT_REFRESH_SECRET;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('[SECURITY] JWT_REFRESH_SECRET is not defined in production');
+    throw new Error(
+      '[SECURITY] JWT_REFRESH_SECRET is not defined in production',
+    );
   }
   return secret || 'dev_refresh_secret_wapibei_2026';
 }
@@ -26,7 +28,10 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   /**
    * Version Fastify de la validation
    */
-  validate(req: FastifyRequest, payload: JwtPayload): RefreshTokenPayload | null {
+  validate(
+    req: FastifyRequest,
+    payload: JwtPayload,
+  ): RefreshTokenPayload | null {
     // Dans Fastify, on n'utilise pas .get('authorization') mais .headers
     const authHeader = req.headers.authorization;
 

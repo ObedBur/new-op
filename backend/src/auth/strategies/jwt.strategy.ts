@@ -1,5 +1,9 @@
 // src/auth/strategies/jwt.strategy.ts
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -13,7 +17,9 @@ import { AuthenticatedUser } from '../types/auth-request.types';
 function getJwtSecret(): string {
   const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('[SECURITY] JWT_ACCESS_SECRET or JWT_SECRET is not defined in production');
+    throw new Error(
+      '[SECURITY] JWT_ACCESS_SECRET or JWT_SECRET is not defined in production',
+    );
   }
   return secret || 'dev_jwt_secret_wapibei_2026';
 }
@@ -68,4 +74,3 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return user;
   }
 }
-

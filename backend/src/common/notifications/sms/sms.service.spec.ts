@@ -41,7 +41,7 @@ describe('SmsService Architecture & Robustness', () => {
 
     service = module.get<SmsService>(SmsService);
     mockProvider = module.get<MockSmsProvider>(MockSmsProvider);
-    
+
     // Empêche le logger d'encombrer la console pendant les tests
     jest.spyOn(service['logger'], 'log').mockImplementation(() => {});
     jest.spyOn(service['logger'], 'warn').mockImplementation(() => {});
@@ -96,7 +96,8 @@ describe('SmsService Architecture & Robustness', () => {
     });
 
     it('doit retry sur SmsTimeoutError', async () => {
-      jest.spyOn(mockProvider, 'send')
+      jest
+        .spyOn(mockProvider, 'send')
         .mockRejectedValueOnce(new SmsTimeoutError(5000))
         .mockResolvedValueOnce({ messageId: '123' });
 
@@ -114,7 +115,7 @@ describe('SmsService Architecture & Robustness', () => {
 
       expect(result.sent).toBe(false);
       expect(result.reason).toBe('provider_error');
-      expect(result.attempts).toBe(1); 
+      expect(result.attempts).toBe(1);
       expect(mockProvider.send).toHaveBeenCalledTimes(1);
     });
   });
@@ -128,7 +129,9 @@ describe('SmsService Architecture & Robustness', () => {
 
     it('TwilioSmsProvider doit throw une exception "Not implemented"', async () => {
       const twilioProvider = new TwilioSmsProvider();
-      await expect(twilioProvider.send('+33600000000', 'Test')).rejects.toThrow('Twilio provider not yet implemented.');
+      await expect(twilioProvider.send('+33600000000', 'Test')).rejects.toThrow(
+        'Twilio provider not yet implemented.',
+      );
     });
   });
 });

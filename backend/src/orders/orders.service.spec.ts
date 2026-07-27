@@ -89,7 +89,12 @@ describe('OrdersService', () => {
       totalPrice: 100,
       product: { id: 'prod-1', name: 'Téléphone Samsung' },
       client: { id: 'client-1', fullName: 'Jean Dupont' },
-      vendor: { id: vendorId, fullName: 'Vendeur Test', boutiqueName: 'Boutique Test', trustScore: 50 },
+      vendor: {
+        id: vendorId,
+        fullName: 'Vendeur Test',
+        boutiqueName: 'Boutique Test',
+        trustScore: 50,
+      },
     };
 
     const mockUpdatedOrder = { ...mockOrder, status: 'DELIVERED' };
@@ -98,25 +103,35 @@ describe('OrdersService', () => {
       mockPrismaService.order.findUnique.mockResolvedValue(mockOrder);
       mockPrismaService.order.update.mockResolvedValue(mockUpdatedOrder);
       mockPrismaService.user.findMany.mockResolvedValue([]);
-      mockPrismaService.user.update.mockResolvedValue({ id: vendorId, trustScore: 51 });
+      mockPrismaService.user.update.mockResolvedValue({
+        id: vendorId,
+        trustScore: 51,
+      });
     });
 
     it('should throw NotFoundException if the order does not exist', async () => {
       mockPrismaService.order.findUnique.mockResolvedValue(null);
-      await expect(service.updateStatus(orderId, 'DELIVERED', vendorId, 'VENDOR'))
-        .rejects.toThrow(NotFoundException);
+      await expect(
+        service.updateStatus(orderId, 'DELIVERED', vendorId, 'VENDOR'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException if requester is not the owner or admin', async () => {
-      await expect(service.updateStatus(orderId, 'DELIVERED', 'other-user-id', 'VENDOR'))
-        .rejects.toThrow(ForbiddenException);
+      await expect(
+        service.updateStatus(orderId, 'DELIVERED', 'other-user-id', 'VENDOR'),
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it('should allow an ADMIN to update any order status', async () => {
-      const result = await service.updateStatus(orderId, 'DELIVERED', 'admin-id', 'ADMIN');
+      const result = await service.updateStatus(
+        orderId,
+        'DELIVERED',
+        'admin-id',
+        'ADMIN',
+      );
       expect(result).toBeDefined();
       expect(mockPrismaService.order.update).toHaveBeenCalledWith(
-        expect.objectContaining({ data: { status: 'DELIVERED' } })
+        expect.objectContaining({ data: { status: 'DELIVERED' } }),
       );
     });
 
@@ -173,11 +188,17 @@ describe('OrdersService', () => {
     });
 
     it('should send a notification to the client when order is CONFIRMED', async () => {
-      mockPrismaService.order.update.mockResolvedValue({ ...mockOrder, status: 'CONFIRMED' });
+      mockPrismaService.order.update.mockResolvedValue({
+        ...mockOrder,
+        status: 'CONFIRMED',
+      });
       await service.updateStatus(orderId, 'CONFIRMED', vendorId, 'VENDOR');
 
       expect(mockNotificationsService.createNotification).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Commande confirmée', userId: mockOrder.clientId })
+        expect.objectContaining({
+          title: 'Commande confirmée',
+          userId: mockOrder.clientId,
+        }),
       );
     });
   });
@@ -194,7 +215,7 @@ describe('OrdersService', () => {
 
       expect(result).toEqual(mockOrders);
       expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { vendorId: 'vendor-1' } })
+        expect.objectContaining({ where: { vendorId: 'vendor-1' } }),
       );
     });
   });
@@ -208,7 +229,7 @@ describe('OrdersService', () => {
 
       expect(result).toEqual(mockOrders);
       expect(mockPrismaService.order.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { clientId: 'client-1' } })
+        expect.objectContaining({ where: { clientId: 'client-1' } }),
       );
     });
   });

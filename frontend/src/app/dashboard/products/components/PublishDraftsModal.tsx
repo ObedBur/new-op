@@ -17,12 +17,6 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
     const [isLoading, setIsLoading] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchDrafts();
-        }
-    }, [isOpen]);
-
     const fetchDrafts = async () => {
         setIsLoading(true);
         try {
@@ -33,12 +27,18 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
             const pending = res.data.data.filter((p: any) => !p.isPublic);
             setDrafts(pending);
             setSelectedIds(pending.map((p: any) => p.id)); // Select all by default
-        } catch (error) {
+        } catch {
             toast.error("Erreur lors de la récupération des brouillons");
         } finally {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchDrafts();
+        }
+    }, [isOpen]);
 
     const toggleSelect = (id: string) => {
         setSelectedIds(prev => 

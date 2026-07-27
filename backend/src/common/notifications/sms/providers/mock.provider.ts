@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ISmsProvider, ProviderResponse } from '../interfaces/sms-provider.interface';
+import {
+  ISmsProvider,
+  ProviderResponse,
+} from '../interfaces/sms-provider.interface';
 
 @Injectable()
 export class MockSmsProvider implements ISmsProvider {
@@ -9,7 +12,7 @@ export class MockSmsProvider implements ISmsProvider {
   async send(phone: string, message: string): Promise<ProviderResponse> {
     this.logger.log(`[Mock] Simulation d'envoi vers ${phone}...`);
     await new Promise<void>((resolve) => setTimeout(resolve, 500));
-    
+
     return {
       messageId: `mock-${Date.now()}`,
       status: 'queued',

@@ -1,4 +1,14 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, Delete, Patch, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Delete,
+  Patch,
+  Put,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -14,7 +24,7 @@ import { UpdateNotificationPreferencesDto } from './dto/update-notification-pref
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   // =============== PUBLIC ROUTES ===============
 
@@ -50,7 +60,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto);
-
   }
 
   @Post('reset-password')
@@ -64,10 +73,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(
-    @Req() req: JwtRequest,
-    @Body('refreshToken') refreshToken: string,
-  ) {
+  logout(@Req() req: JwtRequest, @Body('refreshToken') refreshToken: string) {
     const userId = req.user.id;
     return this.authService.logout(userId, refreshToken);
   }
@@ -100,10 +106,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('profile')
-  async updateProfile(
-    @Req() req: JwtRequest,
-    @Body() dto: any,
-  ) {
+  async updateProfile(@Req() req: JwtRequest, @Body() dto: any) {
     const userId = req.user.id;
     return this.authService.updateProfile(userId, dto);
   }
@@ -111,10 +114,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Patch('profile')
-  async patchProfile(
-    @Req() req: JwtRequest,
-    @Body() dto: any,
-  ) {
+  async patchProfile(@Req() req: JwtRequest, @Body() dto: any) {
     const userId = req.user.id;
     return this.authService.updateProfile(userId, dto);
   }
@@ -166,4 +166,3 @@ export class AuthController {
     };
   }
 }
-

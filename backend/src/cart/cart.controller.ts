@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtRequest } from '../auth/types/auth-request.types';
 import { CartService } from './cart.service';
@@ -32,7 +44,10 @@ export class CartController {
   }
 
   @Delete('items/:productId')
-  async removeItem(@Req() req: JwtRequest, @Param('productId') productId: string) {
+  async removeItem(
+    @Req() req: JwtRequest,
+    @Param('productId') productId: string,
+  ) {
     return this.cartService.removeItem(req.user.id, productId);
   }
 

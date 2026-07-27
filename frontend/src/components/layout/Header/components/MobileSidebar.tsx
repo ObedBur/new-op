@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { User } from '@/types/auth';
 import { 
   X, 
@@ -46,7 +46,15 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   onLogout
 }) => {
   const pathname = usePathname();
-  const isActive = (path: string) => pathname === path;
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get('tab');
+  const isActive = (path: string) => {
+    if (path.includes('?tab=')) {
+      const tabName = path.split('?tab=')[1];
+      return pathname === '/settings' && currentTab === tabName;
+    }
+    return pathname === path;
+  };
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -58,6 +66,16 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
   };
+
+  const vendorMenuItems = [
+    { label: 'Mon Profil', href: '/settings?tab=profile' },
+    { label: 'Mes Ventes', href: '/dashboard/orders' },
+    { label: 'Mes Produits', href: '/dashboard/products' },
+    { label: 'Analytiques', href: '/dashboard/analytics' },
+    { label: 'Notifications', href: '/settings?tab=notifications' },
+    { label: 'Sécurité', href: '/settings?tab=security' },
+    { label: 'Préférences', href: '/settings?tab=preferences' },
+  ];
 
   const sidebarContent = (
     <div className={`fixed inset-0 z-[99999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
@@ -122,67 +140,59 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
           )}
         </div>
 
-        {/* Scrollable Navigation - Minimal Textual List */}
-        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-4 scrollbar-hide">
-          
-          <div className="space-y-1">
-            <div className="px-6 mb-2">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">Navigation Principale</span>
-            </div>
-
-            <div className="grid gap-1 px-2">
-              {navLinks?.filter(l => l.id !== '/compare').map((link) => (
-                <Link 
-                  key={link.id}
-                  href={link.id}
-                  onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+        {/* Scrollable Navigation - Simplified */}
+        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-1 scrollbar-hide">
+          <div className="grid gap-1 px-2">
+            {navLinks?.filter(l => l.id !== '/compare').map((link) => (
+              <Link 
+                key={link.id}
+                href={link.id}
+                onClick={onClose}
+                className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {isAuthenticated && (
-            <div className="space-y-1 pt-2">
-              <div className="px-6 mb-2">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">
-                  {user?.role === 'VENDOR' ? 'Espace Vendeur' : 'Espace Client'}
-                </span>
-              </div>
+            <>
+              <div className="h-px bg-gray-100 dark:bg-white/5 mx-2 my-2" />
               <div className="grid gap-1 px-2">
                 {user?.role === 'VENDOR' && (
-                  <Link 
-                    href="/dashboard" 
+                  <Link
+                    href="/dashboard"
                     onClick={onClose}
-                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/dashboard') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${
+                      isActive('/dashboard')
+                        ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                        : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'
+                    }`}
                   >
                     Tableau de bord
                   </Link>
                 )}
-                
-                <Link 
-                  href="/settings" 
+                <Link
+                  href="/settings"
                   onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${
+                    isActive('/settings')
+                      ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20'
+                      : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'
+                  }`}
                 >
                   Mon Compte
                 </Link>
               </div>
-            </div>
-          )}
-
-          {/* Logout Section */}
-          {isAuthenticated && (
-            <div className="pt-2 mt-2 px-2 border-t border-gray-100 dark:border-white/5">
+              <div className="pt-2 mt-2 px-2 border-t border-gray-100 dark:border-white/5">
                 <button 
                   onClick={() => { onLogout(); onClose(); }}
                   className="w-full block px-4 py-2.5 rounded-xl text-[11px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left uppercase tracking-wider"
                 >
                   Se déconnecter
                 </button>
-            </div>
+              </div>
+            </>
           )}
         </div>
 

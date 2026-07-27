@@ -2,7 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from './token.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { createMockPrismaService, createMockJwtService, MockedPrisma, MockedJwtService } from '../../../test/mocks';
+import {
+  createMockPrismaService,
+  createMockJwtService,
+  MockedPrisma,
+  MockedJwtService,
+} from '../../../test/mocks';
 import { TestDataFactory } from '../../../test/helpers/test-data.factory';
 import * as crypto from 'crypto';
 
@@ -26,7 +31,7 @@ describe('TokenService', () => {
     service = module.get<TokenService>(TokenService);
     prisma = mockPrisma;
     jwtService = mockJwt;
-    
+
     TestDataFactory.reset();
   });
 
@@ -53,7 +58,7 @@ describe('TokenService', () => {
           sub: user.id,
           email: user.email,
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -62,7 +67,10 @@ describe('TokenService', () => {
     it('should save hashed token to database', async () => {
       const userId = 'user-123';
       const token = 'token-456';
-      const expectedHash = crypto.createHash('sha256').update(token).digest('hex');
+      const expectedHash = crypto
+        .createHash('sha256')
+        .update(token)
+        .digest('hex');
 
       await service.saveRefreshToken(userId, token);
 
@@ -87,7 +95,10 @@ describe('TokenService', () => {
     it('should rotate tokens', async () => {
       const user = await TestDataFactory.createVerifiedUser();
       const oldToken = 'old-token';
-      const oldHash = crypto.createHash('sha256').update(oldToken).digest('hex');
+      const oldHash = crypto
+        .createHash('sha256')
+        .update(oldToken)
+        .digest('hex');
 
       prisma.refreshToken.findUnique.mockResolvedValue({
         userId: user.id,
@@ -104,4 +115,3 @@ describe('TokenService', () => {
     });
   });
 });
-

@@ -17,22 +17,27 @@ describe('UserValidationService', () => {
 
   describe('getInitialTrustScore', () => {
     it('should return client score for CLIENT role', () => {
-      expect(service.getInitialTrustScore(UserRole.CLIENT)).toBe(AUTH_CONSTANTS.INITIAL_TRUST_SCORE_CLIENT);
+      expect(service.getInitialTrustScore(UserRole.CLIENT)).toBe(
+        AUTH_CONSTANTS.INITIAL_TRUST_SCORE_CLIENT,
+      );
     });
 
     it('should return vendor score for VENDOR role', () => {
-      expect(service.getInitialTrustScore(UserRole.VENDOR)).toBe(AUTH_CONSTANTS.INITIAL_TRUST_SCORE_VENDOR);
+      expect(service.getInitialTrustScore(UserRole.VENDOR)).toBe(
+        AUTH_CONSTANTS.INITIAL_TRUST_SCORE_VENDOR,
+      );
     });
   });
 
   describe('validateLoginEligibility', () => {
-    const mockUser = (overrides: Partial<User> = {}): User => ({
-      id: '1',
-      isVerified: true,
-      role: UserRole.CLIENT,
-      kycStatus: KycStatus.NOT_REQUIRED,
-      ...overrides,
-    } as User);
+    const mockUser = (overrides: Partial<User> = {}): User =>
+      ({
+        id: '1',
+        isVerified: true,
+        role: UserRole.CLIENT,
+        kycStatus: KycStatus.NOT_REQUIRED,
+        ...overrides,
+      }) as User;
 
     it('should allow verified client', () => {
       expect(() => service.validateLoginEligibility(mockUser())).not.toThrow();
@@ -41,19 +46,25 @@ describe('UserValidationService', () => {
     it('should throw if user is not verified', () => {
       const user = mockUser({ isVerified: false });
       expect(() => service.validateLoginEligibility(user)).toThrow(
-        new HttpException('Account not verified', HttpStatus.FORBIDDEN)
+        new HttpException('Account not verified', HttpStatus.FORBIDDEN),
       );
     });
 
     it('should allow approved vendor', () => {
-      const vendor = mockUser({ role: UserRole.VENDOR, kycStatus: KycStatus.APPROVED });
+      const vendor = mockUser({
+        role: UserRole.VENDOR,
+        kycStatus: KycStatus.APPROVED,
+      });
       expect(() => service.validateLoginEligibility(vendor)).not.toThrow();
     });
 
     it('should throw for vendor with pending KYC', () => {
-      const vendor = mockUser({ role: UserRole.VENDOR, kycStatus: KycStatus.PENDING });
+      const vendor = mockUser({
+        role: UserRole.VENDOR,
+        kycStatus: KycStatus.PENDING,
+      });
       expect(() => service.validateLoginEligibility(vendor)).toThrow(
-        new HttpException('KYC verification required', HttpStatus.FORBIDDEN)
+        new HttpException('KYC verification required', HttpStatus.FORBIDDEN),
       );
     });
   });
@@ -65,4 +76,3 @@ describe('UserValidationService', () => {
     });
   });
 });
-

@@ -63,7 +63,7 @@ export class AddressesService {
 
   async remove(id: string, userId: string) {
     const address = await this.findOne(id, userId);
-    
+
     await this.prisma.address.delete({
       where: { id },
     });
@@ -71,7 +71,7 @@ export class AddressesService {
     if (address.isDefault) {
       const firstAddress = await this.prisma.address.findFirst({
         where: { userId },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
       if (firstAddress) {
         await this.prisma.address.update({

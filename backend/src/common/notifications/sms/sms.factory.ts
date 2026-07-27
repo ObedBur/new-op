@@ -14,7 +14,9 @@ export const smsProviderFactory = {
     africastalking: AfricastalkingSmsProvider,
   ): ISmsProvider => {
     // On lit le .env (par défaut 'mock')
-    const providerName = configService.get<string>('SMS_PROVIDER', 'mock').toLowerCase();
+    const providerName = configService
+      .get<string>('SMS_PROVIDER', 'mock')
+      .toLowerCase();
 
     switch (providerName) {
       case 'twilio':

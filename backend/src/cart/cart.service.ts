@@ -22,7 +22,6 @@ type ProductStockEntry = {
   stockQuantity: number | null;
 };
 
-
 /**
  * CartItem avec son produit (sans vendeur).
  * Utilisé par clampCartToStock → on n'a besoin que du stock.
@@ -175,7 +174,10 @@ export class CartService {
       throw new NotFoundException('Produit introuvable.');
     }
 
-    if (!product.isPublic || product.availability === ProductAvailability.OUT_OF_STOCK) {
+    if (
+      !product.isPublic ||
+      product.availability === ProductAvailability.OUT_OF_STOCK
+    ) {
       throw new BadRequestException(`"${product.name}" n'est plus disponible.`);
     }
 
@@ -194,9 +196,10 @@ export class CartService {
     }
 
     const { stockQuantity } = product;
-    const isLimitedStock = stockQuantity !== null && stockQuantity !== undefined;
+    const isLimitedStock =
+      stockQuantity !== null && stockQuantity !== undefined;
 
-    if (isLimitedStock && quantity > stockQuantity!) {
+    if (isLimitedStock && quantity > stockQuantity) {
       throw new BadRequestException(
         `Stock insuffisant pour "${product.name}". Disponible : ${stockQuantity}.`,
       );
@@ -217,10 +220,12 @@ export class CartService {
       return acc;
     }, new Map<string, number>());
 
-    return Array.from(quantityByProduct.entries()).map(([productId, quantity]) => ({
-      productId,
-      quantity,
-    }));
+    return Array.from(quantityByProduct.entries()).map(
+      ([productId, quantity]) => ({
+        productId,
+        quantity,
+      }),
+    );
   }
 
   private async fetchAvailableProducts(
@@ -310,7 +315,7 @@ export class CartService {
     if (exceedsStock) {
       return this.prisma.cartItem.update({
         where: { id: item.id },
-        data: { quantity: stockQuantity! },
+        data: { quantity: stockQuantity },
       });
     }
 

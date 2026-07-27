@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getMyProducts, deleteProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
@@ -10,7 +11,7 @@ import {
     TrendingUp, MoreVertical, Edit2, Clock,
     AlertCircle, CheckCircle2, LayoutGrid, List,
     Share2, Trash2, Copy, ExternalLink, Filter,
-    ArrowUpRight, Download, X, Globe
+    ArrowUpRight, Download, X, Globe, ChevronLeft
 } from 'lucide-react';
 
 import { AddProductModal } from './components/AddProductModal';
@@ -19,6 +20,7 @@ import PublishDraftsModal from './components/PublishDraftsModal';
 
 export default function ProductsPage() {
     const { user } = useAuth();
+    const router = useRouter();
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [products, setProducts] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -127,6 +129,17 @@ export default function ProductsPage() {
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 max-w-7xl mx-auto pb-32 px-4">
 
+            {/* HEADER RETOUR LOCAL */}
+            <div className="px-4 sm:px-0 pt-2 pb-2 lg:hidden">
+                <button
+                    onClick={() => router.push('/settings')}
+                    className="flex items-center gap-1.5 -ml-2 pr-3 pl-2 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                >
+                    <ChevronLeft size={24} className="text-slate-700 dark:text-slate-200" />
+                    <span className="text-sm font-bold text-slate-800 dark:text-white">Mes Produits</span>
+                </button>
+            </div>
+
             {/* --- TOP NAV ACTIONS --- */}
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
@@ -229,7 +242,7 @@ export default function ProductsPage() {
                         </div>
 
                         {/* Image Unit - Compact Aspect Ratio */}
-                        <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#f1f5f9] dark:bg-white/5 mb-4">
+                        <div className="relative aspect-[4/3] sm:aspect-square rounded-2xl overflow-hidden bg-[#f1f5f9] dark:bg-white/5 mb-2 sm:mb-4">
                             <img
                                 src={product.image}
                                 alt={product.name}
@@ -246,8 +259,8 @@ export default function ProductsPage() {
                                 </span>
                             </div>
 
-                            {/* Floating Context Toolbar - Optimized for 2-column mobile */}
-                            <div className="absolute inset-x-2 sm:inset-x-3 bottom-2 sm:bottom-3 flex items-center gap-1.5 sm:gap-2 translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
+                            {/* Floating Context Toolbar - Always visible on mobile, hover on desktop */}
+                            <div className="absolute inset-x-2 sm:inset-x-3 bottom-2 sm:bottom-3 flex items-center gap-1.5 sm:gap-2 lg:translate-y-12 lg:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10">
                                 <button
                                     onClick={() => handleEdit(product)}
                                     className="flex-1 bg-white dark:bg-[#151b2c] text-[#1e293b] dark:text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-black text-[8px] sm:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1 sm:gap-2 hover:bg-[#E67E22] hover:text-white transition-all shadow-lg border border-transparent"
@@ -282,7 +295,7 @@ export default function ProductsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col mb-2 sm:mb-4">
+                            <div className="flex flex-col mb-1.5 sm:mb-4">
                                 <div className="flex items-baseline gap-1.5 sm:gap-2">
                                     <span className="text-[16px] sm:text-xl font-black text-[#E67E22] tracking-tight">{product.price}$</span>
                                     {product.oldPrice && (
@@ -295,7 +308,7 @@ export default function ProductsPage() {
                             </div>
 
                             {/* Dashboard Stats - Discrete */}
-                            <div className="space-y-1.5 sm:space-y-2 pt-2 sm:pt-3 border-t border-gray-100 dark:border-white/5 mt-auto">
+                            <div className="space-y-1.5 sm:space-y-2 pt-1.5 sm:pt-3 border-t border-gray-100 dark:border-white/5 mt-auto">
                                 <div className="flex items-center justify-between text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-gray-400">
                                     <span>Stock</span>
                                     <span className={product.stock <= 5 ? 'text-red-500' : 'text-[#1e293b] dark:text-white'}>

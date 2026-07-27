@@ -4,7 +4,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../../common/email/email.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { MockedPrisma, MockedEmailService, createMockPrismaService, createMockEmailService } from '../../../test/mocks';
+import {
+  MockedPrisma,
+  MockedEmailService,
+  createMockPrismaService,
+  createMockEmailService,
+} from '../../../test/mocks';
 
 describe('OtpService', () => {
   let service: OtpService;
@@ -72,25 +77,31 @@ describe('OtpService', () => {
     it('should throw error if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.verify('none@test.com', '123456'))
-        .rejects.toThrow(new HttpException('Invalid OTP request', HttpStatus.BAD_REQUEST));
+      await expect(service.verify('none@test.com', '123456')).rejects.toThrow(
+        new HttpException('Invalid OTP request', HttpStatus.BAD_REQUEST),
+      );
     });
 
     it('should throw error if OTP is expired', async () => {
-      const expiredUser = { ...mockUser, otpExpiresAt: new Date(Date.now() - 1000) };
+      const expiredUser = {
+        ...mockUser,
+        otpExpiresAt: new Date(Date.now() - 1000),
+      };
       prisma.user.findUnique.mockResolvedValue(expiredUser);
 
-      await expect(service.verify(mockUser.email, '123456'))
-        .rejects.toThrow(new HttpException('OTP expired', HttpStatus.BAD_REQUEST));
+      await expect(service.verify(mockUser.email, '123456')).rejects.toThrow(
+        new HttpException('OTP expired', HttpStatus.BAD_REQUEST),
+      );
     });
 
     it('should throw error after max attempts', async () => {
       const blockedUser = { ...mockUser, otpAttempts: 3 };
       prisma.user.findUnique.mockResolvedValue(blockedUser);
 
-      await expect(service.verify(mockUser.email, '123456'))
-        .rejects.toThrow('Too many failed attempts');
-      
+      await expect(service.verify(mockUser.email, '123456')).rejects.toThrow(
+        'Too many failed attempts',
+      );
+
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUser.id },
         data: expect.objectContaining({ otpHash: null }),
@@ -102,9 +113,10 @@ describe('OtpService', () => {
       prisma.user.findUnique.mockResolvedValue({ ...mockUser, otpHash: hash });
       prisma.user.update.mockResolvedValue({});
 
-      await expect(service.verify(mockUser.email, 'wrong-otp'))
-        .rejects.toThrow('Invalid OTP');
-      
+      await expect(service.verify(mockUser.email, 'wrong-otp')).rejects.toThrow(
+        'Invalid OTP',
+      );
+
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUser.id },
         data: { otpAttempts: { increment: 1 } },
@@ -127,4 +139,3 @@ describe('OtpService', () => {
     });
   });
 });
-

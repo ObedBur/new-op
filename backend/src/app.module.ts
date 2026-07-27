@@ -37,7 +37,7 @@ import { AddressesModule } from './addresses/addresses.module';
         name: 'global',
         ttl: 60000,
         limit: 100,
-      }
+      },
     ]),
     PrismaModule,
     CommonModule,
@@ -62,4 +62,4 @@ import { AddressesModule } from './addresses/addresses.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Param, UseGuards, Req, NotFoundException, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  UseGuards,
+  Req,
+  NotFoundException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { SellersService } from './sellers.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
@@ -7,7 +16,7 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('sellers')
 export class SellersController {
-  constructor(private readonly sellersService: SellersService) { }
+  constructor(private readonly sellersService: SellersService) {}
   // mise en cache pour 1 heure
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(3600)

@@ -8,8 +8,8 @@ export class UserValidationService {
    * Determines the initial trust score based on user role
    */
   getInitialTrustScore(role: UserRole): number {
-    return role === UserRole.CLIENT 
-      ? AUTH_CONSTANTS.INITIAL_TRUST_SCORE_CLIENT 
+    return role === UserRole.CLIENT
+      ? AUTH_CONSTANTS.INITIAL_TRUST_SCORE_CLIENT
       : AUTH_CONSTANTS.INITIAL_TRUST_SCORE_VENDOR;
   }
 
@@ -30,8 +30,14 @@ export class UserValidationService {
       throw new HttpException('Account not verified', HttpStatus.FORBIDDEN);
     }
 
-    if (user.role === UserRole.VENDOR && user.kycStatus !== KycStatus.APPROVED) {
-      throw new HttpException('KYC verification required', HttpStatus.FORBIDDEN);
+    if (
+      user.role === UserRole.VENDOR &&
+      user.kycStatus !== KycStatus.APPROVED
+    ) {
+      throw new HttpException(
+        'KYC verification required',
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -42,4 +48,3 @@ export class UserValidationService {
     return currentScore + AUTH_CONSTANTS.VERIFICATION_BONUS_SCORE;
   }
 }
-

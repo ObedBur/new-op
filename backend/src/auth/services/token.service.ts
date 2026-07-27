@@ -3,12 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { User } from '@prisma/client';
 import * as crypto from 'crypto';
-import { JwtPayload, TokenPair, TokenGenerationOptions } from '../types/token.types';
+import {
+  JwtPayload,
+  TokenPair,
+  TokenGenerationOptions,
+} from '../types/token.types';
 import { AUTH_CONSTANTS } from '../constants/auth.constants';
 
 /**
  * Service de gestion des tokens JWT (access & refresh)
- * 
+ *
  * Responsabilits :
  * - Gnration de paires de tokens
  * - Validation et rafrachissement des tokens
@@ -29,7 +33,7 @@ export class TokenService {
    */
   async generateTokenPair(
     user: User,
-    options?: TokenGenerationOptions
+    options?: TokenGenerationOptions,
   ): Promise<TokenPair> {
     const payload: JwtPayload = {
       sub: user.id,
@@ -51,7 +55,9 @@ export class TokenService {
    */
   async saveRefreshToken(userId: string, token: string): Promise<void> {
     const tokenHash = this.hashToken(token);
-    const expiresAt = new Date(Date.now() + AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY_MS);
+    const expiresAt = new Date(
+      Date.now() + AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY_MS,
+    );
 
     try {
       await this.prisma.refreshToken.create({
@@ -61,14 +67,14 @@ export class TokenService {
           expiresAt,
         },
       });
-      
+
       this.logger.debug(`Refresh token saved for user ${userId}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to save refresh token: ${message}`);
       throw new HttpException(
         'Failed to save refresh token',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -80,19 +86,21 @@ export class TokenService {
     if (!token) {
       throw new HttpException(
         'Refresh token is required',
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     const tokenHash = this.hashToken(token);
-    
+
     try {
       const result = await this.prisma.refreshToken.deleteMany({
         where: { userId, tokenHash },
       });
 
       if (result.count === 0) {
-        this.logger.warn(`Token not found for user ${userId} during revocation`);
+        this.logger.warn(
+          `Token not found for user ${userId} during revocation`,
+        );
         return false;
       }
 
@@ -103,7 +111,7 @@ export class TokenService {
       this.logger.error(`Failed to revoke token: ${message}`);
       throw new HttpException(
         'Failed to revoke token',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -124,7 +132,7 @@ export class TokenService {
       this.logger.error(`Failed to revoke all tokens: ${message}`);
       throw new HttpException(
         'Failed to revoke tokens',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -132,11 +140,14 @@ export class TokenService {
   /**
    * Valide et rafrachit une paire de tokens (Rotation)
    */
-  async refreshTokenPair(userId: string, refreshToken: string): Promise<TokenPair> {
+  async refreshTokenPair(
+    userId: string,
+    refreshToken: string,
+  ): Promise<TokenPair> {
     if (!refreshToken) {
       throw new HttpException(
         'Refresh token is required',
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
@@ -151,11 +162,16 @@ export class TokenService {
 
       // 2. Verifier validit
       if (!storedToken) {
-        throw new HttpException('Session expire ou invalide', HttpStatus.UNAUTHORIZED);
+        throw new HttpException(
+          'Session expire ou invalide',
+          HttpStatus.UNAUTHORIZED,
+        );
       }
 
       if (storedToken.expiresAt < new Date()) {
-        await this.prisma.refreshToken.delete({ where: { id: storedToken.id } }).catch(() => {});
+        await this.prisma.refreshToken
+          .delete({ where: { id: storedToken.id } })
+          .catch(() => {});
         throw new HttpException('Session expire', HttpStatus.UNAUTHORIZED);
       }
 
@@ -181,7 +197,10 @@ export class TokenService {
       if (error instanceof HttpException) throw error;
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Token refresh failed: ${message}`);
-      throw new HttpException('Erreur lors du rafrachissement', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Erreur lors du rafrachissement',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -189,27 +208,35 @@ export class TokenService {
 
   private async generateAccessToken(
     payload: JwtPayload,
-    expiresIn: string = process.env.JWT_ACCESS_EXPIRATION || AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY
+    expiresIn: string = process.env.JWT_ACCESS_EXPIRATION ||
+      AUTH_CONSTANTS.ACCESS_TOKEN_EXPIRY,
   ): Promise<string> {
-    return this.jwtService.signAsync({ ...payload }, {
-      secret: this.getSecret('JWT_ACCESS_SECRET'),
-      expiresIn: expiresIn as any,
-    });
+    return this.jwtService.signAsync(
+      { ...payload },
+      {
+        secret: this.getSecret('JWT_ACCESS_SECRET'),
+        expiresIn: expiresIn as any,
+      },
+    );
   }
 
   private async generateRefreshToken(
     payload: JwtPayload,
-    expiresIn: string = process.env.JWT_REFRESH_EXPIRATION || AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY
+    expiresIn: string = process.env.JWT_REFRESH_EXPIRATION ||
+      AUTH_CONSTANTS.REFRESH_TOKEN_EXPIRY,
   ): Promise<string> {
     const enhancedPayload: JwtPayload = {
       ...payload,
       jti: crypto.randomBytes(16).toString('hex'),
     };
 
-    return this.jwtService.signAsync({ ...enhancedPayload }, {
-      secret: this.getSecret('JWT_REFRESH_SECRET'),
-      expiresIn: expiresIn as any,
-    });
+    return this.jwtService.signAsync(
+      { ...enhancedPayload },
+      {
+        secret: this.getSecret('JWT_REFRESH_SECRET'),
+        expiresIn: expiresIn as any,
+      },
+    );
   }
 
   private hashToken(token: string): string {
@@ -218,22 +245,25 @@ export class TokenService {
   }
 
   private getSecret(key: 'JWT_ACCESS_SECRET' | 'JWT_REFRESH_SECRET'): string {
-    const secret = key === 'JWT_ACCESS_SECRET'
-      ? process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET
-      : process.env.JWT_REFRESH_SECRET;
+    const secret =
+      key === 'JWT_ACCESS_SECRET'
+        ? process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET
+        : process.env.JWT_REFRESH_SECRET;
 
     if (process.env.NODE_ENV === 'production') {
       if (!secret || secret.length < AUTH_CONSTANTS.MIN_SECRET_LENGTH_PROD) {
-        const displayKey = key === 'JWT_ACCESS_SECRET' ? 'JWT_ACCESS_SECRET or JWT_SECRET' : key;
+        const displayKey =
+          key === 'JWT_ACCESS_SECRET' ? 'JWT_ACCESS_SECRET or JWT_SECRET' : key;
         throw new Error(`Invalid or missing ${displayKey} in production`);
       }
       return secret;
     }
 
     if (!secret) {
-      return key === 'JWT_ACCESS_SECRET' ? AUTH_CONSTANTS.DEV_SECRETS.JWT_SECRET : AUTH_CONSTANTS.DEV_SECRETS.JWT_REFRESH_SECRET;
+      return key === 'JWT_ACCESS_SECRET'
+        ? AUTH_CONSTANTS.DEV_SECRETS.JWT_SECRET
+        : AUTH_CONSTANTS.DEV_SECRETS.JWT_REFRESH_SECRET;
     }
     return secret;
   }
 }
-

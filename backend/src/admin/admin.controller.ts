@@ -1,4 +1,15 @@
-import { Controller, Get, Put, Param, Body, UseGuards, Query, HttpCode, HttpStatus, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Param,
+  Body,
+  UseGuards,
+  Query,
+  HttpCode,
+  HttpStatus,
+  Delete,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { AdminService } from './admin.service';
@@ -58,7 +69,11 @@ export class AdminController {
     @Param('id') userId: string,
     @Body() body: { status: string; rejectionReason?: string },
   ) {
-    return this.adminService.updateKycStatus(userId, body.status, body.rejectionReason);
+    return this.adminService.updateKycStatus(
+      userId,
+      body.status,
+      body.rejectionReason,
+    );
   }
 
   /**

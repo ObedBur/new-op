@@ -28,4 +28,3 @@ describe('CategoriesController', () => {
     expect(controller).toBeDefined();
   });
 });
-

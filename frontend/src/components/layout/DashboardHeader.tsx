@@ -2,16 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileDropdown } from './Header/components/ProfileDropdown';
-import { Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
 
 export const DashboardHeader = () => {
     const { isAuthenticated, user, logout } = useAuth();
     const router = useRouter();
+    const pathname = usePathname();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
@@ -34,7 +35,7 @@ export const DashboardHeader = () => {
             <div className="container mx-auto max-w-7xl h-full px-6 md:px-12 lg:px-16 flex items-center justify-between">
                 
                 {/* Left Side: Logo & Home Link (shown on mobile) */}
-                <div className="flex items-center gap-6 md:hidden">
+                <div className="flex items-center gap-6 lg:hidden">
                     <Link
                         href="/"
                         className="flex items-center gap-2.5 cursor-pointer shrink-0 group"

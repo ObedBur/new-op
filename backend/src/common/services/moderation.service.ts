@@ -15,14 +15,31 @@ export class ModerationService {
   private model: import('nsfwjs').NSFWJS | null = null;
   private tfModule: typeof import('@tensorflow/tfjs') | null = null;
   private jimpModule: typeof import('jimp') | null = null;
-  private modelLoadPromise: Promise<import('nsfwjs').NSFWJS | null> | null = null;
+  private modelLoadPromise: Promise<import('nsfwjs').NSFWJS | null> | null =
+    null;
 
   constructor() {
     this.filter = new Filter();
     this.filter.addWords(
-      'tramadol', 'viagra', 'arnaque', 'argent facile', 'investir vite',
-      'con', 'connard', 'salope', 'putain', 'merde', 'bâtard', 'pute',
-      'sexe', 'porno', 'nude', 'chier', 'enculé', 'nègre', 'pd'
+      'tramadol',
+      'viagra',
+      'arnaque',
+      'argent facile',
+      'investir vite',
+      'con',
+      'connard',
+      'salope',
+      'putain',
+      'merde',
+      'bâtard',
+      'pute',
+      'sexe',
+      'porno',
+      'nude',
+      'chier',
+      'enculé',
+      'nègre',
+      'pd',
     );
   }
 
@@ -37,7 +54,9 @@ export class ModerationService {
 
     if (!this.modelLoadPromise) {
       this.modelLoadPromise = (async () => {
-        this.logger.log("Chargement à la demande du modèle de modération d'image...");
+        this.logger.log(
+          "Chargement à la demande du modèle de modération d'image...",
+        );
 
         try {
           const [nsfwModule, tfModule, jimpModule] = await Promise.all([
@@ -52,7 +71,10 @@ export class ModerationService {
           this.logger.log("Modèle de modération d'image prêt.");
           return this.model;
         } catch (error) {
-          const message = error instanceof Error ? error.stack || error.message : String(error);
+          const message =
+            error instanceof Error
+              ? error.stack || error.message
+              : String(error);
           this.logger.error('Impossible de charger le modèle NSFWJS', message);
           return null;
         } finally {
@@ -75,8 +97,8 @@ export class ModerationService {
 
     if (isBadTitle || isBadDesc) {
       throw new BadRequestException({
-        message: "Votre texte contient des termes inappropriés non autorisés.",
-        error: 'LOCAL_CONTENT_ERROR'
+        message: 'Votre texte contient des termes inappropriés non autorisés.',
+        error: 'LOCAL_CONTENT_ERROR',
       });
     }
     return true;
@@ -94,7 +116,9 @@ export class ModerationService {
     const apiSecret = process.env.SIGHTENGINE_API_SECRET;
 
     if (!apiUser || !apiSecret) {
-      this.logger.warn("Clés d'API Sightengine manquantes. Modération d'image ignorée.");
+      this.logger.warn(
+        "Clés d'API Sightengine manquantes. Modération d'image ignorée.",
+      );
       return true;
     }
 
@@ -107,7 +131,7 @@ export class ModerationService {
       if (imageUrl.startsWith('data:')) {
         const base64Data = imageUrl.split(';base64,').pop();
         if (!base64Data) throw new Error('Données Base64 invalides');
-        
+
         const buffer = Buffer.from(base64Data, 'base64');
         data.append('media', buffer, { filename: 'image.jpg' });
       } else {
@@ -119,37 +143,51 @@ export class ModerationService {
         method: 'post',
         url: 'https://api.sightengine.com/1.0/check.json',
         data: data,
-        headers: data.getHeaders()
+        headers: data.getHeaders(),
       });
 
       const result = response.data;
 
       if (result.status === 'success') {
         // Vérification nudité
-        if (result.nudity && (result.nudity.sexual_activity > 0.4 || result.nudity.sexual_display > 0.4 || result.nudity.erotica > 0.6)) {
-          this.logger.warn(`Image rejetée pour nudité. Scores: ${JSON.stringify(result.nudity)}`);
+        if (
+          result.nudity &&
+          (result.nudity.sexual_activity > 0.4 ||
+            result.nudity.sexual_display > 0.4 ||
+            result.nudity.erotica > 0.6)
+        ) {
+          this.logger.warn(
+            `Image rejetée pour nudité. Scores: ${JSON.stringify(result.nudity)}`,
+          );
           throw new BadRequestException({
-            message: "L'image a été rejetée car elle contient de la nudité ou du contenu sexuel.",
-            error: 'MODERATION_ERROR_NUDITY'
+            message:
+              "L'image a été rejetée car elle contient de la nudité ou du contenu sexuel.",
+            error: 'MODERATION_ERROR_NUDITY',
           });
         }
-        
+
         // Vérification violence/gore
         if (result.gore && result.gore.prob > 0.5) {
-           this.logger.warn(`Image rejetée pour gore. Score: ${result.gore.prob}`);
-           throw new BadRequestException({
-             message: "L'image a été rejetée car elle contient du contenu violent ou graphique.",
-             error: 'MODERATION_ERROR_GORE'
-           });
+          this.logger.warn(
+            `Image rejetée pour gore. Score: ${result.gore.prob}`,
+          );
+          throw new BadRequestException({
+            message:
+              "L'image a été rejetée car elle contient du contenu violent ou graphique.",
+            error: 'MODERATION_ERROR_GORE',
+          });
         }
       }
-      
+
       return true;
     } catch (error: any) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      this.logger.error("Erreur lors de la communication avec Sightengine:", error?.response?.data || error?.message);
+      this.logger.error(
+        'Erreur lors de la communication avec Sightengine:',
+        error?.response?.data || error?.message,
+      );
       // En cas d'erreur API, on laisse passer (fail-open) ou on bloque (fail-closed).
       // On choisit fail-open pour ne pas bloquer les utilisateurs si l'API est down.
       return true;
@@ -160,10 +198,25 @@ export class ModerationService {
    * Vérifie la qualité minimale d'une annonce (longueur du titre, description, cohérence du prix).
    */
   validateQuality(title: string, description: string, price: number): boolean {
-    const titleWords = title.trim().split(/\s+/).filter(w => w.length > 1);
-    if (titleWords.length < 2) throw new BadRequestException({ message: "Titre trop court (min 2 mots).", error: 'QUALITY_ERROR' });
-    if (!description || description.trim().length < 10) throw new BadRequestException({ message: "Description trop courte (min 10 caractères).", error: 'QUALITY_ERROR' });
-    if (price <= 0 || price > 100000) throw new BadRequestException({ message: "Prix invalide ou incohérent.", error: 'PRICE_ERROR' });
+    const titleWords = title
+      .trim()
+      .split(/\s+/)
+      .filter((w) => w.length > 1);
+    if (titleWords.length < 2)
+      throw new BadRequestException({
+        message: 'Titre trop court (min 2 mots).',
+        error: 'QUALITY_ERROR',
+      });
+    if (!description || description.trim().length < 10)
+      throw new BadRequestException({
+        message: 'Description trop courte (min 10 caractères).',
+        error: 'QUALITY_ERROR',
+      });
+    if (price <= 0 || price > 100000)
+      throw new BadRequestException({
+        message: 'Prix invalide ou incohérent.',
+        error: 'PRICE_ERROR',
+      });
     return true;
   }
 
@@ -171,7 +224,12 @@ export class ModerationService {
    * Validation complète d'un produit avant publication.
    * Enchaîne les vérifications texte, qualité et image.
    */
-  async fullValidation(title: string, description: string, price: number, imageUrl?: string) {
+  async fullValidation(
+    title: string,
+    description: string,
+    price: number,
+    imageUrl?: string,
+  ) {
     this.validateText(title, description);
     this.validateQuality(title, description, price);
     if (imageUrl) {

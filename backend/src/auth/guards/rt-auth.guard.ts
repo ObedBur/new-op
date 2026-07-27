@@ -7,4 +7,3 @@ export class RtGuard extends AuthGuard('jwt-refresh') {
     super();
   }
 }
-

@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getVendorOrders, updateOrderStatus } from '@/features/vendors/services/orders.service';
-import { Search, Filter, Package } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { getVendorOrders, updateOrderStatus, deleteOrder } from '@/features/vendors/services/orders.service';
+import { Search, Filter, Package, ChevronLeft } from 'lucide-react';
 import { OrderCard } from './components/OrderCard';
 import { OrderDetailsModal } from './components/OrderDetailsModal';
+import { DeleteConfirmationModal } from '@/app/dashboard/products/components/DeleteConfirmationModal';
 import { useToast } from '@/context/ToastContext';
 
 // --- PAGE PRINCIPALE ---
@@ -12,11 +14,14 @@ import { useToast } from '@/context/ToastContext';
 
 export default function OrdersPage() {
     const { showToast } = useToast();
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<string>('Toutes');
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [orders, setOrders] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [orderToDelete, setOrderToDelete] = useState<any>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const statusLabels: Record<string, string> = {
         PENDING: 'Nouvelles',
@@ -58,6 +63,26 @@ export default function OrdersPage() {
         return orders.filter(o => statusLabels[o.status] === tab).length;
     };
 
+    const handleDeleteOrder = async () => {
+        if (!orderToDelete) return;
+        setIsDeleting(true);
+        try {
+            const res = await deleteOrder(orderToDelete.id);
+            if (res?.success) {
+                setOrders(prev => prev.filter(o => o.id !== orderToDelete.id));
+                showToast("Commande supprimée avec succès", "success");
+            } else {
+                showToast(res?.message || "Erreur lors de la suppression", "error");
+            }
+        } catch (error) {
+            console.error("Erreur suppression", error);
+            showToast("Erreur lors de la suppression de la commande", "error");
+        } finally {
+            setIsDeleting(false);
+            setOrderToDelete(null);
+        }
+    };
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto pb-20 px-4 sm:px-10 pt-4 sm:pt-8 space-y-6 sm:space-y-12">
 
@@ -79,6 +104,25 @@ export default function OrdersPage() {
                     }}
                 />
             )}
+
+            <DeleteConfirmationModal
+                isOpen={!!orderToDelete}
+                onClose={() => setOrderToDelete(null)}
+                onConfirm={handleDeleteOrder}
+                itemName={`la commande #${orderToDelete?.id.substring(0, 8).toUpperCase()}`}
+                isDeleting={isDeleting}
+            />
+
+            {/* HEADER RETOUR LOCAL */}
+            <div className="px-4 sm:px-0 pt-2 pb-2 lg:hidden">
+                <button
+                    onClick={() => router.push('/settings')}
+                    className="flex items-center gap-1.5 -ml-2 pr-3 pl-2 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                >
+                    <ChevronLeft size={24} className="text-slate-700 dark:text-slate-200" />
+                    <span className="text-sm font-bold text-slate-800 dark:text-white">Mes Ventes</span>
+                </button>
+            </div>
 
             {/* HEADER COMPACT */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -149,7 +193,7 @@ export default function OrdersPage() {
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nous n'avons trouvé aucune commande pour ce filtre.</p>
                         </div>
                     ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-max">
+                            <div className="grid grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-max">
                                 {filteredOrders.map((order) => (
                                     <OrderCard
                                         key={order.id}
@@ -164,6 +208,7 @@ export default function OrdersPage() {
                                         productImage={order.product?.image || order.product?.images?.[0]}
                                         count={Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
                                         onViewDetails={() => setSelectedOrder(order)}
+                                        onDelete={() => setOrderToDelete(order)}
                                         onStatusChange={async (newStatus) => {
                                             try {
                                                 const res = await updateOrderStatus(order.id, newStatus);

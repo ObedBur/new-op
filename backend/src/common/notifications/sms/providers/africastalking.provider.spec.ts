@@ -3,10 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 
 import { AfricastalkingSmsProvider } from './africastalking.provider';
-import {
-  SmsHttpError,
-  SmsNetworkError,
-} from '../sms.service';
+import { SmsHttpError, SmsNetworkError } from '../sms.service';
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -69,12 +66,9 @@ describe('AfricastalkingSmsProvider', () => {
           ],
         },
       },
-    } as any);
+    });
 
-    const result = await provider.send(
-      '+243990000000',
-      'Hello World',
-    );
+    const result = await provider.send('+243990000000', 'Hello World');
 
     expect(result.messageId).toBe('MSG123');
     expect(result.status).toBe('Success');
@@ -96,7 +90,7 @@ describe('AfricastalkingSmsProvider', () => {
           ],
         },
       },
-    } as any);
+    });
 
     await provider.send('+243990000000', 'hello');
 
@@ -118,7 +112,7 @@ describe('AfricastalkingSmsProvider', () => {
           ],
         },
       },
-    } as any);
+    });
 
     await provider.send('+243990000000', 'hello');
 
@@ -134,9 +128,9 @@ describe('AfricastalkingSmsProvider', () => {
       return undefined;
     });
 
-    await expect(
-      provider.send('+243990000000', 'hello'),
-    ).rejects.toThrow('missing_africastalking_config');
+    await expect(provider.send('+243990000000', 'hello')).rejects.toThrow(
+      'missing_africastalking_config',
+    );
   });
 
   it('should throw SmsHttpError when provider rejects message', async () => {
@@ -151,7 +145,7 @@ describe('AfricastalkingSmsProvider', () => {
           ],
         },
       },
-    } as any);
+    });
 
     await expect(
       provider.send('+243990000000', 'hello'),
@@ -198,19 +192,17 @@ describe('AfricastalkingSmsProvider', () => {
   });
 
   it('should rethrow unknown errors', async () => {
-    mockedAxios.post.mockRejectedValue(
-      new Error('Unknown'),
-    );
+    mockedAxios.post.mockRejectedValue(new Error('Unknown'));
 
-    await expect(
-      provider.send('+243990000000', 'hello'),
-    ).rejects.toThrow('Unknown');
+    await expect(provider.send('+243990000000', 'hello')).rejects.toThrow(
+      'Unknown',
+    );
   });
 
   it('should handle abort signal gracefully', async () => {
     const cancelError = new Error('canceled');
     (cancelError as any).code = 'ERR_CANCELED';
-    
+
     mockedAxios.post.mockRejectedValue(cancelError);
     (mockedAxios as any).isCancel = jest.fn().mockReturnValue(true);
 
@@ -240,7 +232,7 @@ describe('AfricastalkingSmsProvider', () => {
           ],
         },
       },
-    } as any);
+    });
 
     await provider.send('+243990000000', 'hello');
 

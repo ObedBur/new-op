@@ -10,4 +10,3 @@ import { CategoriesModule } from '../categories/categories.module';
   providers: [ProductsService],
 })
 export class ProductsModule {}
-

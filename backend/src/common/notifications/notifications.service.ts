@@ -20,7 +20,7 @@ export class NotificationsService {
     private webPushService: WebPushService,
     private notificationsGateway: NotificationsGateway,
     private smsService: SmsService,
-  ) { }
+  ) {}
 
   /**
    * Persiste une notification en base de données pour un utilisateur.
@@ -43,11 +43,20 @@ export class NotificationsService {
           metadata: data.metadata ?? {},
         },
       });
-      this.notificationsGateway.emitToUser(data.userId, 'notification:new', notification);
-      this.logger.log(`Notification créée pour l'utilisateur ${data.userId}: ${data.title}`);
+      this.notificationsGateway.emitToUser(
+        data.userId,
+        'notification:new',
+        notification,
+      );
+      this.logger.log(
+        `Notification créée pour l'utilisateur ${data.userId}: ${data.title}`,
+      );
       return notification;
     } catch (error) {
-      this.logger.error(`Échec de la création de notification pour l'utilisateur ${data.userId}`, error);
+      this.logger.error(
+        `Échec de la création de notification pour l'utilisateur ${data.userId}`,
+        error,
+      );
       return null;
     }
   }
@@ -144,7 +153,9 @@ export class NotificationsService {
         },
       });
 
-      this.logger.log(`Diffusion du produit "${product.name}" à ${followers.length} abonnés`);
+      this.logger.log(
+        `Diffusion du produit "${product.name}" à ${followers.length} abonnés`,
+      );
 
       for (const follow of followers) {
         const follower = follow.follower;
@@ -186,7 +197,9 @@ export class NotificationsService {
           await this.sendPushToUser(follower.id, {
             title: 'Nouveau produit',
             body: `${vendorName} a publié : ${product.name}`,
-            data: { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}` },
+            data: {
+              url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`,
+            },
           });
         }
 
@@ -197,7 +210,10 @@ export class NotificationsService {
             const message = `WapiBei: ${vendorName} a publié "${product.name}". Voir: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`;
             await this.smsService.sendSms(follower.phone, message);
           } catch (smsError) {
-            this.logger.error(`Échec SMS pour l'utilisateur ${follower.id}`, smsError);
+            this.logger.error(
+              `Échec SMS pour l'utilisateur ${follower.id}`,
+              smsError,
+            );
           }
         }
       }
@@ -210,7 +226,10 @@ export class NotificationsService {
    * Envoie une notification Push à un utilisateur sur tous ses appareils enregistrés.
    * Nettoie automatiquement les abonnements invalides (endpoint expiré).
    */
-  async sendPushToUser(userId: string, payload: { title: string; body: string; icon?: string; data?: any }) {
+  async sendPushToUser(
+    userId: string,
+    payload: { title: string; body: string; icon?: string; data?: any },
+  ) {
     try {
       const subscriptions = await this.prisma.pushSubscription.findMany({
         where: { userId },
@@ -227,14 +246,20 @@ export class NotificationsService {
           keys: { p256dh: sub.p256dh, auth: sub.auth },
         };
 
-        const success = await this.webPushService.sendNotification(pushSubscription, pushPayload);
+        const success = await this.webPushService.sendNotification(
+          pushSubscription,
+          pushPayload,
+        );
         if (!success) {
           // Suppression de l'abonnement invalide pour éviter les tentatives futures
           await this.prisma.pushSubscription.delete({ where: { id: sub.id } });
         }
       }
     } catch (error) {
-      this.logger.error(`Échec de l'envoi push pour l'utilisateur ${userId}`, error);
+      this.logger.error(
+        `Échec de l'envoi push pour l'utilisateur ${userId}`,
+        error,
+      );
     }
   }
 

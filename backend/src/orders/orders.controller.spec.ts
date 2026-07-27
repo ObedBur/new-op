@@ -22,9 +22,7 @@ describe('OrdersController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OrdersController],
-      providers: [
-        { provide: OrdersService, useValue: mockOrdersService },
-      ],
+      providers: [{ provide: OrdersService, useValue: mockOrdersService }],
     }).compile();
 
     controller = module.get<OrdersController>(OrdersController);
@@ -37,7 +35,10 @@ describe('OrdersController', () => {
   describe('create', () => {
     it('should call ordersService.createBulk and return a success response', async () => {
       const mockOrder = { id: 'order-1', status: 'CONFIRMED' };
-      mockOrdersService.create.mockResolvedValue({ success: true, orders: [mockOrder] });
+      mockOrdersService.create.mockResolvedValue({
+        success: true,
+        orders: [mockOrder],
+      });
 
       const req = { user: { id: 'client-1' } };
       const dto = {
@@ -48,7 +49,7 @@ describe('OrdersController', () => {
         deliveryAddress: 'Goma',
       };
 
-      const result = await controller.create(dto as any, req as any);
+      const result = await controller.create(dto, req as any);
 
       expect(result.success).toBe(true);
       expect(mockOrdersService.create).toHaveBeenCalledWith(dto, 'client-1');
@@ -65,7 +66,9 @@ describe('OrdersController', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockOrders);
-      expect(mockOrdersService.findOrdersForVendor).toHaveBeenCalledWith('vendor-1');
+      expect(mockOrdersService.findOrdersForVendor).toHaveBeenCalledWith(
+        'vendor-1',
+      );
     });
   });
 
@@ -88,10 +91,19 @@ describe('OrdersController', () => {
       mockOrdersService.updateStatus.mockResolvedValue(mockUpdated);
 
       const req = { user: { id: 'vendor-1', role: 'VENDOR' } };
-      const result = await controller.updateOrderStatus(req as any, 'order-1', 'DELIVERED');
+      const result = await controller.updateOrderStatus(
+        req as any,
+        'order-1',
+        'DELIVERED',
+      );
 
       expect(result.success).toBe(true);
-      expect(mockOrdersService.updateStatus).toHaveBeenCalledWith('order-1', 'DELIVERED', 'vendor-1', 'VENDOR');
+      expect(mockOrdersService.updateStatus).toHaveBeenCalledWith(
+        'order-1',
+        'DELIVERED',
+        'vendor-1',
+        'VENDOR',
+      );
     });
   });
 

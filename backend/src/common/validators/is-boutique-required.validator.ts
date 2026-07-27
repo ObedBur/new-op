@@ -10,11 +10,11 @@ import {
 export class IsBoutiqueRequiredForVendorConstraint implements ValidatorConstraintInterface {
   validate(boutiqueName: string, args: ValidationArguments): boolean {
     const role = (args.object as any).role; // On garde un petit cast ici car on ne connat pas la forme de l'objet DTO ici
-    
+
     if (role === 'VENDOR') {
       return !!boutiqueName && boutiqueName.trim().length >= 2;
     }
-    
+
     return true; // Optionnel pour clients
   }
 
@@ -23,7 +23,9 @@ export class IsBoutiqueRequiredForVendorConstraint implements ValidatorConstrain
   }
 }
 
-export function IsBoutiqueRequiredForVendor(validationOptions?: ValidationOptions) {
+export function IsBoutiqueRequiredForVendor(
+  validationOptions?: ValidationOptions,
+) {
   return function (object: object, propertyName: string): void {
     registerDecorator({
       target: object.constructor,
@@ -34,4 +36,3 @@ export function IsBoutiqueRequiredForVendor(validationOptions?: ValidationOption
     });
   };
 }
-

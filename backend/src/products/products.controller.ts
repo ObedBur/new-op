@@ -1,4 +1,16 @@
-import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Post,
+  Body,
+  Req,
+  UseGuards,
+  Patch,
+  Delete,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -19,7 +31,10 @@ export class ProductsController {
   @Post()
   async create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
     const userId = req.user.id;
-    const product = await this.productsService.create({ ...createProductDto }, userId);
+    const product = await this.productsService.create(
+      { ...createProductDto },
+      userId,
+    );
 
     return {
       success: true,
@@ -69,7 +84,9 @@ export class ProductsController {
   @CacheTTL(300)
   @Get('deals')
   async getDeals(@Query('limit') limit?: string) {
-    const data = await this.productsService.getDeals(limit ? parseInt(limit) : 6);
+    const data = await this.productsService.getDeals(
+      limit ? parseInt(limit) : 6,
+    );
     return { success: true, data };
   }
 
@@ -80,7 +97,9 @@ export class ProductsController {
   @CacheTTL(300)
   @Get('new-arrivals')
   async getNewArrivals(@Query('limit') limit?: string) {
-    const data = await this.productsService.getNewArrivals(limit ? parseInt(limit) : 6);
+    const data = await this.productsService.getNewArrivals(
+      limit ? parseInt(limit) : 6,
+    );
     return { success: true, data };
   }
 
@@ -89,8 +108,14 @@ export class ProductsController {
    * Pas de cache global ici car les recommandations peuvent être spécifiques à l'utilisateur.
    */
   @Get('recommendations')
-  async getRecommendations(@Query('userId') userId?: string, @Query('limit') limit?: string) {
-    const data = await this.productsService.getRecommendations(userId, limit ? parseInt(limit) : 6);
+  async getRecommendations(
+    @Query('userId') userId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const data = await this.productsService.getRecommendations(
+      userId,
+      limit ? parseInt(limit) : 6,
+    );
     return { success: true, data };
   }
 
@@ -101,7 +126,9 @@ export class ProductsController {
   @CacheTTL(300)
   @Get('best-sellers')
   async getBestSellers(@Query('limit') limit?: string) {
-    const data = await this.productsService.getBestSellers(limit ? parseInt(limit) : 6);
+    const data = await this.productsService.getBestSellers(
+      limit ? parseInt(limit) : 6,
+    );
     return { success: true, data };
   }
 
@@ -176,9 +203,17 @@ export class ProductsController {
    */
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: any, @Req() req: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: any,
+    @Req() req: any,
+  ) {
     const userId = req.user.id;
-    const product = await this.productsService.update(id, updateProductDto, userId);
+    const product = await this.productsService.update(
+      id,
+      updateProductDto,
+      userId,
+    );
     return {
       success: true,
       message: 'Produit mis à jour avec succès',

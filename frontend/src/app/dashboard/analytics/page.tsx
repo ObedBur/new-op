@@ -1,18 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLoading } from '@/context/LoadingContext';
 import { getVendorStats } from '@/features/vendors/services/orders.service';
 import {
     TrendingUp, Users, DollarSign, Package,
     ArrowUpRight, ArrowDownRight, BarChart3,
-    Trophy, Zap, Target
+    Trophy, Zap, Target, ChevronLeft
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 
 export default function AnalyticsPage() {
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     const { setAppReady } = useLoading();
 
@@ -57,10 +59,17 @@ export default function AnalyticsPage() {
                     <h3 className="text-2xl md:text-3xl font-black text-deep-blue dark:text-white leading-none tracking-tighter">
                         {value}
                     </h3>
-                    {trend && (
-                        <div className="flex items-center text-[10px] font-black text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg mb-1">
-                            <ArrowUpRight size={12} className="mr-0.5" />
-                            +{trend}%
+                    {typeof trend === 'number' && trend !== 0 && (
+                        <div
+                            className={`flex items-center text-[10px] font-black px-2 py-1 rounded-lg mb-1 ${trend > 0 ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' : 'text-red-500 bg-red-50 dark:bg-red-500/10'}`}
+                        >
+                            {trend > 0 ? (
+                                <ArrowUpRight size={12} className="mr-0.5" />
+                            ) : (
+                                <ArrowDownRight size={12} className="mr-0.5" />
+                            )}
+                            {trend > 0 ? '+' : ''}
+                            {trend}%
                         </div>
                     )}
                 </div>
@@ -70,6 +79,18 @@ export default function AnalyticsPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+            {/* HEADER RETOUR LOCAL */}
+            <div className="px-4 sm:px-0 pt-2 pb-2 lg:hidden">
+                <button
+                    onClick={() => router.push('/settings')}
+                    className="flex items-center gap-1.5 -ml-2 pr-3 pl-2 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                >
+                    <ChevronLeft size={24} className="text-slate-700 dark:text-slate-200" />
+                    <span className="text-sm font-bold text-slate-800 dark:text-white">Analytiques</span>
+                </button>
+            </div>
+
             {/* Header */}
             <div>
                 <h1 className="text-3xl md:text-5xl font-black text-deep-blue dark:text-white tracking-tighter uppercase italic leading-none">
@@ -88,7 +109,7 @@ export default function AnalyticsPage() {
                     icon={DollarSign} 
                     iconColor="text-[#E67E22]"
                     bgColor="bg-[#E67E22]/10"
-                    trend={stats?.recentPerformance}
+                    trend={typeof stats?.revenueChangePct === 'number' ? stats.revenueChangePct : null}
                 />
                 <StatCard 
                     title="Ventes Totales" 
@@ -96,11 +117,11 @@ export default function AnalyticsPage() {
                     icon={Package} 
                     iconColor="text-[#2D5A27]"
                     bgColor="bg-[#2D5A27]/10"
-                    trend={8}
+                    trend={typeof stats?.ordersChangePct === 'number' ? stats.ordersChangePct : null}
                 />
                 <StatCard 
                     title="Score Confiance" 
-                    value="98%" 
+                    value={`${stats?.trustScore ?? 0}%`} 
                     icon={Target} 
                     iconColor="text-blue-600"
                     bgColor="bg-blue-600/10"

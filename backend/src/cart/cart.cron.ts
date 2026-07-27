@@ -46,7 +46,7 @@ export class CartCronService {
 
       // Grouper par utilisateur
       const itemsByUser = new Map<string, typeof abandonedCartItems>();
-      abandonedCartItems.forEach(item => {
+      abandonedCartItems.forEach((item) => {
         const existing = itemsByUser.get(item.userId) || [];
         existing.push(item);
         itemsByUser.set(item.userId, existing);
@@ -70,17 +70,29 @@ export class CartCronService {
 
         // 2. Notification Email (si configuré)
         const cartLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/cart`;
-        await this.emailService.sendAbandonedCart({
-          email: user.email,
-          name: user.fullName || 'Client',
-          itemCount,
-          cartLink,
-        }).catch(err => this.logger.error(`Erreur email relance panier pour ${user.email}`, err));
+        await this.emailService
+          .sendAbandonedCart({
+            email: user.email,
+            name: user.fullName || 'Client',
+            itemCount,
+            cartLink,
+          })
+          .catch((err) =>
+            this.logger.error(
+              `Erreur email relance panier pour ${user.email}`,
+              err,
+            ),
+          );
 
-        this.logger.log(`Relance panier envoyée à l'utilisateur ${user.id} (${itemCount} articles).`);
+        this.logger.log(
+          `Relance panier envoyée à l'utilisateur ${user.id} (${itemCount} articles).`,
+        );
       }
     } catch (error) {
-      this.logger.error('Erreur lors du traitement des paniers abandonnés', error);
+      this.logger.error(
+        'Erreur lors du traitement des paniers abandonnés',
+        error,
+      );
     }
   }
 }

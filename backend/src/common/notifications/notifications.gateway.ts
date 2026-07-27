@@ -13,7 +13,9 @@ import { JwtPayload } from '../../auth/types/token.types';
 function getJwtSecret(): string {
   const secret = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET;
   if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('[SECURITY] JWT_ACCESS_SECRET or JWT_SECRET is not defined in production');
+    throw new Error(
+      '[SECURITY] JWT_ACCESS_SECRET or JWT_SECRET is not defined in production',
+    );
   }
   return secret || 'dev_jwt_secret_wapibei_2026';
 }
@@ -25,7 +27,9 @@ function getJwtSecret(): string {
     credentials: true,
   },
 })
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(NotificationsGateway.name);
 
   @WebSocketServer()
@@ -62,14 +66,18 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       await client.join(this.userRoom(user.id));
       client.emit('notifications:ready', { userId: user.id });
     } catch (error) {
-      this.logger.warn(`Notification socket rejected: ${error instanceof Error ? error.message : error}`);
+      this.logger.warn(
+        `Notification socket rejected: ${error instanceof Error ? error.message : error}`,
+      );
       client.disconnect(true);
     }
   }
 
   handleDisconnect(client: Socket) {
     if (client.data?.userId) {
-      this.logger.debug(`Notification socket disconnected for user ${client.data.userId}`);
+      this.logger.debug(
+        `Notification socket disconnected for user ${client.data.userId}`,
+      );
     }
   }
 

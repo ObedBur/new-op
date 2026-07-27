@@ -18,7 +18,7 @@ describe('PasswordService', () => {
     it('should hash a password correctly', async () => {
       const password = 'Password123!';
       const hash = await service.hash(password);
-      
+
       expect(hash).toBeDefined();
       expect(hash).not.toBe(password);
       expect(await bcrypt.compare(password, hash)).toBe(true);
@@ -29,7 +29,7 @@ describe('PasswordService', () => {
     it('should return true for matching password and hash', async () => {
       const password = 'Password123!';
       const hash = await bcrypt.hash(password, 10);
-      
+
       const result = await service.compare(password, hash);
       expect(result).toBe(true);
     });
@@ -52,11 +52,15 @@ describe('PasswordService', () => {
     });
 
     it('should throw for a weak password (no uppercase)', () => {
-      expect(() => service.validateComplexity('weakpass123!')).toThrow(HttpException);
+      expect(() => service.validateComplexity('weakpass123!')).toThrow(
+        HttpException,
+      );
     });
 
     it('should throw for a weak password (no number)', () => {
-      expect(() => service.validateComplexity('StrongPass!')).toThrow(HttpException);
+      expect(() => service.validateComplexity('StrongPass!')).toThrow(
+        HttpException,
+      );
     });
 
     it('should throw for a short password', () => {
@@ -67,7 +71,7 @@ describe('PasswordService', () => {
   describe('generateResetToken', () => {
     it('should generate a token and its hash', async () => {
       const result = await service.generateResetToken();
-      
+
       expect(result.token).toBeDefined();
       expect(result.hash).toBeDefined();
       expect(result.token.length).toBeGreaterThan(32);
@@ -89,4 +93,3 @@ describe('PasswordService', () => {
     });
   });
 });
-

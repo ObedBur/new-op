@@ -16,4 +16,3 @@ export interface RtAuthenticatedRequest extends AuthenticatedRequest {
     refreshToken: string;
   };
 }
-

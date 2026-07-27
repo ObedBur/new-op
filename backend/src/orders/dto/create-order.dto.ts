@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, IsUUID, Validate } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  Validate,
+} from 'class-validator';
 import { IsValidPhoneNumber } from '../../common/validators/is-valid-phone.validator';
 
 export class CreateOrderDto {

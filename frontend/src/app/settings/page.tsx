@@ -41,9 +41,7 @@ import { DeleteConfirmationModal } from "@/app/dashboard/products/components/Del
 import { useAuth } from "@/context/AuthContext";
 import { Language, Theme, Currency, useSettings } from "@/context/SettingsContext";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAppNotifications } from "@/hooks/useAppNotifications";
 import { getNotificationPreferences, saveNotificationPreferences, NotificationPreferences } from "@/features/notifications/services/preferences.service";
-import { resolveNotificationUrl } from "@/types/notification";
 import { toast } from "sonner";
 
 import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
@@ -145,21 +143,6 @@ function SettingsPageContent() {
       setIsSavingPref(false);
     }
   };
-
-  const {
-    notifications,
-    isLoading,
-    markAsRead,
-    markAllAsRead,
-  } = useAppNotifications();
-
-  // Clic intelligent : marque comme lu + redirige vers l'URL contextuelle
-  const handleNotificationClick = (n: any) => {
-    if (!n.isRead) markAsRead(n.id);
-    const url = resolveNotificationUrl(n, user?.role);
-    if (url) router.push(url);
-  };
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -170,25 +153,42 @@ function SettingsPageContent() {
     }
   };
 
-  // Define menu items based on user role
-  const menuItems = [
-    { label: "Mon Profil", href: "/settings?tab=profile" },
-    ...(user?.role === 'VENDOR' ? [
-      { label: "Tableau de bord Vendeur", href: "/dashboard" },
-    ] : [
-      { label: "Mes Commandes", href: "/settings?tab=orders" },
-      { label: "Mes Favoris", href: "/settings?tab=favorites" },
-    ]),
-    { label: "Notifications", href: "/settings?tab=notifications" },
-    { label: "Sécurité", href: "/settings?tab=security" },
-    { label: "Carnet d'adresses", href: "/settings?tab=addresses" },
-    { label: "Préférences", href: "/settings?tab=preferences" },
-    { label: "Centre d'aide", href: "#" },
-  ];
+  const menuItems =
+    user?.role === "VENDOR"
+      ? [
+          { label: "Mon Profil", href: "/settings?tab=profile" },
+          { label: "Mes Ventes", href: "/dashboard/orders" },
+          { label: "Mes Produits", href: "/dashboard/products" },
+          { label: "Analytiques", href: "/dashboard/analytics" },
+          { label: "Notifications", href: "/settings?tab=notifications" },
+          { label: "Sécurité", href: "/settings?tab=security" },
+          { label: "Préférences", href: "/settings?tab=preferences" },
+        ]
+      : [
+          { label: "Mon Profil", href: "/settings?tab=profile" },
+          { label: "Mes Commandes", href: "/settings?tab=orders" },
+          { label: "Mes Favoris", href: "/settings?tab=favorites" },
+          { label: "Notifications", href: "/settings?tab=notifications" },
+          { label: "Sécurité", href: "/settings?tab=security" },
+          { label: "Carnet d'adresses", href: "/settings?tab=addresses" },
+          { label: "Préférences", href: "/settings?tab=preferences" },
+          { label: "Centre d'aide", href: "#" },
+        ];
 
   // If there is an active tab, render that tab's content
   // This unified view works on both mobile (full screen) and desktop (content area beside VendorSidebar)
   if (activeTab) {
+    const activeTabLabel =
+      activeTab === 'profile' ? 'Mon Profil' :
+      activeTab === 'store' ? 'Boutique' :
+      activeTab === 'favorites' ? 'Mes Favoris' :
+      activeTab === 'notifications' ? 'Notifications' :
+      activeTab === 'security' ? 'Sécurité' :
+      activeTab === 'preferences' ? 'Préférences' :
+      activeTab === 'orders' ? 'Mes Commandes' :
+      activeTab === 'addresses' ? "Carnet d'adresses" :
+      'Paramètres';
+
     return (
       <div className="min-h-screen bg-[#F6F1E0] lg:bg-transparent">
         <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-2">
@@ -201,21 +201,13 @@ function SettingsPageContent() {
           <header className="px-6 pt-12 pb-6 lg:pt-8 lg:pb-4">
             <div className="flex items-center">
               <button
-                onClick={() => router.back()}
-                className="lg:hidden p-2 rounded-full hover:bg-gray-100 transition-colors mr-4"
+                onClick={() => router.push('/settings')}
+                className="lg:hidden flex items-center gap-1.5 -ml-2 pr-3 pl-2 py-2 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <ChevronLeft size={24} />
+                <span className="text-sm font-bold text-black">{activeTabLabel}</span>
               </button>
-              <h1 className="text-2xl font-bold text-black">
-                {activeTab === 'profile' ? 'Profile' :
-                  activeTab === 'store' ? 'Boutique' :
-                    activeTab === 'favorites' ? 'Favoris' :
-                      activeTab === 'notifications' ? 'Notifications' :
-                        activeTab === 'security' ? 'Sécurité' :
-                          activeTab === 'preferences' ? 'Préférences' :
-                            activeTab === 'orders' ? 'Commandes' :
-                              activeTab === 'addresses' ? 'Adresses' : 'Paramètres'}
-              </h1>
+              <h1 className="hidden lg:block text-2xl font-bold text-black">{activeTabLabel}</h1>
             </div>
           </header>
           <main className="flex-grow px-6 pb-20">
@@ -336,60 +328,6 @@ function SettingsPageContent() {
                             >
                               {isSavingPref ? 'Enregistrement...' : 'Enregistrer les réglages'}
                             </button>
-                          </div>
-                        </section>
-
-                        {/* --- SECTION 2: ACTIVITÉ RÉCENTE --- */}
-                        <section className="bg-white p-4 space-y-6">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                            <div className="space-y-1">
-                              <h3 className="text-xl font-black text-black tracking-tight">Activités récentes</h3>
-                              <p className="text-xs font-semibold text-gray-400 italic">Historique de vos alertes reçues</p>
-                            </div>
-                            {notifications.some(n => !n.isRead) && (
-                              <button
-                                onClick={() => markAllAsRead()}
-                                className="group flex items-center gap-2 px-6 py-3 bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
-                              >
-                                <CheckCircle2 size={14} />
-                                Tout marquer comme lu
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="space-y-4">
-                            {isLoading ? (
-                              <ListSkeleton count={3} />
-                            ) : notifications.length === 0 ? (
-                              <div className="py-12 text-center">
-                                <Bell size={40} className="mx-auto text-gray-200 mb-4" />
-                                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aucune notification</p>
-                              </div>
-                            ) : (
-                              <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-hide">
-                                <motion.div variants={staggerContainer} initial="initial" animate="animate" className="space-y-3">
-                                  {notifications.map((n) => (
-                                    <motion.div
-                                      variants={fadeUp}
-                                      key={n.id}
-                                      onClick={() => handleNotificationClick(n)}
-                                      className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${n.isRead ? 'bg-white border-gray-100' : 'bg-orange-50/30 border-orange-100/50 shadow-sm'}`}
-                                    >
-                                      <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${n.isRead ? 'bg-gray-50 text-gray-400' : 'bg-orange-100 text-orange-600'}`}>
-                                        <Bell size={18} />
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <h4 className={`text-sm font-black truncate ${n.isRead ? 'text-gray-900' : 'text-orange-950'}`}>{n.title}</h4>
-                                        <p className="text-[12px] text-gray-500 line-clamp-1">{n.message}</p>
-                                      </div>
-                                      <div className="text-[10px] font-bold text-gray-300 shrink-0">
-                                        {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                      </div>
-                                    </motion.div>
-                                  ))}
-                                </motion.div>
-                              </div>
-                            )}
                           </div>
                         </section>
                       </div>

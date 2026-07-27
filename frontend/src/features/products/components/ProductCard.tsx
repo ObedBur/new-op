@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Product } from '../types';
 import { ProductMapper } from '../services/product.mapper';
 import { useCart } from '@/features/cart/context/CartContext';
@@ -42,6 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     addItem(product, 1);
   };
@@ -52,10 +54,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div
-      role="button"
+    <Link
+      href={`/products/${product.id}`}
+      role="article"
       aria-label={`Voir les détails de ${product.name}`}
-      onClick={() => onQuickView(product)}
       className={[
         'group relative flex flex-col bg-white dark:bg-zinc-900',
         'rounded-2xl overflow-hidden cursor-pointer',
@@ -116,7 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </button>
 
           <button
-            onClick={handleQuickView}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuickView(e); }}
             aria-label="Vue rapide"
             className="glass-badge bg-white/20 hover:bg-white/40 text-white size-9 rounded-xl flex items-center justify-center transition-colors duration-200"
           >
@@ -161,7 +163,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

@@ -17,15 +17,16 @@ export interface ApiInfo {
 @Injectable()
 export class AppService {
   getApiInfo(): ApiInfo {
-    const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
-    
+    const isDev =
+      process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+
     const baseInfo = {
       name: 'WapiBei API',
       version: '1.0.0',
       environment: process.env.NODE_ENV || 'development',
       status: 'running',
       timestamp: new Date().toISOString(),
-      message: isDev 
+      message: isDev
         ? ' API en mode dveloppement - OTP visible dans console'
         : ' API WapiBei oprationnelle',
     };
@@ -42,12 +43,12 @@ export class AppService {
           '  Voir utilisateurs: GET /auth/test-users (dev only)',
           '  Nettoyer DB: DELETE /auth/test-users (dev only)',
         ],
-        database: process.env.DATABASE_URL?.includes('file:') 
-          ? 'SQLite (fichier local)' 
+        database: process.env.DATABASE_URL?.includes('file:')
+          ? 'SQLite (fichier local)'
           : 'PostgreSQL',
         prismaStudio: 'http://localhost:5555',
         nextSteps: [
-          '1. Tester l\'inscription',
+          "1. Tester l'inscription",
           '2. Vrifier OTP dans console',
           '3. Se connecter',
           '4. Explorer la DB avec Prisma Studio',
@@ -73,4 +74,3 @@ export class AppService {
     };
   }
 }
-

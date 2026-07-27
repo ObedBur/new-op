@@ -39,18 +39,22 @@ export class ProductsService {
    * Filtre les produits marqués explicitement comme étant en solde.
    */
   async getDeals(limit = 6) {
-    return this.cache.getOrSet(`products:deals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: {
-          isOnSale: true,
-          originalPrice: { not: null },
-          isPublic: true,
-        } as any,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
-    });
+    return this.cache.getOrSet(
+      `products:deals:${limit}`,
+      HOME_PRODUCTS_TTL_MS,
+      () => {
+        return this.prisma.product.findMany({
+          where: {
+            isOnSale: true,
+            originalPrice: { not: null },
+            isPublic: true,
+          } as any,
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          include: productInclude,
+        });
+      },
+    );
   }
 
   /**
@@ -60,17 +64,21 @@ export class ProductsService {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    return this.cache.getOrSet(`products:new-arrivals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: {
-          createdAt: { gte: sevenDaysAgo },
-          isPublic: true,
-        } as any,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
-    });
+    return this.cache.getOrSet(
+      `products:new-arrivals:${limit}`,
+      HOME_PRODUCTS_TTL_MS,
+      () => {
+        return this.prisma.product.findMany({
+          where: {
+            createdAt: { gte: sevenDaysAgo },
+            isPublic: true,
+          } as any,
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          include: productInclude,
+        });
+      },
+    );
   }
 
   /**
@@ -91,7 +99,9 @@ export class ProductsService {
           take: 20,
         });
 
-        const categoryIds = [...new Set(userOrders.map((o) => o.product.categoryId))];
+        const categoryIds = [
+          ...new Set(userOrders.map((o) => o.product.categoryId)),
+        ];
 
         if (categoryIds.length > 0) {
           return this.prisma.product.findMany({
@@ -120,17 +130,21 @@ export class ProductsService {
    * Récupère les produits les plus vendus sur la plateforme.
    */
   async getBestSellers(limit = 6) {
-    return this.cache.getOrSet(`products:best-sellers:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: { 
-          totalSales: { gt: 0 },
-          isPublic: true,
-        } as any,
-        orderBy: { totalSales: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
-    });
+    return this.cache.getOrSet(
+      `products:best-sellers:${limit}`,
+      HOME_PRODUCTS_TTL_MS,
+      () => {
+        return this.prisma.product.findMany({
+          where: {
+            totalSales: { gt: 0 },
+            isPublic: true,
+          } as any,
+          orderBy: { totalSales: 'desc' },
+          take: limit,
+          include: productInclude,
+        });
+      },
+    );
   }
 
   /**
@@ -145,14 +159,24 @@ export class ProductsService {
     limit?: number;
     onlyPublic?: boolean;
   }) {
-    const { userId, categoryId, search, market, page = 1, limit = 50, onlyPublic } = query;
+    const {
+      userId,
+      categoryId,
+      search,
+      market,
+      page = 1,
+      limit = 50,
+      onlyPublic,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {
       ...(userId && { userId }),
       ...(categoryId && { categoryId }),
       ...(market && { market: market as any }),
-      ...(onlyPublic !== undefined ? { isPublic: onlyPublic } : !userId && { isPublic: true }),
+      ...(onlyPublic !== undefined
+        ? { isPublic: onlyPublic }
+        : !userId && { isPublic: true }),
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
@@ -180,7 +204,10 @@ export class ProductsService {
         pages: Math.ceil(total / limit),
       };
     } catch (error: any) {
-      this.logger.error(`Error in findAll: ${error?.message || error}`, error?.stack);
+      this.logger.error(
+        `Error in findAll: ${error?.message || error}`,
+        error?.stack,
+      );
       throw error;
     }
   }
@@ -191,7 +218,12 @@ export class ProductsService {
    */
   async getVendorProducts(
     userId: string,
-    opts?: { search?: string; categoryId?: number; page?: number; limit?: number },
+    opts?: {
+      search?: string;
+      categoryId?: number;
+      page?: number;
+      limit?: number;
+    },
   ) {
     const { search, categoryId, page = 1, limit = 50 } = opts || {};
     const skip = (page - 1) * limit;
@@ -226,13 +258,15 @@ export class ProductsService {
    * Déclenche une notification broadcast aux abonnés si le produit est public.
    */
   async create(data: any, userId: string) {
-    const imageUrl = data.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
+    const imageUrl =
+      data.image ||
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80';
 
     await this.moderationService.fullValidation(
-      data.name, 
-      data.description || '', 
+      data.name,
+      data.description || '',
       Number(data.price),
-      imageUrl
+      imageUrl,
     );
 
     const product = await this.prisma.product.create({
@@ -244,10 +278,11 @@ export class ProductsService {
         image: imageUrl,
         userId: userId,
         isPublic: data.isPublic !== undefined ? data.isPublic : true,
-        stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : 0,
+        stockQuantity:
+          data.stockQuantity !== undefined ? Number(data.stockQuantity) : 0,
         unit: data.unit || 'Pièce',
       } as any,
-      include: { category: true }
+      include: { category: true },
     });
 
     if (product.isPublic) {
@@ -275,7 +310,9 @@ export class ProductsService {
   async update(id: string, data: any, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException('Produit introuvable ou vous n\'êtes pas autorisé à le modifier.');
+      throw new BadRequestException(
+        "Produit introuvable ou vous n'êtes pas autorisé à le modifier.",
+      );
     }
 
     if (data.image) {
@@ -283,7 +320,7 @@ export class ProductsService {
         data.name || product.name,
         data.description || product.description,
         Number(data.price || product.price),
-        data.image
+        data.image,
       );
     }
 
@@ -295,12 +332,14 @@ export class ProductsService {
         ...(data.price && { price: Number(data.price) }),
         ...(data.categoryId && { categoryId: Number(data.categoryId) }),
         ...(data.image && { image: data.image }),
-        ...(data.stockQuantity !== undefined && { stockQuantity: Number(data.stockQuantity) }),
+        ...(data.stockQuantity !== undefined && {
+          stockQuantity: Number(data.stockQuantity),
+        }),
         ...(data.unit && { unit: data.unit }),
         ...(data.availability && { availability: data.availability }),
         ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
       } as any,
-      include: { category: true }
+      include: { category: true },
     });
 
     if (!product.isPublic && updatedProduct.isPublic) {
@@ -337,7 +376,9 @@ export class ProductsService {
   async remove(id: string, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException('Produit introuvable ou accès non autorisé.');
+      throw new BadRequestException(
+        'Produit introuvable ou accès non autorisé.',
+      );
     }
 
     return this.prisma.product.delete({ where: { id } });
@@ -359,16 +400,16 @@ export class ProductsService {
     // Déduplication côté JS (distinct non supporté par Prisma Accelerate)
     const seen = new Set<string>();
     return products
-      .filter(p => {
+      .filter((p) => {
         if (seen.has(p.name)) return false;
         seen.add(p.name);
         return true;
       })
       .slice(0, 8)
-      .map(p => ({
+      .map((p) => ({
         text: p.name,
         category: p.category.name,
-        type: 'product'
+        type: 'product',
       }));
   }
 
@@ -410,7 +451,8 @@ export class ProductsService {
     });
 
     const prices = products.map((p) => p.price);
-    const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+    const avgPrice =
+      prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
 
     return {
       query: search,

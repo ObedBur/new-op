@@ -17,4 +17,3 @@ export class ResetPasswordDto {
   @Validate(IsStrongPassword)
   newPassword!: string;
 }
-

@@ -17,15 +17,20 @@ import { AfricastalkingSmsProvider } from './sms/providers/africastalking.provid
   imports: [PrismaModule, EmailModule, AuthModule],
   controllers: [NotificationsController],
   providers: [
-    NotificationsService, 
-    WebPushService, 
-    NotificationsGateway, 
+    NotificationsService,
+    WebPushService,
+    NotificationsGateway,
     SmsService,
     MockSmsProvider,
     TwilioSmsProvider,
     AfricastalkingSmsProvider,
-    smsProviderFactory
+    smsProviderFactory,
   ],
-  exports: [NotificationsService, WebPushService, NotificationsGateway, SmsService],
+  exports: [
+    NotificationsService,
+    WebPushService,
+    NotificationsGateway,
+    SmsService,
+  ],
 })
 export class NotificationsModule {}

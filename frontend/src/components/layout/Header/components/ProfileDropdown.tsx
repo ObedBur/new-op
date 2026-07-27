@@ -91,7 +91,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               {user?.role === 'VENDOR' ? 'VENDEUR' : 'CLIENT'}
             </span>
           </div>
-          <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown size={14} className={`hidden sm:block text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
         </button>
       ) : (
         <Link 

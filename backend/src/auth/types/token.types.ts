@@ -4,11 +4,11 @@ import { UserRole, KycStatus } from '@prisma/client';
  * Payload du JWT contenu dans l'access token et le refresh token
  */
 export interface JwtPayload {
-  sub: string;           // User ID
+  sub: string; // User ID
   email: string;
   role: UserRole;
   kycStatus: KycStatus;
-  jti?: string;          // JWT ID (uniquement pour refresh token)
+  jti?: string; // JWT ID (uniquement pour refresh token)
 }
 
 /**
@@ -34,7 +34,6 @@ export interface RefreshTokenData {
  * Options pour la gnration de tokens
  */
 export interface TokenGenerationOptions {
-  accessTokenExpiry?: string;   // Ex: '1h', '30m'
-  refreshTokenExpiry?: string;  // Ex: '7d', '30d'
+  accessTokenExpiry?: string; // Ex: '1h', '30m'
+  refreshTokenExpiry?: string; // Ex: '7d', '30d'
 }
-

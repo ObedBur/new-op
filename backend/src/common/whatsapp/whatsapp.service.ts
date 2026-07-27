@@ -14,7 +14,7 @@ export interface WhatsAppOrderPayload {
 @Injectable()
 export class WhatsAppService {
   private readonly logger = new Logger(WhatsAppService.name);
-  // 
+  //
   private sanitizePhone(phone: string): string {
     return phone.replace(/[\s\-\(\)\+]/g, '');
   }
@@ -29,12 +29,13 @@ export class WhatsAppService {
     );
   }
 
-  
   // Formate le message WhatsApp pour le vendeur.
-   
+
   private formatOrderMessage(data: WhatsAppOrderPayload): string {
-    const photoLine = data.productImage ? ` *Photo :* ${data.productImage}` : '';
-    
+    const photoLine = data.productImage
+      ? ` *Photo :* ${data.productImage}`
+      : '';
+
     return [
       ` *Nouvelle commande sur WapiBei*`,
       ``,
@@ -47,12 +48,13 @@ export class WhatsAppService {
       photoLine,
       ``,
       `_Veuillez contacter le client pour confirmer la livraison._`,
-    ].filter(line => line !== '').join('\n');
+    ]
+      .filter((line) => line !== '')
+      .join('\n');
   }
 
-  
   //  Envoie un message WhatsApp via l'API configurée.
-  
+
   async sendWhatsAppMessage(to: string, message: string): Promise<boolean> {
     const apiUrl = process.env.WHATSAPP_API_URL;
     const apiToken = process.env.WHATSAPP_API_TOKEN;
@@ -79,7 +81,7 @@ export class WhatsAppService {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${apiToken}`,
           },
-          timeout: 10000, 
+          timeout: 10000,
         },
       );
 
@@ -87,9 +89,7 @@ export class WhatsAppService {
       return true;
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
-      this.logger.error(
-        `Échec envoi WhatsApp à ${sanitizedPhone}: ${errMsg}`,
-      );
+      this.logger.error(`Échec envoi WhatsApp à ${sanitizedPhone}: ${errMsg}`);
       return false;
     }
   }

@@ -1,18 +1,18 @@
-import { 
-  IsEmail, 
-  IsNotEmpty, 
-  IsString, 
-  IsEnum, 
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsEnum,
   IsOptional,
-  Validate
+  Validate,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { 
+import {
   IsValidPhoneNumber,
   IsValidProvince,
   IsValidCommune,
   IsBoutiqueRequiredForVendor,
-  IsStrongPassword
+  IsStrongPassword,
 } from '../../common/validators';
 import { UserRole } from '@prisma/client';
 
@@ -62,13 +62,12 @@ export class RegisterDto {
   @IsOptional()
   @Validate(IsBoutiqueRequiredForVendor)
   boutiqueName?: string;
-  
-  @IsEnum(UserRole) 
+
+  @IsEnum(UserRole)
   @IsNotEmpty()
-  role!: UserRole; 
+  role!: UserRole;
 
   @IsString()
   @IsOptional()
   kycStatus?: string;
 }
-

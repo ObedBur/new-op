@@ -12,21 +12,21 @@ export const AddressBookSection = () => {
   const [formData, setFormData] = useState<Partial<CreateAddressData>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAddresses();
-  }, []);
-
   const loadAddresses = async () => {
     try {
       setLoading(true);
       const data = await AddressService.getAddresses();
       setAddresses(data);
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors du chargement des adresses');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAddresses();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +47,7 @@ export const AddressBookSection = () => {
       setIsAdding(false);
       setEditingId(null);
       loadAddresses();
-    } catch (error) {
+    } catch {
       toast.error("Une erreur s'est produite");
     }
   };
@@ -58,7 +58,7 @@ export const AddressBookSection = () => {
       await AddressService.deleteAddress(id);
       toast.success('Adresse supprimée');
       loadAddresses();
-    } catch (error) {
+    } catch {
       toast.error('Erreur lors de la suppression');
     }
   };
@@ -68,7 +68,7 @@ export const AddressBookSection = () => {
       await AddressService.updateAddress(id, { isDefault: true });
       toast.success('Adresse définie par défaut');
       loadAddresses();
-    } catch (error) {
+    } catch {
       toast.error('Erreur');
     }
   };

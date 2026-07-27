@@ -1,4 +1,14 @@
-import { IsEmail, IsNotEmpty, IsString, IsArray, ValidateNested, IsInt, Min, Validate, ArrayMinSize } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsArray,
+  ValidateNested,
+  IsInt,
+  Min,
+  Validate,
+  ArrayMinSize,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsValidPhoneNumber } from '../../common/validators/is-valid-phone.validator';
 

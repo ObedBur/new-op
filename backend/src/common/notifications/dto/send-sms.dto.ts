@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 /**
@@ -17,7 +23,9 @@ export class SendSmsDto {
    * Exemples valides : +33612345678, +243812345678, +12125551234
    * Exemples invalides : 0612345678, +33 6 12, ++33, +336, abc
    */
-  @IsString({ message: 'Le numéro de téléphone doit être une chaîne de caractères.' })
+  @IsString({
+    message: 'Le numéro de téléphone doit être une chaîne de caractères.',
+  })
   @IsNotEmpty({ message: 'Le numéro de téléphone est obligatoire.' })
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Matches(/^\+[1-9]\d{6,14}$/, {
@@ -35,9 +43,12 @@ export class SendSmsDto {
   @IsString({ message: 'Le message doit être une chaîne de caractères.' })
   @IsNotEmpty({ message: 'Le message ne peut pas être vide.' })
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @MinLength(1, { message: 'Le message doit contenir au moins 1 caractère réel.' })
+  @MinLength(1, {
+    message: 'Le message doit contenir au moins 1 caractère réel.',
+  })
   @MaxLength(1600, {
-    message: 'Le message ne peut pas dépasser 1600 caractères (limite SMS multi-segments).',
+    message:
+      'Le message ne peut pas dépasser 1600 caractères (limite SMS multi-segments).',
   })
   message!: string;
 }

@@ -6,7 +6,6 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RtStrategy } from './strategies/rt.strategy';
 
-
 import { TokenService } from './services/token.service';
 import { OtpService } from './services/otp.service';
 import { PasswordService } from './services/password.service';
@@ -16,11 +15,24 @@ import { UserValidationService } from './services/user-validation.service';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({}),
-    
   ],
   controllers: [AuthController],
-  providers: [AuthService, TokenService, OtpService, PasswordService, UserValidationService, JwtStrategy, RtStrategy],
-  exports: [AuthService, TokenService, OtpService, PasswordService, UserValidationService, JwtModule],
+  providers: [
+    AuthService,
+    TokenService,
+    OtpService,
+    PasswordService,
+    UserValidationService,
+    JwtStrategy,
+    RtStrategy,
+  ],
+  exports: [
+    AuthService,
+    TokenService,
+    OtpService,
+    PasswordService,
+    UserValidationService,
+    JwtModule,
+  ],
 })
 export class AuthModule {}
-

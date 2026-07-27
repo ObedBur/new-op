@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CreateBulkOrderDto } from './dto/create-bulk-order.dto';
@@ -24,19 +30,25 @@ export class OrdersService {
     private whatsAppService: WhatsAppService,
     private notificationsService: NotificationsService,
     private smsService: SmsService,
-  ) { }
+  ) {}
 
   /**
    * Crée plusieurs commandes de manière atomique.
    * Valide les stocks avant toute opération et déclenche les alertes de réapprovisionnement.
-   * 
+   *
    * @param createBulkOrderDto Détails des produits et du client
    * @param clientId ID de l'acheteur
    * @throws NotFoundException si un produit n'existe pas
    * @throws BadRequestException si le stock est insuffisant
    */
   async createBulk(createBulkOrderDto: CreateBulkOrderDto, clientId: string) {
-    const { items, customerName, customerPhone, customerEmail, deliveryAddress } = createBulkOrderDto;
+    const {
+      items,
+      customerName,
+      customerPhone,
+      customerEmail,
+      deliveryAddress,
+    } = createBulkOrderDto;
 
     if (!items.length) {
       throw new BadRequestException('Le panier est vide.');
@@ -46,37 +58,47 @@ export class OrdersService {
       items.reduce((acc, item) => {
         acc.set(item.productId, (acc.get(item.productId) || 0) + item.quantity);
         return acc;
-      }, new Map<string, number>())
+      }, new Map<string, number>()),
     ).map(([productId, quantity]) => ({ productId, quantity }));
 
-    const productIds = groupedItems.map(item => item.productId);
+    const productIds = groupedItems.map((item) => item.productId);
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds } },
       include: { user: true },
     });
 
     if (products.length !== groupedItems.length) {
-      throw new NotFoundException('Certains produits sélectionnés n\'existent plus.');
+      throw new NotFoundException(
+        "Certains produits sélectionnés n'existent plus.",
+      );
     }
 
     // Validation préalable pour éviter les commandes impossibles ou incohérentes.
     for (const item of groupedItems) {
-      const product = products.find(p => p.id === item.productId);
+      const product = products.find((p) => p.id === item.productId);
       if (!product) {
-        throw new NotFoundException('Un produit sélectionné n\'existe plus.');
+        throw new NotFoundException("Un produit sélectionné n'existe plus.");
       }
 
       if (!product.isPublic || product.availability === 'OUT_OF_STOCK') {
-        throw new BadRequestException(`"${product.name}" n'est plus disponible à la commande.`);
+        throw new BadRequestException(
+          `"${product.name}" n'est plus disponible à la commande.`,
+        );
       }
 
       if (!product.user?.isActive || product.user.role !== UserRole.VENDOR) {
-        throw new BadRequestException(`Le vendeur de "${product.name}" n'est pas disponible actuellement.`);
+        throw new BadRequestException(
+          `Le vendeur de "${product.name}" n'est pas disponible actuellement.`,
+        );
       }
 
-      if (product.stockQuantity !== null && product.stockQuantity !== undefined && product.stockQuantity < item.quantity) {
+      if (
+        product.stockQuantity !== null &&
+        product.stockQuantity !== undefined &&
+        product.stockQuantity < item.quantity
+      ) {
         throw new BadRequestException(
-          `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`
+          `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`,
         );
       }
     }
@@ -87,8 +109,8 @@ export class OrdersService {
      * 2. Décrémentation du stock
      */
     const createdOrders = await this.prisma.$transaction([
-      ...groupedItems.map(item => {
-        const product = products.find(p => p.id === item.productId)!;
+      ...groupedItems.map((item) => {
+        const product = products.find((p) => p.id === item.productId);
         return this.prisma.order.create({
           data: {
             customerName,
@@ -105,30 +127,63 @@ export class OrdersService {
         });
       }),
       ...groupedItems
-        .filter(item => {
-          const product = products.find(p => p.id === item.productId);
-          return product?.stockQuantity !== null && product?.stockQuantity !== undefined;
+        .filter((item) => {
+          const product = products.find((p) => p.id === item.productId);
+          return (
+            product?.stockQuantity !== null &&
+            product?.stockQuantity !== undefined
+          );
         })
-        .map(item => this.prisma.product.update({
-          where: { id: item.productId },
-          data: { stockQuantity: { decrement: item.quantity } },
-        })),
+        .map((item) =>
+          this.prisma.product.update({
+            where: { id: item.productId },
+            data: { stockQuantity: { decrement: item.quantity } },
+          }),
+        ),
     ]);
 
     const ordersOnly = createdOrders.filter((r): r is any => 'vendorId' in r);
-    const totalOrderPrice = ordersOnly.reduce((acc: number, order: any) => acc + order.totalPrice, 0);
+    const totalOrderPrice = ordersOnly.reduce(
+      (acc: number, order: any) => acc + order.totalPrice,
+      0,
+    );
 
     // Gestion des alertes de stock bas (seuil critique < 5 unités)
-    const updatedProducts = createdOrders.filter((r): r is any => 'stockQuantity' in r);
+    const updatedProducts = createdOrders.filter(
+      (r): r is any => 'stockQuantity' in r,
+    );
     for (const p of updatedProducts) {
-      if (p.stockQuantity !== null && p.stockQuantity !== undefined && p.stockQuantity < 5 && p.stockQuantity >= 0) {
+      if (
+        p.stockQuantity !== null &&
+        p.stockQuantity !== undefined &&
+        p.stockQuantity < 5 &&
+        p.stockQuantity >= 0
+      ) {
         this.handleLowStockAlert(p);
       }
     }
 
-    this.dispatchClientNotifications(clientId, customerEmail, customerName, groupedItems, products, totalOrderPrice, ordersOnly);
-    this.dispatchVendorNotifications(ordersOnly, customerName, customerPhone, deliveryAddress);
-    this.dispatchAdminNotifications(ordersOnly.length, totalOrderPrice, customerName, ordersOnly);
+    this.dispatchClientNotifications(
+      clientId,
+      customerEmail,
+      customerName,
+      groupedItems,
+      products,
+      totalOrderPrice,
+      ordersOnly,
+    );
+    this.dispatchVendorNotifications(
+      ordersOnly,
+      customerName,
+      customerPhone,
+      deliveryAddress,
+    );
+    this.dispatchAdminNotifications(
+      ordersOnly.length,
+      totalOrderPrice,
+      customerName,
+      ordersOnly,
+    );
 
     return {
       success: true,
@@ -152,7 +207,7 @@ export class OrdersService {
     this.notificationsService.sendPushToUser(product.userId, {
       title: 'Stock presque épuisé',
       body: `Plus que ${product.stockQuantity} "${product.name}" en stock.`,
-      data: { url: '/dashboard/products' }
+      data: { url: '/dashboard/products' },
     });
   }
 
@@ -160,21 +215,38 @@ export class OrdersService {
    * Envoie les notifications de confirmation à l'acheteur.
    * Respecte les préférences de l'utilisateur (Email, In-App, Push).
    */
-  private async dispatchClientNotifications(clientId: string, email: string, name: string, items: any[], products: any[], total: number, orders: any[]) {
+  private async dispatchClientNotifications(
+    clientId: string,
+    email: string,
+    name: string,
+    items: any[],
+    products: any[],
+    total: number,
+    orders: any[],
+  ) {
     // Récupérer les préférences (null = jamais configurées → on envoie tout par défaut)
-    const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: clientId } });
+    const prefs = await this.prisma.notificationPreference.findUnique({
+      where: { userId: clientId },
+    });
 
     if (!prefs || prefs.ordersEmail) {
-      this.emailService.sendBulkOrderConfirmation({
-        customerEmail: email,
-        customerName: name,
-        items: items.map(item => {
-          const p = products.find(prod => prod.id === item.productId);
-          return { productName: p.name, price: p.price, quantity: item.quantity, productImage: p.image || (p.images && p.images[0]) };
-        }),
-        totalPrice: total,
-        orderIds: orders.map((o: any) => o.id),
-      }).catch(err => this.logger.error('Email client non envoyé', err));
+      this.emailService
+        .sendBulkOrderConfirmation({
+          customerEmail: email,
+          customerName: name,
+          items: items.map((item) => {
+            const p = products.find((prod) => prod.id === item.productId);
+            return {
+              productName: p.name,
+              price: p.price,
+              quantity: item.quantity,
+              productImage: p.image || (p.images && p.images[0]),
+            };
+          }),
+          totalPrice: total,
+          orderIds: orders.map((o: any) => o.id),
+        })
+        .catch((err) => this.logger.error('Email client non envoyé', err));
     }
 
     if (!prefs || prefs.ordersInApp) {
@@ -183,7 +255,10 @@ export class OrdersService {
         title: 'Commande envoyée',
         message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été envoyée au vendeur.`,
         type: NotificationType.ORDER_CREATED,
-        metadata: { url: '/settings?tab=orders', orderIds: orders.map((o: any) => o.id) },
+        metadata: {
+          url: '/settings?tab=orders',
+          orderIds: orders.map((o: any) => o.id),
+        },
       });
     }
 
@@ -191,17 +266,23 @@ export class OrdersService {
       this.notificationsService.sendPushToUser(clientId, {
         title: 'Commande envoyée',
         body: `Votre commande a été transmise au vendeur pour confirmation.`,
-        data: { url: '/orders' }
+        data: { url: '/orders' },
       });
     }
 
     // SMS Client (opt-in uniquement)
     if (prefs?.ordersSms) {
-      const client = await this.prisma.user.findUnique({ where: { id: clientId }, select: { phone: true } });
+      const client = await this.prisma.user.findUnique({
+        where: { id: clientId },
+        select: { phone: true },
+      });
       if (client?.phone) {
         const smsMessage = `WapiBei: Votre commande de ${items.length} article(s) pour ${total.toLocaleString()} $ a bien été envoyée. Le vendeur vous contactera sous peu.`;
-        this.smsService.sendSms(client.phone, smsMessage)
-          .catch(err => this.logger.error(`SMS client failed: ${clientId}`, err));
+        this.smsService
+          .sendSms(client.phone, smsMessage)
+          .catch((err) =>
+            this.logger.error(`SMS client failed: ${clientId}`, err),
+          );
       }
     }
   }
@@ -209,7 +290,12 @@ export class OrdersService {
   /**
    * Regroupe les commandes par vendeur pour éviter le spam et envoie les alertes.
    */
-  private dispatchVendorNotifications(orders: any[], customerName: string, customerPhone: string, address: string) {
+  private dispatchVendorNotifications(
+    orders: any[],
+    customerName: string,
+    customerPhone: string,
+    address: string,
+  ) {
     const ordersByVendor = new Map<string, any[]>();
     orders.forEach((order: any) => {
       const existing = ordersByVendor.get(order.vendorId) || [];
@@ -219,38 +305,59 @@ export class OrdersService {
 
     ordersByVendor.forEach((vendorOrders: any[], vendorId: string) => {
       const vendor = vendorOrders[0].vendor;
-      const productNames = vendorOrders.map(o => o.product.name).join(', ');
-      const vendorTotal = vendorOrders.reduce((sum, o) => sum + o.totalPrice, 0);
-      const firstImage = vendorOrders[0].product.image || (vendorOrders[0].product.images && vendorOrders[0].product.images[0]);
+      const productNames = vendorOrders.map((o) => o.product.name).join(', ');
+      const vendorTotal = vendorOrders.reduce(
+        (sum, o) => sum + o.totalPrice,
+        0,
+      );
+      const firstImage =
+        vendorOrders[0].product.image ||
+        (vendorOrders[0].product.images && vendorOrders[0].product.images[0]);
 
-      const productDetailsList = vendorOrders.map(o => {
-        const qty = o.totalPrice / o.product.price;
-        return `- ${qty}x ${o.product.name}`;
-      }).join('\n');
+      const productDetailsList = vendorOrders
+        .map((o) => {
+          const qty = o.totalPrice / o.product.price;
+          return `- ${qty}x ${o.product.name}`;
+        })
+        .join('\n');
 
-      const emailProductName = vendorOrders.length === 1 ? vendorOrders[0].product.name : `${vendorOrders.length} articles:\n${productDetailsList}`;
-      const whatsappProductName = vendorOrders.length === 1 ? vendorOrders[0].product.name : `\n${productDetailsList}`;
+      const emailProductName =
+        vendorOrders.length === 1
+          ? vendorOrders[0].product.name
+          : `${vendorOrders.length} articles:\n${productDetailsList}`;
+      const whatsappProductName =
+        vendorOrders.length === 1
+          ? vendorOrders[0].product.name
+          : `\n${productDetailsList}`;
 
-      this.emailService.sendVendorOrderAlert({
-        vendorEmail: vendor.email,
-        vendorName: vendor.boutiqueName || vendor.fullName,
-        customerName,
-        customerPhone,
-        productName: emailProductName,
-        productImage: firstImage,
-        totalPrice: vendorTotal,
-        orderId: vendorOrders.map(o => o.id).join(', '),
-      }).catch(err => this.logger.error(`Email vendeur failed: ${vendor.email}`, err));
+      this.emailService
+        .sendVendorOrderAlert({
+          vendorEmail: vendor.email,
+          vendorName: vendor.boutiqueName || vendor.fullName,
+          customerName,
+          customerPhone,
+          productName: emailProductName,
+          productImage: firstImage,
+          totalPrice: vendorTotal,
+          orderId: vendorOrders.map((o) => o.id).join(', '),
+        })
+        .catch((err) =>
+          this.logger.error(`Email vendeur failed: ${vendor.email}`, err),
+        );
 
-      this.whatsAppService.sendOrderAlert(vendor.phone, {
-        vendorName: vendor.boutiqueName || vendor.fullName,
-        customerName,
-        customerPhone,
-        productName: whatsappProductName,
-        productImage: firstImage,
-        deliveryAddress: address,
-        totalPrice: vendorTotal,
-      }).catch(err => this.logger.error(`WhatsApp vendeur failed: ${vendorId}`, err));
+      this.whatsAppService
+        .sendOrderAlert(vendor.phone, {
+          vendorName: vendor.boutiqueName || vendor.fullName,
+          customerName,
+          customerPhone,
+          productName: whatsappProductName,
+          productImage: firstImage,
+          deliveryAddress: address,
+          totalPrice: vendorTotal,
+        })
+        .catch((err) =>
+          this.logger.error(`WhatsApp vendeur failed: ${vendorId}`, err),
+        );
 
       this.notificationsService.createNotification({
         userId: vendorId,
@@ -259,7 +366,7 @@ export class OrdersService {
         type: NotificationType.ORDER_CREATED,
         metadata: {
           url: '/dashboard/orders',
-          orderIds: vendorOrders.map(o => o.id),
+          orderIds: vendorOrders.map((o) => o.id),
           productImage: firstImage,
           customerName,
         },
@@ -268,39 +375,57 @@ export class OrdersService {
       this.notificationsService.sendPushToUser(vendorId, {
         title: 'Nouvelle vente',
         body: `Une nouvelle commande de ${customerName} attend votre validation.`,
-        data: { url: '/dashboard/orders' }
+        data: { url: '/dashboard/orders' },
       });
 
       // SMS Vendeur (opt-in uniquement via préférences)
-      this.prisma.notificationPreference.findUnique({ where: { userId: vendorId } })
-        .then(vendorPrefs => {
+      this.prisma.notificationPreference
+        .findUnique({ where: { userId: vendorId } })
+        .then((vendorPrefs) => {
           if (vendorPrefs?.ordersSms && vendor.phone) {
             const smsBody = `WapiBei: Nouvelle commande de ${customerName} (${vendorTotal.toLocaleString()} $). Produit(s): ${productNames}. Tel: ${customerPhone}. Adresse: ${address}.`;
-            this.smsService.sendSms(vendor.phone, smsBody)
-              .catch(err => this.logger.error(`SMS vendeur failed: ${vendorId}`, err));
+            this.smsService
+              .sendSms(vendor.phone, smsBody)
+              .catch((err) =>
+                this.logger.error(`SMS vendeur failed: ${vendorId}`, err),
+              );
           }
         })
-        .catch(err => this.logger.error(`Prefs lookup failed for vendor ${vendorId}`, err));
+        .catch((err) =>
+          this.logger.error(`Prefs lookup failed for vendor ${vendorId}`, err),
+        );
     });
   }
 
   /**
    * Notifie l'administration de l'activité globale de la plateforme.
    */
-  private async dispatchAdminNotifications(count: number, total: number, customerName: string, orders: any[]) {
-    const admins = await this.prisma.user.findMany({ where: { role: UserRole.ADMIN } });
+  private async dispatchAdminNotifications(
+    count: number,
+    total: number,
+    customerName: string,
+    orders: any[],
+  ) {
+    const admins = await this.prisma.user.findMany({
+      where: { role: UserRole.ADMIN },
+    });
 
-    admins.forEach(admin => {
-      this.emailService.sendAdminOrderAlert({
-        adminEmail: admin.email,
-        orderCount: count,
-        totalAmount: total,
-        customerName,
-        items: orders.map((o: any) => ({
-          productName: o.product.name,
-          productImage: o.product.image || (o.product.images && o.product.images[0])
-        })),
-      }).catch(err => this.logger.error(`Email admin failed: ${admin.email}`, err));
+    admins.forEach((admin) => {
+      this.emailService
+        .sendAdminOrderAlert({
+          adminEmail: admin.email,
+          orderCount: count,
+          totalAmount: total,
+          customerName,
+          items: orders.map((o: any) => ({
+            productName: o.product.name,
+            productImage:
+              o.product.image || (o.product.images && o.product.images[0]),
+          })),
+        })
+        .catch((err) =>
+          this.logger.error(`Email admin failed: ${admin.email}`, err),
+        );
 
       this.notificationsService.createNotification({
         userId: admin.id,
@@ -315,9 +440,14 @@ export class OrdersService {
       });
 
       if (admin.phone) {
-        this.whatsAppService.sendWhatsAppMessage(admin.phone,
-          `ALERTE ADMIN : Nouvelle commande de ${customerName} (${total.toLocaleString()} $).`
-        ).catch(err => this.logger.error(`WhatsApp admin failed: ${admin.phone}`, err));
+        this.whatsAppService
+          .sendWhatsAppMessage(
+            admin.phone,
+            `ALERTE ADMIN : Nouvelle commande de ${customerName} (${total.toLocaleString()} $).`,
+          )
+          .catch((err) =>
+            this.logger.error(`WhatsApp admin failed: ${admin.phone}`, err),
+          );
       }
     });
   }
@@ -326,13 +456,16 @@ export class OrdersService {
    * Alias de commodité pour la création d'une commande unique.
    */
   async create(createOrderDto: CreateOrderDto, clientId: string) {
-    return this.createBulk({
-      items: [{ productId: createOrderDto.productId, quantity: 1 }],
-      customerName: createOrderDto.customerName,
-      customerPhone: createOrderDto.customerPhone,
-      customerEmail: createOrderDto.customerEmail,
-      deliveryAddress: createOrderDto.deliveryAddress,
-    }, clientId);
+    return this.createBulk(
+      {
+        items: [{ productId: createOrderDto.productId, quantity: 1 }],
+        customerName: createOrderDto.customerName,
+        customerPhone: createOrderDto.customerPhone,
+        customerEmail: createOrderDto.customerEmail,
+        deliveryAddress: createOrderDto.deliveryAddress,
+      },
+      clientId,
+    );
   }
 
   /**
@@ -343,9 +476,9 @@ export class OrdersService {
       where: { vendorId },
       include: {
         product: true,
-        client: { select: { id: true, fullName: true, email: true } }
+        client: { select: { id: true, fullName: true, email: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -356,13 +489,13 @@ export class OrdersService {
     return this.prisma.order.findMany({
       where: { clientId },
       include: { product: true },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   /**
    * Met à jour le statut d'une commande et gère la logique métier associée (Pénalités, Bonus, Notifications).
-   * 
+   *
    * @param orderId ID de la commande
    * @param status Nouveau statut (CONFIRMED, SHIPPED, DELIVERED, CANCELLED)
    * @param requesterId Utilisateur tentant de modifier le statut
@@ -370,10 +503,15 @@ export class OrdersService {
    * @throws NotFoundException si la commande n'existe pas
    * @throws ForbiddenException si l'utilisateur n'a pas les droits sur cette commande
    */
-  async updateStatus(orderId: string, status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED', requesterId: string, requesterRole: string) {
+  async updateStatus(
+    orderId: string,
+    status: 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
+    requesterId: string,
+    requesterRole: string,
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { product: true, client: true, vendor: true }
+      include: { product: true, client: true, vendor: true },
     });
 
     if (!order) throw new NotFoundException('Commande introuvable');
@@ -382,17 +520,19 @@ export class OrdersService {
     const isOwner = order.vendorId === requesterId;
     const isAdmin = requesterRole === 'ADMIN';
     if (!isOwner && !isAdmin) {
-      throw new ForbiddenException('Accès refusé : vous n\'êtes pas le propriétaire de cette vente.');
+      throw new ForbiddenException(
+        "Accès refusé : vous n'êtes pas le propriétaire de cette vente.",
+      );
     }
 
     const updatedOrder = await this.prisma.order.update({
       where: { id: orderId },
       data: { status },
-      include: { product: true, vendor: true, client: true }
+      include: { product: true, vendor: true, client: true },
     });
 
     this.handleStatusNotifications(updatedOrder, status);
-    
+
     // Logique de réputation (TrustScore)
     if (status === 'DELIVERED') {
       await this.handleDeliverySuccess(updatedOrder);
@@ -410,9 +550,11 @@ export class OrdersService {
     if (order.vendor.trustScore < 100) {
       await this.prisma.user.update({
         where: { id: order.vendorId },
-        data: { trustScore: { increment: 1 } }
+        data: { trustScore: { increment: 1 } },
       });
-      this.logger.log(`TrustScore augmenté pour le vendeur ${order.vendor.boutiqueName} (+1).`);
+      this.logger.log(
+        `TrustScore augmenté pour le vendeur ${order.vendor.boutiqueName} (+1).`,
+      );
     }
   }
 
@@ -423,9 +565,11 @@ export class OrdersService {
     if (requesterId === order.vendorId && order.vendor.trustScore > 0) {
       await this.prisma.user.update({
         where: { id: order.vendorId },
-        data: { trustScore: { decrement: 2 } }
+        data: { trustScore: { decrement: 2 } },
       });
-      this.logger.warn(`Pénalité TrustScore (-2) pour le vendeur ${order.vendor.boutiqueName} suite à annulation.`);
+      this.logger.warn(
+        `Pénalité TrustScore (-2) pour le vendeur ${order.vendor.boutiqueName} suite à annulation.`,
+      );
     }
   }
 
@@ -437,18 +581,32 @@ export class OrdersService {
     const { client, vendor, product } = order;
     const vendorName = vendor.boutiqueName || vendor.fullName;
 
-    const notificationMap: Record<string, { title: string, msg: string }> = {
-      CONFIRMED: { title: 'Commande confirmée', msg: `${vendorName} a confirmé votre commande pour "${product.name}".` },
-      SHIPPED: { title: 'Colis en route', msg: `Votre produit "${product.name}" a été expédié par ${vendorName}.` },
-      DELIVERED: { title: 'Colis livré', msg: `Votre "${product.name}" a été livré. Profitez-en bien !` },
-      CANCELLED: { title: 'Commande annulée', msg: `Votre commande pour "${product.name}" a été annulée.` }
+    const notificationMap: Record<string, { title: string; msg: string }> = {
+      CONFIRMED: {
+        title: 'Commande confirmée',
+        msg: `${vendorName} a confirmé votre commande pour "${product.name}".`,
+      },
+      SHIPPED: {
+        title: 'Colis en route',
+        msg: `Votre produit "${product.name}" a été expédié par ${vendorName}.`,
+      },
+      DELIVERED: {
+        title: 'Colis livré',
+        msg: `Votre "${product.name}" a été livré. Profitez-en bien !`,
+      },
+      CANCELLED: {
+        title: 'Commande annulée',
+        msg: `Votre commande pour "${product.name}" a été annulée.`,
+      },
     };
 
     const config = notificationMap[status];
     if (!config) return;
 
     // Récupérer les préférences du client (null = jamais configurées → envoyer tout)
-    const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: client.id } });
+    const prefs = await this.prisma.notificationPreference.findUnique({
+      where: { userId: client.id },
+    });
 
     if (!prefs || prefs.ordersInApp) {
       this.notificationsService.createNotification({
@@ -467,26 +625,56 @@ export class OrdersService {
       this.notificationsService.sendPushToUser(client.id, {
         title: config.title,
         body: config.msg,
-        data: { url: `/orders/${order.id}` }
+        data: { url: `/orders/${order.id}` },
       });
     }
 
-    if (prefs?.ordersSms && client.phone && (status === 'SHIPPED' || status === 'DELIVERED')) {
-      const smsMessage = status === 'SHIPPED' 
-        ? `WapiBei: Votre colis contenant "${product.name}" est en route vers chez vous !`
-        : `WapiBei: Votre colis "${product.name}" a été livré. Profitez-en bien !`;
-      
-      this.smsService.sendSms(client.phone, smsMessage)
-        .catch(err => this.logger.error(`SMS status update failed for client ${client.id}`, err));
+    if (
+      prefs?.ordersSms &&
+      client.phone &&
+      (status === 'SHIPPED' || status === 'DELIVERED')
+    ) {
+      const smsMessage =
+        status === 'SHIPPED'
+          ? `WapiBei: Votre colis contenant "${product.name}" est en route vers chez vous !`
+          : `WapiBei: Votre colis "${product.name}" a été livré. Profitez-en bien !`;
+
+      this.smsService
+        .sendSms(client.phone, smsMessage)
+        .catch((err) =>
+          this.logger.error(
+            `SMS status update failed for client ${client.id}`,
+            err,
+          ),
+        );
     }
 
     if (!prefs || prefs.ordersEmail) {
       if (status === 'CONFIRMED') {
-        this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+        this.emailService.sendOrderConfirmed({
+          customerEmail: order.customerEmail,
+          customerName: order.customerName,
+          productName: product.name,
+          orderId: order.id,
+          vendorName,
+        });
       } else if (status === 'SHIPPED') {
-        this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress });
+        this.emailService.sendOrderShipped({
+          customerEmail: order.customerEmail,
+          customerName: order.customerName,
+          productName: product.name,
+          orderId: order.id,
+          vendorName,
+          deliveryAddress: order.deliveryAddress,
+        });
       } else if (status === 'CANCELLED') {
-        this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+        this.emailService.sendOrderCancelled({
+          customerEmail: order.customerEmail,
+          customerName: order.customerName,
+          productName: product.name,
+          orderId: order.id,
+          vendorName,
+        });
       }
     }
   }
@@ -495,29 +683,115 @@ export class OrdersService {
    * Calcul des statistiques de performance pour le tableau de bord vendeur.
    */
   async getVendorStats(vendorId: string) {
-    const orders = await this.prisma.order.findMany({
-      where: { vendorId, status: { not: 'CANCELLED' } },
-      include: { product: true }
+    const vendor = await this.prisma.user.findUnique({
+      where: { id: vendorId },
+      select: { trustScore: true },
     });
 
-    const totalRevenue = orders.reduce((sum, o) => sum + o.totalPrice, 0);
-    
-    const productStats = new Map<string, { name: string, count: number, revenue: number }>();
-    orders.forEach(o => {
-      const existing = productStats.get(o.productId) || { name: o.product.name, count: 0, revenue: 0 };
+    const orders = await this.prisma.order.findMany({
+      where: { vendorId },
+      include: { product: true },
+    });
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const fourteenDaysAgo = new Date(now);
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+    const counts = {
+      pending: 0,
+      confirmed: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+    };
+
+    for (const o of orders) {
+      if (o.status === 'PENDING') counts.pending += 1;
+      if (o.status === 'CONFIRMED') counts.confirmed += 1;
+      if (o.status === 'SHIPPED') counts.shipped += 1;
+      if (o.status === 'DELIVERED') counts.delivered += 1;
+      if (o.status === 'CANCELLED') counts.cancelled += 1;
+    }
+
+    const salesOrders = orders.filter(
+      (o) =>
+        o.status === 'CONFIRMED' ||
+        o.status === 'SHIPPED' ||
+        o.status === 'DELIVERED',
+    );
+    const totalRevenue = salesOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+
+    const productStats = new Map<
+      string,
+      { name: string; count: number; revenue: number }
+    >();
+    for (const o of salesOrders) {
+      const existing = productStats.get(o.productId) || {
+        name: o.product.name,
+        count: 0,
+        revenue: 0,
+      };
       existing.count += 1;
       existing.revenue += o.totalPrice;
       productStats.set(o.productId, existing);
-    });
+    }
 
     const topProducts = Array.from(productStats.values())
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5);
 
+    const last7DaysSales = salesOrders.filter(
+      (o) => o.createdAt >= sevenDaysAgo,
+    );
+    const prev7DaysSales = salesOrders.filter(
+      (o) => o.createdAt >= fourteenDaysAgo && o.createdAt < sevenDaysAgo,
+    );
+
+    const last7DaysRevenue = last7DaysSales.reduce(
+      (sum, o) => sum + o.totalPrice,
+      0,
+    );
+    const prev7DaysRevenue = prev7DaysSales.reduce(
+      (sum, o) => sum + o.totalPrice,
+      0,
+    );
+    const revenueChangePct =
+      prev7DaysRevenue > 0
+        ? Math.round(
+            ((last7DaysRevenue - prev7DaysRevenue) / prev7DaysRevenue) * 100,
+          )
+        : null;
+
+    const ordersChangePct =
+      prev7DaysSales.length > 0
+        ? Math.round(
+            ((last7DaysSales.length - prev7DaysSales.length) /
+              prev7DaysSales.length) *
+              100,
+          )
+        : null;
+
+    const totalSalesOrders = salesOrders.length;
+    const deliveryRate =
+      totalSalesOrders > 0
+        ? Math.round((counts.delivered / totalSalesOrders) * 100)
+        : 0;
+
     return {
       totalRevenue,
-      totalOrders: orders.length,
+      totalOrders: totalSalesOrders,
       topProducts,
+      trustScore: vendor?.trustScore ?? 0,
+      pendingCount: counts.pending,
+      confirmedCount: counts.confirmed,
+      shippedCount: counts.shipped,
+      deliveredCount: counts.delivered,
+      cancelledCount: counts.cancelled,
+      deliveryRate,
+      revenueChangePct,
+      ordersChangePct,
     };
   }
 
@@ -528,20 +802,20 @@ export class OrdersService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleOrderDelayPenalty() {
     this.logger.log('Lancement de la vérification quotidienne des retards...');
-    
+
     const limitDate = new Date();
     limitDate.setHours(limitDate.getHours() - 48);
 
     const pendingOrders = await this.prisma.order.findMany({
       where: { status: 'PENDING', createdAt: { lt: limitDate } },
-      include: { vendor: true }
+      include: { vendor: true },
     });
 
     for (const order of pendingOrders) {
       if (order.vendor.trustScore > 0) {
         await this.prisma.user.update({
           where: { id: order.vendorId },
-          data: { trustScore: { decrement: 1 } }
+          data: { trustScore: { decrement: 1 } },
         });
 
         this.notificationsService.createNotification({
