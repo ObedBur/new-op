@@ -30,6 +30,7 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import helmet from '@fastify/helmet';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 // 
 async function bootstrap() {
@@ -65,6 +66,17 @@ async function bootstrap() {
   // ============ CONFIGURATION CORS ============
   const isDev = process.env.NODE_ENV !== 'production';
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+  if (isDev || process.env.SWAGGER_ENABLED === 'true') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('WapiBei API')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   // Parser les origines autorisées
   const explicitOrigins = [
