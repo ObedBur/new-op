@@ -36,7 +36,7 @@ interface MobileSidebarProps {
   onLogout: () => void;
 }
 
-export const MobileSidebar: React.FC<MobileSidebarProps> = ({ 
+const MobileSidebarContent: React.FC<MobileSidebarProps> = ({ 
   isOpen, 
   onClose, 
   navLinks, 
@@ -213,4 +213,12 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
   );
 
   return createPortal(sidebarContent, document.body);
+};
+
+export const MobileSidebar: React.FC<MobileSidebarProps> = (props) => {
+  return (
+    <React.Suspense fallback={null}>
+      <MobileSidebarContent {...props} />
+    </React.Suspense>
+  );
 };
