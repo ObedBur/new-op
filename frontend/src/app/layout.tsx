@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/Toaster";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import RootLayoutContent from "./RootLayoutContent";
 import { CookieConsent } from "@/components/CookieConsent";
+import { cookies } from 'next/headers';
 
 // Utilisation d'une pile de polices système moderne pour éviter les délais de téléchargement Google Fonts
 const outfit = {
@@ -37,6 +38,7 @@ export const metadata: Metadata = {
       },
     ],
     type: 'website',
+    // default locale (server can override by cookie using html lang below)
     locale: 'fr_FR',
   },
   twitter: {
@@ -51,8 +53,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Read language cookie server-side (available in server components)
+  const cookieStore = cookies();
+  const lang = cookieStore.get('language')?.value ?? 'fr';
+
   return (
-    <html lang="fr" className={`scroll-smooth ${outfit.variable}`} data-scroll-behavior="smooth">
+    <html lang={lang} className={`scroll-smooth ${outfit.variable}`} data-scroll-behavior="smooth">
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;700&display=swap"

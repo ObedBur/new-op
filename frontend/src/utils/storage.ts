@@ -73,10 +73,22 @@ export const storage = {
   setTheme: (theme: Theme) => storage.setItem('theme', theme),
   
   getLanguage: (): Language => {
+    // Try to read from localStorage first
     const language = storage.getItem<string>('language', 'fr');
     return language === 'en' ? 'en' : 'fr';
   },
-  setLanguage: (lang: Language) => storage.setItem('language', lang),
+  setLanguage: (lang: Language) => {
+    storage.setItem('language', lang);
+    // Also write a cookie so the server (SSR) can read the user's preference
+    try {
+      if (typeof document !== 'undefined') {
+        // expire in 1 year
+        document.cookie = `language=${lang}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      }
+    } catch (e) {
+      console.warn('Failed to write language cookie', e);
+    }
+  },
   
   getFontSize: (): FontSize => storage.getItem<FontSize>('fontSize', 'medium'),
   setFontSize: (size: FontSize) => storage.setItem('fontSize', size),
