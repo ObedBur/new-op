@@ -48,13 +48,13 @@ export const metadata: Metadata = {
     images: ['/shopping-cart.png'],
   },
 };
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   // Read language cookie server-side (available in server components)
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const lang = cookieStore.get('language')?.value ?? 'fr';
 
   return (
