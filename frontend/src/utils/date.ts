@@ -1,38 +1,34 @@
 /**
- * Simple date formatter to convert ISO strings to relative or readable time.
+ * Localized date formatter using Intl APIs.
+ * Returns a relative time when recent, otherwise a short date.
  */
-export const formatDate = (dateInput: string | Date | undefined): string => {
+export const formatDate = (dateInput: string | Date | undefined, locale = 'fr') => {
   if (!dateInput) return '';
 
   const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) {
-    return 'Á l\'instant';
+  // For very recent times, provide a human-friendly label
+  if (diffInSeconds < 5) {
+    return locale.startsWith('fr') ? "À l'instant" : 'Just now';
   }
 
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} min`;
-  }
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours} h`;
-  }
+  const minutes = Math.floor(diffInSeconds / 60);
+  if (diffInSeconds < 60) return rtf.format(-diffInSeconds, 'second');
+  if (minutes < 60) return rtf.format(-minutes, 'minute');
 
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays === 1) {
-    return 'Hier';
-  }
-  
-  if (diffInDays < 7) {
-    return `${diffInDays} j`;
-  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return rtf.format(-hours, 'hour');
 
-  return date.toLocaleDateString('fr-FR', {
+  const days = Math.floor(hours / 24);
+  if (days < 7) return rtf.format(-days, 'day');
+
+  // Fallback: short localized date (e.g., 12 juil.)
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
-  });
+  }).format(date);
 };
