@@ -156,14 +156,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 payload.originalPrice = origPriceUSD;
             }
 
-            // Only add image if there is one
+            // Only add main image (images[] field not yet supported on production backend)
             if (mainImage) {
                 payload.image = mainImage;
-            }
-
-            // Only add images array if there are multiple photos
-            if (allImages.length > 0) {
-                payload.images = allImages;
             }
 
             const response = product
