@@ -38,6 +38,16 @@ export class CreateProductDto {
   price: number;
 
   /**
+   * Ancien prix du produit (avant promotion).
+   * Utilisé pour afficher un prix barré (ex: -20%).
+   */
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({}, { message: "L'ancien prix doit être un nombre valide." })
+  @Min(0)
+  originalPrice?: number;
+
+  /**
    * Identifiant de la catégorie à laquelle appartient le produit.
    */
   @IsNotEmpty({ message: 'La catégorie est obligatoire.' })
@@ -46,11 +56,17 @@ export class CreateProductDto {
   categoryId: number;
 
   /**
-   * URL de l'image représentative du produit.
+   * URL de l'image principale du produit.
    */
   @IsOptional()
   @IsString()
   image?: string;
+
+  /**
+   * URLs des images supplémentaires du produit (galerie, max 5 photos).
+   */
+  @IsOptional()
+  images?: string[];
 
   /**
    * Définit si le produit est visible par le public ou reste en brouillon.

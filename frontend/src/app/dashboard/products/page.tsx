@@ -52,15 +52,20 @@ export default function ProductsPage() {
                 const mappedProducts = data.map((p: any) => ({
                     id: p.id,
                     name: p.name,
+                    description: p.description || '',
                     price: p.price,
                     oldPrice: p.originalPrice || null,
                     stock: p.stockQuantity || 0,
+                    stockQuantity: p.stockQuantity || 0,
                     maxStock: 500,
                     updatedAt: new Date(p.updatedAt).toLocaleDateString(),
                     status: p.availability === 'IN_STOCK' ? 'En stock' : (p.availability === 'LIMITED_STOCK' ? 'Stock Faible' : 'Rupture'),
                     categoryName: p.category?.name || 'Divers',
+                    categoryId: p.categoryId,
+                    unit: p.unit || 'Pièce',
                     isPublic: p.isPublic ?? false,
-                    image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80'
+                    image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
+                    images: p.images || [],
                 }));
                 setProducts(mappedProducts);
 
@@ -296,14 +301,19 @@ export default function ProductsPage() {
                             </div>
 
                             <div className="flex flex-col mb-1.5 sm:mb-4">
-                                <div className="flex items-baseline gap-1.5 sm:gap-2">
+                                <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
                                     <span className="text-[16px] sm:text-xl font-black text-[#E67E22] tracking-tight">{product.price}$</span>
                                     {product.oldPrice && (
                                         <span className="text-[10px] sm:text-[12px] font-bold text-gray-400 line-through decoration-orange-500/40">{product.oldPrice}$</span>
                                     )}
+                                    {product.oldPrice && product.price < product.oldPrice && (
+                                        <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded-md">
+                                            -{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                                        </span>
+                                    )}
                                 </div>
                                 <span className="text-[9px] font-black text-[#64748b] uppercase tracking-widest mt-0.5">
-                                    ≈ {(product.price * 2850).toLocaleString()} FC
+                                    ≈ {(product.price * 2800).toLocaleString()} FC
                                 </span>
                             </div>
 
