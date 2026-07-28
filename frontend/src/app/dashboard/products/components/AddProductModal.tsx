@@ -139,18 +139,32 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 ? (currency === 'USD' ? Number(originalPrice) : Number(originalPrice) / EXCHANGE_RATE)
                 : undefined;
 
+            // Build payload conditionally to avoid sending undefined/empty fields
+            // (NestJS strict validator rejects unknown properties)
             const payload: any = {
                 name,
                 description,
                 price: priceUSD,
-                originalPrice: origPriceUSD,
                 categoryId: Number(categoryId),
                 stockQuantity: Number(quantity) || 0,
                 unit,
                 isPublic,
-                image: mainImage,
-                images: allImages,
             };
+
+            // Only add originalPrice if the vendor entered a value
+            if (origPriceUSD !== undefined) {
+                payload.originalPrice = origPriceUSD;
+            }
+
+            // Only add image if there is one
+            if (mainImage) {
+                payload.image = mainImage;
+            }
+
+            // Only add images array if there are multiple photos
+            if (allImages.length > 0) {
+                payload.images = allImages;
+            }
 
             const response = product
                 ? await updateProduct(product.id, payload)
