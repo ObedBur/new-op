@@ -9,12 +9,14 @@ import {
     Trophy, Zap, Target
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { useT } from '@/i18n/useT';
 
 export default function AnalyticsPage() {
     const [stats, setStats] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     const { setAppReady } = useLoading();
+    const { t } = useT();
 
     useEffect(() => {
         // Dire au Splash Screen de disparaître !
@@ -73,17 +75,17 @@ export default function AnalyticsPage() {
             {/* Header */}
             <div>
                 <h1 className="text-3xl md:text-5xl font-black text-deep-blue dark:text-white tracking-tighter uppercase italic leading-none">
-                    Performance <span className="text-[#E67E22]">Boutique</span>
+                    {t('vendor.analytics.title')} <span className="text-[#E67E22]">{t('vendor.analytics.titleHighlight')}</span>
                 </h1>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2">
-                    Analyse de vos ventes et revenus sur WapiBei
+                    {t('vendor.analytics.subtitle')}
                 </p>
             </div>
 
             {/* Main Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard 
-                    title="Chiffre d'Affaires" 
+                    title={t('vendor.analytics.revenue')} 
                     value={`${(stats?.totalRevenue || 0).toLocaleString()} $`} 
                     icon={DollarSign} 
                     iconColor="text-[#E67E22]"
@@ -91,7 +93,7 @@ export default function AnalyticsPage() {
                     trend={stats?.recentPerformance}
                 />
                 <StatCard 
-                    title="Ventes Totales" 
+                    title={t('vendor.analytics.totalSales')} 
                     value={stats?.totalOrders || 0} 
                     icon={Package} 
                     iconColor="text-[#2D5A27]"
@@ -99,7 +101,7 @@ export default function AnalyticsPage() {
                     trend={8}
                 />
                 <StatCard 
-                    title="Score Confiance" 
+                    title={t('vendor.analytics.trustScore')} 
                     value="98%" 
                     icon={Target} 
                     iconColor="text-blue-600"
@@ -115,14 +117,14 @@ export default function AnalyticsPage() {
                             <div className="size-10 rounded-xl bg-orange-100 dark:bg-orange-500/10 flex items-center justify-center">
                                 <Trophy className="text-[#E67E22]" size={20} />
                             </div>
-                            <h3 className="font-black text-lg text-deep-blue dark:text-white uppercase tracking-tight">Top Produits</h3>
+                            <h3 className="font-black text-lg text-deep-blue dark:text-white uppercase tracking-tight">{t('vendor.analytics.topProducts')}</h3>
                         </div>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Par Revenu</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('vendor.analytics.byRevenue')}</span>
                     </div>
 
                     <div className="space-y-6 flex-grow">
                         {(stats?.topProducts || []).length === 0 ? (
-                            <p className="text-center py-10 text-gray-400 font-bold uppercase text-xs tracking-widest italic">Pas encore de ventes</p>
+                            <p className="text-center py-10 text-gray-400 font-bold uppercase text-xs tracking-widest italic">{t('vendor.analytics.noSales')}</p>
                         ) : (
                             stats.topProducts.map((p: any, i: number) => (
                                 <div key={i} className="flex items-center justify-between group">
@@ -132,7 +134,7 @@ export default function AnalyticsPage() {
                                         </div>
                                         <div>
                                             <p className="font-black text-sm text-deep-blue dark:text-white group-hover:text-[#E67E22] transition-colors">{p.name}</p>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.count} ventes</p>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{p.count} {t('vendor.analytics.sales')}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -150,27 +152,27 @@ export default function AnalyticsPage() {
                         <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center">
                             <Zap className="text-white" size={20} />
                         </div>
-                        <h3 className="font-black text-lg uppercase tracking-tight">Conseils Croissance</h3>
+                        <h3 className="font-black text-lg uppercase tracking-tight">{t('vendor.analytics.growthTips')}</h3>
                     </div>
 
                     <div className="space-y-6 flex-grow">
                         <div className="p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <h4 className="font-black text-[10px] uppercase tracking-widest mb-2 text-green-300">Optimisation Stock</h4>
+                            <h4 className="font-black text-[10px] uppercase tracking-widest mb-2 text-green-300">{t('vendor.analytics.tipStockTitle')}</h4>
                             <p className="text-sm font-medium leading-relaxed opacity-80">
-                                Vos produits les plus vendus ont tendance à s'épuiser le weekend. Augmentez votre stock de 20% le vendredi.
+                                {t('vendor.analytics.tipStockDesc')}
                             </p>
                         </div>
                         <div className="p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <h4 className="font-black text-[10px] uppercase tracking-widest mb-2 text-green-300">Visibilité</h4>
+                            <h4 className="font-black text-[10px] uppercase tracking-widest mb-2 text-green-300">{t('vendor.analytics.tipVisibilityTitle')}</h4>
                             <p className="text-sm font-medium leading-relaxed opacity-80">
-                                Ajouter 2 photos de haute qualité de plus par produit pourrait augmenter vos ventes de 15%.
+                                {t('vendor.analytics.tipVisibilityDesc')}
                             </p>
                         </div>
                     </div>
                     
                     <button className="w-full mt-auto pt-8">
                         <div className="py-4 bg-white text-[#2D5A27] rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-[1.02] active:scale-95 transition-all">
-                            Améliorer ma boutique
+                            {t('vendor.analytics.improve')}
                         </div>
                     </button>
                 </Card>

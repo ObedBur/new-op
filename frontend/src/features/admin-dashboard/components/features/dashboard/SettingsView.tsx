@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSettings } from '@/context/SettingsContext';
 import { useToast } from '@/context/ToastContext';
+import { useAdminTranslation } from '@/features/admin-dashboard/hooks/useAdminTranslation';
 
 const SettingsView: React.FC = () => {
     const { theme, setTheme, language, setLanguage, fontSize, setFontSize } = useSettings();
@@ -11,6 +12,7 @@ const SettingsView: React.FC = () => {
     const [draftLanguage, setDraftLanguage] = React.useState(language);
     const [draftFontSize, setDraftFontSize] = React.useState(fontSize);
     const [isSaving, setIsSaving] = React.useState(false);
+    const { t } = useAdminTranslation(draftLanguage);
 
     const handleApply = () => {
         setIsSaving(true);
@@ -20,44 +22,40 @@ const SettingsView: React.FC = () => {
             setLanguage(draftLanguage);
             setFontSize(draftFontSize);
             setIsSaving(false);
-            showToast(t.success, 'success');
+            showToast(t.settings.success, 'success');
         }, 600);
     };
 
     const themes: { id: typeof theme; label: string; color: string }[] = [
-        { id: 'light', label: 'Clair', color: 'bg-white' },
-        { id: 'dark', label: 'Sombre', color: 'bg-slate-900' },
-        { id: 'emerald', label: 'Émeraude', color: 'bg-emerald-500' },
-        { id: 'ocean', label: 'Océan', color: 'bg-sky-500' },
+        { id: 'light', label: t.settings.themes.light, color: 'bg-white' },
+        { id: 'dark', label: t.settings.themes.dark, color: 'bg-slate-900' },
+        { id: 'emerald', label: t.settings.themes.emerald, color: 'bg-emerald-500' },
+        { id: 'ocean', label: t.settings.themes.ocean, color: 'bg-sky-500' },
     ];
 
     const languages: { id: typeof language; label: string }[] = [
         { id: 'fr', label: 'Français' },
         { id: 'en', label: 'English' },
+        { id: 'sw', label: 'Kiswahili' },
     ];
 
     const fontSizes: { id: typeof fontSize; label: string }[] = [
-        { id: 'small', label: 'Petit' },
-        { id: 'medium', label: 'Normal' },
-        { id: 'large', label: 'Grand' },
+        { id: 'small', label: t.settings.fonts.small },
+        { id: 'medium', label: t.settings.fonts.medium },
+        { id: 'large', label: t.settings.fonts.large },
     ];
-
-    const t = {
-        fr: { title: 'Configuration Globale', theme: 'Thème de l\'interface', lang: 'Langue du système', font: 'Taille de police', apply: 'Appliquer les changements', applying: 'Application en cours...', success: 'Paramètres mis à jour' },
-        en: { title: 'Global Settings', theme: 'Interface Theme', lang: 'System Language', font: 'Font Size', apply: 'Apply Changes', applying: 'Applying...', success: 'Settings updated' },
-    }[draftLanguage]; // Use draftLanguage for previewing translations
 
     const hasChanges = draftTheme !== theme || draftLanguage !== language || draftFontSize !== fontSize;
 
     return (
         <div className="w-full max-w-4xl space-y-6">
             <div className="bg-white p-8 rounded-2xl border border-border-sep shadow-sm">
-                <h3 className="text-xl font-black text-deep-blue mb-8 tracking-tight">{t.title}</h3>
+                <h3 className="text-xl font-black text-deep-blue mb-8 tracking-tight">{t.settings.title}</h3>
 
                 <div className="space-y-8">
                     {/* Thème */}
                     <div>
-                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.theme}</label>
+                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.settings.theme}</label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {themes.map((tItem) => (
                                 <button
@@ -75,7 +73,7 @@ const SettingsView: React.FC = () => {
 
                     {/* Langue */}
                     <div>
-                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.lang}</label>
+                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.settings.lang}</label>
                         <div className="flex flex-wrap gap-2">
                             {languages.map((lItem) => (
                                 <button
@@ -92,7 +90,7 @@ const SettingsView: React.FC = () => {
 
                     {/* Police */}
                     <div>
-                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.font}</label>
+                        <label className="block text-[10px] font-black text-muted uppercase tracking-widest mb-4">{t.settings.font}</label>
                         <div className="flex gap-4">
                             {fontSizes.map((fItem) => (
                                 <button
@@ -113,7 +111,7 @@ const SettingsView: React.FC = () => {
                         {!hasChanges && !isSaving && (
                             <>
                                 <span className="material-symbols-outlined text-base">check_circle</span>
-                                <span className="text-[10px] font-black uppercase tracking-widest">{t.success}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest">{t.settings.success}</span>
                             </>
                         )}
                     </div>
@@ -129,12 +127,12 @@ const SettingsView: React.FC = () => {
                         {isSaving ? (
                             <>
                                 <span className="material-symbols-outlined animate-spin text-lg">sync</span>
-                                {t.applying}
+                                {t.settings.applying}
                             </>
                         ) : (
                             <>
                                 <span className="material-symbols-outlined text-lg">save</span>
-                                {t.apply}
+                                {t.settings.apply}
                             </>
                         )}
                     </button>
@@ -147,7 +145,7 @@ const SettingsView: React.FC = () => {
                 </div>
                 <div>
                     <p className="text-sm font-bold text-deep-blue">WapiBei Admin v2.4.0</p>
-                    <p className="text-xs text-muted font-medium">Instance Afrique - Mode Développement</p>
+                    <p className="text-xs text-muted font-medium">{t.settings.infoSubtitle}</p>
                 </div>
             </div>
         </div>
@@ -155,5 +153,3 @@ const SettingsView: React.FC = () => {
 };
 
 export default SettingsView;
-
-

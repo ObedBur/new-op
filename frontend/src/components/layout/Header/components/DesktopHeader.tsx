@@ -8,6 +8,7 @@ import { ProfileDropdown } from './ProfileDropdown';
 import { GlobalSearch } from './GlobalSearch';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
+import { useT } from '@/i18n/useT';
 
 interface NavLink {
   id: string;
@@ -47,6 +48,7 @@ export const DesktopHeader = ({
 }: DesktopHeaderProps) => {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useT();
   const isActive = (path: string) => pathname === path;
   const { notifications, unreadCount, markAsRead } = useAppNotifications();
   
@@ -93,7 +95,7 @@ export const DesktopHeader = ({
             className="px-4 xl:px-6 py-1.5 xl:py-2 rounded-full text-[10px] xl:text-xs font-bold tracking-widest[0.1em] uppercase bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25 hover:scale-105 transition-all flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-[16px] xl:text-[18px]">arrow_back</span>
-            Accueil
+            {t('header.nav.home')}
           </Link>
         ) : (
           <nav className="flex items-center gap-1">
@@ -164,14 +166,14 @@ export const DesktopHeader = ({
             <div className={`absolute right-[-10px] top-[100%] pt-4 w-80 transition-all duration-300 transform origin-top-right z-50 group-hover:opacity-100 group-hover:visible group-hover:scale-100 ${isNotifOpen ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-95'}`}>
               <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border border-gray-100 dark:border-white/5 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[400px]">
                 <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent shrink-0">
-                  <h3 className="text-black dark:text-white font-black text-sm tracking-tight">Notifications</h3>
+                  <h3 className="text-black dark:text-white font-black text-sm tracking-tight">{t('header.notifications')}</h3>
                   {unreadCount > 0 ? (
                     <span className="text-[10px] text-white font-black bg-[#E67E22] px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm">
-                      {unreadCount} nouvelle{unreadCount > 1 ? 's' : ''}
+                      {t('header.newNotification').replace('{count}', String(unreadCount)).replace('{s}', unreadCount > 1 ? 's' : '')}
                     </span>
                   ) : (
                     <span className="text-[10px] text-gray-400 font-bold bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded-full uppercase tracking-widest">
-                      0 nouvelle
+                      {t('header.newNotification').replace('{count}', '0').replace('{s}', '')}
                     </span>
                   )}
                 </div>
@@ -182,8 +184,8 @@ export const DesktopHeader = ({
                       <div className="size-12 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-3">
                         <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[24px]">notifications_off</span>
                       </div>
-                      <p className="text-sm font-bold text-gray-400">Aucune notification</p>
-                      <p className="text-[10px] text-gray-400/70 mt-1 uppercase tracking-wider">Vous êtes à jour !</p>
+                      <p className="text-sm font-bold text-gray-400">{t('header.noNotifications')}</p>
+                      <p className="text-[10px] text-gray-400/70 mt-1 uppercase tracking-wider">{t('header.upToDate')}</p>
                     </div>
                   ) : (
                     notifications.slice(0, 3).map((notification) => (
@@ -216,7 +218,7 @@ export const DesktopHeader = ({
                 
                 <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center border-t border-gray-100 dark:border-white/5 shrink-0">
                   <Link href="/notifications" onClick={() => setIsNotifOpen(false)} className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1">
-                    Voir toutes les notifications
+                    {t('header.viewAllNotifications')}
                   </Link>
                 </div>
               </div>

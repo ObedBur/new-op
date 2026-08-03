@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, X, Package, DollarSign, Database, Tag, Image as ImageIcon, Loader2, AlignLeft, CheckCircle2, Edit2, Globe, Save, ChevronDown, Banknote } from 'lucide-react';
-
+import { useT } from '@/i18n/useT';
 
 import { getCategories, addProduct, updateProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ interface AddProductModalProps {
 }
 
 export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onProductAdded, product, defaultPublic }) => {
+    const { t } = useT();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
@@ -32,7 +33,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const [isPublic, setIsPublic] = useState(true);
     const [currency, setCurrency] = useState<'USD' | 'FC'>('USD');
     const EXCHANGE_RATE = 2850; // Taux de change moyen local
-    const UNITS = ['Pièce', 'Kg', 'Litre', 'Sac', 'Boîte', 'Douzaine', 'Mètre', 'Gramme'];
+    const UNITS = [t('vendor.addProduct.units.piece'), t('vendor.addProduct.units.kg'), t('vendor.addProduct.units.liter'), t('vendor.addProduct.units.bag'), t('vendor.addProduct.units.box'), t('vendor.addProduct.units.dozen'), t('vendor.addProduct.units.meter'), t('vendor.addProduct.units.gram')];
 
 
     // Populate form if editing
@@ -43,7 +44,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             setPrice(product.price?.toString() || '');
             setCategoryId(product.categoryId?.toString() || '');
             setQuantity(product.stockQuantity?.toString() || '');
-            setUnit(product.unit || 'Pièce');
+            setUnit(product.unit || t('vendor.addProduct.units.piece'));
             setImagePreview(product.image || null);
             setIsPublic(product.isPublic !== undefined ? product.isPublic : true);
         } else {
@@ -53,7 +54,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             setPrice('');
             setCategoryId('');
             setQuantity('');
-            setUnit('Pièce');
+            setUnit(t('vendor.addProduct.units.piece'));
             setImagePreview(null);
             setIsPublic(defaultPublic !== undefined ? defaultPublic : true);
         }
@@ -139,8 +140,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 : await addProduct(payload);
 
             if (response?.success) {
-                toast.success(product ? 'Produit mis à jour !' : 'Produit lancé avec succès !', {
-                    description: product ? 'Les modifications ont été enregistrées.' : 'Votre produit est maintenant visible dans votre boutique.',
+                toast.success(product ? t('vendor.addProduct.toastUpdated') : t('vendor.addProduct.toastPublished'), {
+                    description: product ? t('vendor.addProduct.toastDraftSaved') : t('vendor.addProduct.toastVisible'),
                     style: { background: '#2D5A27', color: 'white', border: '1px solid #E67E22' },
                 });
                 setIsSuccess(true);
@@ -154,20 +155,20 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                         setPrice('');
                         setCategoryId('');
                         setQuantity('');
-                        setUnit('Pièce');
+                        setUnit(t('vendor.addProduct.units.piece'));
                         setImage(null);
                         setImagePreview(null);
                     }
                     setIsSuccess(false);
                 }, 1500);
             } else {
-                const errorMsg = response?.message || 'Erreur lors de l\'ajout du produit.';
+                const errorMsg = response?.message || t('vendor.addProduct.errorAdd');
                 setError(errorMsg);
                 toast.error(errorMsg);
             }
         } catch (err: any) {
             console.error('Error adding product:', err);
-            const errorMsg = err.response?.data?.message || 'Une erreur inattendue est survenue.';
+            const errorMsg = err.response?.data?.message || t('vendor.addProduct.errorUnexpected');
             setError(errorMsg);
             toast.error(errorMsg);
         } finally {
@@ -186,8 +187,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                     {/* --- LEFT SIDE: IMAGE PREVIEW --- */}
                     <div className="w-full md:w-5/12 bg-white/50 dark:bg-white/5 p-8 flex flex-col border-b md:border-b-0 md:border-r border-black/10 dark:border-white/5">
                         <div className="space-y-4 mb-6">
-                            <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">Visuel Produit</h3>
-                            <p className="text-xs font-medium text-black/50 uppercase tracking-widest">Aperçu de l'image principale</p>
+                            <h3 className="text-2xl font-black text-black dark:text-white tracking-tight">{t('vendor.addProduct.visualTitle')}</h3>
+                            <p className="text-xs font-medium text-black/50 uppercase tracking-widest">{t('vendor.addProduct.visualSubtitle')}</p>
                         </div>
 
                         <div className="relative group aspect-[4/3] md:aspect-square mb-4 md:mb-8">
@@ -211,7 +212,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                         <div className="size-10 sm:size-16 bg-black/5 dark:bg-white/5 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4 text-black/40 group-hover:text-[#E67E22] transition-colors">
                                             <Plus size={24} />
                                         </div>
-                                        <p className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-black/40">Ajouter une photo</p>
+                                        <p className="text-[9px] sm:text-[11px] font-black uppercase tracking-widest text-black/40">{t('vendor.addProduct.addPhoto')}</p>
                                     </div>
                                 )}
                             </label>
@@ -219,8 +220,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                         <div className="p-6 bg-[#E67E22]/5 rounded-3xl border border-[#E67E22]/10 mt-auto">
                             <p className="text-[10px] font-bold text-[#E67E22] leading-relaxed">
-                                <span className="block font-black mb-1 italic uppercase">Conseil :</span>
-                                Utilisez des images de haute qualité avec un éclairage naturel pour augmenter vos chances de vente de 30%.
+                                <span className="block font-black mb-1 italic uppercase">{t('vendor.addProduct.tipTitle')}</span>
+                                {t('vendor.addProduct.tipText')}
                             </p>
                         </div>
                     </div>
@@ -233,11 +234,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                         <div className="mb-6 md:mb-8">
                             <h3 className="text-2xl md:text-3xl font-black text-black dark:text-white tracking-tighter italic mb-1 uppercase">
-                                {product ? 'Modifier l\'annonce' : defaultPublic ? 'Publier l\'annonce' : 'Nouveau Brouillon'}
+                                {product ? t('vendor.addProduct.titleEdit') : defaultPublic ? t('vendor.addProduct.titlePublish') : t('vendor.addProduct.titleDraft')}
                             </h3>
                             <div className="h-1 w-12 bg-[#E67E22] rounded-full" />
                             <p className="text-[10px] font-bold text-black/40 mt-2 uppercase tracking-[0.2em]">
-                                {product ? 'Mis à jour de vos stocks' : defaultPublic ? 'Visible sur la page d\'accueil' : 'Enregistré dans votre inventaire privé'}
+                                {product ? t('vendor.addProduct.subtitleEdit') : defaultPublic ? t('vendor.addProduct.subtitlePublish') : t('vendor.addProduct.subtitleDraft')}
                             </p>
                         </div>
 
@@ -250,7 +251,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                             {/* Name */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Titre de l'annonce</label>
+                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">{t('vendor.addProduct.titleLabel')}</label>
                                 <div className="relative">
                                     <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                     <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="ex: Basket Nike Air Max..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 focus:ring-4 focus:ring-[#E67E22]/5 outline-none transition-all text-sm font-bold text-black dark:text-white" required />
@@ -259,10 +260,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
 
                             {/* Description */}
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Description (Optionnel)</label>
+                                <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">{t('vendor.addProduct.descLabel')}</label>
                                 <div className="relative">
                                     <AlignLeft className="absolute left-4 top-4 text-black/40" size={16} />
-                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre produit..." className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-black dark:text-white" />
+                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('vendor.addProduct.descPlaceholder')} className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-black dark:text-white" />
                                 </div>
                             </div>
 
@@ -270,7 +271,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 {/* Price */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between ml-1">
-                                        <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest">Prix ({currency})</label>
+                                        <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest">{t('vendor.addProduct.priceLabel').replace('{currency}', currency)}</label>
                                         <div className="flex gap-1">
                                             {(['USD', 'FC'] as const).map((curr) => (
                                                 <button
@@ -316,7 +317,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 </div>
                                 {/* Category */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Catégorie</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">{t('vendor.addProduct.categoryLabel')}</label>
                                     <div className="relative">
                                         <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                         <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full sm:pl-12 pl-12 pr-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold appearance-none cursor-pointer text-black dark:text-white" required>
@@ -335,7 +336,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Quantity */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Quantité en stock</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">{t('vendor.addProduct.quantityLabel')}</label>
                                     <div className="relative">
                                         <Database className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                         <input
@@ -350,7 +351,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 </div>
                                 {/* Unit */}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Unité de mesure</label>
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">{t('vendor.addProduct.unitLabel')}</label>
                                     <div className="relative">
                                         <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
                                         <select
@@ -373,8 +374,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             {/* Visibility Toggle */}
                             <div className="flex items-center justify-between p-4 sm:p-5 bg-black/5 dark:bg-white/5 rounded-2xl border border-transparent hover:border-[#E67E22]/20 transition-all cursor-pointer group/toggle" onClick={() => setIsPublic(!isPublic)}>
                                 <div className="space-y-0.5 sm:space-y-1">
-                                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#E67E22]">Visibilité publique</p>
-                                    <p className="text-[10px] sm:text-[11px] font-bold text-black/40">Rendre ce produit visible sur la page d'accueil</p>
+                                    <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[#E67E22]">{t('vendor.addProduct.visibilityToggle')}</p>
+                                    <p className="text-[10px] sm:text-[11px] font-bold text-black/40">{t('vendor.addProduct.visibilityDesc')}</p>
                                 </div>
                                 <div className={`w-10 sm:w-12 h-5 sm:h-6 rounded-full relative transition-all duration-300 ${isPublic ? 'bg-[#E67E22]' : 'bg-black/20 dark:bg-white/10'}`}>
                                     <div className={`absolute top-0.5 bottom-0.5 w-4 bg-white rounded-full transition-all duration-300 ${isPublic ? 'right-0.5 sm:right-1' : 'left-0.5 sm:left-1'}`} />
@@ -392,17 +393,17 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 {isSuccess ? (
                                     <>
                                         <CheckCircle2 size={20} className="animate-in zoom-in" />
-                                        {product ? 'Mis à jour !' : defaultPublic ? 'Publié !' : 'Enregistré !'}
+                                        {product ? t('vendor.addProduct.successUpdated') : defaultPublic ? t('vendor.addProduct.successPublished') : t('vendor.addProduct.successSaved')}
                                     </>
                                 ) : isSubmitting ? (
                                     <div className="flex items-center gap-3">
                                         <Loader2 className="animate-spin" size={20} />
-                                        <span>{product ? 'Modification...' : defaultPublic ? 'Publication...' : 'Enregistrement...'}</span>
+                                        <span>{product ? t('vendor.addProduct.loadingUpdating') : defaultPublic ? t('vendor.addProduct.loadingPublishing') : t('vendor.addProduct.loadingSaving')}</span>
                                     </div>
                                 ) : (
                                     <>
                                         {product ? <Edit2 size={18} /> : defaultPublic ? <Globe size={18} /> : <Save size={18} />}
-                                        {product ? 'Enregistrer les modifications' : defaultPublic ? 'Publier sur le site' : 'Sauvegarder le brouillon'}
+                                        {product ? t('vendor.addProduct.btnSave') : defaultPublic ? t('vendor.addProduct.btnPublish') : t('vendor.addProduct.btnDraft')}
                                     </>
                                 )}
                             </button>

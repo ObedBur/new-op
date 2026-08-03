@@ -4,8 +4,10 @@ import React, { useState } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useT } from '@/i18n/useT';
 
 export const Newsletter = () => {
+  const { t } = useT();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +16,7 @@ export const Newsletter = () => {
     if (!email) return;
     setLoading(true);
     await new Promise((r) => setTimeout(r, 800)); // Simulation
-    toast.success('Merci ! Vous êtes maintenant inscrit à notre newsletter. 🎉');
+    toast.success(t('home.newsletter.success'));
     setEmail('');
     setLoading(false);
   };
@@ -39,15 +41,14 @@ export const Newsletter = () => {
             <div className="text-white max-w-xl text-center md:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-2 text-xs font-bold tracking-wide text-white mb-6">
                 <Sparkles size={14} className="text-[#E67E22]" />
-                Offres exclusives
+                {t('home.newsletter.badge')}
               </div>
               <h2 className="text-3xl md:text-4xl font-black mb-4 leading-tight">
-                Ne manquez aucune{' '}
-                <span className="text-[#E67E22]">bonne affaire</span>
+                {t('home.newsletter.title')}{' '}
+                <span className="text-[#E67E22]">{t('home.newsletter.titleHighlight')}</span>
               </h2>
               <p className="text-slate-300 text-base leading-relaxed">
-                Abonnez-vous et recevez des offres exclusives, des nouveautés et
-                des promotions directement dans votre boîte mail.
+                {t('home.newsletter.description')}
               </p>
             </div>
 
@@ -58,7 +59,7 @@ export const Newsletter = () => {
                   <input
                     type="email"
                     required
-                    placeholder="votre@email.com"
+                    placeholder={t('home.newsletter.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-white/5 backdrop-blur-md border border-white/10 text-white placeholder-slate-400 rounded-full py-4 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-[#E67E22] transition-all text-sm"
@@ -76,7 +77,7 @@ export const Newsletter = () => {
                   </motion.button>
                 </div>
                 <p className="text-center md:text-left text-xs text-slate-400 mt-3 pl-2">
-                  Pas de spam. Désinscription à tout moment.
+                  {t('home.newsletter.noSpam')}
                 </p>
               </form>
             </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { useT } from '@/i18n/useT';
 
 interface DeleteConfirmationModalProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
     itemName,
     isDeleting
 }) => {
+    const { t } = useT();
     if (!isOpen) return null;
 
     return (
@@ -30,9 +32,9 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
                         <AlertTriangle size={28} className="sm:hidden" />
                         <AlertTriangle size={40} className="hidden sm:block" />
                     </div>
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-2 uppercase italic">Confirmation</h3>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight mb-2 uppercase italic">{t('vendor.deleteProduct.title')}</h3>
                     <p className="text-[11px] sm:text-sm font-bold text-slate-500 mb-2 sm:mb-4">
-                        Êtes-vous sûr de vouloir supprimer <span className="text-red-500">"{itemName}"</span> ? Cette action est irréversible.
+                        {t('vendor.deleteProduct.confirm')} <span className="text-red-500">"{itemName}"</span> ? {t('vendor.deleteProduct.irreversible')}
                     </p>
                 </div>
 
@@ -43,7 +45,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
                         disabled={isDeleting}
                         className="flex-1 px-6 sm:px-8 py-3.5 sm:py-4 bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 font-black text-[10px] sm:text-[12px] uppercase tracking-widest rounded-xl sm:rounded-2xl hover:bg-slate-200 transition-all active:scale-95 disabled:opacity-50"
                     >
-                        Annuler
+                        {t('vendor.deleteProduct.cancel')}
                     </button>
                     <button
                         onClick={onConfirm}
@@ -55,7 +57,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
                         ) : (
                             <>
                                 <Trash2 size={16} />
-                                Supprimer
+                                {t('vendor.deleteProduct.delete')}
                             </>
                         )}
                     </button>

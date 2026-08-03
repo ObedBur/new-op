@@ -6,24 +6,26 @@ import { Search, Filter, Package } from 'lucide-react';
 import { OrderCard } from './components/OrderCard';
 import { OrderDetailsModal } from './components/OrderDetailsModal';
 import { useToast } from '@/context/ToastContext';
+import { useT } from '@/i18n/useT';
 
 // --- PAGE PRINCIPALE ---
 
 
 export default function OrdersPage() {
     const { showToast } = useToast();
-    const [activeTab, setActiveTab] = useState<string>('Toutes');
+    const { t } = useT();
+    const [activeTab, setActiveTab] = useState<string>(t('vendor.orders.tabs.all'));
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [orders, setOrders] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const statusLabels: Record<string, string> = {
-        PENDING: 'Nouvelles',
-        CONFIRMED: 'Confirmées',
-        SHIPPED: 'Expédiées',
-        DELIVERED: 'Livrées',
-        CANCELLED: 'Annulées'
+        PENDING: t('vendor.orders.tabs.pending'),
+        CONFIRMED: t('vendor.orders.tabs.confirmed'),
+        SHIPPED: t('vendor.orders.tabs.shipped'),
+        DELIVERED: t('vendor.orders.tabs.delivered'),
+        CANCELLED: t('vendor.orders.tabs.cancelled')
     };
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export default function OrdersPage() {
     }, []);
 
     const filteredOrders = orders.filter(order => {
-        const matchesTab = activeTab === 'Toutes' || (statusLabels[order.status] || order.status) === activeTab;
+        const matchesTab = activeTab === t('vendor.orders.tabs.all') || (statusLabels[order.status] || order.status) === activeTab;
         const searchStr = searchQuery.toLowerCase();
         const matchesSearch = !searchQuery || 
                               order.id.toLowerCase().includes(searchStr) || 
@@ -52,9 +54,9 @@ export default function OrdersPage() {
         return matchesTab && matchesSearch;
     });
 
-    const tabs = ['Toutes', 'Nouvelles', 'Confirmées', 'Expédiées', 'Livrées', 'Annulées'];
+    const tabs = [t('vendor.orders.tabs.all'), t('vendor.orders.tabs.pending'), t('vendor.orders.tabs.confirmed'), t('vendor.orders.tabs.shipped'), t('vendor.orders.tabs.delivered'), t('vendor.orders.tabs.cancelled')];
     const getTabCount = (tab: string) => {
-        if (tab === 'Toutes') return orders.length;
+        if (tab === t('vendor.orders.tabs.all')) return orders.length;
         return orders.filter(o => statusLabels[o.status] === tab).length;
     };
 
@@ -70,11 +72,11 @@ export default function OrdersPage() {
                             const res = await updateOrderStatus(selectedOrder.id, newStatus);
                             if (res?.success) {
                                 setOrders(prev => prev.map(o => o.id === selectedOrder.id ? { ...o, status: newStatus } : o));
-                                showToast("Statut mis à jour avec succès", "success");
+                                showToast(t('vendor.orders.statusUpdated'), "success");
                             }
                         } catch (error) {
                             console.error("Erreur", error);
-                            showToast("Erreur lors de la mise à jour", "error");
+                            showToast(t('vendor.orders.updateError'), "error");
                         }
                     }}
                 />
@@ -84,10 +86,10 @@ export default function OrdersPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-center sm:text-left">
                     <h1 className="text-2xl sm:text-3xl font-black text-deep-blue dark:text-white uppercase tracking-tighter leading-none">
-                        Commandes <span className="text-[#E67E22]">Clients</span>
+                        {t('vendor.orders.title')} <span className="text-[#E67E22]">{t('vendor.orders.titleHighlight')}</span>
                     </h1>
                     <p className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-1">
-                        Gestion des commandes & expéditions
+                        {t('vendor.orders.subtitle')}
                     </p>
                 </div>
 
@@ -97,7 +99,7 @@ export default function OrdersPage() {
                     </div>
                     <input
                         type="text"
-                        placeholder="RECHERCHER UNE COMMANDE..."
+                        placeholder={t('vendor.orders.search')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 rounded-2xl px-10 py-3.5 text-[10px] font-black uppercase tracking-widest text-[#E67E22] placeholder-gray-300 dark:placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-[#E67E22]/20 focus:border-[#E67E22] outline-none transition-all"
@@ -145,8 +147,8 @@ export default function OrdersPage() {
                 ) : filteredOrders.length === 0 ? (
                         <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-16 text-center border border-gray-100 dark:border-white/5 shadow-sm mt-12">
                             <Package className="mx-auto size-16 text-gray-200 dark:text-white/5 mb-6" />
-                            <h3 className="text-xl font-black text-deep-blue dark:text-white mb-2">Aucune commande</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nous n'avons trouvé aucune commande pour ce filtre.</p>
+                            <h3 className="text-xl font-black text-deep-blue dark:text-white mb-2">{t('vendor.orders.noOrders')}</h3>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('vendor.orders.noOrdersFilter')}</p>
                         </div>
                     ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-max">
@@ -155,12 +157,12 @@ export default function OrdersPage() {
                                         key={order.id}
                                         id={order.id.substring(0, 8).toUpperCase()}
                                         originalId={order.id}
-                                        customer={order.customerName || 'Client Anonyme'}
+                                        customer={order.customerName || t('vendor.orders.anonymousClient')}
                                         customerPhone={order.customerPhone}
                                         status={order.status}
                                         total={order.totalPrice}
                                         date={new Date(order.createdAt).toLocaleDateString()}
-                                        productName={order.product?.name || "Produit inconnu"}
+                                        productName={order.product?.name || t('vendor.orders.unknownProduct')}
                                         productImage={order.product?.image || order.product?.images?.[0]}
                                         count={Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
                                         onViewDetails={() => setSelectedOrder(order)}
@@ -169,11 +171,11 @@ export default function OrdersPage() {
                                                 const res = await updateOrderStatus(order.id, newStatus);
                                                 if (res?.success) {
                                                     setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o));
-                                                    showToast("Statut mis à jour avec succès", "success");
+                                                    showToast(t('vendor.orders.statusUpdated'), "success");
                                                 }
                                             } catch (error) {
                                                 console.error("Erreur lors de la mise à jour du statut", error);
-                                                showToast("Erreur lors de la mise à jour du statut", "error");
+                                                showToast(t('vendor.orders.updateError'), "error");
                                             }
                                         }}
                                     />

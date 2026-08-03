@@ -2,12 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
+import { useSettings } from "@/context/SettingsContext";
+import { useT } from "@/i18n/useT";
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { language, setLanguage } = useSettings();
+  const { t } = useT();
+
   return (
     <div className="bg-white dark:bg-slate-950 font-sans antialiased text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between relative overflow-hidden">
       {/* Background Decorative Elements */}
@@ -31,7 +36,7 @@ export default function AuthLayout({
               <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
               <p className="text-[11px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                 © 2026 WapiBei{" "}
-                <span className="hidden sm:inline">• SÉCURISÉ</span>
+                <span className="hidden sm:inline">• {t("auth.footer.secure")}</span>
               </p>
             </div>
 
@@ -41,28 +46,33 @@ export default function AuthLayout({
                 href="/terms"
                 className="hover:text-orange-500 transition-colors"
               >
-                Conditions
+                {t("auth.footer.terms")}
               </Link>
               <Link
                 href="/privacy"
                 className="hover:text-orange-500 transition-colors"
               >
-                Confidentialité
+                {t("auth.footer.privacy")}
               </Link>
               <Link
                 href="/help"
                 className="hover:text-orange-600 font-semibold transition-colors"
               >
-                Besoin d&apos;aide ?
+                {t("auth.footer.help")}
               </Link>
             </nav>
 
             {/* Sélecteur de Langue Stylisé */}
             <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="opacity-50">Langue:</span>
-              <select className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer">
+              <span className="opacity-50">{t("auth.footer.languageLabel")}</span>
+              <select
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as typeof language)}
+                className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-orange-500 transition-all cursor-pointer"
+              >
                 <option value="fr">Français</option>
                 <option value="en">English</option>
+                <option value="sw">Kiswahili</option>
               </select>
             </div>
           </div>

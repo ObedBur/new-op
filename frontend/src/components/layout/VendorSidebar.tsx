@@ -10,6 +10,7 @@ import {
 import { User as UserType } from '@/types/auth';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useAuth } from '@/context/AuthContext';
+import { useT } from '@/i18n/useT';
 
 interface VendorSidebarProps {
     user: UserType | null;
@@ -21,23 +22,24 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
     const currentTab = searchParams.get('tab');
     const { count: wishlistCount } = useWishlist();
     const { logout } = useAuth();
+    const { t } = useT();
 
     const navItems = [
-        { id: 'profile', label: 'Mon Profil', href: '/settings', icon: User },
+        { id: 'profile', label: t('vendor.sidebar.myProfile'), href: '/settings', icon: User },
         ...((user?.role === 'VENDOR' || pathname?.startsWith('/dashboard')) ? [
-            { id: 'orders', label: 'Mes Ventes', href: '/dashboard/orders', icon: Package },
-            { id: 'products', label: 'Mes Produits', href: '/dashboard/products', icon: ShoppingBag },
-            { id: 'analytics', label: 'Analytiques', href: '/dashboard/analytics', icon: TrendingUp },
+            { id: 'orders', label: t('vendor.sidebar.mySales'), href: '/dashboard/orders', icon: Package },
+            { id: 'products', label: t('vendor.sidebar.myProducts'), href: '/dashboard/products', icon: ShoppingBag },
+            { id: 'analytics', label: t('vendor.sidebar.analytics'), href: '/dashboard/analytics', icon: TrendingUp },
         ] : [
-            { id: 'orders', label: 'Mes Commandes', href: '/settings?tab=orders', icon: Package },
-            { id: 'wishlist', label: 'Mes Favoris', href: '/settings?tab=favorites', icon: Heart },
+            { id: 'orders', label: t('vendor.sidebar.myOrders'), href: '/settings?tab=orders', icon: Package },
+            { id: 'wishlist', label: t('vendor.sidebar.myFavorites'), href: '/settings?tab=favorites', icon: Heart },
         ]),
-        { id: 'notifications', label: 'Notifications', href: '/settings?tab=notifications', icon: Bell },
-        { id: 'security', label: 'Sécurité', href: '/settings?tab=security', icon: ShieldCheck },
+        { id: 'notifications', label: t('vendor.sidebar.notifications'), href: '/settings?tab=notifications', icon: Bell },
+        { id: 'security', label: t('vendor.sidebar.security'), href: '/settings?tab=security', icon: ShieldCheck },
         ...(user?.role !== 'VENDOR' ? [
-            { id: 'addresses', label: 'Carnet d\'adresses', href: '/settings?tab=addresses', icon: MapPin },
+            { id: 'addresses', label: t('vendor.sidebar.addressBook'), href: '/settings?tab=addresses', icon: MapPin },
         ] : []),
-        { id: 'preferences', label: 'Préférences', href: '/settings?tab=preferences', icon: SettingsIcon },
+        { id: 'preferences', label: t('vendor.sidebar.preferences'), href: '/settings?tab=preferences', icon: SettingsIcon },
     ];
 
     return (
@@ -60,7 +62,7 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
             {/* Subtitle / User Role */}
             <div className="px-8 pt-6 pb-2 shrink-0">
                 <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
-                    {user?.role === 'VENDOR' ? 'Menu Vendeur' : 'Menu Client'}
+                    {user?.role === 'VENDOR' ? t('vendor.sidebar.menuVendor') : t('vendor.sidebar.menuClient')}
                 </p>
             </div>
 
@@ -111,7 +113,7 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
                     className="w-full relative flex items-center justify-start gap-4 px-5 py-3 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
                 >
                     <ArrowLeft size={20} className="shrink-0" />
-                    <span>Retour à la boutique</span>
+                    <span>{t('vendor.sidebar.backToShop')}</span>
                 </Link>
 
                 {/* Logout */}
@@ -121,11 +123,11 @@ const VendorSidebarContent: React.FC<VendorSidebarProps> = ({ user }) => {
                     title="Déconnexion"
                 >
                     <LogOut size={20} className="shrink-0" />
-                    <span>Déconnexion</span>
+                    <span>{t('vendor.sidebar.logout')}</span>
                 </button>
                 <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 text-center">
-                    <p className="text-xs font-black text-slate-800 dark:text-white tracking-tight">WapiBei App</p>
-                    <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1">Mon Compte WapiBei</p>
+                    <p className="text-xs font-black text-slate-800 dark:text-white tracking-tight">{t('vendor.sidebar.appName')}</p>
+                    <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mt-1">{t('vendor.sidebar.myAccount')}</p>
                 </div>
             </div>
         </aside>

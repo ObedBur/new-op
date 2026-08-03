@@ -3,42 +3,39 @@
 import React, { useState } from 'react';
 import { Plus, X, Lock, Truck, ShieldCheck, Headphones, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const items = [
-  {
-    icon: <Lock className="text-[#E67E22]" size={24} strokeWidth={2} />,
-    title: 'Paiement 100 % Sécurisé',
-    content:
-      'Toutes vos transactions sur WapiBei sont chiffrées de bout en bout et protégées par les standards de sécurité les plus stricts du secteur. Vos données bancaires ne sont jamais stockées sur nos serveurs. Achetez en toute sérénité.',
-  },
-  {
-    icon: <Truck className="text-[#E67E22]" size={24} strokeWidth={2} />,
-    title: 'Livraison Rapide & Fiable',
-    content:
-      'Nous travaillons avec des partenaires logistiques de confiance pour vous garantir des délais de livraison courts. Suivez votre colis en temps réel et recevez une alerte SMS dès que votre commande est expédiée ou livrée.',
-  },
-  {
-    icon: <ShieldCheck className="text-[#E67E22]" size={24} strokeWidth={2} />,
-    title: 'Vendeurs Vérifiés & Notés',
-    content:
-      "Chaque vendeur sur WapiBei passe par un processus de vérification rigoureux avant d'ouvrir sa boutique. Les avis clients et le TrustScore visible sur chaque profil vous permettent de choisir en connaissance de cause.",
-  },
-  {
-    icon: <Headphones className="text-[#E67E22]" size={24} strokeWidth={2} />,
-    title: 'Support Client 24 h/24',
-    content:
-      "Notre équipe d'assistance est disponible à toute heure pour répondre à vos questions, résoudre un problème de livraison ou traiter un remboursement. Contactez-nous par chat, email ou téléphone — nous sommes là pour vous.",
-  },
-  {
-    icon: <Globe className="text-[#E67E22]" size={24} strokeWidth={2} />,
-    title: 'Plateforme 100 % Locale',
-    content:
-      "WapiBei est née d'une volonté de valoriser le commerce local. En achetant ici, vous soutenez directement des entrepreneurs et des artisans de votre région, tout en bénéficiant d'une expérience d'achat moderne et sécurisée.",
-  },
-];
+import { useT } from '@/i18n/useT';
 
 export const WhyChooseUs = () => {
+  const { t } = useT();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const items = [
+    {
+      icon: <Lock className="text-[#E67E22]" size={24} strokeWidth={2} />,
+      title: t('home.whyChooseUs.items.paymentTitle'),
+      content: t('home.whyChooseUs.items.paymentContent'),
+    },
+    {
+      icon: <Truck className="text-[#E67E22]" size={24} strokeWidth={2} />,
+      title: t('home.whyChooseUs.items.deliveryTitle'),
+      content: t('home.whyChooseUs.items.deliveryContent'),
+    },
+    {
+      icon: <ShieldCheck className="text-[#E67E22]" size={24} strokeWidth={2} />,
+      title: t('home.whyChooseUs.items.verifiedTitle'),
+      content: t('home.whyChooseUs.items.verifiedContent'),
+    },
+    {
+      icon: <Headphones className="text-[#E67E22]" size={24} strokeWidth={2} />,
+      title: t('home.whyChooseUs.items.supportTitle'),
+      content: t('home.whyChooseUs.items.supportContent'),
+    },
+    {
+      icon: <Globe className="text-[#E67E22]" size={24} strokeWidth={2} />,
+      title: t('home.whyChooseUs.items.localTitle'),
+      content: t('home.whyChooseUs.items.localContent'),
+    },
+  ];
 
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
@@ -58,14 +55,14 @@ export const WhyChooseUs = () => {
           className="text-center mb-16"
         >
           <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#E67E22] mb-4">
-            Nos engagements
+            {t('home.whyChooseUs.pretitle')}
           </span>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-5">
-            Pourquoi choisir{' '}
-            <span className="text-[#E67E22]">WapiBei</span>&nbsp;?
+            {t('home.whyChooseUs.title')}{' '}
+            <span className="text-[#E67E22]">{t('home.whyChooseUs.titleHighlight')}</span>&nbsp;?
           </h2>
           <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-base md:text-lg leading-relaxed">
-            Tout ce que vous devez savoir sur notre engagement envers vous.
+            {t('home.whyChooseUs.description')}
           </p>
         </motion.div>
 

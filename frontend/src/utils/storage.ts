@@ -1,9 +1,44 @@
+import {
+  DEFAULT_LANGUAGE,
+  resolveLanguage,
+  type AppLanguage,
+} from '@/i18n/translations';
+
 const REFRESH_TOKEN_KEY = 'wapibei_refresh_token'; // Convention du projet : préfixe wapibei_
 
 type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'ocean';
-type Language = 'fr' | 'en';
+type Language = AppLanguage;
 type FontSize = 'small' | 'medium' | 'large';
 type Currency = 'USD' | 'CDF';
+
+const LANGUAGE_STORAGE_KEY = 'language';
+const LANGUAGE_COOKIE_KEY = 'lang';
+
+const getCookieValue = (name: string): string | null => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const cookie = document.cookie
+    .split('; ')
+    .find((entry) => entry.startsWith(`${name}=`));
+
+  if (!cookie) {
+    return null;
+  }
+
+  return decodeURIComponent(cookie.split('=').slice(1).join('='));
+};
+
+const writeLanguageCookie = (name: string, lang: Language): void => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  document.cookie = `${name}=${encodeURIComponent(lang)}; path=/; max-age=${
+    60 * 60 * 24 * 365
+  }; samesite=lax`;
+};
 
 export const storage = {
   // Refresh token methods (existing)
@@ -73,18 +108,19 @@ export const storage = {
   setTheme: (theme: Theme) => storage.setItem('theme', theme),
   
   getLanguage: (): Language => {
-    // Try to read from localStorage first
-    const language = storage.getItem<string>('language', 'fr');
-    return language === 'en' ? 'en' : 'fr';
+    const language = storage.getItem<string>(LANGUAGE_STORAGE_KEY, '');
+    const cookieLanguage =
+      getCookieValue(LANGUAGE_COOKIE_KEY) ?? getCookieValue(LANGUAGE_STORAGE_KEY);
+
+    return resolveLanguage(language || cookieLanguage || DEFAULT_LANGUAGE);
   },
   setLanguage: (lang: Language) => {
-    storage.setItem('language', lang);
-    // Also write a cookie so the server (SSR) can read the user's preference
+    storage.setItem(LANGUAGE_STORAGE_KEY, lang);
+
     try {
-      if (typeof document !== 'undefined') {
-        // expire in 1 year
-        document.cookie = `language=${lang}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-      }
+      writeLanguageCookie(LANGUAGE_COOKIE_KEY, lang);
+      // Legacy compatibility for code still reading `language`
+      writeLanguageCookie(LANGUAGE_STORAGE_KEY, lang);
     } catch (e) {
       console.warn('Failed to write language cookie', e);
     }

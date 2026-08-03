@@ -1,14 +1,16 @@
 import React from "react";
+import { useT } from "@/i18n/useT";
 
 // On renomme EmboitementSteps en HowItWorks et on accepte les props attendues
 export const HowItWorks = ({ steps }: any) => {
+  const { t } = useT();
   return (
     <section className="py-20 px-4 bg-white dark:bg-black">
       <div className="container mx-auto max-w-7xl">
         
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white">
-            Comment ça <span className="text-[#E67E22]">marche</span> ?
+            {t('home.howItWorks.title')} <span className="text-[#E67E22]">{t('home.howItWorks.titleHighlight')}</span> ?
           </h2>
         </div>
         
@@ -24,10 +26,10 @@ export const HowItWorks = ({ steps }: any) => {
           ">
             <h3 className="text-4xl sm:text-5xl font-black text-[#E67E22] mb-2">01</h3>
             <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
-              Trouvez vos produits
+              {t('home.howItWorks.steps.step1Title')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              Explorez notre catalogue et ajoutez vos coups de cœur au panier.
+              {t('home.howItWorks.steps.step1Desc')}
             </p>
             <div className="w-12 h-1 border-b-2 border-dashed border-slate-300 dark:border-slate-600 mt-4" />
           </div>
@@ -41,10 +43,10 @@ export const HowItWorks = ({ steps }: any) => {
           ">
             <h3 className="text-4xl sm:text-5xl font-black text-[#E67E22] mb-2">02</h3>
             <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
-              Achetez simplement
+              {t('home.howItWorks.steps.step2Title')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              Validez votre commande. Le vendeur est immédiatement alerté.
+              {t('home.howItWorks.steps.step2Desc')}
             </p>
             <div className="w-12 h-1 border-b-2 border-dashed border-slate-300 dark:border-slate-600 mt-4" />
           </div>
@@ -58,10 +60,10 @@ export const HowItWorks = ({ steps }: any) => {
           ">
             <h3 className="text-4xl sm:text-5xl font-black text-[#E67E22] mb-2">03</h3>
             <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
-              Suivi en temps réel
+              {t('home.howItWorks.steps.step3Title')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              Suivez l'état de votre colis et discutez avec le vendeur sur WhatsApp.
+              {t('home.howItWorks.steps.step3Desc')}
             </p>
             <div className="w-12 h-1 border-b-2 border-dashed border-slate-300 dark:border-slate-600 mt-4" />
           </div>
@@ -75,10 +77,10 @@ export const HowItWorks = ({ steps }: any) => {
           ">
             <h3 className="text-4xl sm:text-5xl font-black text-[#E67E22] mb-2">04</h3>
             <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
-              Recevez et profitez
+              {t('home.howItWorks.steps.step4Title')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-              Réceptionnez vos achats en toute confiance et sécurité.
+              {t('home.howItWorks.steps.step4Desc')}
             </p>
             <div className="w-12 h-1 border-b-2 border-dashed border-slate-300 dark:border-slate-600 mt-4" />
           </div>

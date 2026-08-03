@@ -1,9 +1,12 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useT } from "@/i18n/useT";
 
 export const LoginBanner: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useT();
 
   // Don't show the banner if the user is already authenticated or if we're still loading the auth state
   if (isAuthenticated || isLoading) {
@@ -21,14 +24,14 @@ export const LoginBanner: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] font-black text-slate-800 dark:text-slate-200 leading-tight">
-              Connecte-toi pour comparer <br /> plus de prix en Afrique
+              {t('home.loginBanner.message')}
             </p>
           </div>
           <Link
             href="/login"
             className="h-9 px-4 text-xs bg-[#E67E22] hover:bg-[#E67E22]/90 text-white rounded-xl font-bold transition-all transform active:scale-[0.98] flex items-center justify-center shrink-0 shadow-lg shadow-[#E67E22]/30"
           >
-            Connexion
+            {t('home.loginBanner.action')}
           </Link>
         </div>
       </div>

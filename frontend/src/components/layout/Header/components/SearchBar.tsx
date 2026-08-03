@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/axios';
+import { useT } from '@/i18n/useT';
 
 interface SearchBarProps {
   isSearchExpanded: boolean;
@@ -10,6 +11,7 @@ interface SearchBarProps {
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSearchExpanded }) => {
+  const { t } = useT();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -78,7 +80,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSea
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setShowSuggestions(true)}
-          placeholder="Rechercher un produit..."  
+          placeholder={t('search.placeholder')}  
           className="w-full bg-gray-100 dark:bg-white/5 border-none rounded-full py-2 md:py-2.5 pl-9 md:pl-11 pr-4 text-[13px] md:text-sm focus:ring-2 focus:ring-primary/40 text-deep-blue dark:text-white placeholder-gray-500 transition-all"
         />
         <button type="submit" className="absolute left-2.5 md:left-3.5 top-1.5 md:top-2.5 text-gray-400 hover:text-primary transition-colors">

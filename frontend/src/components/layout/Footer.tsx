@@ -3,18 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from 'next/image';
-
-
-// --- Données externalisées pour plus de clarté ---
-const NAV_LINKS = [
-  { label: "Accueil", href: "/" },
-  { label: "Produits", href: "/products" },
-  { label: "Vendeurs", href: "/sellers" },
-  { label: "Comment ça marche", href: "/#how-it-works" },
-  { label: "Tarifs", href: "/pricing" },
-];
-
-const SECTORS = ["Agricole", "High-Tech", "Mode & Style", "Boutique Express", "Services & Travaux"];
+import { useT } from "@/i18n/useT";
 
 // --- Sous-composant pour éviter la répétition ---
 const FooterLink = ({ href, label, dotColor = "bg-[#E67E22]/30" }: { href: string; label: string; dotColor?: string }) => (
@@ -28,9 +17,26 @@ const FooterLink = ({ href, label, dotColor = "bg-[#E67E22]/30" }: { href: strin
 
 export const Footer: React.FC = () => {
   const pathname = usePathname();
+  const { t } = useT();
   const authPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-otp"];
 
   if (authPaths.some((path) => pathname?.startsWith(path))) return null;
+
+  const NAV_LINKS = [
+    { label: t("header.nav.home"), href: "/" },
+    { label: t("header.nav.products"), href: "/products" },
+    { label: t("header.nav.sellers"), href: "/sellers" },
+    { label: t("footer.howItWorks"), href: "/#how-it-works" },
+    { label: t("footer.pricing"), href: "/pricing" },
+  ];
+
+  const SECTORS = [
+    t("footer.sectorsList.agricultural"),
+    t("footer.sectorsList.highTech"),
+    t("footer.sectorsList.fashion"),
+    t("footer.sectorsList.express"),
+    t("footer.sectorsList.services"),
+  ];
 
   return (
     <footer className="bg-slate-50 dark:bg-[#0b1221] text-slate-900 dark:text-white pt-24 pb-12 border-t border-slate-200 dark:border-white/10 relative overflow-hidden">
@@ -57,13 +63,13 @@ export const Footer: React.FC = () => {
               <h2 className="text-3xl font-black tracking-tighter">Wapi<span className="text-[#E67E22]">Bei</span></h2>
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed font-medium max-w-sm">
-              La Marketplace de confiance en Afrique. Connectez-vous aux meilleurs commerçants.
+              {t("footer.description")}
             </p>
           </div>
 
           {/* Navigation (Col 2) */}
           <div className="lg:col-span-2 space-y-8">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">Navigation</h4>
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">{t("footer.navigation")}</h4>
             <ul className="space-y-4">
               {NAV_LINKS.map((link) => <FooterLink key={link.label} {...link} />)}
             </ul>
@@ -71,7 +77,7 @@ export const Footer: React.FC = () => {
 
           {/* Secteurs (Col 3) */}
           <div className="lg:col-span-3 space-y-8">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">Secteurs</h4>
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">{t("footer.sectors")}</h4>
             <ul className="space-y-4">
               {SECTORS.map((s) => <FooterLink key={s} label={s} href={`/products?category=${s}`} dotColor="bg-slate-300 dark:bg-slate-700" />)}
             </ul>
@@ -79,9 +85,9 @@ export const Footer: React.FC = () => {
 
           {/* Contact (Col 3) */}
           <div className="lg:col-span-3 space-y-8 bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-none">
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">Service Client</h4>
-            <ContactItem icon="call" label="Téléphone" value="+243 999 123 456" />
-            <ContactItem icon="alternate_email" label="Email Support" value="contact@wapibei.cd" />
+            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">{t("footer.customerService")}</h4>
+            <ContactItem icon="call" label={t("footer.phone")} value="+243 999 123 456" />
+            <ContactItem icon="alternate_email" label={t("footer.emailSupport")} value="contact@wapibei.cd" />
           </div>
         </div>
 
@@ -90,14 +96,14 @@ export const Footer: React.FC = () => {
 
           {/* Zone des liens : Alignés à gauche comme chez Cisco */}
           <div className="flex flex-wrap gap-x-6 gap-y-2 font-medium uppercase tracking-wider text-slate-600 dark:text-slate-400">
-            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Politique de confidentialité</Link>
-            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Conditions d'utilisation</Link>
-            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Politique des cookies</Link>
-            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">Mentions légales</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">{t("footer.privacy")}</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">{t("footer.terms")}</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">{t("footer.cookies")}</Link>
+            <Link href="/legal" className="hover:text-[#E67E22] transition-colors">{t("footer.legal")}</Link>
           </div>
 
           <p className="text-slate-400 dark:text-slate-600">
-            © {new Date().getFullYear()} WapiBei MarketPlace. Tous droits réservés.
+            {t("footer.rightsReserved").replace("{year}", String(new Date().getFullYear()))}
           </p>
         </div>
       </div>

@@ -3,42 +3,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { authService } from '@/services/auth.service';
-import { useSettings } from '@/context/SettingsContext';
-
-const translations = {
-  fr: {
-    title: 'Mot de passe oublié ?',
-    description: "Ne vous inquiétez pas ! Cela arrive. Veuillez entrer l'adresse e-mail associée à votre compte.",
-    emailLabel: 'Adresse e-mail',
-    emailPlaceholder: 'exemple@wapibei.com',
-    helperText: 'Nous vous enverrons un lien pour réinitialiser votre mot de passe.',
-    submitText: 'Envoyer le lien de réinitialisation',
-    successTitle: 'Vérifiez votre e-mail',
-    successDescription: 'Nous avons envoyé un lien de réinitialisation de mot de passe à ',
-    tryAnother: 'Essayer un autre e-mail',
-    needHelp: 'Besoin d\'aide ? Contacter le support',
-    errorNotFound: "Aucun compte n'est associé à cette adresse e-mail.",
-    errorGeneric: "Une erreur s'est produite. Veuillez réessayer."
-  },
-  en: {
-    title: 'Forgot Password?',
-    description: "Don't worry! It happens. Please enter the email address associated with your account.",
-    emailLabel: 'Email address',
-    emailPlaceholder: 'example@wapibei.com',
-    helperText: 'We will send you a link to reset your password.',
-    submitText: 'Send Reset Link',
-    successTitle: 'Check your email',
-    successDescription: 'We have sent a password reset link to ',
-    tryAnother: 'Try another email',
-    needHelp: 'Need help? Contact Support',
-    errorNotFound: "No account found with this email address.",
-    errorGeneric: "An error occurred. Please try again."
-  }
-};
+import { useT } from '@/i18n/useT';
 
 export default function ForgotPasswordPage() {
-  const { language } = useSettings();
-  const t = translations[language] || translations.fr;
+  const { t } = useT();
 
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +17,7 @@ export default function ForgotPasswordPage() {
     if (err && typeof err === 'object' && 'response' in err) {
       const response = (err as { response?: { status?: number, data?: { message?: string } } }).response;
       if (response?.status === 404) {
-        return t.errorNotFound;
+        return t('auth.forgotPassword.errorNotFound');
       }
       const message = response?.data?.message;
       if (typeof message === 'string' && message.trim()) {
@@ -59,7 +27,7 @@ export default function ForgotPasswordPage() {
     if (err instanceof Error && err.message.trim()) {
       return err.message;
     }
-    return t.errorGeneric;
+    return t('auth.forgotPassword.errorGeneric');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,7 +40,8 @@ export default function ForgotPasswordPage() {
       setIsSubmitted(true);
     } catch (err: unknown) {
       console.error(err);
-      setError(getErrorMessage(err));    } finally {
+      setError(getErrorMessage(err));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -97,10 +66,10 @@ export default function ForgotPasswordPage() {
           {/* Header Section */}
           <div className="mb-8 animate-fade-in-up">
             <h1 className="text-slate-900 dark:text-white text-[32px] font-bold leading-tight tracking-tight mb-3">
-              {t.title}
+              {t('auth.forgotPassword.title')}
             </h1>
             <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-relaxed">
-              {t.description}
+              {t('auth.forgotPassword.description')}
             </p>
           </div>
 
@@ -110,27 +79,28 @@ export default function ForgotPasswordPage() {
               {/* Email Input Field */}
               <div className="flex flex-col gap-2">
                 <label className="text-slate-700 dark:text-slate-200 text-sm font-semibold ml-1" htmlFor="email">
-                  {t.emailLabel}
+                  {t('auth.forgotPassword.emailLabel')}
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-slate-400 dark:text-slate-500 group-focus-within:text-orange-600 transition-colors">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                     </svg>
-                  </div>                  <input
+                  </div>
+                  <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     autoComplete="email"
-                    placeholder={t.emailPlaceholder}
+                    placeholder={t('auth.forgotPassword.emailPlaceholder')}
                     required
                     className="w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-base shadow-sm"
                   />
                 </div>
                 {/* Helper Text */}
                 <p className="text-slate-500 dark:text-slate-400 text-xs ml-1 font-medium">
-                  {t.helperText}
+                  {t('auth.forgotPassword.helperText')}
                 </p>
                 {error ? (
                   <p className="text-rose-600 dark:text-rose-400 text-sm font-medium mt-2" role="alert">
@@ -152,7 +122,7 @@ export default function ForgotPasswordPage() {
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                   ) : (
-                    <span className="text-white text-base font-bold tracking-wide">{t.submitText}</span>
+                    <span className="text-white text-base font-bold tracking-wide">{t('auth.forgotPassword.submitText')}</span>
                   )}
                 </button>
               </div>
@@ -165,27 +135,27 @@ export default function ForgotPasswordPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t.successTitle}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('auth.forgotPassword.successTitle')}</h2>
               <p className="text-slate-600 dark:text-slate-400 mb-8">
-                {t.successDescription}<span className="font-semibold text-slate-900 dark:text-white">{email}</span>
+                {t('auth.forgotPassword.successDescription')}<span className="font-semibold text-slate-900 dark:text-white">{email}</span>
               </p>
               <button
                 onClick={() => setIsSubmitted(false)}
                 className="text-orange-600 dark:text-orange-400 font-semibold hover:underline"
               >
-                {t.tryAnother}
+                {t('auth.forgotPassword.tryAnother')}
               </button>
             </div>
           )}
 
           <div className="mt-auto pb-8 flex justify-center">
             <button className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-              {t.needHelp}
+              {t('auth.forgotPassword.needHelp')}
             </button>
           </div>
 
-        </main>      </div>
+        </main>
+      </div>
     </div>
   );
 }
-

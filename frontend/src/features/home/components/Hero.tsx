@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HeroSlide } from "../services/content.service";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { useT } from "@/i18n/useT";
 
 interface HeroSlideshowProps {
   slides: HeroSlide[];
@@ -15,6 +16,7 @@ interface HeroSlideshowProps {
 
 const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { t } = useT();
 
   const slideIds = useMemo(() => slides.map((s) => s.id).join("|"), [slides]);
 
@@ -33,7 +35,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
   if (!slides || slides.length === 0) {
     return (
       <div className="relative w-full h-[260px] sm:h-[320px] md:h-[400px] lg:h-[500px] rounded-3xl md:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-white/10 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-        <p className="text-gray-400 font-medium">Initialisation du visuel...</p>
+        <p className="text-gray-400 font-medium">{t("home.hero.initializing")}</p>
       </div>
     );
   }
@@ -107,7 +109,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
               >
                 <div className="h-px w-8 bg-primary/50" />
                 <p className="text-white/70 text-xs md:text-sm font-bold uppercase tracking-widest">
-                  WapiBei Exclusive
+                  {t("home.hero.exclusive")}
                 </p>
               </motion.div>
             </motion.div>
@@ -122,7 +124,7 @@ const HeroSlideshow: React.FC<HeroSlideshowProps> = ({ slides }) => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              aria-label={`Aller au slide ${index + 1}`}
+              aria-label={t("home.hero.goToSlide").replace("{index}", String(index + 1))}
               className="group relative"
             >
               <div
@@ -141,18 +143,20 @@ interface HeroProps {
   slides: HeroSlide[];
 }
 
-const LOCAL_SLIDES: HeroSlide[] = [
-  { id: 'slide-1', title: "L'excellence à portée de main", imageUrl: '/hero/slide1.png', label: 'PREMIUM' },
-  { id: 'slide-2', title: "L'élégance du détail", imageUrl: '/hero/slide2.png', label: 'LUXE' },
-  { id: 'slide-3', title: "Qualité supérieure", imageUrl: '/hero/slide3.png', label: 'QUALITÉ' },
-  { id: 'slide-4', title: "Le meilleur choix", imageUrl: '/hero/slide4.png', label: 'SÉLECTION' },
-  { id: 'slide-5', title: "Style & Confort", imageUrl: '/hero/slide5.png', label: 'MODERNE' },
-];
-
 const REGISTER_VENDOR_HREF = "/register?role=VENDOR#role-vendeur";
 
 export const Hero: React.FC<HeroProps> = ({ slides }) => {
   const { isAuthenticated, logout } = useAuth();
+  const { t } = useT();
+
+  const LOCAL_SLIDES: HeroSlide[] = [
+    { id: 'slide-1', title: t("home.hero.fallbackSlides.s1Title"), imageUrl: '/hero/slide1.png', label: t("home.hero.fallbackSlides.s1Label") },
+    { id: 'slide-2', title: t("home.hero.fallbackSlides.s2Title"), imageUrl: '/hero/slide2.png', label: t("home.hero.fallbackSlides.s2Label") },
+    { id: 'slide-3', title: t("home.hero.fallbackSlides.s3Title"), imageUrl: '/hero/slide3.png', label: t("home.hero.fallbackSlides.s3Label") },
+    { id: 'slide-4', title: t("home.hero.fallbackSlides.s4Title"), imageUrl: '/hero/slide4.png', label: t("home.hero.fallbackSlides.s4Label") },
+    { id: 'slide-5', title: t("home.hero.fallbackSlides.s5Title"), imageUrl: '/hero/slide5.png', label: t("home.hero.fallbackSlides.s5Label") },
+  ];
+
   const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
 
   const handleVendorClick = async (e: React.MouseEvent) => {
@@ -171,7 +175,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
         <div className="flex flex-col gap-6 items-center lg:items-start text-center lg:text-left animate-in fade-in slide-in-from-left-8 duration-1000">
           <div className="space-y-4">
             <h1 className="text-2xl md:text-5xl lg:text-7xl font-black leading-[1.1] tracking-tighter text-deep-blue dark:text-white">
-              <span className="text-[#E67E22]">Les meilleurs produits</span> <br />
+              <span className="text-[#E67E22]">{t("home.hero.bestProducts")}</span> <br />
               <span className="relative inline-block">
                 {/* Conteneur pour l'effet d'écriture et le changement de couleurs fluide */}
                 <motion.span
@@ -252,12 +256,10 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
                 </svg>
               </span>{" "}
               <br className="hidden md:block" />
-              au juste prix.
+              {t("home.hero.atFairPrice")}
             </h1>
             <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 font-medium leading-relaxed max-w-lg mx-auto lg:mx-0 pt-4">
-              Comparez les prix des produits agricoles, high-tech et mode à
-              travers toute l&apos;Afrique. Contactez les vendeurs locaux sans
-              frais.
+              {t("home.hero.description")}
             </p>
           </div>
 
@@ -269,7 +271,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
                 className="relative group h-14 w-full sm:w-auto px-8 rounded-xl bg-[#E67E22] text-white font-bold overflow-hidden transition-all shadow-lg hover:shadow-[#E67E22]/40 flex items-center justify-center cursor-pointer"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  Explorer les produits
+                  {t("home.hero.exploreProducts")}
                   <motion.span
                     animate={{ x: [0, 5, 0] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -286,7 +288,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
                 whileHover={{ y: -2 }}
                 className="h-14 w-full sm:w-auto px-8 rounded-xl border-2 border-[#2D5A27]/20 text-[#2D5A27] font-bold hover:bg-[#2D5A27] hover:text-white dark:border-white/10 dark:hover:bg-white dark:hover:text-black transition-colors duration-300 flex items-center justify-center cursor-pointer"
               >
-                Devenir vendeur
+                {t("home.hero.becomeVendor")}
               </motion.div>
             </Link>
           </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, MapPin, Phone, ChevronRight, MessageCircle } from 'lucide-react';
+import { useT } from '@/i18n/useT';
 
 export interface OrderDetailsModalProps {
     order: any;
@@ -8,6 +9,7 @@ export interface OrderDetailsModalProps {
 }
 
 export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetailsModalProps) {
+    const { t } = useT();
     if (!order) return null;
 
     return (
@@ -28,7 +30,7 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                 <div className="px-5 pt-8 pb-4 sm:p-8 sm:pb-6 bg-white dark:bg-[#0f172a] border-b border-gray-100 dark:border-white/5 flex items-start justify-between shrink-0 relative z-10">
                     <div>
                         <h3 className="text-xl sm:text-2xl font-black text-deep-blue dark:text-white tracking-tight leading-none mb-1.5">
-                            Détails commande
+                            {t('vendor.orderDetails.title')}
                         </h3>
                         <p className="text-[#E67E22] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">
                             #{order.id.substring(0, 12).toUpperCase()}
@@ -49,22 +51,22 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                     <section className="space-y-4">
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <ChevronRight size={14} className="text-[#E67E22]" />
-                            Informations Acheteur
+                            {t('vendor.orderDetails.buyerInfo')}
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                     <MapPin size={10} className="text-[#E67E22]" />
-                                    Livraison
+                                    {t('vendor.orderDetails.delivery')}
                                 </p>
                                 <p className="text-sm font-black text-deep-blue dark:text-white leading-relaxed whitespace-normal break-words">
-                                    {order.deliveryAddress || "Non spécifiée"}
+                                    {order.deliveryAddress || t('vendor.orderDetails.addressNotSpecified')}
                                 </p>
                             </div>
                             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5">
                                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                     <Phone size={10} className="text-green-500" />
-                                    Téléphone
+                                    {t('vendor.orderDetails.phone')}
                                 </p>
                                 <p className="text-sm font-black text-deep-blue dark:text-white leading-relaxed">
                                     {order.customerPhone || "N/A"}
@@ -77,7 +79,7 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                     <section className="space-y-4">
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <ChevronRight size={14} className="text-[#E67E22]" />
-                            Résumé
+                            {t('vendor.orderDetails.summary')}
                         </h4>
                         <div className="flex items-center gap-4 p-2">
                             <div className="size-16 sm:size-20 rounded-xl bg-gray-100 dark:bg-white/5 overflow-hidden border border-gray-200 dark:border-white/10 shrink-0">
@@ -85,11 +87,11 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h5 className="text-sm sm:text-base font-black text-deep-blue dark:text-white mb-2 truncate">
-                                    {order.product?.name || "Produit inconnu"}
+                                    {order.product?.name || t('vendor.orders.unknownProduct')}
                                 </h5>
                                 <div className="flex items-center gap-3">
                                     <div className="px-2 py-1 bg-gray-100 dark:bg-white/5 rounded-md text-[9px] font-black uppercase text-gray-500">
-                                        Qté: {Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
+                                        {t('vendor.orderDetails.qty')} {Math.max(1, Math.round(order.totalPrice / (order.product?.price || order.totalPrice || 1)))}
                                     </div>
                                     <div className="text-base sm:text-lg font-black text-[#E67E22]">
                                         ${order.totalPrice}
@@ -108,7 +110,7 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                         className="flex-1 py-3.5 sm:py-4 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest text-[#2D5A27] dark:text-green-400 text-center flex items-center justify-center gap-2 transition-colors"
                     >
                         <MessageCircle size={16} />
-                        WhatsApp
+                        {t('vendor.orderCard.whatsapp')}
                     </a>
                     {order.status === 'PENDING' && onStatusChange && (
                         <button
@@ -118,7 +120,7 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                             }}
                             className="flex-1 py-3.5 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
                         >
-                            Confirmer
+                            {t('vendor.orderCard.confirm')}
                         </button>
                     )}
                     {order.status === 'CONFIRMED' && onStatusChange && (
@@ -129,7 +131,7 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                             }}
                             className="flex-1 py-3.5 sm:py-4 bg-[#E67E22] hover:bg-orange-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
                         >
-                            Expédier
+                            {t('vendor.orderCard.ship')}
                         </button>
                     )}
                     {order.status === 'SHIPPED' && onStatusChange && (
@@ -140,14 +142,14 @@ export function OrderDetailsModal({ order, onClose, onStatusChange }: OrderDetai
                             }}
                             className="flex-1 py-3.5 sm:py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
                         >
-                            Livraison
+                            {t('vendor.orderDetails.delivery')}
                         </button>
                     )}
                     <button
                         onClick={onClose}
                         className="flex-1 py-3.5 sm:py-4 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-colors"
                     >
-                        Fermer
+                        {t('vendor.orderDetails.close')}
                     </button>
                 </div>
             </div>

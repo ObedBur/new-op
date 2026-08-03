@@ -6,48 +6,47 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-
-const initialTestimonials = [
-  {
-    name: 'Sophie M.',
-    role: 'Cliente fidèle',
-    content:
-      "J'ai acheté plusieurs articles sur WapiBei et je suis toujours impressionnée par la qualité du service. La livraison est très rapide et les produits correspondent parfaitement.",
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?img=47',
-    accent: '#E67E22',
-  },
-  {
-    name: 'Marc D.',
-    role: 'Vendeur certifié',
-    content:
-      "Depuis que j'ai ouvert ma boutique sur cette plateforme, mes ventes ont explosé. Le tableau de bord est intuitif et le support est d'une grande aide.",
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?img=11',
-    accent: '#2D5A27',
-  },
-  {
-    name: 'Aline K.',
-    role: 'Cliente',
-    content:
-      "Une expérience premium du début à la fin. J'adore les alertes de suivi pour mes commandes. Très rassurant et rapide !",
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    accent: '#E67E22',
-  },
-  {
-    name: 'Julien T.',
-    role: 'Nouveau client',
-    content:
-      "Première commande et certainement pas la dernière ! L'interface est super propre et j'ai trouvé ce que je cherchais en 2 clics.",
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/150?img=60',
-    accent: '#2D5A27',
-  }
-];
+import { useT } from '@/i18n/useT';
 
 export const Testimonials = () => {
   const { user } = useAuth();
+  const { t } = useT();
+
+  const initialTestimonials = [
+    {
+      name: 'Sophie M.',
+      role: t('home.testimonials.mock.t1Role'),
+      content: t('home.testimonials.mock.t1Content'),
+      rating: 5,
+      avatar: 'https://i.pravatar.cc/150?img=47',
+      accent: '#E67E22',
+    },
+    {
+      name: 'Marc D.',
+      role: t('home.testimonials.mock.t2Role'),
+      content: t('home.testimonials.mock.t2Content'),
+      rating: 5,
+      avatar: 'https://i.pravatar.cc/150?img=11',
+      accent: '#2D5A27',
+    },
+    {
+      name: 'Aline K.',
+      role: t('home.testimonials.mock.t3Role'),
+      content: t('home.testimonials.mock.t3Content'),
+      rating: 5,
+      avatar: 'https://i.pravatar.cc/150?img=32',
+      accent: '#E67E22',
+    },
+    {
+      name: 'Julien T.',
+      role: t('home.testimonials.mock.t4Role'),
+      content: t('home.testimonials.mock.t4Content'),
+      rating: 5,
+      avatar: 'https://i.pravatar.cc/150?img=60',
+      accent: '#2D5A27',
+    }
+  ];
+
   const [localTestimonials, setLocalTestimonials] = useState(initialTestimonials);
   const [email, setEmail] = useState('');
   const [comment, setComment] = useState('');
@@ -57,8 +56,8 @@ export const Testimonials = () => {
     if (!comment.trim()) return;
 
     const newTestimonial = {
-      name: user?.fullName || email.split('@')[0] || 'Visiteur',
-      role: user?.role === 'VENDOR' ? 'Vendeur' : 'Client',
+      name: user?.fullName || email.split('@')[0] || t('home.testimonials.visitor'),
+      role: user?.role === 'VENDOR' ? t('home.testimonials.vendor') : t('home.testimonials.client'),
       content: comment,
       rating: 5,
       avatar: user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || email || 'V')}&background=random`,
@@ -69,7 +68,7 @@ export const Testimonials = () => {
     setLocalTestimonials([newTestimonial, ...localTestimonials]);
     setComment('');
     setEmail('');
-    toast.success('Votre avis a été publié avec succès !');
+    toast.success(t('home.testimonials.success'));
   };
 
   // On duplique le tableau pour créer l'effet de boucle infinie sans coupure
@@ -90,14 +89,14 @@ export const Testimonials = () => {
           className="text-center mb-16"
         >
           <span className="inline-block text-xs font-bold tracking-widest uppercase text-[#2D5A27] mb-4">
-            Témoignages
+            {t('home.testimonials.pretitle')}
           </span>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight mb-5">
-            Ce que pensent nos{' '}
-            <span className="text-[#2D5A27]">utilisateurs</span>
+            {t('home.testimonials.title')}{' '}
+            <span className="text-[#2D5A27]">{t('home.testimonials.titleHighlight')}</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
-            Des milliers d&apos;acheteurs et de vendeurs nous font confiance au quotidien.
+            {t('home.testimonials.description')}
           </p>
         </motion.div>
       </div>
@@ -155,8 +154,8 @@ export const Testimonials = () => {
       <div className="max-w-2xl mx-auto mt-24 px-4 relative z-10">
         <div className="bg-white dark:bg-[#111] border border-slate-100 dark:border-white/[0.05] rounded-3xl p-6 md:p-8 shadow-xl">
           <div className="text-center mb-6">
-            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Laissez votre avis</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Partagez votre expérience avec la communauté WapiBei.</p>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('home.testimonials.formTitle')}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.testimonials.formDesc')}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,7 +163,7 @@ export const Testimonials = () => {
               <div>
                 <input
                   type="email"
-                  placeholder="Votre adresse email"
+                  placeholder={t('home.testimonials.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22] dark:text-white"
@@ -175,7 +174,7 @@ export const Testimonials = () => {
             
             <div className="relative">
               <textarea
-                placeholder="Votre message..."
+                placeholder={t('home.testimonials.messagePlaceholder')}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
@@ -196,7 +195,7 @@ export const Testimonials = () => {
                   <Image src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}`} alt="Avatar" fill className="object-cover" unoptimized />
                 </div>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  Commenter en tant que <strong className="text-slate-900 dark:text-white">{user.fullName}</strong>
+                  {t('home.testimonials.commentAs')} <strong className="text-slate-900 dark:text-white">{user.fullName}</strong>
                 </span>
               </div>
             )}

@@ -15,10 +15,12 @@ import {
   Package
 } from 'lucide-react';
 import { useSearch, SearchSector } from '@/hooks/useSearch';
+import { useT } from '@/i18n/useT';
 
 export const GlobalSearch = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { t } = useT();
   const searchRef = useRef<HTMLDivElement>(null);
   const {
     query,
@@ -38,9 +40,9 @@ export const GlobalSearch = () => {
   const [isSectorOpen, setIsSectorOpen] = React.useState(false);
 
   const sectorOptions: Record<SearchSector, string> = {
-    ALL: 'Tout',
-    PRODUCTS: 'Produits',
-    SHOPS: 'Boutiques'
+    ALL: t('search.all'),
+    PRODUCTS: t('search.products'),
+    SHOPS: t('search.shops')
   };
 
   // Handle click outside to close dropdown and collapse search
@@ -178,7 +180,7 @@ export const GlobalSearch = () => {
                 setIsFocused(true);
                 setIsSectorOpen(false);
               }}
-              placeholder="Rechercher des produits, boutiques..."
+              placeholder={t('search.placeholder')}
               className="w-full h-full bg-transparent pl-10 pr-10 text-sm font-medium text-gray-800 dark:text-gray-200 outline-none placeholder:text-gray-400 truncate"
             />
             
@@ -220,13 +222,13 @@ export const GlobalSearch = () => {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5" /> Recherches Récentes
+                      <Clock className="w-3.5 h-3.5" /> {t('search.recentSearches')}
                     </h3>
                     <button 
                       onClick={clearRecentSearches}
                       className="text-[10px] font-bold text-gray-400 hover:text-[#E67E22] transition-colors"
                     >
-                      Effacer
+                      {t('search.clear')}
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -246,10 +248,10 @@ export const GlobalSearch = () => {
               {/* Catégories Populaires */}
               <div>
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-3.5 h-3.5" /> Catégories Populaires
+                  <TrendingUp className="w-3.5 h-3.5" /> {t('search.popularCategories')}
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {['Riz & Céréales', 'Huiles & Graisses', 'Produits Frais', 'Électronique'].map((cat, i) => (
+                  {[t('search.categories.rice'), t('search.categories.oils'), t('search.categories.fresh'), t('search.categories.electronics')].map((cat, i) => (
                     <button
                       key={i}
                       onClick={() => handleSuggestionClick(cat)}
@@ -277,7 +279,7 @@ export const GlobalSearch = () => {
                 {(sector === 'ALL' || sector === 'PRODUCTS') && results.suggestions.length > 0 && (
                   <div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">
-                      Suggestions
+                      {t('search.suggestions')}
                     </h3>
                     <div className="space-y-1">
                       {results.suggestions.map((sug, i) => (
@@ -300,7 +302,7 @@ export const GlobalSearch = () => {
                 {(sector === 'ALL' || sector === 'SHOPS') && results.shops.length > 0 && (
                   <div>
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-3 flex items-center gap-2">
-                      <Store className="w-3.5 h-3.5" /> Boutiques
+                      <Store className="w-3.5 h-3.5" /> {t('search.shops')}
                     </h3>
                     <div className="space-y-2">
                       {results.shops.map(shop => (
@@ -325,7 +327,7 @@ export const GlobalSearch = () => {
                               </span>
                               {shop.isVerified && <CheckCircle className="w-3 h-3 text-blue-500 shrink-0" fill="currentColor" />}
                             </div>
-                            <span className="text-[10px] font-bold text-gray-400">Score: {Math.round(shop.trustScore / 20)}/5</span>
+                            <span className="text-[10px] font-bold text-gray-400">{t('search.score')} {Math.round(shop.trustScore / 20)}/5</span>
                           </div>
                         </Link>
                       ))}
@@ -338,7 +340,7 @@ export const GlobalSearch = () => {
               {(sector === 'ALL' || sector === 'PRODUCTS') && (
                 <div className="w-full sm:w-7/12 bg-gray-50/50 dark:bg-white/[0.02] p-4 sm:p-5 overflow-y-auto custom-scrollbar border-t sm:border-t-0 border-gray-100 dark:border-white/5">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E67E22] mb-4 flex items-center gap-2">
-                    <Package className="w-3.5 h-3.5" /> Produits Phares
+                    <Package className="w-3.5 h-3.5" /> {t('search.featuredProducts')}
                   </h3>
                   
                   {results.products.length > 0 ? (
@@ -373,7 +375,7 @@ export const GlobalSearch = () => {
                     <div className="h-full flex flex-col items-center justify-center py-8 opacity-50">
                       <Search className="w-8 h-8 text-gray-300 mb-2" />
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        Aucun produit trouvé
+                        {t('search.noProducts')}
                       </p>
                     </div>
                   )}
@@ -383,7 +385,7 @@ export const GlobalSearch = () => {
                       onClick={handleSubmit}
                       className="w-full mt-4 py-2 text-[10px] font-black uppercase tracking-widest text-[#E67E22] hover:bg-[#E67E22]/10 rounded-xl transition-colors"
                     >
-                      Voir tous les résultats
+                      {t('search.viewAllResults')}
                     </button>
                   )}
                 </div>

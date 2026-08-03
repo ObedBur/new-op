@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
+import { useT } from "@/i18n/useT";
 import { mapBackendError } from "@/utils/errors";
 import {
   PhoneInput,
@@ -25,7 +25,7 @@ const customCountries = defaultCountries.map((country) => {
   return country;
 });
 
-const customFlags = defaultCountries.map((c) => ({
+const customFlags: NonNullable<React.ComponentProps<typeof PhoneInput>["flags"]> = defaultCountries.map((c) => ({
   iso2: c[1] as string,
   src: `https://flagcdn.com/w20/${c[1]}.png`,
 }));
@@ -34,6 +34,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
   const { showToast } = useToast();
+  const { t } = useT();
 
   const [role, setRole] = useState<"CLIENT" | "VENDOR">("VENDOR");
 
@@ -75,37 +76,37 @@ export default function RegisterPage() {
 
   // Validation functions (French messages)
   const validateFullName = (value: string): string | undefined => {
-    if (!value.trim()) return "Le nom complet est requis";
+    if (!value.trim()) return t("auth.register.errors.fullNameRequired");
     if (value.trim().length < 3)
-      return "Le nom doit contenir au moins 3 caractères";
+      return t("auth.register.errors.fullNameMin");
     return undefined;
   };
 
   const validateEmail = (value: string): string | undefined => {
-    if (!value.trim()) return "L'e-mail est requis";
+    if (!value.trim()) return t("auth.register.errors.emailRequired");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value))
-      return "Format invalide. Exemple : wapibei@gmail.com";
+      return t("auth.register.errors.emailInvalid");
     return undefined;
   };
 
   const validatePhone = (value: string): string | undefined => {
     const digits = value.replace(/\D/g, "");
-    if (digits.length < 10) return "Le numéro de téléphone est requis";
+    if (digits.length < 10) return t("auth.register.errors.phoneRequired");
     return undefined;
   };
 
   const validatePassword = (value: string): string | undefined => {
-    if (!value) return "Le mot de passe est requis";
-    if (value.length < 8) return "Minimum 8 caractères requis";
-    if (!/[A-Z]/.test(value)) return "Doit contenir une majuscule";
-    if (!/\d/.test(value)) return "Doit contenir au moins un chiffre";
+    if (!value) return t("auth.register.errors.passwordRequired");
+    if (value.length < 8) return t("auth.register.errors.passwordMin");
+    if (!/[A-Z]/.test(value)) return t("auth.register.errors.passwordUppercase");
+    if (!/\d/.test(value)) return t("auth.register.errors.passwordDigit");
     return undefined;
   };
 
   const validateBoutiqueName = (value: string): string | undefined => {
     if (role === "VENDOR" && !value.trim())
-      return "Le nom de la boutique est requis pour les vendeurs";
+      return t("auth.register.errors.boutiqueNameRequired");
     return undefined;
   };
 
@@ -136,7 +137,7 @@ export default function RegisterPage() {
 
     setFieldErrors(errors);
     if (Object.values(errors).some((err) => err !== undefined)) {
-      showToast("Veuillez corriger les erreurs dans le formulaire", "error");
+      showToast(t("auth.register.toastFixForm"), "error");
       return;
     }
 
@@ -156,7 +157,7 @@ export default function RegisterPage() {
         ...(role === "VENDOR" && boutiqueName ? { boutiqueName } : {}),
       });
       localStorage.setItem("registrationEmail", email);
-      showToast("Compte créé ! Veuillez vérifier votre code OTP.", "success");
+      showToast(t("auth.register.toastAccountCreated"), "success");
       router.push("/verify-otp");
     } catch (err) {
       showToast(mapBackendError(err), "error");
@@ -193,11 +194,11 @@ export default function RegisterPage() {
           {/* Text Content */}
           <div className="relative z-10 mb-4">
             <h2 className="text-4xl lg:text-5xl font-black text-white leading-[1.15] mb-6">
-              Rejoignez une <br />
-              <span className="text-[#E67E22]">famille unique.</span>
+              {t("auth.register.heroTitle")} <br />
+              <span className="text-[#E67E22]">{t("auth.register.heroHighlight")}</span>
             </h2>
             <p className="text-white/85 text-lg leading-relaxed max-w-md font-medium">
-              Inscrivez-vous pour créer votre boutique ou acheter auprès de millier de vendeurs à travers l'Afrique.
+              {t("auth.register.heroDescription")}
             </p>
           </div>
         </div>
@@ -207,10 +208,10 @@ export default function RegisterPage() {
 
           <div className="text-center md:text-left mb-6">
             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
-              Créer un compte
+              {t("auth.register.formTitle")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Inscrivez-vous pour découvrir WapiBei.
+              {t("auth.register.formDescription")}
             </p>
           </div>
 
@@ -251,7 +252,7 @@ export default function RegisterPage() {
                     d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"
                   />
                 </svg>
-                <span>Vendeur</span>
+                <span>{t("auth.register.roleVendor")}</span>
               </button>
 
               {/* Bouton Client */}
@@ -278,15 +279,15 @@ export default function RegisterPage() {
                     d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
                   />
                 </svg>
-                <span>Client</span>
+                <span>{t("auth.register.roleClient")}</span>
               </button>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="Nom complet"
-              placeholder="Ex: Jean Mukendi"
+              label={t("auth.register.fullNameLabel")}
+              placeholder={t("auth.register.fullNamePlaceholder")}
               value={fullName}
               onChange={(e) => setFullName(toTitleCase(e.target.value))}
               error={fieldErrors.fullName}
@@ -310,8 +311,8 @@ export default function RegisterPage() {
 
             {role === "VENDOR" && (
               <Input
-                label="Nom de la boutique"
-                placeholder="Ex: Goma Fashion"
+                label={t("auth.register.boutiqueNameLabel")}
+                placeholder={t("auth.register.boutiqueNamePlaceholder")}
                 value={boutiqueName}
                 onChange={(e) => setBoutiqueName(toTitleCase(e.target.value))}
                 error={fieldErrors.boutiqueName}
@@ -335,9 +336,9 @@ export default function RegisterPage() {
             )}
 
             <Input
-              label="Adresse e-mail"
+              label={t("auth.register.emailLabel")}
               type="email"
-              placeholder="jean@gmail.com"
+              placeholder={t("auth.register.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value.toLowerCase())}
               onBlur={() => handleBlur("email", email)}
@@ -363,7 +364,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5 w-full">
                 <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 ml-1">
-                  Téléphone
+                  {t("auth.register.phoneLabel")}
                 </label>
                 <div className="relative phone-input-container">
                   <PhoneInput
@@ -371,10 +372,10 @@ export default function RegisterPage() {
                     value={phone}
                     onChange={(phone) => setPhone(phone)}
                     countries={customCountries}
-                    flags={customFlags as any}
+                    flags={customFlags}
                     forceDialCode
                     inputProps={{
-                      placeholder: "974 927 593",
+                      placeholder: t("auth.register.phonePlaceholder"),
                       required: true,
                     }}
                     inputClassName="!w-full !h-12 !text-base !bg-white dark:!bg-slate-900 !border-slate-200 dark:!border-slate-700 !rounded-2xl !text-slate-800 dark:!text-white focus:!border-orange-500 focus:!ring-4 focus:!ring-orange-500/10 !transition-all !duration-300"
@@ -407,10 +408,10 @@ export default function RegisterPage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 ml-1">
-                  Ville
+                  {t("auth.register.cityLabel")}
                 </label>
                 <Input
-                  placeholder="Ex: Kinshasa, Nairobi..."
+                  placeholder={t("auth.register.cityPlaceholder")}
                   value={city}
                   onChange={(e) => {
                     setCity(e.target.value);
@@ -444,9 +445,9 @@ export default function RegisterPage() {
             </div>
 
             <Input
-              label="Mot de passe"
+              label={t("auth.register.passwordLabel")}
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder={t("auth.register.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={fieldErrors.password}
@@ -522,16 +523,16 @@ export default function RegisterPage() {
                               hover:!bg-[#D35400] hover:!shadow-xl hover:!shadow-[#E67E22]/40 hover:-translate-y-0.5
                               active:scale-[0.98] active:translate-y-0"
             >
-              Créer mon compte
+              {t("auth.register.submitText")}
             </Button>
 
             <p className="text-center text-sm text-slate-500 mt-8">
-              Vous avez déjà un compte ?{" "}
+              {t("auth.register.loginPrompt")}{" "}
               <Link
                 href="/login"
                   className="relative inline-block font-bold text-[#E67E22] dark:text-[#E67E22] group transition-colors duration-300 active:scale-[0.95]"
               >
-                <span>Connectez-vous</span>
+                <span>{t("auth.register.loginLink")}</span>
 
                 {/* La barre animée en dessous */}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67E22] dark:bg-[#E67E22] transition-all duration-300 group-hover:w-full"></span>

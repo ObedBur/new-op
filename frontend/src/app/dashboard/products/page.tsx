@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { getMyProducts, deleteProduct } from '@/features/products/services/product.service';
 import { toast } from 'sonner';
+import { useT } from '@/i18n/useT';
 import {
     Search, MapPin, MessageCircle, UserPlus, Heart,
     ChevronDown, GitCompare, Plus, Package, Eye,
@@ -19,10 +20,11 @@ import PublishDraftsModal from './components/PublishDraftsModal';
 
 export default function ProductsPage() {
     const { user } = useAuth();
+    const { t } = useT();
     const [selectedItems, setSelectedItems] = useState<number[]>([]);
     const [products, setProducts] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<string>('Tout');
+    const [selectedCategory, setSelectedCategory] = useState<string>(t('vendor.products.filterAll'));
     const [isLoading, setIsLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -32,9 +34,9 @@ export default function ProductsPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [defaultPublicStatus, setDefaultPublicStatus] = useState(true);
     const [stats, setStats] = useState([
-        { label: 'Revenu Mensuel', value: '0$', trend: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-        { label: 'Produits Actifs', value: '0', trend: 'Boutique', icon: Package, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-        { label: 'Stock Total', value: '0', trend: 'Unités', icon: ArrowUpRight, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+        { label: t('vendor.products.stats.revenue'), value: '0$', trend: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+        { label: t('vendor.products.stats.activeProducts'), value: '0', trend: t('vendor.products.trend.shop'), icon: Package, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+        { label: t('vendor.products.stats.totalStock'), value: '0', trend: t('vendor.products.trend.units'), icon: ArrowUpRight, color: 'text-orange-500', bg: 'bg-orange-500/10' },
     ]);
 
     const fetchDashboardData = useCallback(async () => {
@@ -55,17 +57,17 @@ export default function ProductsPage() {
                     stock: p.stockQuantity || 0,
                     maxStock: 500,
                     updatedAt: new Date(p.updatedAt).toLocaleDateString(),
-                    status: p.availability === 'IN_STOCK' ? 'En stock' : (p.availability === 'LIMITED_STOCK' ? 'Stock Faible' : 'Rupture'),
-                    categoryName: p.category?.name || 'Divers',
+                    status: p.availability === 'IN_STOCK' ? t('vendor.products.status.inStock') : (p.availability === 'LIMITED_STOCK' ? t('vendor.products.status.lowStock') : t('vendor.products.status.outOfStock')),
+                    categoryName: p.category?.name || t('vendor.products.categoryDefault'),
                     isPublic: p.isPublic ?? false,
                     image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80'
                 }));
                 setProducts(mappedProducts);
 
                 setStats([
-                    { label: 'Revenu Mensuel', value: '0$', trend: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-                    { label: 'Produits Actifs', value: mappedProducts.length.toString(), trend: 'Vôtre', icon: Package, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                    { label: 'Stock Total', value: mappedProducts.reduce((acc: number, curr: any) => acc + curr.stock, 0).toString(), trend: 'Vôtre', icon: ArrowUpRight, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                    { label: t('vendor.products.stats.revenue'), value: '0$', trend: '0%', icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                    { label: t('vendor.products.stats.activeProducts'), value: mappedProducts.length.toString(), trend: t('vendor.products.trend.yours'), icon: Package, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                    { label: t('vendor.products.stats.totalStock'), value: mappedProducts.reduce((acc: number, curr: any) => acc + curr.stock, 0).toString(), trend: t('vendor.products.trend.yours'), icon: ArrowUpRight, color: 'text-orange-500', bg: 'bg-orange-500/10' },
                 ]);
             }
         } catch (error) {
@@ -100,7 +102,7 @@ export default function ProductsPage() {
         try {
             const response = await deleteProduct(productToDelete.id);
             if (response?.success) {
-                toast.success('Produit supprimé !', {
+                toast.success(t('vendor.products.deleted'), {
                     style: { background: '#1e293b', color: 'white', border: 'none' },
                 });
                 setIsDeleteModalOpen(false);
@@ -109,18 +111,18 @@ export default function ProductsPage() {
             }
         } catch (error) {
             console.error('Erreur lors de la suppression:', error);
-            toast.error('Erreur lors de la suppression du produit.');
+            toast.error(t('vendor.products.deleteError'));
         } finally {
             setIsDeleting(false);
         }
     };
 
     // --- COMPUTED FILTERS ---
-    const uniqueCategories = ['Tout', ...Array.from(new Set(products.map(p => p.categoryName)))];
+    const uniqueCategories = [t('vendor.products.filterAll'), ...Array.from(new Set(products.map(p => p.categoryName)))];
 
     const filteredProducts = products.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === 'Tout' || p.categoryName === selectedCategory;
+        const matchesCategory = selectedCategory === t('vendor.products.filterAll') || p.categoryName === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
@@ -130,8 +132,8 @@ export default function ProductsPage() {
             {/* --- TOP NAV ACTIONS --- */}
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
-                    <h2 className="text-2xl sm:text-3xl font-black text-[#1e293b] dark:text-white tracking-tighter">Mes Produits</h2>
-                    <p className="text-[10px] sm:text-xs font-bold text-[#64748b] dark:text-gray-500 uppercase tracking-widest">Gestion du catalogue et stocks</p>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[#1e293b] dark:text-white tracking-tighter">{t('vendor.products.title')}</h2>
+                    <p className="text-[10px] sm:text-xs font-bold text-[#64748b] dark:text-gray-500 uppercase tracking-widest">{t('vendor.products.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                     {/* search bar */}
@@ -141,7 +143,7 @@ export default function ProductsPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Rechercher mes produits..."
+                            placeholder={t('vendor.products.search')}
                             className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 text-xs font-bold focus:outline-none focus:bg-white dark:focus:bg-[#1a1a1a] focus:ring-1 focus:ring-[#E67E22]/20 transition-all sm:rounded-xl"
                         />
                     </div>
@@ -167,7 +169,7 @@ export default function ProductsPage() {
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     <button className="flex items-center gap-2 px-3 sm:px-6 py-3 bg-gray-50 dark:bg-white/5 text-[#1e293b] dark:text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white transition-all">
                         <Filter size={14} className="text-[#E67E22]" />
-                        <span className="hidden sm:inline">Filtrer</span>
+                        <span className="hidden sm:inline">{t('vendor.products.filter')}</span>
                     </button>
                     <div className="h-6 sm:h-8 w-px bg-gray-100 dark:bg-white/10" />
                     <div className="flex gap-1">
@@ -186,7 +188,7 @@ export default function ProductsPage() {
                     className="flex items-center justify-center gap-2 sm:gap-3 bg-[#E67E22] text-white px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all active:scale-95"
                 >
                     <Plus size={18} />
-                    <span className="truncate">Nouveau Produit</span>
+                    <span className="truncate">{t('vendor.products.newProduct')}</span>
                 </button>
 
                 <button
@@ -194,7 +196,7 @@ export default function ProductsPage() {
                     className="flex items-center justify-center gap-2 sm:gap-3 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] px-4 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-[11px] sm:text-sm shadow-xl hover:-translate-y-1 transition-all active:scale-95 border border-white/10"
                 >
                     <Globe size={18} />
-                    <span className="truncate">Publier les Brouillons</span>
+                    <span className="truncate">{t('vendor.products.publishDrafts')}</span>
                 </button>
             </div>
             {/* --- PRODUCTS GRID --- */}
@@ -204,8 +206,8 @@ export default function ProductsPage() {
                         <div className="size-20 bg-gray-50 dark:bg-white/5 rounded-3xl flex items-center justify-center text-gray-400 mb-6">
                             <Search size={32} />
                         </div>
-                        <h3 className="text-xl font-black text-[#1e293b] dark:text-white tracking-tight mb-2">Aucun produit trouvé</h3>
-                        <p className="text-sm font-bold text-gray-500">Essayez de modifier vos filtres de recherche.</p>
+                        <h3 className="text-xl font-black text-[#1e293b] dark:text-white tracking-tight mb-2">{t('vendor.products.empty')}</h3>
+                        <p className="text-sm font-bold text-gray-500">{t('vendor.products.emptyDesc')}</p>
                     </div>
                 )}
 
@@ -238,8 +240,8 @@ export default function ProductsPage() {
 
                             {/* Badges UI - Smaller */}
                             <div className="absolute top-2 sm:top-4 right-2 sm:right-4">
-                                <span className={`px-2 sm:px-3 py-1 rounded-lg text-[8px] sm:text-[9px] font-black uppercase tracking-wider backdrop-blur-md border ${product.status === 'Rupture' ? 'bg-red-500/20 text-red-100 border-red-500/20' :
-                                    product.status === 'Stock Faible' ? 'bg-orange-500/20 text-orange-50 border-orange-500/20' :
+                                <span className={`px-2 sm:px-3 py-1 rounded-lg text-[8px] sm:text-[9px] font-black uppercase tracking-wider backdrop-blur-md border ${product.status === t('vendor.products.status.outOfStock') ? 'bg-red-500/20 text-red-100 border-red-500/20' :
+                                    product.status === t('vendor.products.status.lowStock') ? 'bg-orange-500/20 text-orange-50 border-orange-500/20' :
                                         'bg-emerald-500/20 text-emerald-50 border-emerald-500/20'
                                     }`}>
                                     {product.status}
@@ -253,7 +255,7 @@ export default function ProductsPage() {
                                     className="flex-1 bg-white dark:bg-[#151b2c] text-[#1e293b] dark:text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-black text-[8px] sm:text-[10px] uppercase tracking-widest flex items-center justify-center gap-1 sm:gap-2 hover:bg-[#E67E22] hover:text-white transition-all shadow-lg border border-transparent"
                                 >
                                     <Edit2 size={10} className="sm:size-[12px]" />
-                                    <span className="sm:inline hidden">Éditer</span>
+                                    <span className="sm:inline hidden">{t('vendor.products.editBtn')}</span>
                                     <span className="sm:hidden">Edit</span>
                                 </button>
                                 <button
@@ -273,7 +275,7 @@ export default function ProductsPage() {
                                     <div className="flex items-center gap-1 sm:gap-1.5">
                                         <div className="size-1 sm:size-1.5 rounded-full bg-[#E67E22]" />
                                         <p className="text-[8px] sm:text-[9px] font-black text-[#64748b] uppercase tracking-wider truncate">
-                                            {product.isPublic ? 'Public' : 'Brouillon'}
+                                            {product.isPublic ? t('vendor.products.visibility.public') : t('vendor.products.visibility.draft')}
                                         </p>
                                     </div>
                                     <h3 className="font-black text-[#1e293b] dark:text-white text-[12px] sm:text-[15px] leading-tight truncate group-hover:text-[#E67E22] transition-colors">
@@ -297,9 +299,9 @@ export default function ProductsPage() {
                             {/* Dashboard Stats - Discrete */}
                             <div className="space-y-1.5 sm:space-y-2 pt-2 sm:pt-3 border-t border-gray-100 dark:border-white/5 mt-auto">
                                 <div className="flex items-center justify-between text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-gray-400">
-                                    <span>Stock</span>
+                                    <span>{t('vendor.products.stock')}</span>
                                     <span className={product.stock <= 5 ? 'text-red-500' : 'text-[#1e293b] dark:text-white'}>
-                                        {product.stock} <span className="hidden sm:inline">pcs</span>
+                                        {product.stock} <span className="hidden sm:inline">{t('vendor.products.pcs')}</span>
                                     </span>
                                 </div>
                                 <div className="h-1 sm:h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
@@ -324,17 +326,17 @@ export default function ProductsPage() {
                             <div className="size-10 bg-[#E67E22] rounded-2xl flex items-center justify-center font-black">
                                 {selectedItems.length}
                             </div>
-                            <span className="text-sm font-black uppercase tracking-widest">Sélectionnés</span>
+                            <span className="text-sm font-black uppercase tracking-widest">{t('vendor.products.selected')}</span>
                         </div>
                         <div className="flex items-center gap-6">
-                            <button className="flex items-center gap-3 hover:text-[#E67E22] transition-colors"><Edit2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">Modifier</span></button>
-                            <button className="flex items-center gap-3 hover:text-red-500 transition-colors"><Trash2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">Supprimer</span></button>
-                            <button className="flex items-center gap-3 hover:text-blue-400 transition-colors"><Share2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">Exporter</span></button>
+                            <button className="flex items-center gap-3 hover:text-[#E67E22] transition-colors"><Edit2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">{t('vendor.products.edit')}</span></button>
+                            <button className="flex items-center gap-3 hover:text-red-500 transition-colors"><Trash2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">{t('vendor.products.delete')}</span></button>
+                            <button className="flex items-center gap-3 hover:text-blue-400 transition-colors"><Share2 size={18} /><span className="text-[11px] font-black uppercase tracking-widest">{t('vendor.products.export')}</span></button>
                             <button
                                 onClick={() => setSelectedItems([])}
                                 className="ml-4 px-6 py-3 bg-white/10 dark:bg-black/5 hover:bg-white/20 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                             >
-                                Annuler
+                                {t('vendor.products.cancel')}
                             </button>
                         </div>
                     </div>
@@ -344,7 +346,7 @@ export default function ProductsPage() {
             {/* --- PAGINATION --- */}
             <div className="mt-10 flex flex-col items-center gap-6 pb-20">
                 <button className="px-20 py-7 bg-white dark:bg-[#151b2c] text-[#1e293b] dark:text-white border-4 border-gray-50 dark:border-white/5 font-black text-sm uppercase tracking-[0.3em] rounded-full hover:shadow-2xl hover:scale-105 transition-all active:scale-95">
-                    Charger l'historique
+                    {t('vendor.products.loadHistory')}
                 </button>
             </div>
             {/* --- ADD PRODUCT MODAL --- */}

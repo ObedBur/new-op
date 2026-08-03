@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Globe, Loader2, CheckCircle2, Package, Search } from 'lucide-react';
+import { useT } from '@/i18n/useT';
 import { api } from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -12,6 +13,7 @@ interface PublishDraftsModalProps {
 }
 
 export default function PublishDraftsModal({ isOpen, onClose, onPublished }: PublishDraftsModalProps) {
+    const { t } = useT();
     const [drafts, setDrafts] = useState<any[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,7 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
             setDrafts(pending);
             setSelectedIds(pending.map((p: any) => p.id)); // Select all by default
         } catch (error) {
-            toast.error("Erreur lors de la récupération des brouillons");
+            toast.error(t('vendor.publishDrafts.fetchError'));
         } finally {
             setIsLoading(false);
         }
@@ -52,11 +54,11 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
         setIsPublishing(true);
         try {
             await api.patch('/products/bulk-publish', { ids: selectedIds });
-            toast.success(`${selectedIds.length} produits publiés avec succès !`);
+            toast.success(`${selectedIds.length} ${t('vendor.publishDrafts.published')}`);
             onPublished();
             onClose();
         } catch (error) {
-            toast.error("Erreur lors de la publication");
+            toast.error(t('vendor.publishDrafts.publishError'));
         } finally {
             setIsPublishing(false);
         }
@@ -76,8 +78,8 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
                             <Globe size={24} />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-[#1e293b] dark:text-white tracking-tight uppercase italic">Centre de Publication</h2>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sélectionnez les produits à mettre en ligne</p>
+                            <h2 className="text-2xl font-black text-[#1e293b] dark:text-white tracking-tight uppercase italic">{t('vendor.publishDrafts.title')}</h2>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('vendor.publishDrafts.subtitle')}</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="size-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:bg-red-500 hover:text-white transition-all">
@@ -90,15 +92,15 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                             <Loader2 className="animate-spin text-[#E67E22]" size={32} />
-                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">Recherche des brouillons...</p>
+                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">{t('vendor.publishDrafts.loading')}</p>
                         </div>
                     ) : drafts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                             <div className="size-20 bg-gray-50 dark:bg-white/5 rounded-3xl flex items-center justify-center text-gray-300 mb-6">
                                 <Package size={40} />
                             </div>
-                            <h3 className="text-xl font-black text-[#1e293b] dark:text-white mb-2">Tout est synchronisé !</h3>
-                            <p className="text-sm font-bold text-gray-400">Vous n'avez aucun produit en attente de publication.</p>
+                            <h3 className="text-xl font-black text-[#1e293b] dark:text-white mb-2">{t('vendor.publishDrafts.synced')}</h3>
+                            <p className="text-sm font-bold text-gray-400">{t('vendor.publishDrafts.noPending')}</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-3">
@@ -142,7 +144,7 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
                         ) : (
                             <>
                                 <Globe size={20} />
-                                <span>Publier {selectedIds.length} produit{selectedIds.length > 1 ? 's' : ''}</span>
+                                <span>{t('vendor.publishDrafts.publish').replace('{count}', selectedIds.length.toString())}</span>
                             </>
                         )}
                     </button>

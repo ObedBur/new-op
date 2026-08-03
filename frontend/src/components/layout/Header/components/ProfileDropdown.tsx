@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { User } from '@/types/auth';
 import { ChevronDown } from 'lucide-react';
+import { useT } from '@/i18n/useT';
 
 interface ProfileDropdownProps {
   isAuthenticated: boolean;
@@ -24,6 +25,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   setIsProfileOpen 
 }) => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const { t } = useT();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,16 +46,16 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     if (user?.role === 'VENDOR') {
       // Links specific to Sellers
       return [
-        { label: 'Tableau de bord', href: '/dashboard' },
-        { label: 'Mon Compte', href: '/settings' }
+        { label: t('header.dashboard'), href: '/dashboard' },
+        { label: t('header.myAccount'), href: '/settings' }
       ];
     } 
     
     // Links specific to Customers (and Admin)
     return [
-      { label: 'Mon Compte', href: '/settings' },
-      { label: 'Mes Commandes', href: '/settings?tab=orders' },
-      { label: 'Mes Favoris', href: '/settings?tab=favorites' }
+      { label: t('header.myAccount'), href: '/settings' },
+      { label: t('header.myOrders'), href: '/settings?tab=orders' },
+      { label: t('header.myFavorites'), href: '/settings?tab=favorites' }
     ];
   };
 
@@ -64,7 +66,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       {isAuthLoading ? (
         <div
           className="size-10 rounded-full bg-gray-200 dark:bg-white/10 animate-pulse"
-          aria-label="Chargement du profil"
+          aria-label={t('header.loadingProfile')}
         />
       ) : isAuthenticated ? (
         <button 
@@ -88,7 +90,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               {user?.fullName?.split(' ')[0] || 'OBED'}
             </span>
             <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tight mt-0.5">
-              {user?.role === 'VENDOR' ? 'VENDEUR' : 'CLIENT'}
+              {user?.role === 'VENDOR' ? t('header.vendorBadge') : t('header.clientBadge')}
             </span>
           </div>
           <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
@@ -97,7 +99,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         <Link 
           href="/login"
             className="size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#4f46e5] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-all duration-300"
-            title="Se connecter"
+            title={t('header.login')}
         >
             <span className="material-symbols-outlined text-[24px]">account_circle</span>
         </Link>
@@ -109,7 +111,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           <div className="p-2.5">
             <div className="mb-1 px-2.5">
               <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] py-2 block">
-                Menu {user?.role === 'VENDOR' ? 'Vendeur' : 'Personnel'}
+                {user?.role === 'VENDOR' ? t('header.menuVendor') : t('header.menuPersonal')}
               </span>
             </div>
 
@@ -132,7 +134,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold text-gray-600 dark:text-gray-300 hover:bg-[#2D5A27]/5 dark:hover:bg-white/5 hover:text-[#2D5A27] transition-all group"
                 >
                   <span className="material-symbols-outlined text-[20px] text-gray-400 group-hover:text-[#2D5A27] transition-colors">admin_panel_settings</span>
-                  Administration
+                  {t('header.admin')}
                 </Link>
               )}
             </div>
@@ -144,13 +146,13 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group"
             >
               <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">logout</span>
-              Se déconnecter
+              {t('header.logout')}
             </button>
           </div>
 
           {/* Footer/Badge */}
           <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center">
-            <p className="text-[9px] font-black text-[#2D5A27] uppercase tracking-widest">WapiBei Exclusive</p>
+            <p className="text-[9px] font-black text-[#2D5A27] uppercase tracking-widest">{t('header.exclusive')}</p>
           </div>
         </div>
       )}

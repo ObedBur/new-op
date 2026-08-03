@@ -61,7 +61,7 @@ function LoginContent() {
       } else if (user.role === "ADMIN") {
         router.push("/admin");
       } else if (user.role === "VENDOR") {
-        router.push("/dashboard");
+        router.push("/settings");
       } else {
         router.push("/");
       }
@@ -90,7 +90,7 @@ function LoginContent() {
       } else if (response.user.role === "ADMIN") {
         router.push("/admin");
       } else if (response.user.role === "VENDOR") {
-        router.push("/dashboard");
+        router.push("/settings");
       } else {
         router.push("/");
       }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Package, CheckCircle, Truck, ChevronRight, MessageCircle, AlertCircle, FileText } from 'lucide-react';
+import { useT } from '@/i18n/useT';
 
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | string;
 
@@ -20,6 +21,7 @@ export interface OrderCardProps {
 
 export function OrderCard({ id, originalId, status, total, date, count, customer, customerPhone, productName, productImage, onStatusChange, onViewDetails }: OrderCardProps) {
     const [isLoading, setIsLoading] = React.useState(false);
+    const { t } = useT();
 
     const isPending = status === 'PENDING';
     const isConfirmed = status === 'CONFIRMED';
@@ -28,11 +30,11 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
     const isCancelled = status === 'CANCELLED';
 
     const statusLabels: Record<string, string> = {
-        PENDING: 'Nouvelle',
-        CONFIRMED: 'Confirmée',
-        SHIPPED: 'Expédiée',
-        DELIVERED: 'Livrée',
-        CANCELLED: 'Annulée'
+        PENDING: t('vendor.orderCard.status.pending'),
+        CONFIRMED: t('vendor.orderCard.status.confirmed'),
+        SHIPPED: t('vendor.orderCard.status.shipped'),
+        DELIVERED: t('vendor.orderCard.status.delivered'),
+        CANCELLED: t('vendor.orderCard.status.cancelled')
     };
 
     const statusStyles: Record<string, string> = {
@@ -66,7 +68,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-1.5 truncate">
-                            <span className="text-[11px] sm:text-xs font-black text-deep-blue dark:text-white uppercase tracking-tight">Cmd</span>
+                            <span className="text-[11px] sm:text-xs font-black text-deep-blue dark:text-white uppercase tracking-tight">{t('vendor.orders.order')}</span>
                             <span className="text-[11px] sm:text-xs font-black text-[#E67E22] truncate">#{id}</span>
                         </div>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{date}</p>
@@ -121,7 +123,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                     onClick={onViewDetails}
                     className="text-[10px] font-bold text-[#E67E22] hover:text-orange-600 uppercase tracking-wider shrink-0 flex items-center gap-0.5"
                 >
-                    Détails <ChevronRight size={14} />
+                    {t('vendor.orderCard.details')} <ChevronRight size={14} />
                 </button>
             </div>
 
@@ -135,7 +137,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             className="col-span-1 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
                             {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <CheckCircle size={16} />}
-                            <span>Confirmer</span>
+                            <span>{t('vendor.orderCard.confirm')}</span>
                         </button>
                         <a
                             href={`https://wa.me/${customerPhone?.replace(/\D/g, '')}`}
@@ -144,7 +146,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             className="col-span-1 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
                         >
                             <MessageCircle size={16} className="text-green-500" />
-                            <span>WhatsApp</span>
+                            <span>{t('vendor.orderCard.whatsapp')}</span>
                         </a>
                     </>
                 ) : isConfirmed ? (
@@ -155,7 +157,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             className="col-span-1 py-3 bg-[#E67E22] dark:bg-[#E67E22] text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
                             {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <Truck size={16} />}
-                            <span>Expédier</span>
+                            <span>{t('vendor.orderCard.ship')}</span>
                         </button>
                         <a
                             href={`https://wa.me/${customerPhone?.replace(/\D/g, '')}`}
@@ -164,7 +166,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             className="col-span-1 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
                         >
                             <MessageCircle size={16} className="text-green-500" />
-                            <span>WhatsApp</span>
+                            <span>{t('vendor.orderCard.whatsapp')}</span>
                         </a>
                     </>
                 ) : isShipped ? (
@@ -174,7 +176,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                         className="col-span-2 py-3 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
                         {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current"></div> : <CheckCircle size={16} />}
-                        <span>Confirmer la livraison</span>
+                        <span>{t('vendor.orderCard.confirmDelivery')}</span>
                     </button>
                 ) : (
                     <button
@@ -182,7 +184,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                         className="col-span-2 py-3 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1.5"
                     >
                         <FileText size={16} />
-                        <span>Détails commande</span>
+                        <span>{t('vendor.orderCard.detailsOrder')}</span>
                     </button>
                 )}
             </div>

@@ -4,10 +4,13 @@ import React, { useRef } from 'react';
 import Link from 'next/link';
 import { Category } from '@/features/products/types';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useT } from '@/i18n/useT';
+import { translateCategoryName } from '@/i18n/categoryNames';
 
 export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: boolean }> = ({ categories, isLoading }) => {
   const [activeFilter, setActiveFilter] = React.useState<'all' | 'popular'>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useT();
 
   // Filtrage des catégories (Simulé pour 'popular')
   const displayedCategories = React.useMemo(() => {
@@ -75,11 +78,11 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
           <div className="space-y-2">
             <div className="flex items-center gap-4">
               <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
-                Explorer par <span className="text-[#E67E22]">Secteur</span>
+                {t('home.categories.exploreBy')} <span className="text-[#E67E22]">{t('home.categories.sector')}</span>
               </h2>
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-[10px] md:text-sm font-medium">
-              Trouvez les meilleures offres par catégorie d'articles
+              {t('home.categories.description')}
             </p>
           </div>
 
@@ -91,7 +94,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
-              Tous
+              {t('home.categories.all')}
             </button>
             <button
               onClick={() => setActiveFilter('popular')}
@@ -100,7 +103,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
             >
-              Populaires
+              {t('home.categories.popular')}
             </button>
           </div>
         </div>
@@ -112,7 +115,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
           <button 
             onClick={() => scroll('left')}
             className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
-            aria-label="Défiler vers la gauche"
+            aria-label={t('home.categories.scrollLeft')}
           >
             <ChevronLeft size={24} strokeWidth={2} />
           </button>
@@ -130,10 +133,10 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
               >
                 <div className="flex flex-col min-w-0 pr-3">
                   <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-white truncate leading-tight group-hover:text-[#E67E22] transition-colors">
-                    {cat.name}
+                    {translateCategoryName(cat.name, t)}
                   </h3>
                   <span className="text-xs font-medium text-slate-400 mt-1">
-                    {cat.productCount || 0} articles
+                    {t('home.categories.count').replace('{count}', String(cat.productCount || 0))}
                   </span>
                 </div>
                 
@@ -153,7 +156,7 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
           <button 
             onClick={() => scroll('right')}
             className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
-            aria-label="Défiler vers la droite"
+            aria-label={t('home.categories.scrollRight')}
           >
             <ChevronRight size={24} strokeWidth={2} />
           </button>

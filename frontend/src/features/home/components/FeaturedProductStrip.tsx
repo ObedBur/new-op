@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Product } from '@/features/products/types';
 import { ProductCard } from '@/features/products/components/ProductCard';
+import { useT } from '@/i18n/useT';
 
 interface FeaturedProductStripProps {
   title: string;
@@ -13,6 +14,7 @@ interface FeaturedProductStripProps {
 }
 
 export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ title, subtitle, products, onQuickView }) => {
+  const { t } = useT();
   return (
     <div className="w-full mb-8 bg-transparent">
       <div className="container mx-auto px-4 flex items-end justify-between mb-4">
@@ -26,7 +28,7 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
           href="/products"
           className="flex items-center gap-2 group text-slate-400 hover:text-white transition-all duration-300"
         >
-          <span className="text-[10px] font-bold uppercase tracking-widest hidden md:inline">Voir tout</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest hidden md:inline">{t('home.productStrip.viewAll')}</span>
         </Link>
       </div>
 
@@ -47,7 +49,7 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
             href="/products"
             className="w-full min-h-[160px] flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-[#E67E22]/50 dark:hover:border-[#E67E22]/50 hover:bg-white dark:hover:bg-white/10 transition-all group lg:hidden"
           >
-            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight group-hover:text-[#E67E22] dark:group-hover:text-[#E67E22]">Tout voir</span>
+            <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight group-hover:text-[#E67E22] dark:group-hover:text-[#E67E22]">{t('home.productStrip.viewAllMobile')}</span>
           </Link>
         </div>
       </div>

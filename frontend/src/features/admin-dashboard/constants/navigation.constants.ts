@@ -1,10 +1,10 @@
 import { ADMIN_VIEWS } from '@/constants/enums';
-import { TRANSLATIONS } from './translations.constants';
+import { TRANSLATIONS } from '@/i18n/translations';
 
 export interface NavItem {
     id: string;
     label: string;
-    translationKey: keyof typeof TRANSLATIONS.fr.nav;
+    translationKey: keyof typeof TRANSLATIONS.fr.admin.nav;
     icon: string;
     view: string;
     href: string;

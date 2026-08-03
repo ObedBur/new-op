@@ -5,33 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User,
-  Store,
   Heart,
   Bell,
   ShieldCheck,
-  Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
-  MapPin,
-  BadgeCheck,
-  TrendingDown,
-  TrendingUp,
   Package,
-  Plus,
-  Hammer,
   Smartphone,
-  Sprout,
-  Search,
   Lock,
-  ShoppingBag,
   CheckCircle2,
-  Clock,
-  MoreVertical,
-  SlidersHorizontal,
   Edit3,
-  Camera,
-  Trash2,
   Globe,
   LogOut
 } from "lucide-react";
@@ -43,7 +26,7 @@ import { Language, Theme, Currency, useSettings } from "@/context/SettingsContex
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppNotifications } from "@/hooks/useAppNotifications";
 import { getNotificationPreferences, saveNotificationPreferences, NotificationPreferences } from "@/features/notifications/services/preferences.service";
-import { resolveNotificationUrl } from "@/types/notification";
+import { resolveNotificationUrl, AppNotification } from "@/types/notification";
 import { toast } from "sonner";
 
 import { getClientOrders, Order } from "@/features/vendors/services/orders.service";
@@ -51,15 +34,17 @@ import { useCurrency } from "@/hooks/useCurrency";
 import { AddressBookSection } from "@/features/addresses/components/AddressBookSection";
 import { useWishlist } from "@/hooks/useWishlist";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { Product } from "@/types/product.types";
+import { useQuickView } from "@/features/products/hooks/useQuickView";
+import { ProductQuickView } from "@/features/products/components/ProductQuickView";
 import { ListSkeleton, TableSkeleton } from "@/components/ui/SkeletonLoaders";
+import { useT } from "@/i18n/useT";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders' | 'addresses';
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as any }
+  transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
 };
 
 const staggerContainer = {
@@ -79,9 +64,25 @@ const getInitials = (name: string) => {
   return name.substring(0, 2).toUpperCase();
 };
 
+const localeByLanguage = {
+  fr: "fr-FR",
+  en: "en-US",
+  sw: "sw-KE",
+} as const;
+
+function SettingsPageFallback() {
+  const { t } = useT();
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      {t("settingsPage.loading")}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<SettingsPageFallback />}>
       <SettingsPageContent />
     </Suspense>
   );
@@ -90,13 +91,17 @@ export default function SettingsPage() {
 function SettingsPageContent() {
   const { user, logout } = useAuth();
   const { theme, setTheme, language, setLanguage, currency, setCurrency } = useSettings();
+  const { t } = useT();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { formatPrice } = useCurrency();
+  const dateLocale = localeByLanguage[language];
   const activeTab = (searchParams.get('tab') as SettingsTab) || null;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [clientOrders, setClientOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+
 
   // État des préférences de notifications
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
@@ -104,8 +109,7 @@ function SettingsPageContent() {
 
   // Favoris / Wishlist states
   const { wishlist, toggleFavorite } = useWishlist();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const { selectedProduct, openQuickView, closeQuickView } = useQuickView();
   const [isClearFavoritesModalOpen, setIsClearFavoritesModalOpen] = useState(false);
   const [isClearingFavorites, setIsClearingFavorites] = useState(false);
 
@@ -113,7 +117,7 @@ function SettingsPageContent() {
     setIsClearingFavorites(true);
     try {
       [...wishlist].forEach(p => toggleFavorite(p));
-      toast.success("Tous vos favoris ont été supprimés.");
+      toast.success(t("settingsPage.toasts.clearFavoritesSuccess"));
     } finally {
       setIsClearingFavorites(false);
       setIsClearFavoritesModalOpen(false);
@@ -122,11 +126,13 @@ function SettingsPageContent() {
 
   React.useEffect(() => {
     if (activeTab === 'orders') {
-      setIsLoadingOrders(true);
-      getClientOrders().then(res => {
+      const loadOrders = async () => {
+        setIsLoadingOrders(true);
+        const res = await getClientOrders();
         if (res.success) setClientOrders(res.data || []);
         setIsLoadingOrders(false);
-      });
+      };
+      loadOrders();
     }
     if (activeTab === 'notifications') {
       getNotificationPreferences().then(setPreferences);
@@ -138,9 +144,9 @@ function SettingsPageContent() {
     setIsSavingPref(true);
     try {
       await saveNotificationPreferences(preferences);
-      toast.success('Préférences de notifications sauvegardées !');
+      toast.success(t("settingsPage.toasts.notificationSaved"));
     } catch {
-      toast.error('Erreur lors de la sauvegarde. Veuillez réessayer.');
+      toast.error(t("settingsPage.toasts.notificationSaveError"));
     } finally {
       setIsSavingPref(false);
     }
@@ -154,7 +160,7 @@ function SettingsPageContent() {
   } = useAppNotifications();
 
   // Clic intelligent : marque comme lu + redirige vers l'URL contextuelle
-  const handleNotificationClick = (n: any) => {
+  const handleNotificationClick = (n: AppNotification) => {
     if (!n.isRead) markAsRead(n.id);
     const url = resolveNotificationUrl(n, user?.role);
     if (url) router.push(url);
@@ -163,42 +169,42 @@ function SettingsPageContent() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Déconnexion réussie !");
+      toast.success(t("settingsPage.toasts.logoutSuccess"));
       router.push("/");
     } catch {
-      toast.error("Erreur lors de la déconnexion");
+      toast.error(t("settingsPage.toasts.logoutError"));
     }
   };
 
   // Define menu items based on user role
   const menuItems = [
-    { label: "Mon Profil", href: "/settings?tab=profile" },
+    { label: t("settingsPage.menu.profile"), href: "/settings?tab=profile" },
     ...(user?.role === 'VENDOR' ? [
-      { label: "Tableau de bord Vendeur", href: "/dashboard" },
+      { label: t("settingsPage.menu.vendorDashboard"), href: "/dashboard" },
     ] : [
-      { label: "Mes Commandes", href: "/settings?tab=orders" },
-      { label: "Mes Favoris", href: "/settings?tab=favorites" },
+      { label: t("settingsPage.menu.orders"), href: "/settings?tab=orders" },
+      { label: t("settingsPage.menu.favorites"), href: "/settings?tab=favorites" },
     ]),
-    { label: "Notifications", href: "/settings?tab=notifications" },
-    { label: "Sécurité", href: "/settings?tab=security" },
-    { label: "Carnet d'adresses", href: "/settings?tab=addresses" },
-    { label: "Préférences", href: "/settings?tab=preferences" },
-    { label: "Centre d'aide", href: "#" },
+    { label: t("settingsPage.menu.notifications"), href: "/settings?tab=notifications" },
+    { label: t("settingsPage.menu.security"), href: "/settings?tab=security" },
+    { label: t("settingsPage.menu.addresses"), href: "/settings?tab=addresses" },
+    { label: t("settingsPage.menu.preferences"), href: "/settings?tab=preferences" },
+    { label: t("settingsPage.menu.helpCenter"), href: "#" },
   ];
 
   // If there is an active tab, render that tab's content
   // This unified view works on both mobile (full screen) and desktop (content area beside VendorSidebar)
   if (activeTab) {
     return (
-      <div className="min-h-screen bg-[#F6F1E0] lg:bg-transparent">
-        <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-2">
+      <div className="min-h-0 bg-[#F6F1E0] lg:bg-transparent">
+        <div className="max-w-md mx-auto min-h-0 bg-white shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-8">
           {/* Modale d'édition */}
           <EditProfileModal
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
           />
           {/* Header — back button only on mobile (desktop has VendorSidebar for nav) */}
-          <header className="px-6 pt-12 pb-6 lg:pt-8 lg:pb-4">
+          <header className="px-6 pt-12 pb-6 lg:pt-8 lg:pb-4 lg:px-0">
             <div className="flex items-center">
               <button
                 onClick={() => router.back()}
@@ -207,25 +213,25 @@ function SettingsPageContent() {
                 <ChevronLeft size={24} />
               </button>
               <h1 className="text-2xl font-bold text-black">
-                {activeTab === 'profile' ? 'Profile' :
-                  activeTab === 'store' ? 'Boutique' :
-                    activeTab === 'favorites' ? 'Favoris' :
-                      activeTab === 'notifications' ? 'Notifications' :
-                        activeTab === 'security' ? 'Sécurité' :
-                          activeTab === 'preferences' ? 'Préférences' :
-                            activeTab === 'orders' ? 'Commandes' :
-                              activeTab === 'addresses' ? 'Adresses' : 'Paramètres'}
+                {activeTab === 'profile' ? t("settingsPage.tabs.profile") :
+                  activeTab === 'store' ? t("settingsPage.tabs.store") :
+                    activeTab === 'favorites' ? t("settingsPage.tabs.favorites") :
+                      activeTab === 'notifications' ? t("settingsPage.tabs.notifications") :
+                        activeTab === 'security' ? t("settingsPage.tabs.security") :
+                          activeTab === 'preferences' ? t("settingsPage.tabs.preferences") :
+                            activeTab === 'orders' ? t("settingsPage.tabs.orders") :
+                              activeTab === 'addresses' ? t("settingsPage.tabs.addresses") : t("settingsPage.tabs.default")}
               </h1>
             </div>
           </header>
-          <main className="flex-grow px-6 pb-20">
-            <div className="w-full">
+          <main className="flex-grow px-6 pb-20 lg:px-0">
+            <div className="w-full max-w-5xl mx-auto">
               <div className="space-y-6">
                 <DeleteConfirmationModal
                   isOpen={isClearFavoritesModalOpen}
                   onClose={() => setIsClearFavoritesModalOpen(false)}
                   onConfirm={handleClearAllFavorites}
-                  itemName="tous vos favoris"
+                    itemName={t("settingsPage.favorites.clearAllItemName")}
                   isDeleting={isClearingFavorites}
                 />
 
@@ -244,18 +250,20 @@ function SettingsPageContent() {
                         {/* --- SECTION 1: PRÉFÉRENCES (DESIGN UNTITLED UI) --- */}
                         <section className="bg-white p-4 space-y-6">
                           <div className="mb-6">
-                            <h3 className="text-xl font-black text-black tracking-tight">Paramètres des notifications</h3>
-                            <p className="text-sm font-medium text-gray-500 mt-1">Choisissez comment vous souhaitez être informé de l'activité sur la plateforme.</p>
+                            <h3 className="text-xl font-black text-black tracking-tight">{t("settingsPage.notifications.title")}</h3>
+                            <p className="text-sm font-medium text-gray-500 mt-1">{t("settingsPage.notifications.description")}</p>
                           </div>
 
                           <div className="space-y-6">
                             {[
                               {
                                 id: 'orders',
-                                title: user?.role === 'VENDOR' ? 'Ventes & Boutique' : 'Mes Commandes',
+                                title: user?.role === 'VENDOR'
+                                  ? t("settingsPage.notifications.categories.ordersVendorTitle")
+                                  : t("settingsPage.notifications.categories.ordersClientTitle"),
                                 desc: user?.role === 'VENDOR'
-                                  ? 'Alertes sur les nouvelles commandes reçues, statuts de paiement et demandes de retraits.'
-                                  : 'Alertes sur le statut de vos commandes, confirmations de paiement et livraisons.',
+                                  ? t("settingsPage.notifications.categories.ordersVendorDesc")
+                                  : t("settingsPage.notifications.categories.ordersClientDesc"),
                                 channels: [
                                   { label: 'Push', key: 'ordersPush' as keyof NotificationPreferences },
                                   { label: 'Email', key: 'ordersEmail' as keyof NotificationPreferences },
@@ -266,8 +274,8 @@ function SettingsPageContent() {
                               ...(user?.role !== 'VENDOR' ? [
                                 {
                                   id: 'follows',
-                                  title: 'Vendeurs Favoris',
-                                  desc: 'Soyez le premier informé quand vos vendeurs préférés publient un nouveau produit.',
+                                  title: t("settingsPage.notifications.categories.followsTitle"),
+                                  desc: t("settingsPage.notifications.categories.followsDesc"),
                                   channels: [
                                     { label: 'Push', key: 'followsPush' as keyof NotificationPreferences },
                                     { label: 'Email', key: 'followsEmail' as keyof NotificationPreferences },
@@ -277,8 +285,8 @@ function SettingsPageContent() {
                                 },
                                 {
                                   id: 'promos',
-                                  title: 'Offres & Promotions',
-                                  desc: 'Recevez des alertes sur les baisses de prix et les meilleures opportunités du moment.',
+                                  title: t("settingsPage.notifications.categories.promosTitle"),
+                                  desc: t("settingsPage.notifications.categories.promosDesc"),
                                   channels: [
                                     { label: 'Push', key: 'promosPush' as keyof NotificationPreferences },
                                     { label: 'Email', key: 'promosEmail' as keyof NotificationPreferences },
@@ -288,8 +296,8 @@ function SettingsPageContent() {
                               ] : []),
                               {
                                 id: 'security',
-                                title: 'Sécurité & Compte',
-                                desc: 'Alertes de connexion, vérification KYC et modifications importantes de profil.',
+                                title: t("settingsPage.notifications.categories.securityTitle"),
+                                desc: t("settingsPage.notifications.categories.securityDesc"),
                                 forced: true,
                                 channels: [
                                   { label: 'Email', key: 'securityEmail' as keyof NotificationPreferences },
@@ -334,7 +342,9 @@ function SettingsPageContent() {
                               disabled={isSavingPref || !preferences}
                               className="px-8 py-4 bg-black text-white rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {isSavingPref ? 'Enregistrement...' : 'Enregistrer les réglages'}
+                              {isSavingPref
+                                ? t("settingsPage.notifications.saving")
+                                : t("settingsPage.notifications.save")}
                             </button>
                           </div>
                         </section>
@@ -343,8 +353,8 @@ function SettingsPageContent() {
                         <section className="bg-white p-4 space-y-6">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                             <div className="space-y-1">
-                              <h3 className="text-xl font-black text-black tracking-tight">Activités récentes</h3>
-                              <p className="text-xs font-semibold text-gray-400 italic">Historique de vos alertes reçues</p>
+                              <h3 className="text-xl font-black text-black tracking-tight">{t("settingsPage.notifications.recentTitle")}</h3>
+                              <p className="text-xs font-semibold text-gray-400 italic">{t("settingsPage.notifications.recentSubtitle")}</p>
                             </div>
                             {notifications.some(n => !n.isRead) && (
                               <button
@@ -352,7 +362,7 @@ function SettingsPageContent() {
                                 className="group flex items-center gap-2 px-6 py-3 bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
                               >
                                 <CheckCircle2 size={14} />
-                                Tout marquer comme lu
+                                {t("settingsPage.notifications.markAllRead")}
                               </button>
                             )}
                           </div>
@@ -363,7 +373,7 @@ function SettingsPageContent() {
                             ) : notifications.length === 0 ? (
                               <div className="py-12 text-center">
                                 <Bell size={40} className="mx-auto text-gray-200 mb-4" />
-                                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Aucune notification</p>
+                                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t("settingsPage.notifications.empty")}</p>
                               </div>
                             ) : (
                               <div className="max-h-[60vh] overflow-y-auto pr-2 scrollbar-hide">
@@ -383,7 +393,7 @@ function SettingsPageContent() {
                                         <p className="text-[12px] text-gray-500 line-clamp-1">{n.message}</p>
                                       </div>
                                       <div className="text-[10px] font-bold text-gray-300 shrink-0">
-                                        {new Date(n.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                        {new Date(n.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
                                       </div>
                                     </motion.div>
                                   ))}
@@ -399,25 +409,37 @@ function SettingsPageContent() {
                       <div className="space-y-8">
                         <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-8">
                           <div className="pb-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-black">Préférences de l'Application</h2>
-                            <p className="text-xs text-gray-500 font-semibold mt-1">Personnalisez votre expérience d'achat et de vente sur WapiBei.</p>
+                            <h2 className="text-xl font-bold text-black">{t("settingsPage.preferences.title")}</h2>
+                            <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.preferences.description")}</p>
                           </div>
 
                           <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-black">Thème d'affichage</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">Choisissez le style visuel de l'interface.</p>
+                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.theme.title")}</h3>
+                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.theme.description")}</p>
                             <div className="grid grid-cols-3 gap-3">
                               {[
-                                { label: 'Clair', value: 'light' as Theme },
-                                { label: 'Sombre', value: 'dark' as Theme },
-                                { label: 'Système', value: 'system' as Theme },
+                                {
+                                  label: t("settingsPage.preferences.theme.light"),
+                                  value: 'light' as Theme,
+                                  toastLabel: t("settingsPage.preferences.theme.appliedLight"),
+                                },
+                                {
+                                  label: t("settingsPage.preferences.theme.dark"),
+                                  value: 'dark' as Theme,
+                                  toastLabel: t("settingsPage.preferences.theme.appliedDark"),
+                                },
+                                {
+                                  label: t("settingsPage.preferences.theme.system"),
+                                  value: 'system' as Theme,
+                                  toastLabel: t("settingsPage.preferences.theme.appliedSystem"),
+                                },
                               ].map((themeOption) => (
                                 <button
                                   key={themeOption.value}
                                   type="button"
                                   onClick={() => {
                                     setTheme(themeOption.value);
-                                    toast.success(`Thème ${themeOption.label} appliqué !`);
+                                    toast.success(themeOption.toastLabel);
                                   }}
                                   className={`py-3.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${theme === themeOption.value
                                     ? "bg-black text-white border-transparent shadow-sm"
@@ -431,19 +453,35 @@ function SettingsPageContent() {
                           </div>
 
                           <div className="space-y-4 border-t border-slate-100 pt-6">
-                            <h3 className="text-sm font-bold text-black">Langue de l'interface</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">Configurez la langue dans laquelle s'affichent les textes.</p>
+                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.language.title")}</h3>
+                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.language.description")}</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {[
-                                { label: 'Français', desc: 'Langue principale', value: 'fr' as Language },
-                                { label: 'English', desc: 'International language', value: 'en' as Language },
+                                {
+                                  label: t("settingsPage.preferences.language.frenchLabel"),
+                                  desc: t("settingsPage.preferences.language.frenchDesc"),
+                                  value: 'fr' as Language,
+                                  toastLabel: t("settingsPage.preferences.language.setFrench"),
+                                },
+                                {
+                                  label: t("settingsPage.preferences.language.englishLabel"),
+                                  desc: t("settingsPage.preferences.language.englishDesc"),
+                                  value: 'en' as Language,
+                                  toastLabel: t("settingsPage.preferences.language.setEnglish"),
+                                },
+                                {
+                                  label: t("settingsPage.preferences.language.swahiliLabel"),
+                                  desc: t("settingsPage.preferences.language.swahiliDesc"),
+                                  value: 'sw' as Language,
+                                  toastLabel: t("settingsPage.preferences.language.setSwahili"),
+                                },
                               ].map((lang) => (
                                 <button
                                   key={lang.label}
                                   type="button"
                                   onClick={() => {
                                     setLanguage(lang.value);
-                                    toast.success(`Langue configurée sur ${lang.label}`);
+                                    toast.success(lang.toastLabel);
                                   }}
                                   className={`p-4 rounded-full text-left transition-all border cursor-pointer ${language === lang.value
                                     ? "bg-white border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
@@ -458,19 +496,29 @@ function SettingsPageContent() {
                           </div>
 
                           <div className="space-y-4 border-t border-slate-100 pt-6">
-                            <h3 className="text-sm font-bold text-black">Devise de facturation</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">Choisissez la monnaie dans laquelle s'affichent les prix.</p>
+                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.currency.title")}</h3>
+                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.currency.description")}</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {[
-                                { label: 'USD ($)', value: 'USD' as Currency, desc: 'Dollar Américain (Taux actuel)' },
-                                { label: 'CDF (FC)', value: 'CDF' as Currency, desc: 'Franc Congolais (Taux réel)' }
+                                {
+                                  label: t("settingsPage.preferences.currency.usdLabel"),
+                                  value: 'USD' as Currency,
+                                  desc: t("settingsPage.preferences.currency.usdDesc"),
+                                  toastLabel: t("settingsPage.preferences.currency.setUsd"),
+                                },
+                                {
+                                  label: t("settingsPage.preferences.currency.cdfLabel"),
+                                  value: 'CDF' as Currency,
+                                  desc: t("settingsPage.preferences.currency.cdfDesc"),
+                                  toastLabel: t("settingsPage.preferences.currency.setCdf"),
+                                }
                               ].map((curr) => (
                                 <button
                                   key={curr.label}
                                   type="button"
                                   onClick={() => {
                                     setCurrency(curr.value);
-                                    toast.success(`Devise de facturation : ${curr.label}`);
+                                    toast.success(curr.toastLabel);
                                   }}
                                   className={`p-4 rounded-full text-left transition-all border cursor-pointer ${currency === curr.value
                                     ? "bg-white border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
@@ -488,14 +536,14 @@ function SettingsPageContent() {
                     )}
 
                     {activeTab === 'profile' && (
-                      <div className="space-y-8">
-                        <div className="bg-white overflow-hidden">
+                      <div className="space-y-8 max-w-3xl">
+                        <div className="bg-white overflow-hidden rounded-2xl">
                           <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 pt-6">
                             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
                               <div className="relative group shrink-0">
                                 <div className="w-24 sm:w-28 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg relative">
                                   {user?.avatarUrl ? (
-                                    <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                                    <Image src={user.avatarUrl} alt={user.fullName} width={100} height={100} className="w-full h-full object-cover" unoptimized />
                                   ) : (
                                     <span className="text-3xl font-black tracking-tight">{getInitials(user?.fullName || '')}</span>
                                   )}
@@ -511,15 +559,17 @@ function SettingsPageContent() {
 
                               <div className="sm:pb-1">
                                 <h2 className="text-lg sm:text-xl font-bold text-black flex items-center justify-center sm:justify-start gap-2">
-                                  {user?.fullName || 'Utilisateur'}
+                                  {user?.fullName || t("settingsPage.profile.defaultUser")}
                                   {user?.isVerified && (
                                     <span className="text-[#2D5A27] bg-green-50 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
-                                      Actif
+                                      {t("settingsPage.profile.active")}
                                     </span>
                                   )}
                                 </h2>
                                 <p className="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
-                                  {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                                  {user?.role === 'VENDOR'
+                                    ? t("settingsPage.profile.vendorCertified")
+                                    : t("settingsPage.profile.clientVerified")}
                                 </p>
                               </div>
                             </div>
@@ -531,20 +581,20 @@ function SettingsPageContent() {
                                 className="flex items-center gap-2 px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-full text-xs font-semibold transition-all shadow-sm shadow-orange-500/10 active:scale-95 shrink-0"
                               >
                                 <Edit3 size={14} />
-                                Modifier le Profil
+                                {t("settingsPage.profile.editProfile")}
                               </button>
                             </div>
                           </div>
 
                           <div className="px-6 pb-8 space-y-6 pt-6">
                             <div>
-                              <h2 className="text-lg font-bold text-black">Account Information</h2>
-                              <p className="text-xs text-gray-500 font-semibold mt-1">Mettez à jour les détails de votre profil d'utilisateur ici.</p>
+                              <h2 className="text-lg font-bold text-black">{t("settingsPage.profile.accountInfoTitle")}</h2>
+                              <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Prénom</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.firstName")}</label>
                                 <input
                                   type="text"
                                   readOnly
@@ -554,7 +604,7 @@ function SettingsPageContent() {
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Nom de famille</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.lastName")}</label>
                                 <input
                                   type="text"
                                   readOnly
@@ -564,7 +614,7 @@ function SettingsPageContent() {
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Adresse e-mail</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.email")}</label>
                                 <div className="relative">
                                   <input
                                     type="email"
@@ -574,67 +624,67 @@ function SettingsPageContent() {
                                   />
                                   <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                                     <CheckCircle2 size={10} />
-                                    Vérifié
+                                    {t("settingsPage.profile.verified")}
                                   </span>
                                 </div>
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Numéro de téléphone</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.phone")}</label>
                                 <div className="relative">
                                   <input
                                     type="text"
                                     readOnly
-                                    value={user?.phone || 'Non renseigné'}
+                                  value={user?.phone || t("settingsPage.profile.phoneUnspecified")}
                                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
                                   />
                                   {user?.phoneVerified && (
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                                       <CheckCircle2 size={10} />
-                                      Actif
+                                        {t("settingsPage.profile.active")}
                                     </span>
                                   )}
                                 </div>
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Province</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.province")}</label>
                                 <input
                                   type="text"
                                   readOnly
-                                  value={user?.province || 'Non définie'}
+                                  value={user?.province || t("settingsPage.profile.undefinedValue")}
                                   className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Ville / Commune</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.cityCommune")}</label>
                                 <input
                                   type="text"
                                   readOnly
-                                  value={user?.commune || 'Non définie'}
+                                  value={user?.commune || t("settingsPage.profile.undefinedValue")}
                                   className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               {user?.role === 'VENDOR' && (
                                 <div className="space-y-2 md:col-span-2">
-                                  <label className="text-xs font-semibold text-gray-500">Nom de la Boutique</label>
+                                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.shopName")}</label>
                                   <input
                                     type="text"
                                     readOnly
-                                    value={user?.boutiqueName || 'Aucune boutique associée'}
+                                    value={user?.boutiqueName || t("settingsPage.profile.noShop")}
                                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
                                   />
                                 </div>
                               )}
 
                               <div className="space-y-2 md:col-span-2">
-                                <label className="text-xs font-semibold text-gray-500">Membre depuis</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.memberSince")}</label>
                                 <input
                                   type="text"
                                   readOnly
-                                  value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Récemment'}
+                                  value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : t("settingsPage.profile.recently")}
                                   className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
                                 />
                               </div>
@@ -648,25 +698,29 @@ function SettingsPageContent() {
                       <motion.div variants={fadeUp} className="bg-white p-4 sm:p-6">
                         {user?.role === 'VENDOR' ? (
                           <div className="text-center py-12">
-                            <h3 className="text-xl font-black text-black mb-4">Accès non autorisé</h3>
-                            <p className="text-sm font-medium text-gray-500 mb-6">L'historique des achats est réservé aux comptes clients. Veuillez vous rendre sur votre Tableau de Bord Vendeur pour voir vos ventes.</p>
-                            <Link href="/dashboard/orders" className="px-6 py-3 bg-[#E67E22] text-white rounded-xl font-bold hover:bg-[#cf6d18] transition-colors inline-block">Aller au Tableau de Bord</Link>
+                            <h3 className="text-xl font-black text-black mb-4">{t("settingsPage.orders.unauthorizedTitle")}</h3>
+                            <p className="text-sm font-medium text-gray-500 mb-6">{t("settingsPage.orders.unauthorizedDesc")}</p>
+                            <Link href="/dashboard/orders" className="px-6 py-3 bg-[#E67E22] text-white rounded-xl font-bold hover:bg-[#cf6d18] transition-colors inline-block">{t("settingsPage.orders.goToDashboard")}</Link>
                           </div>
                         ) : (
                           <>
                             {/* Header + stats */}
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
                               <div>
-                                <h3 className="text-xl font-black text-black tracking-tight leading-none">Mes Commandes</h3>
-                                <p className="text-xs font-semibold text-gray-400 mt-1">Suivez vos achats et contactez les vendeurs</p>
+                                <h3 className="text-xl font-black text-black tracking-tight leading-none">{t("settingsPage.orders.title")}</h3>
+                                <p className="text-xs font-semibold text-gray-400 mt-1">{t("settingsPage.orders.subtitle")}</p>
                               </div>
                               {clientOrders.length > 0 && (
                                 <div className="flex items-center gap-3">
                                   <span className="px-3 py-1.5 bg-orange-50 text-[#E67E22] rounded-full text-xs font-black">
-                                    {clientOrders.length} commande{clientOrders.length > 1 ? 's' : ''}
+                                    {clientOrders.length} {clientOrders.length > 1
+                                      ? t("settingsPage.orders.countOrderPlural")
+                                      : t("settingsPage.orders.countOrderSingular")}
                                   </span>
                                   <span className="px-3 py-1.5 bg-green-50 text-[#2D5A27] rounded-full text-xs font-black">
-                                    {clientOrders.filter(o => o.status === 'DELIVERED').length} livré{clientOrders.filter(o => o.status === 'DELIVERED').length > 1 ? 's' : ''}
+                                    {clientOrders.filter(o => o.status === 'DELIVERED').length} {clientOrders.filter(o => o.status === 'DELIVERED').length > 1
+                                      ? t("settingsPage.orders.countDeliveredPlural")
+                                      : t("settingsPage.orders.countDeliveredSingular")}
                                   </span>
                                 </div>
                               )}
@@ -677,9 +731,9 @@ function SettingsPageContent() {
                             ) : clientOrders.length === 0 ? (
                               <div className="text-center py-12">
                                 <Package className="size-16 text-gray-200 mx-auto mb-4" />
-                                <p className="text-lg font-black text-black">Aucune commande pour le moment</p>
+                                <p className="text-lg font-black text-black">{t("settingsPage.orders.emptyTitle")}</p>
                                 <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
-                                  Découvrir les produits
+                                  {t("settingsPage.orders.discoverProducts")}
                                 </Link>
                               </div>
                             ) : (
@@ -716,9 +770,9 @@ function SettingsPageContent() {
                                             ? 'bg-red-50 text-red-600'
                                             : 'bg-orange-50 text-[#E67E22]'
                                         }`}>
-                                          {order.status === 'DELIVERED' ? 'Livré'
-                                            : order.status === 'CANCELLED' ? 'Annulé'
-                                            : order.status === 'PENDING' ? 'En attente'
+                                          {order.status === 'DELIVERED' ? t("settingsPage.orders.statusDelivered")
+                                            : order.status === 'CANCELLED' ? t("settingsPage.orders.statusCancelled")
+                                            : order.status === 'PENDING' ? t("settingsPage.orders.statusPending")
                                             : order.status}
                                         </span>
                                       </div>
@@ -730,7 +784,7 @@ function SettingsPageContent() {
                                         {formatPrice(order.totalPrice)}
                                       </p>
                                       <p className="text-[9px] sm:text-[10px] font-semibold text-gray-400 mt-0.5">
-                                        {new Date(order.createdAt).toLocaleDateString('fr-FR', {
+                                        {new Date(order.createdAt).toLocaleDateString(dateLocale, {
                                           day: '2-digit', month: 'short', year: 'numeric'
                                         })}
                                       </p>
@@ -750,17 +804,21 @@ function SettingsPageContent() {
                         <div className="bg-white p-4 sm:p-6 border border-slate-100 shadow-sm space-y-5">
                           {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <h3 className="text-xl font-black text-black mb-4">Accès non autorisé</h3>
-                              <p className="text-sm font-medium text-gray-500 mb-6">Les favoris sont réservés aux comptes clients.</p>
+                              <h3 className="text-xl font-black text-black mb-4">{t("settingsPage.favorites.unauthorizedTitle")}</h3>
+                              <p className="text-sm font-medium text-gray-500 mb-6">{t("settingsPage.favorites.unauthorizedDesc")}</p>
                             </div>
                           ) : (
                             <>
                               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                                 <div>
-                                  <h2 className="text-xl font-black text-black">Mes Favoris</h2>
+                                  <h2 className="text-xl font-black text-black">{t("settingsPage.favorites.title")}</h2>
                                   {wishlist.length > 0 && (
                                     <p className="text-xs font-semibold text-gray-400 mt-0.5">
-                                      {wishlist.length} article{wishlist.length > 1 ? 's' : ''} sauvegardé{wishlist.length > 1 ? 's' : ''}
+                                      {wishlist.length} {wishlist.length > 1
+                                        ? t("settingsPage.favorites.articlePlural")
+                                        : t("settingsPage.favorites.articleSingular")} {wishlist.length > 1
+                                        ? t("settingsPage.favorites.savedPlural")
+                                        : t("settingsPage.favorites.savedSingular")}
                                     </p>
                                   )}
                                 </div>
@@ -769,7 +827,7 @@ function SettingsPageContent() {
                                     onClick={() => setIsClearFavoritesModalOpen(true)}
                                     className="text-xs font-bold text-red-500 hover:text-red-600 border border-red-100 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all"
                                   >
-                                    Vider la liste
+                                    {t("settingsPage.favorites.clearList")}
                                   </button>
                                 )}
                               </div>
@@ -777,9 +835,9 @@ function SettingsPageContent() {
                               {wishlist.length === 0 ? (
                                 <div className="text-center py-12">
                                   <Heart className="size-16 text-gray-200 mx-auto mb-4" />
-                                  <p className="text-lg font-black text-black">Aucun favori pour le moment</p>
+                                  <p className="text-lg font-black text-black">{t("settingsPage.favorites.emptyTitle")}</p>
                                   <Link href="/products" className="text-[#E67E22] font-bold text-sm hover:underline mt-4 block uppercase tracking-widest">
-                                    Découvrir les produits
+                                    {t("settingsPage.favorites.discoverProducts")}
                                   </Link>
                                 </div>
                               ) : (
@@ -788,10 +846,7 @@ function SettingsPageContent() {
                                     <ProductCard
                                       key={product.id}
                                       product={product}
-                                      onQuickView={() => {
-                                        setSelectedProduct(product);
-                                        setIsQuickViewOpen(true);
-                                      }}
+                                      onQuickView={openQuickView}
                                     />
                                   ))}
                                 </div>
@@ -806,8 +861,8 @@ function SettingsPageContent() {
                       <div className="space-y-8">
                         <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-8 animate-fade-in">
                           <div className="pb-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-black">Sécurité du Compte</h2>
-                            <p className="text-xs text-gray-500 font-semibold mt-1">Gérez votre mot de passe, votre PIN de transaction et surveillez vos connexions actives.</p>
+                            <h2 className="text-xl font-bold text-black">{t("settingsPage.security.title")}</h2>
+                            <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.security.description")}</p>
                           </div>
 
                           <div className="space-y-6">
@@ -816,14 +871,14 @@ function SettingsPageContent() {
                                 <Lock size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">Changer le mot de passe</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">Pour assurer la sécurité de votre compte, choisissez un mot de passe robuste.</p>
+                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.password.title")}</h3>
+                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.password.description")}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Mot de passe actuel</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.current")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
@@ -831,7 +886,7 @@ function SettingsPageContent() {
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Nouveau mot de passe</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.new")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
@@ -839,7 +894,7 @@ function SettingsPageContent() {
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Confirmer le mot de passe</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.confirm")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
@@ -854,7 +909,7 @@ function SettingsPageContent() {
                                 onClick={() => setIsEditModalOpen(true)}
                                 className="px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-full text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
                               >
-                                Mettre à jour le mot de passe
+                                {t("settingsPage.security.password.update")}
                               </button>
                             </div>
                           </div>
@@ -865,27 +920,27 @@ function SettingsPageContent() {
                                 <ShieldCheck size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">Code PIN de Transaction</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">Requis pour valider vos retraits, virements et achats sur la plateforme.</p>
+                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.pin.title")}</h3>
+                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.pin.description")}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Nouveau code PIN (4 chiffres)</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.pin.new")}</label>
                                 <input
                                   type="text"
                                   maxLength={4}
-                                  placeholder="Ex: 1234"
+                                  placeholder={t("settingsPage.security.pin.placeholder")}
                                   className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-850 outline-none focus:border-emerald-500 transition-colors"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">Confirmer le PIN</label>
+                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.pin.confirm")}</label>
                                 <input
                                   type="text"
                                   maxLength={4}
-                                  placeholder="Ex: 1234"
+                                  placeholder={t("settingsPage.security.pin.placeholder")}
                                   className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-855 outline-none focus:border-emerald-500 transition-colors"
                                 />
                               </div>
@@ -897,7 +952,7 @@ function SettingsPageContent() {
                                 onClick={() => setIsEditModalOpen(true)}
                                 className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-750 text-white rounded-full text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
                               >
-                                Sauvegarder le code PIN
+                                {t("settingsPage.security.pin.save")}
                               </button>
                             </div>
                           </div>
@@ -908,17 +963,21 @@ function SettingsPageContent() {
                                 <Smartphone size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">Vérification du Téléphone</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">Ajoutez une couche supplémentaire de sécurité à votre compte.</p>
+                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.phone.title")}</h3>
+                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.phone.description")}</p>
                               </div>
                             </div>
 
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                               <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium text-gray-700">Statut: {user?.phoneVerified ? 'Vérifié' : 'Non vérifié'}</span>
+                                <span className="text-sm font-medium text-gray-700">
+                                  {t("settingsPage.security.phone.status")}: {user?.phoneVerified
+                                    ? t("settingsPage.security.phone.verified")
+                                    : t("settingsPage.security.phone.unverified")}
+                                </span>
                               </div>
                               <button className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-full hover:bg-gray-900 transition-colors">
-                                Vérifier
+                                {t("settingsPage.security.phone.verify")}
                               </button>
                             </div>
                           </div>
@@ -931,8 +990,8 @@ function SettingsPageContent() {
                         <div className="bg-white p-6 border border-slate-100 shadow-sm rounded-2xl">
                           {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <h3 className="text-xl md:text-xl font-black text-black mb-4">Accès non autorisé</h3>
-                              <p className="text-sm font-medium text-gray-500">Le carnet d'adresses de livraison est réservé aux comptes clients. Les adresses de boutique sont gérées dans votre profil vendeur (Dashboard).</p>
+                              <h3 className="text-xl md:text-xl font-black text-black mb-4">{t("settingsPage.addresses.unauthorizedTitle")}</h3>
+                              <p className="text-sm font-medium text-gray-500">{t("settingsPage.addresses.unauthorizedDesc")}</p>
                             </div>
                           ) : (
                             <AddressBookSection />
@@ -953,10 +1012,10 @@ function SettingsPageContent() {
   // Otherwise, render the main menu (mobile/tablet only — desktop uses VendorSidebar navigation)
   return (
     <>
-      {/* ===== MOBILE / TABLET : App Shell account ===== */}
-      <div className="lg:hidden min-h-screen bg-[#F6F1E0]">
+      {/* ===== Mobile/Tablet : App Shell account ===== */}
+      <div className="lg:hidden min-h-0 bg-[#F6F1E0]">
         {/* Container */}
-        <div className="max-w-md mx-auto min-h-screen bg-white shadow-2xl">
+        <div className="max-w-md mx-auto min-h-0 bg-white shadow-2xl">
           {/* Modale d'édition */}
           <EditProfileModal
             isOpen={isEditModalOpen}
@@ -965,28 +1024,31 @@ function SettingsPageContent() {
 
           {/* Header */}
           <div className="px-6 pt-12 pb-8">
-            <h1 className="text-3xl font-bold text-black">Account</h1>
+            <h1 className="text-3xl font-bold text-black">{t("settingsPage.accountTitle")}</h1>
           </div>
 
           {/* User Info */}
           <div className="px-6 pb-8 flex flex-col items-center justify-center text-center gap-4">
             <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-600 overflow-hidden ring-4 ring-gray-50">
               {user?.avatarUrl ? (
-                <img
+                <Image
                   src={user.avatarUrl}
                   alt={user.fullName}
+                  width={100}
+                  height={100}
                   className="w-full h-full object-cover"
+                  unoptimized
                 />
               ) : (
                 <span>{getInitials(user?.fullName || '')}</span>
               )}
             </div>
             <div className="flex-1 min-w-0 w-full px-4">
-              <h2 className="font-bold text-black text-xl truncate">{user?.fullName || 'Utilisateur'}</h2>
+              <h2 className="font-bold text-black text-xl truncate">{user?.fullName || t("settingsPage.profile.defaultUser")}</h2>
               <p className="text-sm text-gray-500 truncate mt-0.5">{user?.email || 'email@example.com'}</p>
               <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 rounded-full border border-gray-100">
                 <span className="w-2 h-2 rounded-full bg-[#10B981]"></span>
-                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{user?.role === 'VENDOR' ? 'Vendeur Actif' : 'Client Vérifié'}</span>
+                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">{user?.role === 'VENDOR' ? t("settingsPage.profile.vendorActive") : t("settingsPage.profile.clientVerified")}</span>
               </div>
             </div>
           </div>
@@ -1012,7 +1074,7 @@ function SettingsPageContent() {
               className="w-full py-4 bg-black text-white rounded-full font-semibold hover:bg-gray-900 transition-colors flex items-center justify-center gap-2"
             >
               <LogOut size={18} />
-              Log out
+              {t("common.logout")}
             </button>
           </div>
 
@@ -1040,7 +1102,7 @@ function SettingsPageContent() {
                 <div className="relative group shrink-0">
                   <div className="w-24 sm:w-28 rounded-full overflow-hidden bg-gradient-to-br from-[#E67E22] to-[#2D5A27] flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg relative">
                     {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                      <Image src={user.avatarUrl} alt={user.fullName} width={100} height={100} className="w-full h-full object-cover" unoptimized />
                     ) : (
                       <span className="text-3xl font-black tracking-tight">{getInitials(user?.fullName || '')}</span>
                     )}
@@ -1055,15 +1117,15 @@ function SettingsPageContent() {
                 </div>
                 <div className="sm:pb-1">
                   <h2 className="text-lg sm:text-xl font-bold text-black flex items-center justify-center sm:justify-start gap-2">
-                    {user?.fullName || 'Utilisateur'}
+                    {user?.fullName || t("settingsPage.profile.defaultUser")}
                     {user?.isVerified && (
                       <span className="text-[#2D5A27] bg-green-50 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
-                        Actif
+                        {t("settingsPage.profile.active")}
                       </span>
                     )}
                   </h2>
                   <p className="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
-                    {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                    {user?.role === 'VENDOR' ? t("settingsPage.profile.vendorCertified") : t("settingsPage.profile.clientVerified")}
                   </p>
                 </div>
               </div>
@@ -1074,7 +1136,7 @@ function SettingsPageContent() {
                   className="flex items-center gap-2 px-5 py-2.5 bg-[#E67E22] hover:bg-[#cf6d18] text-white rounded-full text-xs font-semibold transition-all shadow-sm shadow-orange-500/10 active:scale-95 shrink-0"
                 >
                   <Edit3 size={14} />
-                  Modifier le Profil
+                  {t("settingsPage.profile.editProfile")}
                 </button>
               </div>
             </div>
@@ -1082,73 +1144,73 @@ function SettingsPageContent() {
             {/* Champs d'information */}
             <div className="px-6 pb-8 space-y-6 pt-6">
               <div>
-                <h2 className="text-lg font-bold text-black">Informations du compte</h2>
-                <p className="text-xs text-gray-500 font-semibold mt-1">Mettez à jour les détails de votre profil d'utilisateur ici.</p>
+                <h2 className="text-lg font-bold text-black">{t("settingsPage.profile.accountInfoTitle")}</h2>
+                <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Prénom</label>
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.firstName")}</label>
                   <input type="text" readOnly value={user?.fullName?.split(' ')[0] || ''}
                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Nom de famille</label>
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.lastName")}</label>
                   <input type="text" readOnly value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Adresse e-mail</label>
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.email")}</label>
                   <div className="relative">
                     <input type="email" readOnly value={user?.email || ''}
                       className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                       <CheckCircle2 size={10} />
-                      Vérifié
+                      {t("settingsPage.profile.verified")}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Numéro de téléphone</label>
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.phone")}</label>
                   <div className="relative">
-                    <input type="text" readOnly value={user?.phone || 'Non renseigné'}
+                    <input type="text" readOnly value={user?.phone || t("settingsPage.profile.phoneUnspecified")}
                       className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                     {user?.phoneVerified && (
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                         <CheckCircle2 size={10} />
-                        Actif
+                        {t("settingsPage.profile.active")}
                       </span>
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Province</label>
-                  <input type="text" readOnly value={user?.province || 'Non définie'}
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.province")}</label>
+                  <input type="text" readOnly value={user?.province || t("settingsPage.profile.undefinedValue")}
                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">Ville / Commune</label>
-                  <input type="text" readOnly value={user?.commune || 'Non définie'}
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.cityCommune")}</label>
+                  <input type="text" readOnly value={user?.commune || t("settingsPage.profile.undefinedValue")}
                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                 </div>
 
                 {user?.role === 'VENDOR' && (
                   <div className="space-y-2 md:col-span-2">
-                    <label className="text-xs font-semibold text-gray-500">Nom de la Boutique</label>
-                    <input type="text" readOnly value={user?.boutiqueName || 'Aucune boutique associée'}
+                    <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.shopName")}</label>
+                    <input type="text" readOnly value={user?.boutiqueName || t("settingsPage.profile.noShop")}
                       className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                   </div>
                 )}
 
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-semibold text-gray-500">Membre depuis</label>
+                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.memberSince")}</label>
                   <input type="text" readOnly
-                    value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Récemment'}
+                    value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : t("settingsPage.profile.recently")}
                     className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
                 </div>
               </div>
@@ -1156,6 +1218,13 @@ function SettingsPageContent() {
           </div>
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductQuickView
+          product={selectedProduct}
+          onClose={closeQuickView}
+        />
+      )}
     </>
   );
 }

@@ -8,13 +8,7 @@ import { MobileSidebar } from "./components/MobileSidebar";
 import { DesktopHeader } from "./components/DesktopHeader";
 import { useCart } from "@/features/cart/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-
-const navLinks = [
-  { id: "/", label: "Accueil", icon: "home" },
-  { id: "/products", label: "Produits", icon: "inventory_2" },
-  { id: "/sellers", label: "Vendeurs", icon: "store" },
-  { id: "/compare", label: "Comparer", icon: "compare_arrows" },
-];
+import { useT } from "@/i18n/useT";
 
 /**
  * Inner component keyed by `pathname`.
@@ -36,8 +30,16 @@ const HeaderOverlays = ({
   user: ReturnType<typeof useAuth>["user"];
   logout: () => Promise<void>;
 }) => {
+  const { t } = useT();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+  const navLinks = [
+    { id: "/", label: t("header.nav.home"), icon: "home" },
+    { id: "/products", label: t("header.nav.products"), icon: "inventory_2" },
+    { id: "/sellers", label: t("header.nav.sellers"), icon: "store" },
+    { id: "/compare", label: t("header.nav.compare"), icon: "compare_arrows" },
+  ];
 
   const isActive = (path: string) => pathname === path;
   const isAuthPage = [
@@ -66,7 +68,7 @@ const HeaderOverlays = ({
           <Link
             href="/"
             className="absolute left-4 p-2 rounded-full bg-[#E67E22]/10 text-[#E67E22] hover:bg-[#E67E22]/20 transition-all border border-[#E67E22]/20"
-            title="Retour à l'accueil"
+            title={t("header.backToHome")}
           >
             <span className="material-symbols-outlined text-[24px]">
               arrow_back
@@ -98,7 +100,7 @@ const HeaderOverlays = ({
             <button
               onClick={() => setIsSearchExpanded(true)}
               className="md:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-              aria-label="Rechercher"
+              aria-label={t("header.search")}
             >
               <span className="material-symbols-outlined text-[24px]">
                 search
@@ -108,7 +110,7 @@ const HeaderOverlays = ({
             <Link
               href="/cart"
               className="relative p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-              aria-label="Voir le panier"
+              aria-label={t("header.viewCart")}
             >
               <span className="material-symbols-outlined text-[24px] md:text-[28px]">
                 shopping_bag
@@ -123,7 +125,7 @@ const HeaderOverlays = ({
             <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
-              aria-label="Ouvrir le menu mobile"
+              aria-label={t("header.openMenu")}
               aria-expanded={isSidebarOpen ? "true" : "false"}
             >
               <span className="material-symbols-outlined text-[24px] md:text-[28px] font-bold">

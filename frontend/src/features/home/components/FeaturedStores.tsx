@@ -5,12 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Seller } from "../services/seller.service";
+import { useT } from "@/i18n/useT";
 
 interface FeaturedStoresProps {
   stores: Seller[];
 }
 
 export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
+  const { t } = useT();
   if (!stores || stores.length === 0) {
     return null;
   }
@@ -21,17 +23,17 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
       <div className="flex items-end justify-between mb-10 border-b border-gray-100 dark:border-white/5 pb-6">
         <div className="space-y-2">
           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">
-            Commerçants Locaux
+            {t('home.featuredStores.pretitle')}
           </span>
           <h3 className="text-3xl md:text-4xl font-black text-deep-blue dark:text-white tracking-tighter">
-            Les meilleures adresses
+            {t('home.featuredStores.title')}
           </h3>
         </div>
         <Link
           href="/sellers"
           className="group flex items-center gap-2 text-xs font-black text-gray-400 hover:text-primary transition-all"
         >
-          Tout explorer
+          {t('home.featuredStores.exploreAll')}
           <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
             arrow_forward
           </span>
@@ -139,7 +141,7 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                   variant="outline"
                   className="w-full py-2.5 sm:py-4 text-[10px] sm:text-sm border-gray-100 dark:border-white/10 text-deep-blue dark:text-white hover:border-primary rounded-xl sm:rounded-2xl"
                 >
-                  Visiter
+                  {t('home.featuredStores.visit')}
                 </Button>
               </Link>
             </div>

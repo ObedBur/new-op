@@ -17,6 +17,7 @@ import { useQuickView } from "@/features/products/hooks/useQuickView";
 
 import { HeroSlide, HowItWorksStep } from "../services/content.service";
 import { Seller } from "../services/seller.service";
+import { useT } from "@/i18n/useT";
 
 interface HomeViewProps {
   deals: Product[];
@@ -50,6 +51,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   loading,
 }) => {
   const { selectedProduct, openQuickView, closeQuickView } = useQuickView();
+  const { t } = useT();
   const showProductFallback =
     loading.deals ||
     loading.newArrivals ||
@@ -134,8 +136,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/*  Offres du moment (Promotions) */}
           {deals.length > 0 && (
             <FeaturedProductStrip
-              title="Offres du moment"
-              subtitle="Promotions actives — prix réduits de plus de 15%"
+              title={t("home.homeView.dealsTitle")}
+              subtitle={t("home.homeView.dealsSubtitle")}
               products={deals}
               onQuickView={openQuickView}
             />
@@ -143,16 +145,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {showProductFallback && deals.length === 0 && (
             <ProductStripSkeleton
-              title="Chargement"
-              subtitle="Les sections produits se remplissent progressivement."
+              title={t("home.homeView.loadingTitle")}
+              subtitle={t("home.homeView.loadingSubtitle")}
             />
           )}
 
           {/*  Nouveautés (< 7 jours) */}
           {newArrivals.length > 0 && (
             <FeaturedProductStrip
-              title="Nouveautés"
-              subtitle="Publiés ces 7 derniers jours"
+              title={t("home.homeView.newTitle")}
+              subtitle={t("home.homeView.newSubtitle")}
               products={newArrivals}
               onQuickView={openQuickView}
             />
@@ -161,8 +163,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/*  Recommandations (basé sur historique) */}
           {recommendations.length > 0 && (
             <FeaturedProductStrip
-              title="Recommandations"
-              subtitle="Basé sur vos centres d'intérêt"
+              title={t("home.homeView.recTitle")}
+              subtitle={t("home.homeView.recSubtitle")}
               products={recommendations}
               onQuickView={openQuickView}
             />
@@ -171,8 +173,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/*  Meilleures ventes */}
           {bestSellers.length > 0 && (
             <FeaturedProductStrip
-              title="Meilleures ventes"
-              subtitle="Les articles les plus commandés"
+              title={t("home.homeView.bestTitle")}
+              subtitle={t("home.homeView.bestSubtitle")}
               products={bestSellers}
               onQuickView={openQuickView}
             />
@@ -181,17 +183,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {showProductEmptyState && (
             <div className="rounded-[2rem] border border-[#DDB88C]/25 bg-[#DDB88C]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
               <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                Aucune vitrine produit pour le moment
+                {t("home.homeView.emptyTitle")}
               </h2>
               <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base max-w-lg mx-auto leading-relaxed">
-                Les offres, nouveautés et tendances s&apos;afficheront ici dès
-                qu&apos;il y aura du contenu côté catalogue.
+                {t("home.homeView.emptyDesc")}
               </p>
               <Link
                 href="/products"
                 className="inline-flex items-center justify-center rounded-xl bg-[#E67E22] px-8 py-3 text-sm font-bold text-white shadow-md transition hover:bg-[#d35400]"
               >
-                Voir tous les produits
+                {t("home.homeView.viewAllProducts")}
               </Link>
             </div>
           )}
