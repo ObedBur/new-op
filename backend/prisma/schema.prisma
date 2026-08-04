@@ -83,6 +83,12 @@ model Product {
   id            String              @id @default(uuid())
   name          String
   description   String?
+  nameFr        String?
+  nameEn        String?
+  nameSw        String?
+  descriptionFr String?
+  descriptionEn String?
+  descriptionSw String?
   price         Float
   originalPrice Float?
   isOnSale      Boolean             @default(false)

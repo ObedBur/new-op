@@ -9,6 +9,7 @@ import { useCart } from '@/features/cart/context/CartContext';
 import { useWishlist } from '@/hooks/useWishlist';
 import { useCurrency } from '@/hooks/useCurrency';
 import { toast } from 'sonner';
+import { useT } from '@/i18n/useT';
 
 interface ProductCardProps {
   product: Product;
@@ -27,6 +28,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const { amount, symbol } = formatPriceParts(product.price);
   const { addItem } = useCart();
   const { toggleFavorite, isFavorited } = useWishlist();
+  const { t } = useT();
 
   const isFav = isFavorited(product.id);
   const isOutOfStock = product.availability === 'OUT_OF_STOCK' || (product.stockQuantity !== undefined && product.stockQuantity !== null && product.stockQuantity === 0);
@@ -35,9 +37,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     e.stopPropagation();
     const action = toggleFavorite(product);
     if (action === 'added') {
-      toast.success(`${product.name} ajouté aux favoris !`, { icon: '⭐️' });
+      toast.success(t('product.addedToFavorites').replace('{name}', product.name), { icon: '⭐️' });
     } else if (action === 'removed') {
-      toast.success(`${product.name} retiré des favoris.`);
+      toast.success(t('product.removedFromFavorites').replace('{name}', product.name));
     }
   };
 
@@ -54,7 +56,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       role="button"
-      aria-label={`Voir les détails de ${product.name}`}
+      aria-label={t('product.viewDetails').replace('{name}', product.name)}
       onClick={() => onQuickView(product)}
       className={[
         'group relative flex flex-col bg-white dark:bg-zinc-900',
@@ -82,7 +84,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {isOutOfStock && (
           <div className="absolute top-2 left-2 z-10">
             <div className="glass-badge bg-red-500/80 px-2 py-0.5 rounded-lg">
-              <span className="text-[8px] md:text-[9px] font-black text-white uppercase tracking-widest">Épuisé</span>
+              <span className="text-[8px] md:text-[9px] font-black text-white uppercase tracking-widest">{t('product.outOfStock')}</span>
             </div>
           </div>
         )}
@@ -107,17 +109,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="card-actions-overlay absolute inset-0 z-20 flex items-center justify-center gap-1.5 sm:gap-2">
           <button
             onClick={handleAddToCart}
-            aria-label="Ajouter au panier"
+            aria-label={t('product.addToCart')}
             className="flex items-center justify-center gap-1.5 bg-[#E67E22] hover:bg-orange-600 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest size-9 sm:w-auto sm:h-9 sm:px-3 sm:py-2 rounded-xl shadow-lg shadow-orange-500/30 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isOutOfStock}
           >
             <span className="material-symbols-outlined text-[15px] sm:text-[14px]">add_shopping_cart</span>
-            {!compact && <span className="hidden sm:inline">Ajouter</span>}
+            {!compact && <span className="hidden sm:inline">{t('product.add')}</span>}
           </button>
 
           <button
             onClick={handleQuickView}
-            aria-label="Vue rapide"
+            aria-label={t('product.quickView')}
             className="glass-badge bg-white/20 hover:bg-white/40 text-white size-9 rounded-xl flex items-center justify-center transition-colors duration-200"
           >
             <span className="material-symbols-outlined text-[16px]">open_in_new</span>
@@ -138,7 +140,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </span>
           {product.unit && (
             <span className="text-[8px] md:text-[9px] font-medium text-gray-400 dark:text-gray-500 ml-0.5">
-              /{product.unit}
+              {t('product.unitPer').replace('{unit}', product.unit)}
             </span>
           )}
         </div>

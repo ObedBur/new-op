@@ -37,11 +37,20 @@ let accessToken: string | null = null;
 export const setAccessToken = (token: string | null) => { accessToken = token; };
 export const getAccessToken = () => accessToken;
 
-// Injecte l'access token dans chaque requête sortante
+// Injecte l'access token et la langue dans chaque requête sortante
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    // La langue courante est envoyée pour localiser les données (produits, catégories…)
+    try {
+      const lang = storage.getLanguage();
+      if (lang) {
+        config.params = { ...(config.params || {}), lang };
+      }
+    } catch (error) {
+      // SSR : pas de window → on ignore silencieusement
     }
     return config;
   },

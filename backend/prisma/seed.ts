@@ -1,6 +1,7 @@
 import { PrismaClient, UserRole, KycStatus, ProductAvailability, Market } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { fakerFR as faker } from '@faker-js/faker';
+import { fakerEN } from '@faker-js/faker';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { Pool } from 'pg';
@@ -180,6 +181,12 @@ async function main() {
       data: {
         name: faker.commerce.productName(),
         description: faker.commerce.productDescription(),
+        nameFr: faker.commerce.productName(),
+        nameEn: fakerEN.commerce.productName(),
+        nameSw: faker.commerce.productName(),
+        descriptionFr: faker.commerce.productDescription(),
+        descriptionEn: fakerEN.commerce.productDescription(),
+        descriptionSw: faker.commerce.productDescription(),
         price,
         originalPrice: originalPrice || null,
         isOnSale,

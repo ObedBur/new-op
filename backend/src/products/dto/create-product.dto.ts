@@ -21,6 +21,36 @@ export class CreateProductDto {
   description?: string;
 
   /**
+   * Traductions optionnelles du nom (fr, en, sw).
+   */
+  @IsOptional()
+  @IsString()
+  nameFr?: string;
+
+  @IsOptional()
+  @IsString()
+  nameEn?: string;
+
+  @IsOptional()
+  @IsString()
+  nameSw?: string;
+
+  /**
+   * Traductions optionnelles de la description (fr, en, sw).
+   */
+  @IsOptional()
+  @IsString()
+  descriptionFr?: string;
+
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
+
+  @IsOptional()
+  @IsString()
+  descriptionSw?: string;
+
+  /**
    * Prix unitaire du produit. 
    * Doit être un nombre positif.
    */

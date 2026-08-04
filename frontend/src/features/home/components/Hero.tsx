@@ -10,6 +10,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useT } from "@/i18n/useT";
 
+const SLIDE_TITLE_KEYS: Record<string, string> = {
+  "L'excellence à portée de main": "home.hero.fallbackSlides.s1Title",
+  "L'élégance du détail": "home.hero.fallbackSlides.s2Title",
+  "Qualité supérieure": "home.hero.fallbackSlides.s3Title",
+  "Le meilleur choix": "home.hero.fallbackSlides.s4Title",
+  "Style & Confort": "home.hero.fallbackSlides.s5Title",
+};
+
 interface HeroSlideshowProps {
   slides: HeroSlide[];
 }
@@ -157,7 +165,10 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
     { id: 'slide-5', title: t("home.hero.fallbackSlides.s5Title"), imageUrl: '/hero/slide5.png', label: t("home.hero.fallbackSlides.s5Label") },
   ];
 
-  const activeSlides = slides.length > 0 ? slides : LOCAL_SLIDES;
+  const activeSlides = (slides.length > 0 ? slides : LOCAL_SLIDES).map((slide) => ({
+    ...slide,
+    title: SLIDE_TITLE_KEYS[slide.title] ? t(SLIDE_TITLE_KEYS[slide.title]) : slide.title,
+  }));
 
   const handleVendorClick = async (e: React.MouseEvent) => {
     if (isAuthenticated) {
@@ -190,7 +201,7 @@ export const Hero: React.FC<HeroProps> = ({ slides }) => {
                   }}
                   className="relative z-10"
                 >
-                  {"africains".split("").map((char, index) => (
+                  {t("home.hero.animatedWord").split("").map((char, index) => (
                     <motion.span
                       key={index}
                       variants={{

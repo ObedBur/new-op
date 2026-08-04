@@ -23,6 +23,42 @@ const productInclude = {
 };
 
 const HOME_PRODUCTS_TTL_MS = 3 * 60 * 1000;
+
+/**
+ * Langues supportées par la localisation des produits.
+ */
+const SUPPORTED_LANGS = ['fr', 'en', 'sw'] as const;
+type ProductLang = (typeof SUPPORTED_LANGS)[number];
+
+/**
+ * Résout la langue demandée vers une langue supportée (fallback 'fr').
+ */
+function resolveLang(lang?: string): ProductLang {
+  const normalized = (lang || 'fr').toLowerCase();
+  return (SUPPORTED_LANGS as readonly string[]).includes(normalized)
+    ? (normalized as ProductLang)
+    : 'fr';
+}
+
+/**
+ * Renvoie le produit avec `name`/`description` localisés selon la langue.
+ * Fallback : traduction si absente → nom/description de base.
+ */
+function localizeProduct<T extends { name: string; description?: string | null; nameFr?: string | null; nameEn?: string | null; nameSw?: string | null; descriptionFr?: string | null; descriptionEn?: string | null; descriptionSw?: string | null }>(product: T, lang: ProductLang): T {
+  const nameKey = `name${lang === 'fr' ? 'Fr' : lang === 'en' ? 'En' : 'Sw'}` as const;
+  const descKey = `description${lang === 'fr' ? 'Fr' : lang === 'en' ? 'En' : 'Sw'}` as const;
+  const localizedName = product[nameKey];
+  const localizedDesc = product[descKey];
+  return {
+    ...product,
+    name: localizedName || product.name,
+    description: localizedDesc || product.description,
+  };
+}
+
+function localizeList<T extends { name: string; description?: string | null; nameFr?: string | null; nameEn?: string | null; nameSw?: string | null; descriptionFr?: string | null; descriptionEn?: string | null; descriptionSw?: string | null }>(products: T[], lang: ProductLang): T[] {
+  return products.map((p) => localizeProduct(p, lang));
+}
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
@@ -38,38 +74,44 @@ export class ProductsService {
    * Récupère les offres promotionnelles du moment.
    * Filtre les produits marqués explicitement comme étant en solde.
    */
-  async getDeals(limit = 6) {
-    return this.cache.getOrSet(`products:deals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: {
-          isOnSale: true,
-          originalPrice: { not: null },
-          isPublic: true,
-        } as any,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
+  async getDeals(limit = 6, lang?: string) {
+    const resolved = resolveLang(lang);
+    return this.cache.getOrSet(`products:deals:${limit}:${resolved}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product
+        .findMany({
+          where: {
+            isOnSale: true,
+            originalPrice: { not: null },
+            isPublic: true,
+          } as any,
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          include: productInclude,
+        })
+        .then((items) => localizeList(items, resolved));
     });
   }
 
   /**
    * Récupère les nouveautés publiées au cours des 7 derniers jours.
    */
-  async getNewArrivals(limit = 6) {
+  async getNewArrivals(limit = 6, lang?: string) {
+    const resolved = resolveLang(lang);
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    return this.cache.getOrSet(`products:new-arrivals:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: {
-          createdAt: { gte: sevenDaysAgo },
-          isPublic: true,
-        } as any,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
+    return this.cache.getOrSet(`products:new-arrivals:${limit}:${resolved}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product
+        .findMany({
+          where: {
+            createdAt: { gte: sevenDaysAgo },
+            isPublic: true,
+          } as any,
+          orderBy: { createdAt: 'desc' },
+          take: limit,
+          include: productInclude,
+        })
+        .then((items) => localizeList(items, resolved));
     });
   }
 
@@ -78,8 +120,9 @@ export class ProductsService {
    * 1. Analyse les catégories les plus achetées par l'utilisateur.
    * 2. Si l'historique est vide, propose les produits des vendeurs les mieux notés (TrustScore).
    */
-  async getRecommendations(userId?: string, limit = 6) {
-    const cacheKey = `products:recommendations:${userId ?? 'guest'}:${limit}`;
+  async getRecommendations(userId?: string, limit = 6, lang?: string) {
+    const resolved = resolveLang(lang);
+    const cacheKey = `products:recommendations:${userId ?? 'guest'}:${limit}:${resolved}`;
 
     return this.cache.getOrSet(cacheKey, HOME_PRODUCTS_TTL_MS, async () => {
       if (userId) {
@@ -94,7 +137,7 @@ export class ProductsService {
         const categoryIds = [...new Set(userOrders.map((o) => o.product.categoryId))];
 
         if (categoryIds.length > 0) {
-          return this.prisma.product.findMany({
+          const items = await this.prisma.product.findMany({
             where: {
               categoryId: { in: categoryIds },
               isPublic: true,
@@ -103,33 +146,38 @@ export class ProductsService {
             take: limit,
             include: productInclude,
           });
+          return localizeList(items, resolved);
         }
       }
 
       // Fallback : produits de vendeurs les mieux notés
-      return this.prisma.product.findMany({
+      const items = await this.prisma.product.findMany({
         where: { isPublic: true } as any,
         orderBy: { user: { trustScore: 'desc' } },
         take: limit,
         include: productInclude,
       });
+      return localizeList(items, resolved);
     });
   }
 
   /**
    * Récupère les produits les plus vendus sur la plateforme.
    */
-  async getBestSellers(limit = 6) {
-    return this.cache.getOrSet(`products:best-sellers:${limit}`, HOME_PRODUCTS_TTL_MS, () => {
-      return this.prisma.product.findMany({
-        where: { 
-          totalSales: { gt: 0 },
-          isPublic: true,
-        } as any,
-        orderBy: { totalSales: 'desc' },
-        take: limit,
-        include: productInclude,
-      });
+  async getBestSellers(limit = 6, lang?: string) {
+    const resolved = resolveLang(lang);
+    return this.cache.getOrSet(`products:best-sellers:${limit}:${resolved}`, HOME_PRODUCTS_TTL_MS, () => {
+      return this.prisma.product
+        .findMany({
+          where: { 
+            totalSales: { gt: 0 },
+            isPublic: true,
+          } as any,
+          orderBy: { totalSales: 'desc' },
+          take: limit,
+          include: productInclude,
+        })
+        .then((items) => localizeList(items, resolved));
     });
   }
 
@@ -144,8 +192,10 @@ export class ProductsService {
     page?: number;
     limit?: number;
     onlyPublic?: boolean;
+    lang?: string;
   }) {
-    const { userId, categoryId, search, market, page = 1, limit = 50, onlyPublic } = query;
+    const { userId, categoryId, search, market, page = 1, limit = 50, onlyPublic, lang } = query;
+    const resolved = resolveLang(lang);
     const skip = (page - 1) * limit;
 
     const where: any = {
@@ -157,6 +207,9 @@ export class ProductsService {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
+          { nameFr: { contains: search, mode: 'insensitive' } },
+          { nameEn: { contains: search, mode: 'insensitive' } },
+          { nameSw: { contains: search, mode: 'insensitive' } },
         ],
       }),
     };
@@ -173,7 +226,7 @@ export class ProductsService {
       const total = await this.prisma.product.count({ where });
 
       return {
-        items,
+        items: localizeList(items, resolved),
         total,
         page,
         limit,
@@ -191,9 +244,10 @@ export class ProductsService {
    */
   async getVendorProducts(
     userId: string,
-    opts?: { search?: string; categoryId?: number; page?: number; limit?: number },
+    opts?: { search?: string; categoryId?: number; page?: number; limit?: number; lang?: string },
   ) {
-    const { search, categoryId, page = 1, limit = 50 } = opts || {};
+    const { search, categoryId, page = 1, limit = 50, lang } = opts || {};
+    const resolved = resolveLang(lang);
     const skip = (page - 1) * limit;
 
     const where: any = {
@@ -203,6 +257,9 @@ export class ProductsService {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
+          { nameFr: { contains: search, mode: 'insensitive' } },
+          { nameEn: { contains: search, mode: 'insensitive' } },
+          { nameSw: { contains: search, mode: 'insensitive' } },
         ],
       }),
     };
@@ -218,7 +275,7 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
-    return { items, total, page, limit, pages: Math.ceil(total / limit) };
+    return { items: localizeList(items, resolved), total, page, limit, pages: Math.ceil(total / limit) };
   }
 
   /**
@@ -239,6 +296,12 @@ export class ProductsService {
       data: {
         name: data.name,
         description: data.description,
+        nameFr: data.nameFr || null,
+        nameEn: data.nameEn || null,
+        nameSw: data.nameSw || null,
+        descriptionFr: data.descriptionFr || null,
+        descriptionEn: data.descriptionEn || null,
+        descriptionSw: data.descriptionSw || null,
         price: Number(data.price),
         categoryId: Number(data.categoryId),
         image: imageUrl,
@@ -261,11 +324,13 @@ export class ProductsService {
   /**
    * Récupère un produit unique par son identifiant.
    */
-  async findOne(id: string) {
-    return this.prisma.product.findUnique({
+  async findOne(id: string, lang?: string) {
+    const resolved = resolveLang(lang);
+    const product = await this.prisma.product.findUnique({
       where: { id },
       include: productInclude,
     });
+    return product ? localizeProduct(product as any, resolved) : null;
   }
 
   /**
@@ -291,7 +356,13 @@ export class ProductsService {
       where: { id },
       data: {
         ...(data.name && { name: data.name }),
-        ...(data.description && { description: data.description }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.nameFr !== undefined && { nameFr: data.nameFr }),
+        ...(data.nameEn !== undefined && { nameEn: data.nameEn }),
+        ...(data.nameSw !== undefined && { nameSw: data.nameSw }),
+        ...(data.descriptionFr !== undefined && { descriptionFr: data.descriptionFr }),
+        ...(data.descriptionEn !== undefined && { descriptionEn: data.descriptionEn }),
+        ...(data.descriptionSw !== undefined && { descriptionSw: data.descriptionSw }),
         ...(data.price && { price: Number(data.price) }),
         ...(data.categoryId && { categoryId: Number(data.categoryId) }),
         ...(data.image && { image: data.image }),
@@ -346,13 +417,19 @@ export class ProductsService {
   /**
    * Fournit des suggestions de recherche basées sur les noms de produits publics.
    */
-  async getSuggestions(query: string) {
+  async getSuggestions(query: string, lang?: string) {
+    const resolved = resolveLang(lang);
     const products = await this.prisma.product.findMany({
       where: {
         isPublic: true,
-        name: { contains: query, mode: 'insensitive' },
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { nameFr: { contains: query, mode: 'insensitive' } },
+          { nameEn: { contains: query, mode: 'insensitive' } },
+          { nameSw: { contains: query, mode: 'insensitive' } },
+        ],
       } as any,
-      select: { name: true, category: { select: { name: true } } },
+      select: { name: true, nameFr: true, nameEn: true, nameSw: true, category: { select: { name: true } } },
       take: 20,
     });
 
@@ -360,26 +437,31 @@ export class ProductsService {
     const seen = new Set<string>();
     return products
       .filter(p => {
-        if (seen.has(p.name)) return false;
-        seen.add(p.name);
+        const localizedName = localizeProduct(p, resolved).name;
+        if (seen.has(localizedName)) return false;
+        seen.add(localizedName);
         return true;
       })
       .slice(0, 8)
-      .map(p => ({
-        text: p.name,
-        category: p.category.name,
-        type: 'product'
-      }));
+      .map(p => {
+        const localized = localizeProduct(p, resolved);
+        return {
+          text: localized.name,
+          category: p.category.name,
+          type: 'product'
+        };
+      });
   }
 
   /**
    * Algorithme de comparaison de prix.
    * Analyse les produits similaires pour fournir des statistiques de marché (moyenne, min, max).
    */
-  async compareProducts(search: string) {
+  async compareProducts(search: string, lang?: string) {
     if (!search || search.trim().length < 2) {
       return { query: search, products: [] };
     }
+    const resolved = resolveLang(lang);
 
     const products = await this.prisma.product.findMany({
       where: {
@@ -387,6 +469,9 @@ export class ProductsService {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
           { description: { contains: search, mode: 'insensitive' } },
+          { nameFr: { contains: search, mode: 'insensitive' } },
+          { nameEn: { contains: search, mode: 'insensitive' } },
+          { nameSw: { contains: search, mode: 'insensitive' } },
         ],
       } as any,
       orderBy: { price: 'asc' },
@@ -409,6 +494,7 @@ export class ProductsService {
       },
     });
 
+    const localizedProducts = localizeList(products, resolved);
     const prices = products.map((p) => p.price);
     const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
 
@@ -420,7 +506,7 @@ export class ProductsService {
         minPrice: prices.length > 0 ? Math.min(...prices) : 0,
         maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
       },
-      products,
+      products: localizedProducts,
     };
   }
 }

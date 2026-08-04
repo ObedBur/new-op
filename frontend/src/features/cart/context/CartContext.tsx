@@ -6,6 +6,7 @@ import { Product } from '../../products/types/product';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { cartService } from '../services/cart.service';
+import { useT } from '@/i18n/useT';
 
 interface CartContextType extends CartState {
   addItem: (product: Product, quantity?: number) => void;
@@ -67,6 +68,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { t } = useT();
   const syncedUserIdRef = useRef<string | null>(null);
   const isSyncingRef = useRef<boolean>(false);
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -169,7 +171,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = (product: Product, quantity: number = 1) => {
     if (isOutOfStock(product)) {
-      toast.error(`"${product.name}" est en rupture de stock.`);
+      toast.error(t('product.outOfStockError').replace('{name}', product.name));
       return;
     }
 
@@ -182,7 +184,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         product.stockQuantity !== undefined &&
         newQty > product.stockQuantity
       ) {
-        toast.warning(`Stock maximum atteint pour "${product.name}" (${product.stockQuantity} dispo).`);
+        toast.warning(t('product.maxStockError').replace('{name}', product.name).replace('{count}', String(product.stockQuantity)));
         return;
       }
 
@@ -191,10 +193,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ? { ...item, quantity: newQty }
           : item
       ));
-      toast.success(`Quantité mise à jour pour ${product.name}`);
+      toast.success(t('product.updatedInCart').replace('{name}', product.name));
     } else {
       setItems(prev => [...prev, { product, quantity }]);
-      toast.success(`${product.name} ajouté au panier`);
+      toast.success(t('product.addedToCart').replace('{name}', product.name));
     }
 
     if (isAuthenticated) {
@@ -202,7 +204,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then(syncItemsFromServer)
         .catch((error) => {
           console.error('Failed to add item to server cart', error);
-          toast.error('Panier non synchronisé. Réessayez.');
+          toast.error(t('product.addToCartError'));
         });
     }
   };
@@ -210,7 +212,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeItem = (productId: string) => {
     const itemToRemove = items.find(item => item.product.id === productId);
     if (itemToRemove) {
-      toast.info(`${itemToRemove.product.name} retiré du panier`);
+      toast.info(t('product.removedFromCart').replace('{name}', itemToRemove.product.name));
     }
     setItems(prev => prev.filter(item => item.product.id !== productId));
 
@@ -219,7 +221,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then(syncItemsFromServer)
         .catch((error) => {
           console.error('Failed to remove item from server cart', error);
-          toast.error('Suppression non synchronisée. Réessayez.');
+          toast.error(t('product.removeSyncError'));
         });
     }
   };
@@ -236,7 +238,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       item.product.stockQuantity !== undefined &&
       nextQuantity > item.product.stockQuantity
     ) {
-      toast.warning(`Stock max atteint pour "${item.product.name}" (${item.product.stockQuantity} dispo).`);
+      toast.warning(t('product.maxStockReached').replace('{name}', item.product.name).replace('{count}', String(item.product.stockQuantity)));
       return;
     }
 
@@ -251,7 +253,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .then(syncItemsFromServer)
         .catch((error) => {
           console.error('Failed to update server cart quantity', error);
-          toast.error('Quantité non synchronisée. Réessayez.');
+          toast.error(t('product.quantitySyncError'));
         });
     }
   };

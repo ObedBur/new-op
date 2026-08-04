@@ -40,6 +40,7 @@ export class ProductsController {
     @Query('search') search?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('lang') lang?: string,
   ) {
     const userId = req.user.id;
     const result = await this.productsService.getVendorProducts(userId, {
@@ -47,6 +48,7 @@ export class ProductsController {
       search,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
+      lang,
     });
 
     return {
@@ -68,8 +70,8 @@ export class ProductsController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300)
   @Get('deals')
-  async getDeals(@Query('limit') limit?: string) {
-    const data = await this.productsService.getDeals(limit ? parseInt(limit) : 6);
+  async getDeals(@Query('limit') limit?: string, @Query('lang') lang?: string) {
+    const data = await this.productsService.getDeals(limit ? parseInt(limit) : 6, lang);
     return { success: true, data };
   }
 
@@ -79,8 +81,8 @@ export class ProductsController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300)
   @Get('new-arrivals')
-  async getNewArrivals(@Query('limit') limit?: string) {
-    const data = await this.productsService.getNewArrivals(limit ? parseInt(limit) : 6);
+  async getNewArrivals(@Query('limit') limit?: string, @Query('lang') lang?: string) {
+    const data = await this.productsService.getNewArrivals(limit ? parseInt(limit) : 6, lang);
     return { success: true, data };
   }
 
@@ -89,8 +91,8 @@ export class ProductsController {
    * Pas de cache global ici car les recommandations peuvent être spécifiques à l'utilisateur.
    */
   @Get('recommendations')
-  async getRecommendations(@Query('userId') userId?: string, @Query('limit') limit?: string) {
-    const data = await this.productsService.getRecommendations(userId, limit ? parseInt(limit) : 6);
+  async getRecommendations(@Query('userId') userId?: string, @Query('limit') limit?: string, @Query('lang') lang?: string) {
+    const data = await this.productsService.getRecommendations(userId, limit ? parseInt(limit) : 6, lang);
     return { success: true, data };
   }
 
@@ -100,8 +102,8 @@ export class ProductsController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300)
   @Get('best-sellers')
-  async getBestSellers(@Query('limit') limit?: string) {
-    const data = await this.productsService.getBestSellers(limit ? parseInt(limit) : 6);
+  async getBestSellers(@Query('limit') limit?: string, @Query('lang') lang?: string) {
+    const data = await this.productsService.getBestSellers(limit ? parseInt(limit) : 6, lang);
     return { success: true, data };
   }
 
@@ -112,9 +114,9 @@ export class ProductsController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(900)
   @Get('suggestions')
-  async getSuggestions(@Query('q') query: string) {
+  async getSuggestions(@Query('q') query: string, @Query('lang') lang?: string) {
     if (!query || query.length < 2) return { success: true, data: [] };
-    const suggestions = await this.productsService.getSuggestions(query);
+    const suggestions = await this.productsService.getSuggestions(query, lang);
     return { success: true, data: suggestions };
   }
 
@@ -124,8 +126,8 @@ export class ProductsController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(900)
   @Get('compare')
-  async compare(@Query('search') search: string) {
-    const data = await this.productsService.compareProducts(search || '');
+  async compare(@Query('search') search: string, @Query('lang') lang?: string) {
+    const data = await this.productsService.compareProducts(search || '', lang);
     return { success: true, ...data };
   }
 
@@ -141,6 +143,7 @@ export class ProductsController {
     @Query('market') market?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('lang') lang?: string,
   ) {
     const result = await this.productsService.findAll({
       categoryId: categoryId ? parseInt(categoryId) : undefined,
@@ -148,6 +151,7 @@ export class ProductsController {
       market,
       page: page ? parseInt(page) : undefined,
       limit: limit ? parseInt(limit) : undefined,
+      lang,
     });
 
     return {
@@ -166,8 +170,8 @@ export class ProductsController {
    * Récupère les détails d'un produit spécifique.
    */
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const product = await this.productsService.findOne(id);
+  async findOne(@Param('id') id: string, @Query('lang') lang?: string) {
+    const product = await this.productsService.findOne(id, lang);
     return { success: true, data: product };
   }
 

@@ -20,6 +20,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const { t } = useT();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
+    const [nameEn, setNameEn] = useState('');
+    const [nameSw, setNameSw] = useState('');
+    const [descriptionEn, setDescriptionEn] = useState('');
+    const [descriptionSw, setDescriptionSw] = useState('');
     const [price, setPrice] = useState('');
     const [categoryId, setCategoryId] = useState<string>('');
     const [categories, setCategories] = useState<Category[]>([]);
@@ -41,6 +45,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
         if (product) {
             setName(product.name || '');
             setDescription(product.description || '');
+            setNameEn(product.nameEn || '');
+            setNameSw(product.nameSw || '');
+            setDescriptionEn(product.descriptionEn || '');
+            setDescriptionSw(product.descriptionSw || '');
             setPrice(product.price?.toString() || '');
             setCategoryId(product.categoryId?.toString() || '');
             setQuantity(product.stockQuantity?.toString() || '');
@@ -51,7 +59,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             // Reset for "Add" mode
             setName('');
             setDescription('');
-            setPrice('');
+            setNameEn('');
+            setNameSw('');
+            setDescriptionEn('');
+            setDescriptionSw('');
             setCategoryId('');
             setQuantity('');
             setUnit(t('vendor.addProduct.units.piece'));
@@ -123,6 +134,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             const payload: any = {
                 name,
                 description,
+                nameEn: nameEn || undefined,
+                nameSw: nameSw || undefined,
+                descriptionEn: descriptionEn || undefined,
+                descriptionSw: descriptionSw || undefined,
                 price: currency === 'USD' ? Number(price) : Number(price) / EXCHANGE_RATE,
                 categoryId: Number(categoryId),
                 stockQuantity: Number(quantity) || 0,
@@ -264,6 +279,27 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                 <div className="relative">
                                     <AlignLeft className="absolute left-4 top-4 text-black/40" size={16} />
                                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('vendor.addProduct.descPlaceholder')} className="w-full sm:pl-12 pl-12 pr-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[80px] sm:min-h-[100px] resize-none text-black dark:text-white" />
+                                </div>
+                            </div>
+
+                            {/* Traductions optionnelles */}
+                            <div className="p-4 sm:p-5 rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Globe size={16} className="text-[#E67E22]" />
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-black/50 dark:text-white/50">{t('vendor.addProduct.translationsTitle')}</p>
+                                        <p className="text-[10px] font-bold text-black/40 dark:text-white/40">{t('vendor.addProduct.translationsDesc')}</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input value={nameEn} onChange={(e) => setNameEn(e.target.value)} type="text" placeholder={t('vendor.addProduct.nameEnLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" />
+                                        <input value={nameSw} onChange={(e) => setNameSw(e.target.value)} type="text" placeholder={t('vendor.addProduct.nameSwLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white" />
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} placeholder={t('vendor.addProduct.descEnLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[60px] resize-none text-black dark:text-white" />
+                                        <textarea value={descriptionSw} onChange={(e) => setDescriptionSw(e.target.value)} placeholder={t('vendor.addProduct.descSwLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[60px] resize-none text-black dark:text-white" />
+                                    </div>
                                 </div>
                             </div>
 
