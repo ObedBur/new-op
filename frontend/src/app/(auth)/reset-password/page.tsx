@@ -4,10 +4,12 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/services/auth.service';
+import { useT } from '@/i18n/useT';
 
 function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useT();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -24,7 +26,7 @@ function ResetPasswordContent() {
     const emailParam = searchParams.get('email');
 
     if (!tokenParam || !emailParam) {
-      setError('Invalid reset link. Please request a new password reset.');
+      setError(t('auth.resetPassword.invalidLink'));
       setIsValidating(false);
       return;
     }
@@ -67,9 +69,9 @@ function ResetPasswordContent() {
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 400) {
-        setError(err.response?.data?.message || 'Invalid or expired token');
+        setError(err.response?.data?.message || t('auth.resetPassword.errorInvalidToken'));
       } else {
-        setError(err.response?.data?.message || 'An error occurred');
+        setError(err.response?.data?.message || t('auth.resetPassword.errorGeneric'));
       }
     } finally {
       setIsLoading(false);
@@ -81,7 +83,7 @@ function ResetPasswordContent() {
       <div className="flex items-center justify-center p-4 font-sans h-full">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-          <p className="mt-4 text-slate-600 dark:text-slate-400">Vérification du lien...</p>
+          <p className="mt-4 text-slate-600 dark:text-slate-400">{t('auth.resetPassword.validating')}</p>
         </div>
       </div>
     );
@@ -91,12 +93,12 @@ function ResetPasswordContent() {
     return (
       <div className="flex items-center justify-center p-4 font-sans h-full">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Lien invalide</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t('auth.resetPassword.invalidLinkTitle')}</h1>
           <p className="text-slate-600 dark:text-slate-400 mb-6">
-            Ce lien de réinitialisation est invalide ou a expiré.
+            {t('auth.resetPassword.invalidLinkDesc')}
           </p>
           <Link href="/forgot-password" className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">
-            Demander un nouveau lien
+            {t('auth.resetPassword.requestNewLink')}
           </Link>
         </div>
       </div>
@@ -112,7 +114,7 @@ function ResetPasswordContent() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </Link>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-white flex-1 text-center pr-10">Reset Password</h1>
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white flex-1 text-center pr-10">{t('auth.resetPassword.headerTitle')}</h1>
         </header>
 
         <main className="flex-1 flex flex-col px-8 py-6">
@@ -123,32 +125,32 @@ function ResetPasswordContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Password Reset Successful!</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('auth.resetPassword.successTitle')}</h2>
               <p className="text-slate-600 dark:text-slate-400 mb-4">
-                Your password has been updated successfully.
+                {t('auth.resetPassword.successDesc')}
               </p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Redirecting to login...
+                {t('auth.resetPassword.redirecting')}
               </p>
             </div>
           ) : (
             <>
               <div className="mb-8">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create new password</h2>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t('auth.resetPassword.createPasswordTitle')}</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                  Your new password must be different from previous used passwords.
+                  {t('auth.resetPassword.createPasswordDesc')}
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className="group">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Password</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('auth.resetPassword.newPasswordLabel')}</label>
                   <div className="relative flex items-center">
                     <input
                       type={showNewPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter your new password"
+                      placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
                       className="w-full h-12 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
                     />
                     <button
@@ -172,9 +174,9 @@ function ResetPasswordContent() {
 
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Password Strength</span>
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('auth.resetPassword.strengthLabel')}</span>
                     <span className={`text-xs font-medium ${strengthScore === 3 ? 'text-emerald-500' : strengthScore === 2 ? 'text-yellow-500' : 'text-slate-400'}`}>
-                      {strengthScore === 3 ? 'Strong' : strengthScore === 2 ? 'Medium' : 'Weak'}
+                      {strengthScore === 3 ? t('auth.resetPassword.strong') : strengthScore === 2 ? t('auth.resetPassword.medium') : t('auth.resetPassword.weak')}
                     </span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex gap-1">
@@ -186,20 +188,20 @@ function ResetPasswordContent() {
 
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                   <div className="space-y-3">
-                    <RequirementItem label="At least 6 characters" met={hasMinLength} />
-                    <RequirementItem label="Contains a number" met={hasNumber} />
-                    <RequirementItem label="Contains a special character" met={hasSpecialChar} />
+                    <RequirementItem label={t('auth.resetPassword.reqMinLength')} met={hasMinLength} />
+                    <RequirementItem label={t('auth.resetPassword.reqNumber')} met={hasNumber} />
+                    <RequirementItem label={t('auth.resetPassword.reqSpecial')} met={hasSpecialChar} />
                   </div>
                 </div>
 
                 <div className="group mt-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm New Password</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('auth.resetPassword.confirmLabel')}</label>
                   <div className="relative flex items-center">
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Re-enter your new password"
+                      placeholder={t('auth.resetPassword.confirmPlaceholder')}
                       className={`w-full h-12 pl-4 pr-12 rounded-xl border ${confirmPassword && !passwordsMatch ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'} text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 ${confirmPassword && !passwordsMatch ? 'focus:border-red-500 focus:ring-red-500' : 'focus:border-emerald-500 focus:ring-emerald-500'} transition-all`}
                     />
                     <button
@@ -224,7 +226,7 @@ function ResetPasswordContent() {
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                         <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
                       </svg>
-                      Passwords do not match
+                      {t('auth.resetPassword.mismatch')}
                     </p>
                   )}
                 </div>
@@ -251,7 +253,7 @@ function ResetPasswordContent() {
                       </svg>
                     ) : (
                       <>
-                        <span>Update Password</span>
+                        <span>{t('auth.resetPassword.submitText')}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>

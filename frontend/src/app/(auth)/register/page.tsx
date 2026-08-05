@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
 import { useT } from "@/i18n/useT";
+import { useSettings } from "@/context/SettingsContext";
 import { mapBackendError } from "@/utils/errors";
 import {
   PhoneInput,
@@ -35,6 +36,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const { showToast } = useToast();
   const { t } = useT();
+  const { language } = useSettings();
 
   const [role, setRole] = useState<"CLIENT" | "VENDOR">("VENDOR");
 
@@ -155,12 +157,13 @@ export default function RegisterPage() {
         country,
         role,
         ...(role === "VENDOR" && boutiqueName ? { boutiqueName } : {}),
+        language,
       });
       localStorage.setItem("registrationEmail", email);
       showToast(t("auth.register.toastAccountCreated"), "success");
       router.push("/verify-otp");
     } catch (err) {
-      showToast(mapBackendError(err), "error");
+      showToast(mapBackendError(err, t), "error");
     } finally {
       setIsLoading(false);
     }

@@ -7,6 +7,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/context/ToastContext";
+import { useT } from "@/i18n/useT";
 import { mapBackendError } from "@/utils/errors";
 import { Apple } from "lucide-react";
 import Image from "next/image";
@@ -46,6 +47,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl');
   const { showToast } = useToast();
+  const { t } = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -83,7 +85,7 @@ function LoginContent() {
         localStorage.removeItem('wapibei_remember_me');
       }
 
-      showToast("Connexion réussie", "success");
+      showToast(t("auth.login.loginSuccess"), "success");
 
       if (callbackUrl) {
         router.push(callbackUrl);
@@ -95,7 +97,7 @@ function LoginContent() {
         router.push("/");
       }
     } catch (err: unknown) {
-      const friendlyMessage = mapBackendError(err);
+      const friendlyMessage = mapBackendError(err, t);
       showToast(friendlyMessage, "error");
 
       const status =
@@ -139,11 +141,11 @@ function LoginContent() {
           {/* Text Content */}
           <div className="relative z-10 mb-4">
             <h2 className="text-4xl lg:text-5xl font-black text-white leading-[1.15] mb-6">
-              L'excellence à <br />
-              <span className="text-[#E67E22]">portée de main.</span>
+              {t("auth.login.heroTitle")} <br />
+              <span className="text-[#E67E22]">{t("auth.login.heroHighlight")}</span>
             </h2>
             <p className="text-white/85 text-lg leading-relaxed max-w-md font-medium">
-              Découvrez les meilleures boutiques africaines au juste prix. Connectez-vous et explorez dès maintenant.
+              {t("auth.login.heroDescription")}
             </p>
           </div>
         </div>
@@ -153,10 +155,10 @@ function LoginContent() {
 
           <div className="text-center md:text-left mb-8">
             <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
-              Bon retour !
+              {t("auth.login.formTitle")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Connectez-vous pour accéder à votre compte.
+              {t("auth.login.formDescription")}
             </p>
           </div>
 
@@ -165,7 +167,7 @@ function LoginContent() {
           <div className="w-full bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl grid grid-cols-2 gap-1 mb-8 border border-slate-200/50 dark:border-slate-700/50 shadow-inner">
             {/* Bouton Actif (Connexion) */}
               <button className="relative bg-white dark:bg-slate-700 shadow-md text-[#E67E22] dark:text-[#E67E22] font-bold text-sm py-3 rounded-xl transition-all duration-300 hover:shadow-lg active:scale-[0.97]">
-              Connexion
+              {t("auth.login.tabLogin")}
               {/* Petite lueur discrète sous l'élément actif */}
                 <span className="absolute inset-0 rounded-xl shadow-[0_0_15px_rgba(230,126,34,0.15)] pointer-events-none"></span>
             </button>
@@ -176,7 +178,7 @@ function LoginContent() {
                 className="group text-slate-500 dark:text-slate-400 hover:text-[#E67E22] dark:hover:text-[#E67E22] font-medium text-sm py-3 rounded-xl flex items-center justify-center transition-all duration-300 hover:bg-white/50 dark:hover:bg-slate-700/30 active:scale-[0.97]"
             >
               <span className="transition-transform duration-300 group-hover:scale-105">
-                Inscription
+                {t("auth.login.tabRegister")}
               </span>
             </Link>
           </div>
@@ -189,12 +191,12 @@ function LoginContent() {
                   htmlFor="email"
                   className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1"
                 >
-                  Adresse e-mail <span className="text-orange-500">*</span>
+                  {t("auth.login.emailLabel")} <span className="text-orange-500">*</span>
                 </label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="votre@email.com"
+                  placeholder={t("auth.login.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value.toLowerCase())}
                   error={emailError}
@@ -225,13 +227,13 @@ function LoginContent() {
                     htmlFor="password"
                     className="text-sm font-semibold text-slate-700 dark:text-slate-300"
                   >
-                    Mot de passe <span className="text-orange-500">*</span>
+                    {t("auth.login.passwordLabel")} <span className="text-orange-500">*</span>
                   </label>
                   <Link
                     href="/forgot-password"
                     className="text-sm font-medium text-[#E67E22] hover:text-[#D35400] transition-colors"
                   >
-                    Mot de passe oublié ?
+                    {t("auth.login.forgotPassword")}
                   </Link>
                 </div>
                 <Input
@@ -325,7 +327,7 @@ function LoginContent() {
                 </div>
               </div>
               <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors select-none">
-                Se souvenir de moi
+                {t("auth.login.rememberMe")}
               </span>
             </label>
 
@@ -339,7 +341,7 @@ function LoginContent() {
                   hover:!bg-[#D35400] hover:!shadow-xl hover:!shadow-[#E67E22]/40 hover:-translate-y-0.5
                   active:scale-[0.98] active:translate-y-0"
             >
-              Se connecter
+              {t("auth.login.submitText")}
             </Button>
           </form>
 
@@ -350,7 +352,7 @@ function LoginContent() {
                 <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
               </div>
               <span className="relative bg-white dark:bg-slate-900 px-4 text-sm text-slate-400">
-                Ou continuer avec
+                {t("auth.login.socialDivider")}
               </span>
             </div>
 
@@ -376,7 +378,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#E67E22]"></div></div>}>
       <LoginContent />
     </Suspense>
   );

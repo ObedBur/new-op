@@ -50,4 +50,8 @@ export class UpdateProfileDto {
   @IsString()
   @IsOptional()
   coverPicture?: string;
+
+  @IsString()
+  @IsOptional()
+  language?: string;
 }

@@ -45,6 +45,7 @@ export interface RegisterDto {
   country?: string;
   address?: string;
   boutiqueName?: string;
+  language?: string;
 }
 
 export interface RegisterResponse {
@@ -99,6 +100,7 @@ export interface UpdateProfileDto {
   commune?: string;
   address?: string;
   city?: string;
+  language?: string;
   profilePicture?: File | string;
   coverPicture?: File | string;
   password?: string;

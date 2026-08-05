@@ -78,10 +78,11 @@ export class AuthService {
         kycStatus,
         trustScore,
         dailyPublications: 0,
+        language: dto.language || 'fr',
       },
     });
 
-    await this.otpService.generateAndSend(user.id, user.email);
+    await this.otpService.generateAndSend(user.id, user.email, user.language);
 
     return {
       success: true,
@@ -115,7 +116,7 @@ export class AuthService {
     });
 
     // Envoi du message de bienvenue (CORRIGÉ : sendWelcome -> sendWelcomeEmail)
-    this.emailService.sendWelcomeEmail(user.email, user.fullName).catch(err =>
+    this.emailService.sendWelcomeEmail(user.email, user.fullName, user.language).catch(err =>
       this.logger.error(`Failed to send welcome email to ${user.email}`, err)
     );
 
@@ -206,7 +207,7 @@ export class AuthService {
       },
     });
 
-    await this.emailService.sendPasswordReset(dto.email, token);
+    await this.emailService.sendPasswordReset(dto.email, token, user.language);
     return { success: true };
   }
 
@@ -325,7 +326,7 @@ export class AuthService {
       return { success: true };
     }
 
-    await this.otpService.generateAndSend(user.id, user.email);
+    await this.otpService.generateAndSend(user.id, user.email, user.language);
     return { success: true, message: 'New OTP sent' };
   }
 
@@ -351,6 +352,7 @@ export class AuthService {
     if (dto.city) data.city = dto.city;
     if (dto.boutiqueName) data.boutiqueName = dto.boutiqueName;
     if (dto.avatarUrl) data.avatarUrl = dto.avatarUrl;
+    if (dto.language && ['fr', 'en', 'sw'].includes(dto.language)) data.language = dto.language;
     if (dto.profilePicture && typeof dto.profilePicture === 'string') {
       const isValid = await this.moderationService.validateImage(dto.profilePicture);
       if (!isValid) {

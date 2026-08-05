@@ -16,6 +16,7 @@ model User {
   address             String?
   role                UserRole       @default(CLIENT)
   boutiqueName        String?
+  language            String         @default("fr")
   isVerified          Boolean        @default(false)
   otpHash             String?
   otpExpiresAt        DateTime?

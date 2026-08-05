@@ -70,5 +70,10 @@ export class RegisterDto {
   @IsString()
   @IsOptional()
   kycStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => ['fr', 'en', 'sw'].includes(value) ? value : 'fr')
+  language?: string;
 }
 

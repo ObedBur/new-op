@@ -5,6 +5,7 @@ import { EmailService } from '../email/email.service';
 import { WebPushService } from './web-push.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { SmsService } from './sms/sms.service';
+import { t } from '../i18n/i18n';
 
 /**
  * Service central de gestion des notifications.
@@ -131,6 +132,7 @@ export class NotificationsService {
               email: true,
               phone: true,
               fullName: true,
+              language: true,
               notificationPreference: {
                 select: {
                   followsInApp: true,
@@ -150,13 +152,14 @@ export class NotificationsService {
         const follower = follow.follower;
         const prefs = follower.notificationPreference;
         const vendorName = product.user.boutiqueName || 'Un vendeur';
+        const lang = follower.language || 'fr';
 
         // Notification In-App
         if (!prefs || prefs.followsInApp) {
           await this.createNotification({
             userId: follower.id,
-            title: 'Nouveau produit',
-            message: `${vendorName} a publié : ${product.name}`,
+            title: t(lang, 'notif.newProduct.title'),
+            message: t(lang, 'notif.newProduct.message', { vendor: vendorName, product: product.name }),
             type: NotificationType.NEW_PRODUCT,
             metadata: {
               productId: product.id,
@@ -178,14 +181,14 @@ export class NotificationsService {
             productImage: product.image || '',
             price: product.price,
             productLink: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`,
-          });
+          }, lang);
         }
 
         // Notification Push (sur tous les appareils enregistrés)
         if (!prefs || prefs.followsPush) {
           await this.sendPushToUser(follower.id, {
-            title: 'Nouveau produit',
-            body: `${vendorName} a publié : ${product.name}`,
+            title: t(lang, 'notif.newProduct.title'),
+            body: t(lang, 'notif.newProduct.body', { vendor: vendorName, product: product.name }),
             data: { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}` },
           });
         }
@@ -194,7 +197,11 @@ export class NotificationsService {
         const shouldSendSms = Boolean(prefs?.followsSms && follower.phone);
         if (shouldSendSms && follower.phone) {
           try {
-            const message = `WapiBei: ${vendorName} a publié "${product.name}". Voir: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`;
+            const message = t(lang, 'sms.newProduct', {
+              vendor: vendorName,
+              product: product.name,
+              url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product.id}`,
+            });
             await this.smsService.sendSms(follower.phone, message);
           } catch (smsError) {
             this.logger.error(`Échec SMS pour l'utilisateur ${follower.id}`, smsError);

@@ -8,6 +8,7 @@ import { NotificationsService } from '../common/notifications/notifications.serv
 import { SmsService } from '../common/notifications/sms/sms.service';
 import { NotificationType, UserRole } from '@prisma/client';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { t } from '../common/i18n/i18n';
 
 /**
  * Service gérant le cycle de vie des commandes (Orders).
@@ -164,6 +165,9 @@ export class OrdersService {
     // Récupérer les préférences (null = jamais configurées → on envoie tout par défaut)
     const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: clientId } });
 
+    const client = await this.prisma.user.findUnique({ where: { id: clientId }, select: { language: true, phone: true } });
+    const lang = client?.language || 'fr';
+
     if (!prefs || prefs.ordersEmail) {
       this.emailService.sendBulkOrderConfirmation({
         customerEmail: email,
@@ -174,14 +178,14 @@ export class OrdersService {
         }),
         totalPrice: total,
         orderIds: orders.map((o: any) => o.id),
-      }).catch(err => this.logger.error('Email client non envoyé', err));
+      }, lang).catch(err => this.logger.error('Email client non envoyé', err));
     }
 
     if (!prefs || prefs.ordersInApp) {
       this.notificationsService.createNotification({
         userId: clientId,
-        title: 'Commande envoyée',
-        message: `Votre commande de ${items.length} article(s) pour un total de ${total.toLocaleString()} $ a bien été envoyée au vendeur.`,
+        title: t(lang, 'notif.orderCreated.client'),
+        message: t(lang, 'notif.orderCreated.clientMessage', { count: items.length, total: total.toLocaleString() }),
         type: NotificationType.ORDER_CREATED,
         metadata: { url: '/settings?tab=orders', orderIds: orders.map((o: any) => o.id) },
       });
@@ -189,17 +193,16 @@ export class OrdersService {
 
     if (!prefs || prefs.ordersPush) {
       this.notificationsService.sendPushToUser(clientId, {
-        title: 'Commande envoyée',
-        body: `Votre commande a été transmise au vendeur pour confirmation.`,
+        title: t(lang, 'notif.orderCreated.client'),
+        body: t(lang, 'notif.orderCreated.clientPush'),
         data: { url: '/orders' }
       });
     }
 
     // SMS Client (opt-in uniquement)
     if (prefs?.ordersSms) {
-      const client = await this.prisma.user.findUnique({ where: { id: clientId }, select: { phone: true } });
       if (client?.phone) {
-        const smsMessage = `WapiBei: Votre commande de ${items.length} article(s) pour ${total.toLocaleString()} $ a bien été envoyée. Le vendeur vous contactera sous peu.`;
+        const smsMessage = t(lang, 'sms.orderClient', { count: items.length, total: total.toLocaleString() });
         this.smsService.sendSms(client.phone, smsMessage)
           .catch(err => this.logger.error(`SMS client failed: ${clientId}`, err));
       }
@@ -219,6 +222,7 @@ export class OrdersService {
 
     ordersByVendor.forEach((vendorOrders: any[], vendorId: string) => {
       const vendor = vendorOrders[0].vendor;
+      const lang = vendor.language || 'fr';
       const productNames = vendorOrders.map(o => o.product.name).join(', ');
       const vendorTotal = vendorOrders.reduce((sum, o) => sum + o.totalPrice, 0);
       const firstImage = vendorOrders[0].product.image || (vendorOrders[0].product.images && vendorOrders[0].product.images[0]);
@@ -240,7 +244,7 @@ export class OrdersService {
         productImage: firstImage,
         totalPrice: vendorTotal,
         orderId: vendorOrders.map(o => o.id).join(', '),
-      }).catch(err => this.logger.error(`Email vendeur failed: ${vendor.email}`, err));
+      }, lang).catch(err => this.logger.error(`Email vendeur failed: ${vendor.email}`, err));
 
       this.whatsAppService.sendOrderAlert(vendor.phone, {
         vendorName: vendor.boutiqueName || vendor.fullName,
@@ -254,8 +258,8 @@ export class OrdersService {
 
       this.notificationsService.createNotification({
         userId: vendorId,
-        title: 'Nouvelle vente',
-        message: `Vous avez reçu une commande de ${customerName} pour ${vendorOrders.length} article(s).`,
+        title: t(lang, 'notif.orderCreated.vendor'),
+        message: t(lang, 'notif.orderCreated.vendorMessage', { customer: customerName, count: vendorOrders.length }),
         type: NotificationType.ORDER_CREATED,
         metadata: {
           url: '/dashboard/orders',
@@ -266,8 +270,8 @@ export class OrdersService {
       });
 
       this.notificationsService.sendPushToUser(vendorId, {
-        title: 'Nouvelle vente',
-        body: `Une nouvelle commande de ${customerName} attend votre validation.`,
+        title: t(lang, 'notif.orderCreated.vendor'),
+        body: t(lang, 'notif.orderCreated.vendorPush', { customer: customerName }),
         data: { url: '/dashboard/orders' }
       });
 
@@ -275,7 +279,13 @@ export class OrdersService {
       this.prisma.notificationPreference.findUnique({ where: { userId: vendorId } })
         .then(vendorPrefs => {
           if (vendorPrefs?.ordersSms && vendor.phone) {
-            const smsBody = `WapiBei: Nouvelle commande de ${customerName} (${vendorTotal.toLocaleString()} $). Produit(s): ${productNames}. Tel: ${customerPhone}. Adresse: ${address}.`;
+            const smsBody = t(lang, 'sms.orderVendor', {
+              customer: customerName,
+              total: vendorTotal.toLocaleString(),
+              products: productNames,
+              phone: customerPhone,
+              address,
+            });
             this.smsService.sendSms(vendor.phone, smsBody)
               .catch(err => this.logger.error(`SMS vendeur failed: ${vendorId}`, err));
           }
@@ -436,16 +446,20 @@ export class OrdersService {
   private async handleStatusNotifications(order: any, status: string) {
     const { client, vendor, product } = order;
     const vendorName = vendor.boutiqueName || vendor.fullName;
+    const lang = client.language || 'fr';
 
-    const notificationMap: Record<string, { title: string, msg: string }> = {
-      CONFIRMED: { title: 'Commande confirmée', msg: `${vendorName} a confirmé votre commande pour "${product.name}".` },
-      SHIPPED: { title: 'Colis en route', msg: `Votre produit "${product.name}" a été expédié par ${vendorName}.` },
-      DELIVERED: { title: 'Colis livré', msg: `Votre "${product.name}" a été livré. Profitez-en bien !` },
-      CANCELLED: { title: 'Commande annulée', msg: `Votre commande pour "${product.name}" a été annulée.` }
+    const notificationMap: Record<string, { titleKey: string, msgKey: string }> = {
+      CONFIRMED: { titleKey: 'notif.status.confirmed.title', msgKey: 'notif.status.confirmed.msg' },
+      SHIPPED: { titleKey: 'notif.status.shipped.title', msgKey: 'notif.status.shipped.msg' },
+      DELIVERED: { titleKey: 'notif.status.delivered.title', msgKey: 'notif.status.delivered.msg' },
+      CANCELLED: { titleKey: 'notif.status.cancelled.title', msgKey: 'notif.status.cancelled.msg' }
     };
 
     const config = notificationMap[status];
     if (!config) return;
+
+    const title = t(lang, config.titleKey);
+    const msg = t(lang, config.msgKey, { vendor: vendorName, product: product.name });
 
     // Récupérer les préférences du client (null = jamais configurées → envoyer tout)
     const prefs = await this.prisma.notificationPreference.findUnique({ where: { userId: client.id } });
@@ -453,8 +467,8 @@ export class OrdersService {
     if (!prefs || prefs.ordersInApp) {
       this.notificationsService.createNotification({
         userId: client.id,
-        title: config.title,
-        message: config.msg,
+        title,
+        message: msg,
         type: NotificationType.ORDER_CONFIRMED,
         metadata: {
           url: '/settings?tab=orders',
@@ -465,28 +479,28 @@ export class OrdersService {
 
     if (!prefs || prefs.ordersPush) {
       this.notificationsService.sendPushToUser(client.id, {
-        title: config.title,
-        body: config.msg,
+        title,
+        body: msg,
         data: { url: `/orders/${order.id}` }
       });
     }
 
     if (prefs?.ordersSms && client.phone && (status === 'SHIPPED' || status === 'DELIVERED')) {
-      const smsMessage = status === 'SHIPPED' 
-        ? `WapiBei: Votre colis contenant "${product.name}" est en route vers chez vous !`
-        : `WapiBei: Votre colis "${product.name}" a été livré. Profitez-en bien !`;
-      
+      const smsMessage = status === 'SHIPPED'
+        ? t(lang, 'sms.orderShipped', { orderId: order.id.slice(0, 8).toUpperCase() })
+        : t(lang, 'sms.orderDelivered', { orderId: order.id.slice(0, 8).toUpperCase() });
+
       this.smsService.sendSms(client.phone, smsMessage)
         .catch(err => this.logger.error(`SMS status update failed for client ${client.id}`, err));
     }
 
     if (!prefs || prefs.ordersEmail) {
       if (status === 'CONFIRMED') {
-        this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+        this.emailService.sendOrderConfirmed({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName }, lang);
       } else if (status === 'SHIPPED') {
-        this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress });
+        this.emailService.sendOrderShipped({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName, deliveryAddress: order.deliveryAddress }, lang);
       } else if (status === 'CANCELLED') {
-        this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName });
+        this.emailService.sendOrderCancelled({ customerEmail: order.customerEmail, customerName: order.customerName, productName: product.name, orderId: order.id, vendorName }, lang);
       }
     }
   }

@@ -15,7 +15,7 @@ export class OtpService {
   ) {}
 
   // Genere un nouvel OTP, le stocke et l'envoie par email
-  async generateAndSend(userId: string, email: string): Promise<string> {
+  async generateAndSend(userId: string, email: string, language?: string): Promise<string> {
     const plainOtp = this.generateOtp();
     const otpHash = await bcrypt.hash(plainOtp, AUTH_CONSTANTS.BCRYPT_ROUNDS);
     const otpExpiresAt = new Date(Date.now() + AUTH_CONSTANTS.OTP_EXPIRY_MS);
@@ -35,7 +35,7 @@ export class OtpService {
     }
 
     // Envoi en arrire-plan sans "await" pour ne pas bloquer le frontend
-    this.emailService.sendOtp(email, plainOtp).catch(err => 
+    this.emailService.sendOtp(email, plainOtp, language).catch(err => 
       this.logger.error(`Background email send failed: ${err.message}`)
     );
 

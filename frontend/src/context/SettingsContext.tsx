@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { AppLanguage } from '@/i18n/translations';
 import { storage } from '@/utils/storage';
+import { authService } from '@/services/auth.service';
+import { getAccessToken } from '@/lib/axios';
 
 export type Theme = 'light' | 'dark' | 'system' | 'emerald' | 'ocean';
 export type Language = AppLanguage;
@@ -36,6 +38,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const setLanguage = (newLang: Language) => {
         setLanguageState(newLang);
         storage.setLanguage(newLang);
+
+        // Persister la langue côté backend uniquement si l'utilisateur est connecté
+        if (typeof window !== 'undefined' && getAccessToken()) {
+            authService.updateProfile({ language: newLang }).catch(() => {
+                // Erreur silencieuse : la langue reste en local
+            });
+        }
     };
 
     const setFontSize = (newSize: FontSize) => {

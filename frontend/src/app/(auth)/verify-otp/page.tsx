@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/services/auth.service';
 import { useToast } from '@/context/ToastContext';
+import { useT } from '@/i18n/useT';
 import { mapBackendError } from '@/utils/errors';
 import { OtpInput } from '@/components/ui/OtpInput';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast, hideToast } = useToast();
+  const { t } = useT();
   const [timer, setTimer] = useState(60);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -56,14 +58,14 @@ function VerifyOtpContent() {
     setOtpError(false);
     setIsLoading(true);
     // On stocke l'ID du toast de chargement
-    const loadingToastId = showToast('Vérification en cours...', 'loading');
+    const loadingToastId = showToast(t('auth.verifyOtp.loadingToast'), 'loading');
 
     try {
       await authService.verifyOtp({ email, otp: otpCode });
       
       // On supprime le toast de chargement avant d'afficher le succès
       hideToast(loadingToastId);
-      showToast('Compte vérifié avec succès !', 'success');
+      showToast(t('auth.verifyOtp.successToast'), 'success');
       
       localStorage.removeItem('registrationEmail');
 
@@ -77,7 +79,7 @@ function VerifyOtpContent() {
       hideToast(loadingToastId);
       
       setOtpError(true);
-      showToast(mapBackendError(err), 'error');
+      showToast(mapBackendError(err, t), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -88,12 +90,12 @@ function VerifyOtpContent() {
 
     try {
       await authService.resendOtp({ email });
-      showToast('Un nouveau code a été envoyé', 'success');
+      showToast(t('auth.verifyOtp.resendSuccessToast'), 'success');
       setTimer(60);
       setOtpError(false);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      showToast(mapBackendError(err), 'error');
+      showToast(mapBackendError(err, t), 'error');
     }
   };
 
@@ -123,9 +125,9 @@ function VerifyOtpContent() {
               </svg>
               <div className="absolute top-0 right-0 w-5 h-5 bg-[#E67E22] rounded-full border-2 border-white dark:border-slate-900"></div>
             </div>
-            <h1 className="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center mb-3">Vérification du compte</h1>
+            <h1 className="text-slate-900 dark:text-white text-[28px] font-bold leading-tight text-center mb-3">{t('auth.verifyOtp.title')}</h1>
             <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-relaxed text-center max-w-[280px]">
-              Nous avons envoyé un code à <span className="font-medium text-slate-900 dark:text-slate-200" translate="no">{isMounted ? (email || 'votre email') : '...'}</span>.
+              {t('auth.verifyOtp.description')}<span className="font-medium text-slate-900 dark:text-slate-200" translate="no">{isMounted ? (email || t('auth.verifyOtp.yourEmail')) : '...'}</span>.
             </p>
           </div>
 
@@ -141,7 +143,7 @@ function VerifyOtpContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">
-                Renvoyer le code dans <span className="text-[#E67E22] font-bold">00:{timer.toString().padStart(2, '0')}</span>
+                {t('auth.verifyOtp.timerPrefix')} <span className="text-[#E67E22] font-bold">00:{timer.toString().padStart(2, '0')}</span>
               </p>
             </div>
             <button
@@ -150,7 +152,7 @@ function VerifyOtpContent() {
               disabled={timer > 0}
               onClick={handleResend}
             >
-              Renvoyer le code
+              {t('auth.verifyOtp.resendButton')}
             </button>
           </div>
 
@@ -166,14 +168,14 @@ function VerifyOtpContent() {
                 // But OtpInput auto-submits on completion
               }}
             >
-              <span>Vérifier</span>
+              <span>{t('auth.verifyOtp.verifyButton')}</span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </Button>
             <div className="mt-6 flex justify-center">
               <a href="#" className="text-sm text-slate-500 hover:text-[#E67E22] dark:text-slate-400 dark:hover:text-[#E67E22] transition-colors">
-                Besoin d&apos;aide ? Contactez le support
+                {t('auth.verifyOtp.needHelp')}
               </a>
             </div>
           </div>
