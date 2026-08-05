@@ -153,6 +153,17 @@ export const TRANSLATIONS: Translations = {
     'sms.orderShipped': 'WapiBei: Votre commande {orderId} est en cours de livraison.',
     'sms.orderDelivered': 'WapiBei: Votre commande {orderId} a été livrée. Profitez-en bien !',
 
+    // ── WhatsApp ───────────────────────────────────────────
+    'whatsapp.order.header': '*Nouvelle commande sur WapiBei*',
+    'whatsapp.order.client': '*Client :* {name}',
+    'whatsapp.order.tel': '*Tel :* {phone}',
+    'whatsapp.order.address': '*Adresse :* {address}',
+    'whatsapp.order.product': '*Produit :* {product}',
+    'whatsapp.order.total': '*Total :* {total} $',
+    'whatsapp.order.photo': '*Photo :* {url}',
+    'whatsapp.order.cta': '_Veuillez contacter le client pour confirmer la livraison._',
+    'whatsapp.admin': 'ALERTE ADMIN : Nouvelle commande de {customer} ({total} $).',
+
     // ── Notifications in-app ───────────────────────────────
     'notif.status.confirmed.title': 'Commande confirmée',
     'notif.status.confirmed.msg': '{vendor} a confirmé votre commande pour "{product}".',
@@ -165,6 +176,7 @@ export const TRANSLATIONS: Translations = {
     'notif.newProduct.title': 'Nouveau produit',
     'notif.newProduct.message': '{vendor} a publié : {product}',
     'notif.newProduct.body': '{vendor} a publié : {product}',
+    'notif.vendorDefault': 'Un vendeur',
     'notif.orderCreated.client': 'Commande envoyée',
     'notif.orderCreated.clientMessage':
       'Votre commande de {count} article(s) pour un total de {total} $ a bien été envoyée au vendeur.',
@@ -175,6 +187,19 @@ export const TRANSLATIONS: Translations = {
       'Vous avez reçu une commande de {customer} pour {count} article(s).',
     'notif.orderCreated.vendorPush':
       'Une nouvelle commande de {customer} attend votre validation.',
+    'notif.abandonedCart.title': 'Panier en attente',
+    'notif.abandonedCart.message':
+      'Vous avez laissé {count} article(s) dans votre panier ! Finalisez votre commande maintenant.',
+    'notif.penalty.title': 'Retard de validation',
+    'notif.penalty.message':
+      'Votre TrustScore a été réduit pour inactivité sur la commande de {name}.',
+    'notif.lowStock.title': 'Alerte Stock Bas',
+    'notif.lowStock.message':
+      'Il ne reste plus que {count} exemplaire(s) de "{product}".',
+    'notif.lowStock.pushTitle': 'Stock presque épuisé',
+    'notif.lowStock.pushBody': 'Plus que {count} "{product}" en stock.',
+    'notif.orderAdmin.title': 'Nouvelle commande plateforme',
+    'notif.orderAdmin.message': '{customer} a commandé {count} article(s) ({total} $).',
   },
   en: {
     'email.otp.subject': 'Your WapiBei verification code',
@@ -314,6 +339,17 @@ export const TRANSLATIONS: Translations = {
     'sms.orderShipped': 'WapiBei: Your order {orderId} is on its way.',
     'sms.orderDelivered': 'WapiBei: Your order {orderId} has been delivered. Enjoy!',
 
+    // ── WhatsApp ───────────────────────────────────────────
+    'whatsapp.order.header': '*New order on WapiBei*',
+    'whatsapp.order.client': '*Customer :* {name}',
+    'whatsapp.order.tel': '*Tel :* {phone}',
+    'whatsapp.order.address': '*Address :* {address}',
+    'whatsapp.order.product': '*Product :* {product}',
+    'whatsapp.order.total': '*Total :* {total} $',
+    'whatsapp.order.photo': '*Photo :* {url}',
+    'whatsapp.order.cta': '_Please contact the customer to confirm delivery._',
+    'whatsapp.admin': 'ADMIN ALERT: New order from {customer} ({total} $).',
+
     'notif.status.confirmed.title': 'Order confirmed',
     'notif.status.confirmed.msg': '{vendor} has confirmed your order for "{product}".',
     'notif.status.shipped.title': 'Package on the way',
@@ -326,6 +362,7 @@ export const TRANSLATIONS: Translations = {
     'notif.newProduct.title': 'New product',
     'notif.newProduct.message': '{vendor} published: {product}',
     'notif.newProduct.body': '{vendor} published: {product}',
+    'notif.vendorDefault': 'A seller',
     'notif.orderCreated.client': 'Order sent',
     'notif.orderCreated.clientMessage':
       'Your order of {count} item(s) for a total of {total} $ has been sent to the seller.',
@@ -336,6 +373,19 @@ export const TRANSLATIONS: Translations = {
       'You received an order from {customer} for {count} item(s).',
     'notif.orderCreated.vendorPush':
       'A new order from {customer} awaits your approval.',
+    'notif.abandonedCart.title': 'Cart waiting',
+    'notif.abandonedCart.message':
+      'You left {count} item(s) in your cart! Complete your order now.',
+    'notif.penalty.title': 'Validation delay',
+    'notif.penalty.message':
+      'Your TrustScore has been reduced for inactivity on the order from {name}.',
+    'notif.lowStock.title': 'Low Stock Alert',
+    'notif.lowStock.message':
+      'Only {count} unit(s) of "{product}" left.',
+    'notif.lowStock.pushTitle': 'Almost out of stock',
+    'notif.lowStock.pushBody': 'Only {count} "{product}" left in stock.',
+    'notif.orderAdmin.title': 'New platform order',
+    'notif.orderAdmin.message': '{customer} ordered {count} item(s) ({total} $).',
   },
   sw: {
     'email.otp.subject': 'Msimbo wako wa uthibitisho wa WapiBei',
@@ -475,6 +525,17 @@ export const TRANSLATIONS: Translations = {
     'sms.orderShipped': 'WapiBei: Agizo lako {orderId} liko njiani.',
     'sms.orderDelivered': 'WapiBei: Agizo lako {orderId} limewasilishwa. Furahia!',
 
+    // ── WhatsApp ───────────────────────────────────────────
+    'whatsapp.order.header': '*Agizo jipya kwenye WapiBei*',
+    'whatsapp.order.client': '*Mteja :* {name}',
+    'whatsapp.order.tel': '*Simu :* {phone}',
+    'whatsapp.order.address': '*Anwani :* {address}',
+    'whatsapp.order.product': '*Bidhaa :* {product}',
+    'whatsapp.order.total': '*Jumla :* {total} $',
+    'whatsapp.order.photo': '*Picha :* {url}',
+    'whatsapp.order.cta': '_Tafadhali wasiliana na mteja kuthibitisha usafirishaji._',
+    'whatsapp.admin': 'TAHADHARI ADMIN: Agizo jipya kutoka {customer} ({total} $).',
+
     'notif.status.confirmed.title': 'Agizo limethibitishwa',
     'notif.status.confirmed.msg': '{vendor} amethibitisha agizo lako la "{product}".',
     'notif.status.shipped.title': 'Kifurushi kiko njiani',
@@ -487,6 +548,7 @@ export const TRANSLATIONS: Translations = {
     'notif.newProduct.title': 'Bidhaa mpya',
     'notif.newProduct.message': '{vendor} amechapisha: {product}',
     'notif.newProduct.body': '{vendor} amechapisha: {product}',
+    'notif.vendorDefault': 'Muuza mazao',
     'notif.orderCreated.client': 'Agizo limetumwa',
     'notif.orderCreated.clientMessage':
       'Agizo lako la {count} vitu kwa jumla ya {total} $ limetumwa kwa muuzaji.',
@@ -497,5 +559,18 @@ export const TRANSLATIONS: Translations = {
       'Umepokea agizo kutoka {customer} la {count} vitu.',
     'notif.orderCreated.vendorPush':
       'Agizo jipya kutoka {customer} linangoja idhini yako.',
+    'notif.abandonedCart.title': 'Kikapu kinasubiri',
+    'notif.abandonedCart.message':
+      'Umeacha {count} kitu(kitu) kwenye kikapu chako! Kamilisha agizo lako sasa.',
+    'notif.penalty.title': 'Ucheleweshaji wa uthibitisho',
+    'notif.penalty.message':
+      'TrustScore yako imepunguzwa kwa kutokuwa na shughuli kwenye agizo la {name}.',
+    'notif.lowStock.title': 'Onyo la Hisa Chache',
+    'notif.lowStock.message':
+      'Zimebaki vitengo {count} vya "{product}".',
+    'notif.lowStock.pushTitle': 'Hisa inakaribia kuisha',
+    'notif.lowStock.pushBody': 'Zimebaki {count} "{product}" hisani.',
+    'notif.orderAdmin.title': 'Agizo jipya la jukwaa',
+    'notif.orderAdmin.message': '{customer} ameagiza {count} kitu(kitu) ({total} $).',
   },
 };

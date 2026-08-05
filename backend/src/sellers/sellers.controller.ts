@@ -22,7 +22,10 @@ export class SellersController {
   async getOne(@Param('id') id: string, @Req() req: JwtRequest) {
     const seller = await this.sellersService.findOneVendor(id, req.user?.id);
     if (!seller) {
-      throw new NotFoundException('Vendeur non trouvé');
+      throw new NotFoundException({
+        code: 'SELLER_NOT_FOUND',
+        message: 'Vendeur non trouvé',
+      });
     }
     return seller;
   }

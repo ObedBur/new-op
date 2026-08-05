@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import { t } from '../i18n/i18n';
 
 export interface WhatsAppOrderPayload {
   vendorName: string;
@@ -9,6 +10,7 @@ export interface WhatsAppOrderPayload {
   productImage?: string;
   deliveryAddress: string;
   totalPrice: number;
+  language?: string;
 }
 
 @Injectable()
@@ -30,23 +32,23 @@ export class WhatsAppService {
   }
 
   
-  // Formate le message WhatsApp pour le vendeur.
-   
+  // Formate le message WhatsApp pour le vendeur, dans sa langue.
   private formatOrderMessage(data: WhatsAppOrderPayload): string {
-    const photoLine = data.productImage ? ` *Photo :* ${data.productImage}` : '';
-    
+    const lang = data.language;
+    const photoLine = data.productImage ? ` ${t(lang, 'whatsapp.order.photo', { url: data.productImage })}` : '';
+
     return [
-      ` *Nouvelle commande sur WapiBei*`,
+      ` ${t(lang, 'whatsapp.order.header')}`,
       ``,
-      ` *Client :* ${data.customerName}`,
-      ` *Tel :* ${data.customerPhone}`,
-      ` *Adresse :* ${data.deliveryAddress}`,
+      ` ${t(lang, 'whatsapp.order.client', { name: data.customerName })}`,
+      ` ${t(lang, 'whatsapp.order.tel', { phone: data.customerPhone })}`,
+      ` ${t(lang, 'whatsapp.order.address', { address: data.deliveryAddress })}`,
       ``,
-      ` *Produit :* ${data.productName}`,
-      ` *Total :* ${data.totalPrice.toLocaleString()} $`,
+      ` ${t(lang, 'whatsapp.order.product', { product: data.productName })}`,
+      ` ${t(lang, 'whatsapp.order.total', { total: data.totalPrice.toLocaleString() })}`,
       photoLine,
       ``,
-      `_Veuillez contacter le client pour confirmer la livraison._`,
+      `_${t(lang, 'whatsapp.order.cta')}_`,
     ].filter(line => line !== '').join('\n');
   }
 

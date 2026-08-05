@@ -19,52 +19,61 @@ import { Button } from '@/components/ui/Button';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { useAuth } from '@/context/AuthContext';
 import { AppNotification, resolveNotificationUrl } from '@/types/notification';
-const formatDistanceToNow = (date: Date): string => {
+import useT from '@/i18n/useT';
+
+const localeFor = (language: string): string => {
+  if (language === 'en') return 'en-US';
+  if (language === 'sw') return 'sw-KE';
+  return 'fr-FR';
+};
+
+const formatDistanceToNow = (date: Date, t: (key: string) => string, language: string): string => {
   try {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
     if (diffInSeconds < 60) {
-      return "à l'instant";
+      return t('notificationsPage.justNow');
     }
     
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     if (diffInMinutes < 60) {
-      return `il y a ${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''}`;
+      return t('notificationsPage.minutesAgo').replace('{n}', String(diffInMinutes));
     }
     
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) {
-      return `il y a ${diffInHours} heure${diffInHours > 1 ? 's' : ''}`;
+      return t('notificationsPage.hoursAgo').replace('{n}', String(diffInHours));
     }
     
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays < 7) {
-      return `il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`;
+      return t('notificationsPage.daysAgo').replace('{n}', String(diffInDays));
     }
     
-    return date.toLocaleDateString('fr-FR', {
+    return date.toLocaleDateString(localeFor(language), {
       day: 'numeric',
       month: 'short'
     });
   } catch {
-    return "Récemment";
+    return t('notificationsPage.recently');
   }
 };
 
 type FilterType = 'all' | 'orders' | 'promo' | 'system';
 
 export default function NotificationsPage() {
+  const { t, language } = useT();
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useAppNotifications();
   const { user } = useAuth();
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
   const filters = [
-    { id: 'all', label: 'Tout', icon: <Bell size={14} /> },
-    { id: 'orders', label: 'Commandes', icon: <ShoppingBag size={14} /> },
-    { id: 'promo', label: 'Promotions', icon: <Sparkles size={14} /> },
-    { id: 'system', label: 'Système', icon: <Info size={14} /> },
+    { id: 'all', label: t('notificationsPage.filterAll'), icon: <Bell size={14} /> },
+    { id: 'orders', label: t('notificationsPage.filterOrders'), icon: <ShoppingBag size={14} /> },
+    { id: 'promo', label: t('notificationsPage.filterPromo'), icon: <Sparkles size={14} /> },
+    { id: 'system', label: t('notificationsPage.filterSystem'), icon: <Info size={14} /> },
   ];
 
   const filteredNotifications = notifications.filter(n => {
@@ -105,13 +114,13 @@ export default function NotificationsPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-[10px] font-black text-[#A64B2A] uppercase tracking-[0.3em]">
                 <span className="w-8 h-px bg-[#A64B2A]" />
-                Centre d'activités
+                {t('notificationsPage.activityCenter')}
               </div>
               <h1 className="text-4xl md:text-6xl font-black text-[#8B4513] dark:text-white tracking-tighter uppercase leading-none">
-                Notifications
+                {t('notificationsPage.title')}
               </h1>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">
-                Vous avez <span className="text-black dark:text-white">{unreadCount}</span> message(s) non lu(s)
+                {t('notificationsPage.unreadPrefix')} <span className="text-black dark:text-white">{unreadCount}</span> {t('notificationsPage.unreadSuffix')}
               </p>
             </div>
 
@@ -121,7 +130,7 @@ export default function NotificationsPage() {
               disabled={unreadCount === 0}
               className="text-[10px] font-black uppercase tracking-widest text-[#A64B2A] hover:bg-[#A64B2A]/5 px-6 h-12 rounded-full border border-[#A64B2A]/20 transition-all"
             >
-              Tout marquer comme lu
+              {t('notificationsPage.markAllRead')}
             </Button>
           </div>
 
@@ -149,7 +158,7 @@ export default function NotificationsPage() {
               {isLoading ? (
                 <div className="py-20 flex flex-col items-center gap-4 opacity-20">
                   <Bell className="animate-bounce" size={40} />
-                  <p className="text-[10px] font-black uppercase tracking-widest">Chargement...</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">{t('notificationsPage.loading')}</p>
                 </div>
               ) : filteredNotifications.length > 0 ? (
                 filteredNotifications.map((n, index) => (
@@ -188,7 +197,7 @@ export default function NotificationsPage() {
                           {n.title}
                         </h3>
                         <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest whitespace-nowrap ml-4">
-                          {formatDistanceToNow(new Date(n.createdAt))}
+                          {formatDistanceToNow(new Date(n.createdAt), t, language)}
                         </span>
                       </div>
                       <p className={`text-xs md:text-sm font-medium leading-relaxed max-w-2xl ${
@@ -214,10 +223,10 @@ export default function NotificationsPage() {
                     <Bell size={40} />
                   </div>
                   <h3 className="text-lg font-black text-gray-400 uppercase tracking-widest">
-                    Silence Radio
+                    {t('notificationsPage.emptyTitle')}
                   </h3>
                   <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest mt-2">
-                    Aucune notification ne correspond à ce filtre.
+                    {t('notificationsPage.emptyDesc')}
                   </p>
                 </motion.div>
               )}

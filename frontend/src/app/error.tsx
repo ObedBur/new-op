@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import useT from '@/i18n/useT';
 
 export default function Error({
   error,
@@ -9,6 +10,8 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const { t } = useT();
+
   useEffect(() => {
     // On peut logger l'erreur ici vers un service externe (Sentry, etc.)
     console.error('Next.js Global Error:', error);
@@ -23,10 +26,10 @@ export default function Error({
 
         <div className="space-y-3">
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-            Une erreur critique est survenue
+            {t('errorPage.criticalTitle')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-            Nous ne sommes pas en mesure de charger cette page pour le moment.
+            {t('errorPage.criticalMessage')}
           </p>
         </div>
 
@@ -36,14 +39,14 @@ export default function Error({
             className="w-full h-16 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-sm flex items-center justify-center gap-3"
           >
             <span className="material-symbols-outlined">restart_alt</span>
-            Tenter de recharger
+            {t('errorPage.reload')}
           </button>
 
           <button
             onClick={() => window.location.href = '/'}
             className="w-full h-16 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-black rounded-2xl border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-sm"
           >
-            Retour à lapage accueil
+            {t('errorPage.backHome')}
 
           </button>
         </div>

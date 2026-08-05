@@ -40,7 +40,10 @@ export class OrdersService {
     const { items, customerName, customerPhone, customerEmail, deliveryAddress } = createBulkOrderDto;
 
     if (!items.length) {
-      throw new BadRequestException('Le panier est vide.');
+      throw new BadRequestException({
+        code: 'ORDER_CART_EMPTY',
+        message: 'Le panier est vide.',
+      });
     }
 
     const groupedItems = Array.from(
@@ -57,28 +60,41 @@ export class OrdersService {
     });
 
     if (products.length !== groupedItems.length) {
-      throw new NotFoundException('Certains produits sélectionnés n\'existent plus.');
+      throw new NotFoundException({
+        code: 'ORDER_PRODUCTS_MISSING',
+        message: 'Certains produits sélectionnés n\'existent plus.',
+      });
     }
 
     // Validation préalable pour éviter les commandes impossibles ou incohérentes.
     for (const item of groupedItems) {
       const product = products.find(p => p.id === item.productId);
       if (!product) {
-        throw new NotFoundException('Un produit sélectionné n\'existe plus.');
+        throw new NotFoundException({
+          code: 'ORDER_PRODUCT_MISSING',
+          message: 'Un produit sélectionné n\'existe plus.',
+        });
       }
 
       if (!product.isPublic || product.availability === 'OUT_OF_STOCK') {
-        throw new BadRequestException(`"${product.name}" n'est plus disponible à la commande.`);
+        throw new BadRequestException({
+          code: 'ORDER_PRODUCT_UNAVAILABLE',
+          message: `"${product.name}" n'est plus disponible à la commande.`,
+        });
       }
 
       if (!product.user?.isActive || product.user.role !== UserRole.VENDOR) {
-        throw new BadRequestException(`Le vendeur de "${product.name}" n'est pas disponible actuellement.`);
+        throw new BadRequestException({
+          code: 'ORDER_VENDOR_UNAVAILABLE',
+          message: `Le vendeur de "${product.name}" n'est pas disponible actuellement.`,
+        });
       }
 
       if (product.stockQuantity !== null && product.stockQuantity !== undefined && product.stockQuantity < item.quantity) {
-        throw new BadRequestException(
-          `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`
-        );
+        throw new BadRequestException({
+          code: 'ORDER_STOCK_INSUFFICIENT',
+          message: `Stock insuffisant pour "${product.name}". Disponible : ${product.stockQuantity}, demandé : ${item.quantity}.`,
+        });
       }
     }
 
@@ -123,7 +139,7 @@ export class OrdersService {
     const updatedProducts = createdOrders.filter((r): r is any => 'stockQuantity' in r);
     for (const p of updatedProducts) {
       if (p.stockQuantity !== null && p.stockQuantity !== undefined && p.stockQuantity < 5 && p.stockQuantity >= 0) {
-        this.handleLowStockAlert(p);
+        await this.handleLowStockAlert(p);
       }
     }
 
@@ -141,18 +157,24 @@ export class OrdersService {
   /**
    * Déclenche les alertes multi-canaux (In-App + Push) pour le stock bas.
    */
-  private handleLowStockAlert(product: any) {
+  private async handleLowStockAlert(product: any) {
+    const vendor = await this.prisma.user.findUnique({
+      where: { id: product.userId },
+      select: { language: true },
+    });
+    const lang = vendor?.language || 'fr';
+
     this.notificationsService.createNotification({
       userId: product.userId,
-      title: 'Alerte Stock Bas',
-      message: `Il ne reste plus que ${product.stockQuantity} exemplaire(s) de "${product.name}".`,
+      title: t(lang, 'notif.lowStock.title'),
+      message: t(lang, 'notif.lowStock.message', { count: product.stockQuantity, product: product.name }),
       type: NotificationType.SYSTEM_ALERT,
       metadata: { productId: product.id, currentStock: product.stockQuantity },
     });
 
     this.notificationsService.sendPushToUser(product.userId, {
-      title: 'Stock presque épuisé',
-      body: `Plus que ${product.stockQuantity} "${product.name}" en stock.`,
+      title: t(lang, 'notif.lowStock.pushTitle'),
+      body: t(lang, 'notif.lowStock.pushBody', { count: product.stockQuantity, product: product.name }),
       data: { url: '/dashboard/products' }
     });
   }
@@ -254,6 +276,7 @@ export class OrdersService {
         productImage: firstImage,
         deliveryAddress: address,
         totalPrice: vendorTotal,
+        language: lang,
       }).catch(err => this.logger.error(`WhatsApp vendeur failed: ${vendorId}`, err));
 
       this.notificationsService.createNotification({
@@ -301,6 +324,8 @@ export class OrdersService {
     const admins = await this.prisma.user.findMany({ where: { role: UserRole.ADMIN } });
 
     admins.forEach(admin => {
+      const adminLang = admin.language || 'fr';
+
       this.emailService.sendAdminOrderAlert({
         adminEmail: admin.email,
         orderCount: count,
@@ -310,12 +335,12 @@ export class OrdersService {
           productName: o.product.name,
           productImage: o.product.image || (o.product.images && o.product.images[0])
         })),
-      }).catch(err => this.logger.error(`Email admin failed: ${admin.email}`, err));
+      }, adminLang).catch(err => this.logger.error(`Email admin failed: ${admin.email}`, err));
 
       this.notificationsService.createNotification({
         userId: admin.id,
-        title: 'Nouvelle commande plateforme',
-        message: `${customerName} a commandé ${count} article(s) (${total.toLocaleString()} $).`,
+        title: t(adminLang, 'notif.orderAdmin.title'),
+        message: t(adminLang, 'notif.orderAdmin.message', { customer: customerName, count, total: total.toLocaleString() }),
         type: NotificationType.ORDER_CREATED,
         metadata: {
           url: '/admin/notification',
@@ -326,7 +351,7 @@ export class OrdersService {
 
       if (admin.phone) {
         this.whatsAppService.sendWhatsAppMessage(admin.phone,
-          `ALERTE ADMIN : Nouvelle commande de ${customerName} (${total.toLocaleString()} $).`
+          t(adminLang, 'whatsapp.admin', { customer: customerName, total: total.toLocaleString() })
         ).catch(err => this.logger.error(`WhatsApp admin failed: ${admin.phone}`, err));
       }
     });
@@ -386,13 +411,19 @@ export class OrdersService {
       include: { product: true, client: true, vendor: true }
     });
 
-    if (!order) throw new NotFoundException('Commande introuvable');
+    if (!order) throw new NotFoundException({
+      code: 'ORDER_NOT_FOUND',
+      message: 'Commande introuvable',
+    });
 
     // Sécurité : Seul le propriétaire de la boutique ou l'admin peut changer le statut
     const isOwner = order.vendorId === requesterId;
     const isAdmin = requesterRole === 'ADMIN';
     if (!isOwner && !isAdmin) {
-      throw new ForbiddenException('Accès refusé : vous n\'êtes pas le propriétaire de cette vente.');
+      throw new ForbiddenException({
+        code: 'ORDER_FORBIDDEN',
+        message: 'Accès refusé : vous n\'êtes pas le propriétaire de cette vente.',
+      });
     }
 
     const updatedOrder = await this.prisma.order.update({
@@ -560,8 +591,8 @@ export class OrdersService {
 
         this.notificationsService.createNotification({
           userId: order.vendorId,
-          title: 'Retard de validation',
-          message: `Votre TrustScore a été réduit pour inactivité sur la commande de ${order.customerName}.`,
+          title: t(order.vendor.language, 'notif.penalty.title'),
+          message: t(order.vendor.language, 'notif.penalty.message', { name: order.customerName }),
           type: NotificationType.SYSTEM_ALERT,
         });
       }

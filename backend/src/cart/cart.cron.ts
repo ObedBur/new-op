@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../common/email/email.service';
 import { NotificationsService } from '../common/notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
+import { t } from '../common/i18n/i18n';
 
 @Injectable()
 export class CartCronService {
@@ -56,12 +57,13 @@ export class CartCronService {
       for (const [userId, items] of itemsByUser.entries()) {
         const user = items[0].user;
         const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+        const lang = user.language || 'fr';
 
         // 1. Notification In-App
         await this.notificationsService.createNotification({
           userId: user.id,
-          title: 'Panier en attente',
-          message: `Vous avez laissé ${itemCount} article(s) dans votre panier ! Finalisez votre commande maintenant.`,
+          title: t(lang, 'notif.abandonedCart.title'),
+          message: t(lang, 'notif.abandonedCart.message', { count: itemCount }),
           type: NotificationType.PROMOTION,
           metadata: {
             url: '/cart',
@@ -75,7 +77,7 @@ export class CartCronService {
           name: user.fullName || 'Client',
           itemCount,
           cartLink,
-        }).catch(err => this.logger.error(`Erreur email relance panier pour ${user.email}`, err));
+        }, lang).catch(err => this.logger.error(`Erreur email relance panier pour ${user.email}`, err));
 
         this.logger.log(`Relance panier envoyée à l'utilisateur ${user.id} (${itemCount} articles).`);
       }

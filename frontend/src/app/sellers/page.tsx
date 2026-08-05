@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getActiveSellers, Seller } from '@/features/home/services/seller.service';
+import useT from '@/i18n/useT';
 
 export default function SellersPage() {
+    const { t } = useT();
     const [sellers, setSellers] = useState<Seller[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -35,10 +37,10 @@ export default function SellersPage() {
     <main className="flex-1 pt-20">
       <section className="py-12 container mx-auto max-w-7xl px-4 animate-in fade-in duration-500">
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
-              <span className="text-primary font-bold text-[10px] sm:text-sm uppercase tracking-[0.2em] sm:tracking-wider">Partenaires</span>
-              <h2 className="text-2xl sm:text-5xl font-black text-deep-blue dark:text-white mt-2 mb-3 sm:mb-4 tracking-tighter">Nos Vendeurs Vérifiés</h2>
+              <span className="text-primary font-bold text-[10px] sm:text-sm uppercase tracking-[0.2em] sm:tracking-wider">{t('sellersPage.partners')}</span>
+              <h2 className="text-2xl sm:text-5xl font-black text-deep-blue dark:text-white mt-2 mb-3 sm:mb-4 tracking-tighter">{t('sellersPage.title')}</h2>
               <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-lg">
-                  Découvrez les boutiques et commerçants de confiance de toute l&apos;Afrique.
+                  {t('sellersPage.subtitle')}
               </p>
           </div>
 
@@ -59,7 +61,7 @@ export default function SellersPage() {
                               />
                           </div>
                           {seller.isVerified && (
-                              <div className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-0.5 sm:p-1 border-2 border-white dark:border-[#1a1a1a] shadow-sm" title="Vendeur vérifié">
+                              <div className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-0.5 sm:p-1 border-2 border-white dark:border-[#1a1a1a] shadow-sm" title={t('sellersPage.verifiedTitle')}>
                                   <span className="material-symbols-outlined text-[12px] sm:text-[16px] block font-bold">verified</span>
                               </div>
                           )}
@@ -124,11 +126,11 @@ export default function SellersPage() {
                                    <span className="text-[12px] sm:text-lg font-black text-deep-blue dark:text-white mr-1">{(seller.trustScore / 20).toFixed(1)}</span>
                                    <span className="material-symbols-outlined text-[12px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                </div>
-                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">Score</span>
+                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">{t('sellersPage.score')}</span>
                            </div>
                            <div className="flex flex-col border-l border-gray-100 dark:border-white/10">
                                <span className="font-black text-[12px] sm:text-lg text-deep-blue dark:text-white">{seller.productPreviews.length}+</span>
-                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">Items</span>
+                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">{t('sellersPage.items')}</span>
                            </div>
                       </div>
 
@@ -136,8 +138,8 @@ export default function SellersPage() {
                         href={`/sellers/${seller.id}`}
                         className="w-full py-2.5 sm:py-3.5 bg-gray-50 dark:bg-white/5 text-deep-blue dark:text-white font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-primary/20"
                       >
-                          <span className="hidden sm:inline">Visiter</span>
-                          <span className="sm:hidden">Voir</span>
+                          <span className="hidden sm:inline">{t('sellersPage.visit')}</span>
+                          <span className="sm:hidden">{t('sellersPage.view')}</span>
                           <span className="material-symbols-outlined text-[16px] sm:text-[18px]">arrow_forward</span>
                       </Link>
                   </div>

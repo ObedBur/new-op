@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { CheckCircle2, ShoppingBag, MessageCircle, ArrowRight, Home, Package, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import useT from '@/i18n/useT';
 
 export default function CheckoutSuccessPage() {
-    const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const { t, language } = useT();
+    const today = new Date().toLocaleDateString(language, { day: 'numeric', month: 'long', year: 'numeric' });
     const orderId = "WPB-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
     return (
@@ -28,30 +30,30 @@ export default function CheckoutSuccessPage() {
                 {/* Main Content */}
                 <div className="space-y-4 mb-10">
                     <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white leading-tight">
-                        Commande validée !
+                        {t('cartSuccess.title')}
                     </h1>
                     <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base px-2 leading-relaxed">
-                        Merci pour votre confiance. Votre demande a été transmise aux vendeurs concernés.
+                        {t('cartSuccess.message')}
                     </p>
                 </div>
 
                 {/* Details Box (Inspired by image) */}
                 <div className="bg-[#F8F9FB] dark:bg-white/5 rounded-3xl p-6 md:p-8 space-y-4 mb-10 text-left">
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400 font-medium">N° de commande</span>
+                        <span className="text-gray-400 font-medium">{t('cartSuccess.orderNumber')}</span>
                         <span className="text-black dark:text-white font-bold">{orderId}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400 font-medium">Date</span>
+                        <span className="text-gray-400 font-medium">{t('cartSuccess.date')}</span>
                         <span className="text-black dark:text-white font-bold">{today}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400 font-medium">Statut</span>
-                        <span className="text-emerald-500 font-bold uppercase text-[10px] tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">Transmis</span>
+                        <span className="text-gray-400 font-medium">{t('cartSuccess.status')}</span>
+                        <span className="text-emerald-500 font-bold uppercase text-[10px] tracking-widest bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">{t('cartSuccess.statusTransmitted')}</span>
                     </div>
                     <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
                         <p className="text-[11px] text-gray-500 dark:text-gray-400 italic leading-relaxed">
-                            <span className="font-bold text-[#768FFF]">Note :</span> Le service est actuellement gratuit. Le vendeur a bien reçu votre demande et vous contactera prochainement pour finaliser le paiement et la livraison.
+                            <span className="font-bold text-[#768FFF]">{t('cartSuccess.note')}</span> {t('cartSuccess.noteText')}
                         </p>
                     </div>
                 </div>
@@ -62,13 +64,13 @@ export default function CheckoutSuccessPage() {
                         <Button
                             className="w-full h-16 bg-[#080B1A] dark:bg-white hover:bg-black dark:hover:bg-gray-200 text-white dark:text-black rounded-full font-bold text-base transition-all shadow-xl"
                         >
-                            Continuer mes achats
+                            {t('cartSuccess.continueShopping')}
                         </Button>
                     </Link>
 
                     <Link href="/" className="block">
                         <span className="text-sm font-bold text-gray-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer">
-                            Retour à l'accueil
+                            {t('errorPage.backHome')}
                         </span>
                     </Link>
                 </div>

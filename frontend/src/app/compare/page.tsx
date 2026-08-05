@@ -25,12 +25,14 @@ import { ProductCard } from '@/features/products/components/ProductCard';
 import { ProductQuickView } from '@/features/products/components/ProductQuickView';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/features/cart/context/CartContext';
+import useT from '@/i18n/useT';
 
 
 // ─────────────────────────────────────────────
 // EMPTY STATE (ACCUEIL COMPARATEUR)
 // ─────────────────────────────────────────────
 function EmptyCompareState() {
+  const { t } = useT();
   const [trends, setTrends] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,10 +64,10 @@ function EmptyCompareState() {
             <Scale className="w-10 h-10 text-[#2D5A27] dark:text-emerald-400 -rotate-3" />
           </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight mb-4 uppercase">
-            Le Marché <span className="text-[#E67E22]">Transparent</span>
+            {t('compare.heroTitle')} <span className="text-[#E67E22]">{t('compare.heroHighlight')}</span>
           </h1>
           <p className="text-sm md:text-base font-bold text-gray-500 dark:text-gray-400 mb-8 max-w-lg mx-auto leading-relaxed">
-            Trouvez toujours le meilleur prix. Utilisez la barre de recherche ci-dessus pour comparer les offres parmi nos vendeurs vérifiés.
+            {t('compare.heroDescription')}
           </p>
         </div>
       </div>
@@ -76,22 +78,22 @@ function EmptyCompareState() {
           <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center mb-4 text-[#2D5A27]">
             <Search className="w-5 h-5" />
           </div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">1. Recherchez</h3>
-          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">Saisissez un produit dans la barre de recherche du menu.</p>
+          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">{t('compare.step1Title')}</h3>
+          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">{t('compare.step1Desc')}</p>
         </div>
         <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm hover:-translate-y-1 transition-transform delay-75">
           <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center mb-4 text-[#2D5A27] dark:text-emerald-400">
             <Scale className="w-5 h-5" />
           </div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">2. Comparez</h3>
-          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">Filtrez par prix, localisation et vendeurs vérifiés.</p>
+          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">{t('compare.step2Title')}</h3>
+          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">{t('compare.step2Desc')}</p>
         </div>
         <div className="bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm hover:-translate-y-1 transition-transform delay-150">
           <div className="w-12 h-12 bg-orange-50 dark:bg-[#E67E22]/10 rounded-xl flex items-center justify-center mb-4 text-[#E67E22]">
             <MessageCircle className="w-5 h-5" />
           </div>
-          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">3. Commandez</h3>
-          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">Contactez directement le vendeur via WhatsApp en 1 clic.</p>
+          <h3 className="text-xs font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 mb-2">{t('compare.step3Title')}</h3>
+          <p className="text-[10px] font-bold text-gray-500 leading-relaxed">{t('compare.step3Desc')}</p>
         </div>
       </div>
 
@@ -99,7 +101,7 @@ function EmptyCompareState() {
       <div className="w-full">
         <div className="flex items-center gap-3 mb-6">
           <TrendingUp className="w-5 h-5 text-[#E67E22]" />
-          <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-white">Comparaisons Tendances</h3>
+          <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-white">{t('compare.trendsTitle')}</h3>
         </div>
         
         {loading ? (
@@ -128,7 +130,7 @@ function EmptyCompareState() {
             ))}
           </div>
         ) : (
-          <p className="text-xs font-bold text-gray-400">Aucune tendance disponible pour le moment.</p>
+          <p className="text-xs font-bold text-gray-400">{t('compare.noTrends')}</p>
         )}
       </div>
     </div>
@@ -139,6 +141,7 @@ function EmptyCompareState() {
 // PAGE PRINCIPALE
 // ─────────────────────────────────────────────
 function CompareContent() {
+  const { t } = useT();
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   
@@ -294,9 +297,9 @@ function CompareContent() {
   const FilterOptions = () => (
     <div className="space-y-8">
       <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/5">
-        <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400">Filtres</h3>
+        <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400">{t('compare.filtersTitle')}</h3>
         <button onClick={clearFilters} className="text-[10px] font-bold text-gray-400 hover:text-[#E67E22] transition-colors">
-          Effacer tout
+          {t('compare.clearAll')}
         </button>
       </div>
 
@@ -306,8 +309,8 @@ function CompareContent() {
         onClick={() => setIsVerifiedOnly(!isVerifiedOnly)}
       >
         <div>
-          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">Vendeurs Vérifiés</h4>
-          <p className="text-[9px] font-medium text-gray-400">Afficher uniquement les pros</p>
+          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">{t('compare.verifiedSellers')}</h4>
+          <p className="text-[9px] font-medium text-gray-400">{t('compare.verifiedOnly')}</p>
         </div>
         <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center px-1 shrink-0 ${isVerifiedOnly ? 'bg-[#E67E22]' : 'bg-gray-200 dark:bg-white/10'}`}>
           <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${isVerifiedOnly ? 'translate-x-4' : 'translate-x-0'}`} />
@@ -316,32 +319,32 @@ function CompareContent() {
 
       {/* Disponibilité */}
       <div className="space-y-3">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">Disponibilité</h4>
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.availability')}</h4>
         <div className="flex flex-col gap-2.5">
           <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('ALL')}>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'ALL' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
               {availability === 'ALL' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
             </div>
-            <span className={`text-xs font-bold transition-colors ${availability === 'ALL' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>Tous les articles</span>
+            <span className={`text-xs font-bold transition-colors ${availability === 'ALL' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.allItems')}</span>
           </label>
           <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('IN_STOCK')}>
             <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'IN_STOCK' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
               {availability === 'IN_STOCK' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
             </div>
-            <span className={`text-xs font-bold transition-colors ${availability === 'IN_STOCK' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>En stock uniquement</span>
+            <span className={`text-xs font-bold transition-colors ${availability === 'IN_STOCK' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.inStockOnly')}</span>
           </label>
         </div>
       </div>
 
       {/* Fourchette de prix */}
       <div className="space-y-4">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">Prix ($)</h4>
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.price')}</h4>
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
             <input 
               type="number" 
-              placeholder="Min" 
+              placeholder={t('compare.minPlaceholder')} 
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
               onBlur={(e) => setMinPrice(e.target.value)}
@@ -354,7 +357,7 @@ function CompareContent() {
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
             <input 
               type="number" 
-              placeholder="Max" 
+              placeholder={t('compare.maxPlaceholder')} 
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
               onBlur={(e) => setMaxPrice(e.target.value)}
@@ -368,7 +371,7 @@ function CompareContent() {
       {/* Localisation */}
       {availableCities.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">Villes</h4>
+          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.cities')}</h4>
           <div className="space-y-2 max-h-40 overflow-y-auto pr-2 no-scrollbar">
             {availableCities.map(city => (
               <label key={city} className="flex items-center gap-3 cursor-pointer group">
@@ -385,7 +388,7 @@ function CompareContent() {
       {/* Boutiques */}
       {availableShops.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">Boutiques</h4>
+          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.shops')}</h4>
           <div className="space-y-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
             {availableShops.map(shop => (
               <label key={shop} className="flex items-center gap-3 cursor-pointer group">
@@ -410,10 +413,10 @@ function CompareContent() {
           <div className="mb-6 lg:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-black text-[#2D5A27] dark:text-white uppercase tracking-tight">
-                Comparaison: <span className="text-[#E67E22]">&ldquo;{query}&rdquo;</span>
+                {t('compare.comparisonTitle')} <span className="text-[#E67E22]">&ldquo;{query}&rdquo;</span>
               </h1>
               <p className="text-xs font-bold text-gray-400 mt-1">
-                {filteredAndConverted.length} offre{filteredAndConverted.length !== 1 ? 's' : ''} trouvée{filteredAndConverted.length !== 1 ? 's' : ''}
+                {filteredAndConverted.length} {filteredAndConverted.length !== 1 ? t('compare.offersFoundPlural') : t('compare.offersFoundSingular')}
               </p>
             </div>
           </div>
@@ -434,18 +437,18 @@ function CompareContent() {
             {filteredAndConverted.length > 0 && !loading && (
               <div className="hidden lg:flex items-center justify-between bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-3 shadow-sm mb-6">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  {filteredAndConverted.length} Résultat{filteredAndConverted.length !== 1 ? 's' : ''}
+                  {filteredAndConverted.length} {filteredAndConverted.length !== 1 ? t('compare.resultsPlural') : t('compare.resultsSingular')}
                 </span>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Trier par:</span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('compare.sortBy')}</span>
                   <select
                     className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400 rounded-lg px-3 py-1.5 outline-none cursor-pointer focus:border-[#E67E22]"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                   >
-                    <option value="price_asc">Prix croissant</option>
-                    <option value="price_desc">Prix décroissant</option>
-                    <option value="rating">Mieux notés</option>
+                    <option value="price_asc">{t('compare.sortPriceAsc')}</option>
+                    <option value="price_desc">{t('compare.sortPriceDesc')}</option>
+                    <option value="rating">{t('compare.sortRating')}</option>
                   </select>
                 </div>
               </div>
@@ -455,7 +458,7 @@ function CompareContent() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32 space-y-4">
                 <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">Analyse du marché en cours...</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">{t('compare.analyzing')}</p>
               </div>
             ) : filteredAndConverted.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-6">
@@ -463,7 +466,7 @@ function CompareContent() {
                   <div key={product.id} className="relative animate-in fade-in slide-in-from-bottom-6 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
                     {product.price === filteredMin && filteredAndConverted.length > 1 && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-emerald-600 text-[8px] font-black uppercase tracking-widest text-white rounded-full shadow-lg whitespace-nowrap">
-                        Meilleur Prix
+                        {t('compare.bestPrice')}
                       </div>
                     )}
                     <ProductCard product={product} onQuickView={setSelectedProduct} />
@@ -476,12 +479,12 @@ function CompareContent() {
                   <Package className="w-8 h-8 text-gray-300 dark:text-white/20" />
                 </div>
                 <h2 className="text-xl font-black text-gray-400 dark:text-white/40 uppercase tracking-tight">
-                  Aucun produit trouvé pour &ldquo;{query}&rdquo;
+                  {t('compare.noResultsTitle')} &ldquo;{query}&rdquo;
                 </h2>
-                <p className="text-xs font-bold text-gray-400 mt-2">Vérifiez l'orthographe ou ajustez vos filtres.</p>
+                <p className="text-xs font-bold text-gray-400 mt-2">{t('compare.noResultsDesc')}</p>
                 {products.length > 0 && (
                   <button onClick={clearFilters} className="mt-6 px-6 py-2 bg-[#E67E22] hover:bg-[#d67118] text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
-                    Effacer les filtres
+                    {t('compare.clearFilters')}
                   </button>
                 )}
               </div>

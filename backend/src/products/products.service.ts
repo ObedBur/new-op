@@ -340,7 +340,10 @@ export class ProductsService {
   async update(id: string, data: any, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException('Produit introuvable ou vous n\'êtes pas autorisé à le modifier.');
+      throw new BadRequestException({
+        code: 'PRODUCT_UPDATE_FORBIDDEN',
+        message: 'Produit introuvable ou vous n\'êtes pas autorisé à le modifier.',
+      });
     }
 
     if (data.image) {
@@ -408,7 +411,10 @@ export class ProductsService {
   async remove(id: string, userId: string) {
     const product = await this.findOne(id);
     if (!product || product.userId !== userId) {
-      throw new BadRequestException('Produit introuvable ou accès non autorisé.');
+      throw new BadRequestException({
+        code: 'PRODUCT_DELETE_FORBIDDEN',
+        message: 'Produit introuvable ou accès non autorisé.',
+      });
     }
 
     return this.prisma.product.delete({ where: { id } });

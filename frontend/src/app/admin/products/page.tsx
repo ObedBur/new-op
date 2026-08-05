@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useProducts, useAdminTranslation } from '@/features/admin-dashboard/hooks';
+import { useProducts } from '@/features/admin-dashboard/hooks';
 import { useAdminSearch } from '@/features/admin-dashboard/context';
+import useT from '@/i18n/useT';
 
 export default function AdminProductsPage() {
     const { searchQuery } = useAdminSearch();
-    const { t } = useAdminTranslation();
+    const { t } = useT();
     const { products, isLoading, error } = useProducts({ searchQuery, limit: 50 });
 
     if (isLoading) {
@@ -21,7 +22,7 @@ export default function AdminProductsPage() {
         return (
             <div className="p-8 text-center text-red-500 bg-red-50 rounded-2xl border border-red-100">
                 <span className="material-symbols-outlined text-4xl mb-2">error</span>
-                <p className="font-bold">Erreur lors du chargement des produits</p>
+                <p className="font-bold">{t('adminPage.productsLoadError')}</p>
                 <p className="text-sm opacity-70">{error}</p>
             </div>
         );
@@ -32,8 +33,8 @@ export default function AdminProductsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 dark:text-white">Produits</h1>
-                    <p className="text-sm text-slate-500 mt-1">{products.length} produit(s) trouvé(s)</p>
+                    <h1 className="text-2xl font-black text-slate-900 dark:text-white">{t('adminPage.productsTitle')}</h1>
+                    <p className="text-sm text-slate-500 mt-1">{products.length} {t('adminPage.productsCount')}</p>
                 </div>
             </div>
 
@@ -43,19 +44,19 @@ export default function AdminProductsPage() {
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">Produit</th>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">Vendeur</th>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">Prix</th>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">Marché</th>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">Dernière MAJ</th>
-                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs text-right">Actions</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">{t('adminPage.product')}</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">{t('adminPage.seller')}</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">{t('adminPage.priceCol')}</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">{t('adminPage.market')}</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">{t('adminPage.lastUpdate')}</th>
+                                <th className="px-6 py-4 font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs text-right">{t('adminPage.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {products.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-12 text-center text-slate-400 italic">
-                                        Aucun produit trouvé.
+                                        {t('adminPage.noProducts')}
                                     </td>
                                 </tr>
                             ) : (
@@ -83,7 +84,7 @@ export default function AdminProductsPage() {
                                         </td>
                                         <td className="px-6 py-4 text-xs font-bold text-slate-400 tracking-widest uppercase">{product.lastUpdate}</td>
                                         <td className="px-6 py-4 text-right">
-                                            <button className="text-emerald-600 hover:text-emerald-700 font-bold text-xs uppercase tracking-wide">Modifier</button>
+                                            <button className="text-emerald-600 hover:text-emerald-700 font-bold text-xs uppercase tracking-wide">{t('adminPage.modify')}</button>
                                         </td>
                                     </tr>
                                 ))

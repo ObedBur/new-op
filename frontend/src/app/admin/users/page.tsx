@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@/lib/axios';
 import { adminService } from '@/features/admin-dashboard/api/admin.api';
+import useT from '@/i18n/useT';
 
 interface User {
     id: string;
@@ -18,6 +19,7 @@ interface User {
 }
 
 export default function AdminUsersPage() {
+    const { t } = useT();
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -37,7 +39,7 @@ export default function AdminUsersPage() {
     }, []);
 
     const handleDelete = async (userId: string, userName: string) => {
-        if (!window.confirm(`Voulez-vous vraiment supprimer l'utilisateur ${userName} et toutes ses données associées (produits, commandes, etc.) ? Cette action est irréversible.`)) {
+        if (!window.confirm(t('adminPage.deleteConfirm').replace('{name}', userName))) {
             return;
         }
 
@@ -45,10 +47,10 @@ export default function AdminUsersPage() {
             await adminService.deleteUser(userId);
             // Mettre à jour la liste localement
             setUsers(prev => prev.filter(u => u.id !== userId));
-            alert('Utilisateur supprimé avec succès.');
+            alert(t('adminPage.deleteSuccess'));
         } catch (error) {
             console.error('Erreur lors de la suppression', error);
-            alert('Erreur lors de la suppression de l\'utilisateur.');
+            alert(t('adminPage.usersDeleteError'));
         }
     };
 
@@ -76,17 +78,17 @@ export default function AdminUsersPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900 dark:text-white">Utilisateurs</h1>
-                    <p className="text-sm text-slate-500 mt-1">{users.length} utilisateur(s) inscrits</p>
+                    <h1 className="text-2xl font-black text-slate-900 dark:text-white">{t('adminPage.usersTitle')}</h1>
+                    <p className="text-sm text-slate-500 mt-1">{users.length} {t('adminPage.usersCount')}</p>
                 </div>
             </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                    { label: 'Admins', count: users.filter(u => u.role === 'ADMIN').length, icon: 'admin_panel_settings', color: 'from-purple-500 to-purple-600' },
-                    { label: 'Vendeurs', count: users.filter(u => u.role === 'VENDOR').length, icon: 'storefront', color: 'from-blue-500 to-blue-600' },
-                    { label: 'Clients', count: users.filter(u => u.role === 'CLIENT').length, icon: 'person', color: 'from-slate-500 to-slate-600' },
+                    { label: t('adminPage.admins'), count: users.filter(u => u.role === 'ADMIN').length, icon: 'admin_panel_settings', color: 'from-purple-500 to-purple-600' },
+                    { label: t('adminPage.vendors'), count: users.filter(u => u.role === 'VENDOR').length, icon: 'storefront', color: 'from-blue-500 to-blue-600' },
+                    { label: t('adminPage.clients'), count: users.filter(u => u.role === 'CLIENT').length, icon: 'person', color: 'from-slate-500 to-slate-600' },
                 ].map((stat) => (
                     <div key={stat.label} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm">
                         <div className={`size-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
@@ -106,20 +108,20 @@ export default function AdminUsersPage() {
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                             <tr>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Nom</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Email</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Téléphone</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Rôle</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Vérifié</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">Score</th>
-                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">Actions</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.name')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.email')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.phone')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.role')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.verified')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300">{t('adminPage.score')}</th>
+                                <th className="px-6 py-4 font-semibold text-slate-600 dark:text-slate-300 text-right">{t('adminPage.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {users.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                                        Aucun utilisateur trouvé.
+                                        {t('adminPage.noUsers')}
                                     </td>
                                 </tr>
                             ) : (
@@ -156,7 +158,7 @@ export default function AdminUsersPage() {
                                             <button
                                                 onClick={() => handleDelete(user.id, user.fullName || user.email)}
                                                 className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                title="Supprimer l'utilisateur"
+                                                 title={t('adminPage.deleteTitle')}
                                             >
                                                 <span className="material-symbols-outlined text-[20px]">delete</span>
                                             </button>

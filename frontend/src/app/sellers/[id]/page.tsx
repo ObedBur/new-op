@@ -9,8 +9,10 @@ import { useAuth } from '@/context/AuthContext';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { ProductQuickView } from '@/features/products/components/ProductQuickView';
 import { Product } from '@/features/products/types';
+import useT from '@/i18n/useT';
 
 export default function SellerDetailPage() {
+  const { t } = useT();
   const { id } = useParams();
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -69,8 +71,8 @@ export default function SellerDetailPage() {
   if (!sellerData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center pt-24 gap-4">
-        <h2 className="text-2xl font-black text-deep-blue dark:text-white">Boutique introuvable</h2>
-        <Link href="/sellers" className="text-primary font-bold hover:underline italic">Retour</Link>
+        <h2 className="text-2xl font-black text-deep-blue dark:text-white">{t('sellerDetail.notFound')}</h2>
+        <Link href="/sellers" className="text-primary font-bold hover:underline italic">{t('sellerDetail.back')}</Link>
       </div>
     );
   }
@@ -140,11 +142,11 @@ export default function SellerDetailPage() {
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-10 mt-4">
                   <div className="flex flex-col">
                     <span className="text-xl sm:text-2xl font-black text-deep-blue dark:text-white">{(sellerData.trustScore / 20).toFixed(1)}</span>
-                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] leading-none">Score</span>
+                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] leading-none">{t('sellerDetail.score')}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xl sm:text-2xl font-black text-deep-blue dark:text-white">{sellerData.productCount}</span>
-                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] leading-none">Items</span>
+                    <span className="text-[10px] uppercase font-black text-gray-400 tracking-[0.2em] leading-none">{t('sellerDetail.items')}</span>
                   </div>
                 </div>
               </div>
@@ -163,11 +165,11 @@ export default function SellerDetailPage() {
                   <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isFollowed ? "'FILL' 1" : "'FILL' 0" }}>
                     {isFollowed ? 'person_remove' : 'person_add'}
                   </span>
-                  {isTogglingFollow ? '...' : (isFollowed ? 'Ne plus suivre' : 'Suivre')}
+                  {isTogglingFollow ? '...' : (isFollowed ? t('sellerDetail.unfollow') : t('sellerDetail.follow'))}
                 </button>
 
                 <Link 
-                  href={`https://wa.me/${sellerData.phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Bonjour ${sellerData.boutiqueName}, je suis intéressé par vos produits sur WapiBei.`)}`}
+                  href={`https://wa.me/${sellerData.phone?.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(t('sellerDetail.whatsappMessage').replace('{name}', sellerData.boutiqueName))}`}
                   target="_blank"
                   className="flex-1 flex items-center justify-center gap-2 px-8 py-4 bg-[#2D5A27] text-white rounded-2xl font-black text-sm shadow-xl shadow-green-900/20 transition-all hover:translate-y-[-2px] active:scale-95"
                 >
@@ -186,14 +188,14 @@ export default function SellerDetailPage() {
             <span className="absolute left-5 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-300 group-focus-within:text-[#E67E22] transition-colors">search</span>
             <input 
               type="text"
-              placeholder="RECHERCHER..."
+              placeholder={t('sellerDetail.searchPlaceholder')}
               className="w-full pl-14 pr-6 py-4.5 bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest text-deep-blue dark:text-white shadow-xl shadow-black/2 focus:outline-hidden focus:ring-4 focus:ring-orange-500/5 transition-all"
             />
           </div>
 
           {/* TABS */}
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 no-scrollbar">
-            {['Tout'].map((cat) => (
+            {[t('sellerDetail.all')].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -223,7 +225,7 @@ export default function SellerDetailPage() {
         ) : (
           <div className="text-center py-20 bg-white dark:bg-[#111827] rounded-[3rem] border border-dashed border-gray-200 dark:border-white/10">
             <span className="material-symbols-outlined text-5xl text-gray-200 mb-4">inventory_2</span>
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Aucun produit en ligne</p>
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">{t('sellerDetail.noProducts')}</p>
           </div>
         )}
 

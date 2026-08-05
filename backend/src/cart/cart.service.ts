@@ -122,9 +122,10 @@ export class CartService {
     });
 
     if (result.count === 0) {
-      throw new ConflictException(
-        'Le panier a été modifié par un autre appareil. Rechargez votre panier.',
-      );
+      throw new ConflictException({
+        code: 'CART_CONFLICT',
+        message: 'Le panier a été modifié par un autre appareil. Rechargez votre panier.',
+      });
     }
 
     return this.findForUser(userId);
@@ -172,17 +173,24 @@ export class CartService {
     });
 
     if (!product) {
-      throw new NotFoundException('Produit introuvable.');
+      throw new NotFoundException({
+        code: 'PRODUCT_NOT_FOUND',
+        message: 'Produit introuvable.',
+      });
     }
 
     if (!product.isPublic || product.availability === ProductAvailability.OUT_OF_STOCK) {
-      throw new BadRequestException(`"${product.name}" n'est plus disponible.`);
+      throw new BadRequestException({
+        code: 'PRODUCT_UNAVAILABLE',
+        message: `"${product.name}" n'est plus disponible.`,
+      });
     }
 
     if (!product.user?.isActive || product.user.role !== UserRole.VENDOR) {
-      throw new BadRequestException(
-        `Le vendeur de "${product.name}" n'est pas disponible.`,
-      );
+      throw new BadRequestException({
+        code: 'VENDOR_UNAVAILABLE',
+        message: `Le vendeur de "${product.name}" n'est pas disponible.`,
+      });
     }
 
     return product;
@@ -190,16 +198,20 @@ export class CartService {
 
   private assertStockSufficient(product: ProductStock, quantity: number): void {
     if (quantity < 1) {
-      throw new BadRequestException('La quantité doit être supérieure à zéro.');
+      throw new BadRequestException({
+        code: 'QUANTITY_INVALID',
+        message: 'La quantité doit être supérieure à zéro.',
+      });
     }
 
     const { stockQuantity } = product;
     const isLimitedStock = stockQuantity !== null && stockQuantity !== undefined;
 
     if (isLimitedStock && quantity > stockQuantity!) {
-      throw new BadRequestException(
-        `Stock insuffisant pour "${product.name}". Disponible : ${stockQuantity}.`,
-      );
+      throw new BadRequestException({
+        code: 'STOCK_INSUFFICIENT',
+        message: `Stock insuffisant pour "${product.name}". Disponible : ${stockQuantity}.`,
+      });
     }
   }
 

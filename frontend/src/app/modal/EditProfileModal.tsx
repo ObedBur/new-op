@@ -8,6 +8,8 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/services/auth.service';
 import { toast } from 'sonner';
+import useT from '@/i18n/useT';
+import { mapBackendError } from '@/utils/errors';
 
 interface EditProfileModalProps {
     isOpen: boolean;
@@ -15,6 +17,7 @@ interface EditProfileModalProps {
 }
 
 const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
+    const { t } = useT();
     const { user, updateUser } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
@@ -110,14 +113,14 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
             const response = await authService.updateProfile(updateData);
             if (response.success) {
                 updateUser(response.user);
-                toast.success("Profil mis à jour avec succès");
+                toast.success(t('editProfile.updateSuccess'));
                 onClose();
             } else {
-                toast.error("Erreur lors de la mise à jour");
+                toast.error(t('editProfile.updateError'));
             }
         } catch (error: any) {
             console.error("Update profile error:", error);
-            toast.error(error.response?.data?.message || "Une erreur est survenue");
+            toast.error(mapBackendError(error, t));
         } finally {
             setLoading(false);
         }
@@ -134,8 +137,8 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             <User className="size-4 sm:size-5 text-[#E67E22]" />
                         </div>
                         <div>
-                            <h2 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-none">Modifier mon profil</h2>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Mise à jour de vos informations</p>
+                            <h2 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-none">{t('editProfile.title')}</h2>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t('editProfile.subtitle')}</p>
                         </div>
                     </div>
                     <button
@@ -178,11 +181,11 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             {/* Name + role badge */}
                             <div className="text-center">
                                 <p className="text-sm font-black text-gray-900 dark:text-white truncate max-w-[160px]">
-                                    {formData.fullName || 'Utilisateur'}
+                                    {formData.fullName || t('editProfile.userFallback')}
                                 </p>
                                 <span className={`inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${user?.role === 'VENDOR' ? 'bg-orange-50 text-[#E67E22]' : 'bg-green-50 text-[#2D5A27]'}`}>
                                     <BadgeCheck className="size-2.5" />
-                                    {user?.role === 'VENDOR' ? 'Vendeur Certifié' : 'Client Vérifié'}
+                                    {user?.role === 'VENDOR' ? t('editProfile.vendorCertified') : t('editProfile.clientVerified')}
                                 </span>
                             </div>
 
@@ -192,7 +195,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                 onClick={() => fileInputRef.current?.click()}
                                 className="w-full py-2.5 px-3 border-2 border-dashed border-[#E67E22]/30 hover:border-[#E67E22] hover:bg-orange-50 text-[#E67E22] rounded-xl font-bold text-xs transition-all active:scale-95"
                             >
-                                Changer la photo
+                                {t('editProfile.changePhoto')}
                             </button>
 
                             <input type="file" ref={coverInputRef} onChange={handleCoverChange} className="hidden" accept="image/*" />
@@ -202,7 +205,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                 className="w-full py-2.5 px-3 bg-[#2D5A27]/5 hover:bg-[#2D5A27]/10 border border-[#2D5A27]/20 hover:border-[#2D5A27]/40 text-[#2D5A27] dark:text-green-400 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5"
                             >
                                 <Camera className="size-3.5" />
-                                Photo de couverture
+                                {t('editProfile.coverPhoto')}
                             </button>
 
                             {coverPreviewUrl && (
@@ -219,10 +222,10 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                     </div>
                                     <div>
                                         <p className={`font-black text-[10px] uppercase tracking-[0.12em] ${user?.isVerified ? 'text-[#2D5A27]' : 'text-[#E67E22]'}`}>
-                                            Statut du compte
+                                            {t('editProfile.accountStatus')}
                                         </p>
                                         <p className="text-[10px] font-semibold text-gray-400 mt-0.5">
-                                            {user?.isVerified ? '✓ Compte Vérifié' : 'En attente de vérification'}
+                                            {user?.isVerified ? t('editProfile.verifiedStatus') : t('editProfile.pendingStatus')}
                                         </p>
                                     </div>
                                 </div>
@@ -238,7 +241,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                     <CheckCircle2 className="size-3.5 text-[#2D5A27]" />
                                 </div>
                                 <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    Informations Personnelles
+                                    {t('editProfile.sectionPersonal')}
                                 </h3>
                             </div>
 
@@ -247,14 +250,14 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
                                 {/* Nom Complet */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Nom Complet</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelFullName')}</label>
                                     <div className="relative">
                                         <User className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
                                         <input
                                             name="fullName"
                                             value={formData.fullName}
                                             onChange={handleChange}
-                                            placeholder="Votre nom complet"
+                                            placeholder={t('editProfile.placeholderFullName')}
                                             type="text"
                                             className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
                                         />
@@ -263,7 +266,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
                                 {/* Email */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Adresse e-mail</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelEmail')}</label>
                                     <div className="relative">
                                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
                                         <input
@@ -279,7 +282,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
                                 {/* Téléphone */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Numéro de téléphone</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelPhone')}</label>
                                     <div className="relative">
                                         <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
                                         <input
@@ -295,7 +298,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
                                 {/* Province */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Province</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelProvince')}</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
                                         <input
@@ -311,7 +314,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
 
                                 {/* Commune */}
                                 <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Ville / Commune</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelCommune')}</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#2D5A27]" />
                                         <input
@@ -328,14 +331,14 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                 {/* Boutique — Vendeur uniquement, pleine largeur */}
                                 {user?.role === 'VENDOR' && (
                                     <div className="space-y-1.5 sm:col-span-2">
-                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">Nom de la Boutique</label>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] ml-1">{t('editProfile.labelBoutique')}</label>
                                         <div className="relative">
                                             <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 size-3.5 text-[#E67E22]" />
                                             <input
                                                 name="boutiqueName"
                                                 value={formData.boutiqueName}
                                                 onChange={handleChange}
-                                                placeholder="Nom de votre boutique"
+                                                placeholder={t('editProfile.placeholderBoutique')}
                                                 type="text"
                                                 className="w-full bg-orange-50/50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/20 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
                                             />
@@ -354,7 +357,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             disabled={loading}
                             className="sm:w-auto px-6 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 rounded-xl font-bold text-sm hover:bg-gray-100 dark:hover:bg-white/10 transition-all active:scale-95 disabled:opacity-50"
                         >
-                            Annuler
+                            {t('editProfile.cancel')}
                         </button>
                         <button
                             type="submit"
@@ -364,12 +367,12 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                             {loading ? (
                                 <>
                                     <Loader2 className="size-4 animate-spin" />
-                                    Enregistrement...
+                                    {t('editProfile.saving')}
                                 </>
                             ) : (
                                 <>
                                     <CheckCircle2 className="size-4" />
-                                    Enregistrer
+                                    {t('editProfile.save')}
                                 </>
                             )}
                         </button>

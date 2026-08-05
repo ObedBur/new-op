@@ -97,7 +97,10 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundException('Utilisateur introuvable');
+      throw new NotFoundException({
+        code: 'ADMIN_USER_NOT_FOUND',
+        message: 'Utilisateur introuvable',
+      });
     }
 
     return {
@@ -114,7 +117,10 @@ export class AdminService {
   async deleteUser(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException('Utilisateur introuvable');
+      throw new NotFoundException({
+        code: 'ADMIN_USER_NOT_FOUND',
+        message: 'Utilisateur introuvable',
+      });
     }
 
     try {
@@ -146,7 +152,10 @@ export class AdminService {
       return { success: true, message: 'Utilisateur et données associées supprimés avec succès' };
     } catch (error) {
       this.logger.error(`Erreur lors de la suppression de l'utilisateur ${userId}:`, error);
-      throw new BadRequestException('Impossible de supprimer l\'utilisateur à cause d\'une contrainte de base de données.');
+      throw new BadRequestException({
+        code: 'ADMIN_USER_DELETE_CONSTRAINT',
+        message: 'Impossible de supprimer l\'utilisateur à cause d\'une contrainte de base de données.',
+      });
     }
   }
 
@@ -157,7 +166,10 @@ export class AdminService {
   async updateKycStatus(userId: string, status: string, rejectionReason?: string) {
     const validStatuses: string[] = Object.values(KycStatus);
     if (!validStatuses.includes(status)) {
-      throw new BadRequestException(`Statut invalide. Doit être parmi : ${validStatuses.join(', ')}`);
+      throw new BadRequestException({
+        code: 'ADMIN_INVALID_STATUS',
+        message: `Statut invalide. Doit être parmi : ${validStatuses.join(', ')}`,
+      });
     }
 
     const user = await this.prisma.user.findUnique({
@@ -165,11 +177,17 @@ export class AdminService {
     });
 
     if (!user) {
-      throw new NotFoundException('Utilisateur introuvable');
+      throw new NotFoundException({
+        code: 'ADMIN_USER_NOT_FOUND',
+        message: 'Utilisateur introuvable',
+      });
     }
 
     if (user.role !== 'VENDOR') {
-      throw new BadRequestException('Seuls les vendeurs nécessitent une approbation KYC.');
+      throw new BadRequestException({
+        code: 'ADMIN_KYC_VENDOR_ONLY',
+        message: 'Seuls les vendeurs nécessitent une approbation KYC.',
+      });
     }
 
     const updatedUser = await this.prisma.user.update({

@@ -75,6 +75,7 @@ export class ModerationService {
 
     if (isBadTitle || isBadDesc) {
       throw new BadRequestException({
+        code: 'CONTENT_INAPPROPRIATE',
         message: "Votre texte contient des termes inappropriés non autorisés.",
         error: 'LOCAL_CONTENT_ERROR'
       });
@@ -129,6 +130,7 @@ export class ModerationService {
         if (result.nudity && (result.nudity.sexual_activity > 0.4 || result.nudity.sexual_display > 0.4 || result.nudity.erotica > 0.6)) {
           this.logger.warn(`Image rejetée pour nudité. Scores: ${JSON.stringify(result.nudity)}`);
           throw new BadRequestException({
+            code: 'IMAGE_NUDITY',
             message: "L'image a été rejetée car elle contient de la nudité ou du contenu sexuel.",
             error: 'MODERATION_ERROR_NUDITY'
           });
@@ -138,6 +140,7 @@ export class ModerationService {
         if (result.gore && result.gore.prob > 0.5) {
            this.logger.warn(`Image rejetée pour gore. Score: ${result.gore.prob}`);
            throw new BadRequestException({
+             code: 'IMAGE_GORE',
              message: "L'image a été rejetée car elle contient du contenu violent ou graphique.",
              error: 'MODERATION_ERROR_GORE'
            });
@@ -161,9 +164,9 @@ export class ModerationService {
    */
   validateQuality(title: string, description: string, price: number): boolean {
     const titleWords = title.trim().split(/\s+/).filter(w => w.length > 1);
-    if (titleWords.length < 2) throw new BadRequestException({ message: "Titre trop court (min 2 mots).", error: 'QUALITY_ERROR' });
-    if (!description || description.trim().length < 10) throw new BadRequestException({ message: "Description trop courte (min 10 caractères).", error: 'QUALITY_ERROR' });
-    if (price <= 0 || price > 100000) throw new BadRequestException({ message: "Prix invalide ou incohérent.", error: 'PRICE_ERROR' });
+    if (titleWords.length < 2) throw new BadRequestException({ code: 'TITLE_TOO_SHORT', message: "Titre trop court (min 2 mots).", error: 'QUALITY_ERROR' });
+    if (!description || description.trim().length < 10) throw new BadRequestException({ code: 'DESCRIPTION_TOO_SHORT', message: "Description trop courte (min 10 caractères).", error: 'QUALITY_ERROR' });
+    if (price <= 0 || price > 100000) throw new BadRequestException({ code: 'PRICE_INVALID', message: "Prix invalide ou incohérent.", error: 'PRICE_ERROR' });
     return true;
   }
 

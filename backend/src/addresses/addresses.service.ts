@@ -40,7 +40,10 @@ export class AddressesService {
       where: { id, userId },
     });
     if (!address) {
-      throw new NotFoundException(`Address with ID ${id} not found`);
+      throw new NotFoundException({
+        code: 'ADDRESS_NOT_FOUND',
+        message: 'Adresse introuvable',
+      });
     }
     return address;
   }

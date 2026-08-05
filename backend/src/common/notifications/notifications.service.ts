@@ -151,8 +151,8 @@ export class NotificationsService {
       for (const follow of followers) {
         const follower = follow.follower;
         const prefs = follower.notificationPreference;
-        const vendorName = product.user.boutiqueName || 'Un vendeur';
         const lang = follower.language || 'fr';
+        const vendorName = product.user.boutiqueName || t(lang, 'notif.vendorDefault');
 
         // Notification In-App
         if (!prefs || prefs.followsInApp) {
