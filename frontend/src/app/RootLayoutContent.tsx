@@ -7,12 +7,23 @@ import { Footer } from "@/components/layout/Footer";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { VendorSidebar } from "@/components/layout/VendorSidebar";
 import { useAuth } from "@/context/AuthContext";
+import { useLoading } from "@/context/LoadingContext";
 
 export default function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const { setAppReady } = useLoading();
   const isAdminPage = pathname?.startsWith('/admin');
   const isDashboardPage = pathname?.startsWith('/dashboard') || pathname?.startsWith('/settings');
+
+  // Splash screen: signal ready globally once the auth bootstrap has finished.
+  // This runs on every initial full page load (any URL), so the splash never
+  // relies on individual pages opting in.
+  useEffect(() => {
+    if (!authLoading) {
+      setAppReady(true);
+    }
+  }, [authLoading, setAppReady]);
 
   // Reset scroll to top on route change
   useEffect(() => {

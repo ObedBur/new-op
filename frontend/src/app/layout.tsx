@@ -75,6 +75,12 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;700&display=swap"
           rel="stylesheet"
         />
+        {/* Hide the splash before first paint when it was already shown this session */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem('wapibei_splash_seen')){document.documentElement.classList.add('splash-seen')}}catch(e){}`,
+          }}
+        />
       </head>
       <body className={`${outfit.className} antialiased text-deep-blue dark:text-white min-h-screen flex flex-col`}>
         <Providers>

@@ -153,6 +153,15 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+/* Keyframes à la racine : Tailwind n'émet pas les @keyframes définis
+   dans un bloc @theme inline, l'animation resterait inerte. */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
 }
 
 @layer base {
@@ -162,6 +171,12 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Hide the splash screen before hydration when it was already shown this session */
+.splash-seen #wapibei-splash {
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 body {

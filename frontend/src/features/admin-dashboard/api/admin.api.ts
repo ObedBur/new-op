@@ -55,6 +55,8 @@ export const adminService = {
     page?: number;
     limit?: number;
     search?: string;
+    quartier?: string;
+    /** @deprecated use quartier */
     market?: string;
   }) {
     const response = await api.get<ApiResponse<BackendProduct[]>>('/products', { params }); 

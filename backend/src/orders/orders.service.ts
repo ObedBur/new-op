@@ -343,7 +343,7 @@ export class OrdersService {
         message: t(adminLang, 'notif.orderAdmin.message', { customer: customerName, count, total: total.toLocaleString() }),
         type: NotificationType.ORDER_CREATED,
         metadata: {
-          url: '/admin/notification',
+          url: '/admin/notifications',
           orderCount: count,
           customerName,
         },
