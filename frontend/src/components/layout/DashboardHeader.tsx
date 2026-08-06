@@ -4,16 +4,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { ProfileDropdown } from './Header/components/ProfileDropdown';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, Bell } from 'lucide-react';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
 
 export const DashboardHeader = () => {
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
 
@@ -69,9 +67,9 @@ export const DashboardHeader = () => {
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => setIsNotifOpen(prev => !prev)}
-                            className="relative size-9 flex items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-[#E67E22]/10 rounded-full transition-all duration-300 shrink-0"
+                            className="relative size-9 flex items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-[#E67E22]/10 rounded-full transition-all duration-300 shrink-0 cursor-pointer"
                         >
-                            <span className="material-symbols-outlined text-[22px]">notifications</span>
+                            <Bell className="size-5" />
                             {unreadCount > 0 && (
                                 <span className="absolute -top-1 -right-1 size-5 bg-[#E67E22] text-white text-[10px] font-black flex items-center justify-center rounded-full shadow-lg border-2 border-white dark:border-[#111] animate-in zoom-in">
                                     {unreadCount > 9 ? '9+' : unreadCount}
@@ -102,7 +100,7 @@ export const DashboardHeader = () => {
                                     {notifications.length === 0 ? (
                                         <div className="p-8 text-center flex flex-col items-center justify-center">
                                             <div className="size-12 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-3">
-                                                <span className="material-symbols-outlined text-gray-300 dark:text-gray-600 text-[24px]">notifications_off</span>
+                                                <Bell className="size-6 text-gray-300 dark:text-gray-600" />
                                             </div>
                                             <p className="text-sm font-bold text-gray-400">Aucune notification</p>
                                             <p className="text-[10px] text-gray-400/70 mt-1 uppercase tracking-wider">Vous êtes à jour !</p>
@@ -141,7 +139,7 @@ export const DashboardHeader = () => {
                                     <Link
                                         href="/notifications"
                                         onClick={() => setIsNotifOpen(false)}
-                                        className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1"
+                                        className="text-[10px] text-black/60 dark:text-white/60 hover:text-[#E67E22] dark:hover:text-[#E67E22] transition-colors font-black uppercase tracking-widest block py-1 cursor-pointer"
                                     >
                                         Voir toutes les notifications
                                     </Link>
@@ -153,16 +151,29 @@ export const DashboardHeader = () => {
                     {/* Vertical Divider */}
                     <div className="h-5 w-px bg-slate-200 dark:bg-white/10 hidden lg:block" />
 
-                    {/* Profile Dropdown */}
-                    <div>
-                        <ProfileDropdown
-                            isAuthenticated={isAuthenticated}
-                            user={user}
-                            onLogout={logout}
-                            isProfileOpen={isProfileOpen}
-                            setIsProfileOpen={setIsProfileOpen}
-                        />
-                    </div>
+                    {/* Simple Profile Link instead of Dropdown */}
+                    <Link
+                        href="/settings?tab=profile"
+                        className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-white/5 p-1 pr-3 rounded-full transition-colors cursor-pointer"
+                    >
+                        <div className="size-9 rounded-full overflow-hidden bg-gradient-to-br from-[#E67E22] to-[#2D5A27] flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#111] shadow-sm">
+                            {user?.avatarUrl ? (
+                                <img src={user.avatarUrl} alt={user?.fullName} className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-sm font-black tracking-tight uppercase">
+                                    {user?.fullName ? `${user.fullName.split(' ')[0][0]}${user.fullName.split(' ')[1]?.[0] || ''}` : 'U'}
+                                </span>
+                            )}
+                        </div>
+                        <div className="hidden lg:flex flex-col">
+                            <span className="text-[13px] font-extrabold text-black dark:text-white leading-tight capitalize max-w-[120px] truncate">
+                                {user?.fullName || 'Utilisateur'}
+                            </span>
+                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
+                                {user?.role === 'VENDOR' ? 'Vendeur' : 'Client'}
+                            </span>
+                        </div>
+                    </Link>
                 </div>
 
             </div>

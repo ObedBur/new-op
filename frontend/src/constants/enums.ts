@@ -11,6 +11,7 @@ export const USER_ROLES = {
 
 export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
 
+/** @deprecated Use QUARTERS instead */
 export const MARKETS = {
   VIRUNGA: 'Virunga',
   BIRERE: 'Birere',
@@ -19,6 +20,21 @@ export const MARKETS = {
 } as const;
 
 export type Market = typeof MARKETS[keyof typeof MARKETS];
+
+// Location structure: Pays > Province > Ville > Quartier
+export const QUARTERS = {
+  VIRUNGA: 'Virunga',
+  BIRERE: 'Birere',
+  ALANINE: 'Alanine',
+  HIMBI: 'Himbi',
+  KARISIMBI: 'Karisimbi',
+  KATINDO: 'Katindo',
+  NDOSHO: 'Ndosho',
+  MURARA: 'Murara',
+  KYESHERO: 'Kyeshero',
+} as const;
+
+export type Quarter = typeof QUARTERS[keyof typeof QUARTERS];
 
 export const ADMIN_VIEWS = {
   DASHBOARD: 'Dashboard',

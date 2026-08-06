@@ -431,7 +431,7 @@ export class ProductsService {
         ],
       } as any,
       orderBy: { price: 'asc' },
-      take: 20,
+      take: 50,
       include: {
         category: true,
         user: {

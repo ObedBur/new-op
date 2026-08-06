@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../context/AuthContext";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { PageLoader } from "@/components/ui/PageLoader";
 import { useToast } from "@/context/ToastContext";
 import { mapBackendError } from "@/utils/errors";
+import { storage } from "@/utils/storage";
 import { Apple } from "lucide-react";
 import Image from "next/image";
 
@@ -51,7 +53,8 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  // Pré-cocher si l'utilisateur avait choisi "Se souvenir de moi" précédemment
+  const [rememberMe, setRememberMe] = useState(() => storage.getRememberMe());
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -74,14 +77,11 @@ function LoginContent() {
     setIsLoading(true);
 
     try {
-      const response = await login({ email, password });
+      // Enregistrer la préférence AVANT le login : le refresh token est alors
+      // stocké au bon endroit (localStorage si coché, sessionStorage sinon).
+      storage.setRememberMe(rememberMe);
 
-      // Se souvenir de moi : on stocke la préférence
-      if (rememberMe) {
-        localStorage.setItem('wapibei_remember_me', 'true');
-      } else {
-        localStorage.removeItem('wapibei_remember_me');
-      }
+      const response = await login({ email, password });
 
       showToast("Connexion réussie", "success");
 
@@ -376,7 +376,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement...</div>}>
+    <Suspense fallback={<PageLoader />}>
       <LoginContent />
     </Suspense>
   );

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { PageLoader } from './ui/PageLoader';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -24,7 +25,7 @@ export default function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   }, [isLoading, isAuthenticated, user, router, allowedRoles]);
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <PageLoader />;
   }
 
   if (!isAuthenticated) {

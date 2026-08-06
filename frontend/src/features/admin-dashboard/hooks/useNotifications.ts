@@ -20,7 +20,7 @@ export const useNotifications = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-    const { data: notifications = [] } = useQuery<AppNotification[]>({
+    const { data: notifications = [], isLoading, isError } = useQuery<AppNotification[]>({
         queryKey: NOTIFICATIONS_KEY,
         queryFn: fetchNotifications,
         enabled: isAuthenticated && !authLoading,
@@ -74,6 +74,8 @@ export const useNotifications = () => {
     return {
         notifications,
         unreadCount,
+        isLoading,
+        isError,
         isOpen,
         toggleNotifications,
         closeNotifications,

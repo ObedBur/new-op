@@ -15,10 +15,12 @@ import {
   Package
 } from 'lucide-react';
 import { useSearch, SearchSector } from '@/hooks/useSearch';
+import { useCurrency } from '@/hooks/useCurrency';
 
 export const GlobalSearch = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { formatPriceParts } = useCurrency();
   const searchRef = useRef<HTMLDivElement>(null);
   const {
     query,
@@ -343,7 +345,9 @@ export const GlobalSearch = () => {
                   
                   {results.products.length > 0 ? (
                     <div className="space-y-3">
-                      {results.products.map(product => (
+                      {results.products.map(product => {
+                        const { amount, symbol } = formatPriceParts(product.price);
+                        return (
                         <Link
                           key={product.id}
                           href={`/products/${product.id}`}
@@ -363,11 +367,12 @@ export const GlobalSearch = () => {
                               {product.name}
                             </h4>
                             <span className="text-sm font-black text-[#2D5A27] dark:text-emerald-400 tracking-tighter mt-0.5">
-                              {product.price} $
+                              {amount} {symbol}
                             </span>
                           </div>
                         </Link>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center py-8 opacity-50">

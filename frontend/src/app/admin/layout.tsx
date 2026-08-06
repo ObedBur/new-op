@@ -18,18 +18,14 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
         if (path.startsWith('/admin/users')) return 'Utilisateurs';
         if (path.startsWith('/admin/reports')) return 'Rapports';
         if (path.startsWith('/admin/settings')) return 'Paramètres';
+        if (path.startsWith('/admin/notifications')) return 'Notifications';
         return 'Dashboard';
     };
 
     const activeView = getActiveView(pathname);
 
     return (
-        <div className="min-h-screen bg-background flex relative overflow-hidden">
-            {/* Background Mesh Gradients */}
-            <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-                <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-500/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-teal-500/5 rounded-full blur-[100px]" />
-            </div>
+        <div className="min-h-screen bg-slate-50 flex relative overflow-hidden">
 
             {/* Desktop Sidebar */}
             <Sidebar activeView={activeView} />

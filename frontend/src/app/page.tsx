@@ -3,11 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useLoading } from "@/context/LoadingContext";
 import { HomeView } from "@/features/home/components/HomeView";
 import {
   getCategories,
-  getProducts,
   getDeals,
   getNewArrivals,
   getRecommendations,
@@ -45,7 +43,6 @@ const HOME_INITIAL_LOADING: HomeLoadingState = {
 
 export default function Home() {
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
-  const { setAppReady } = useLoading();
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -74,21 +71,17 @@ export default function Home() {
   useEffect(() => {
     setSectionLoading(HOME_INITIAL_LOADING);
 
-    void Promise.all([getCategories(), getProducts({})])
-      .then(([catsRes, prodsRes]) => {
-        if (catsRes.success && prodsRes.success) {
-          const allProds = prodsRes.data;
-          const updatedCats = catsRes.data.map(cat => ({
-            ...cat,
-            productCount: allProds.filter(p => String(p.categoryId) === String(cat.id)).length
-          }));
-          setCategories(updatedCats);
-        } else if (catsRes.success) {
-          setCategories(catsRes.data);
+    // Guest-independent sections: fetched once on mount.
+    // The backend already returns productCount per category, so we don't need
+    // to load all products just to compute the badges.
+    void getCategories()
+      .then((response) => {
+        if (response.success) {
+          setCategories(response.data);
         }
       })
       .catch((error) => {
-        console.error("Error fetching categories or products:", error);
+        console.error("Error fetching categories:", error);
       })
       .finally(() => setSectionLoaded("categories"));
 
@@ -133,17 +126,6 @@ export default function Home() {
       })
       .finally(() => setSectionLoaded("newArrivals"));
 
-    void getRecommendations(user?.id, 12)
-      .then((response) => {
-        if (response.success) {
-          setRecommendations(response.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching recommendations:", error);
-      })
-      .finally(() => setSectionLoaded("recommendations"));
-
     void getBestSellers(12)
       .then((response) => {
         if (response.success) {
@@ -154,13 +136,26 @@ export default function Home() {
         console.error("Error fetching best sellers:", error);
       })
       .finally(() => setSectionLoaded("bestSellers"));
-  }, [user?.id]);
+  }, []);
 
+  // Recommendations are user-specific: fetch them once the auth bootstrap is
+  // done, and only refetch this single section when the user actually changes
+  // (login/logout). This avoids double-fetching every section on first load.
   useEffect(() => {
-    if (!authLoading) {
-      setAppReady(true);
-    }
-  }, [authLoading, setAppReady]);
+    if (authLoading) return;
+
+    setSectionLoading((prev) => ({ ...prev, recommendations: true }));
+    void getRecommendations(user?.id, 12)
+      .then((response) => {
+        if (response.success) {
+          setRecommendations(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching recommendations:", error);
+      })
+      .finally(() => setSectionLoaded("recommendations"));
+  }, [authLoading, user?.id]);
 
   // Don't render Home content for admins to prevent flash
   if (isAuthenticated && user?.role === "ADMIN") {

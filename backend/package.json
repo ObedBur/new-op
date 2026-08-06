@@ -70,6 +70,7 @@
     "prisma": "^7.9.1",
     "rxjs": "^7.8.2",
     "socket.io": "^4.8.3",
+    "swagger-ui-express": "^5.0.1",
     "web-push": "^3.6.7"
   },
   "devDependencies": {

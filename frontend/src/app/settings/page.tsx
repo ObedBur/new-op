@@ -51,6 +51,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { Product } from "@/types/product.types";
 import { ListSkeleton, TableSkeleton } from "@/components/ui/SkeletonLoaders";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 type SettingsTab = 'profile' | 'store' | 'favorites' | 'notifications' | 'security' | 'preferences' | 'orders' | 'addresses';
 
@@ -79,7 +80,7 @@ const getInitials = (name: string) => {
 
 export default function SettingsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<PageLoader />}>
       <SettingsPageContent />
     </Suspense>
   );
@@ -965,12 +966,12 @@ function SettingsPageContent() {
       </div>
 
       {/* ===== DESKTOP : Affiche le profil complet par défaut ===== */}
-      <div className="hidden lg:block px-8 py-8">
+      <div className="hidden lg:block px-4 md:px-8 py-8 w-full max-w-5xl mx-auto">
         <EditProfileModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
         />
-        <div className="max-w-3xl space-y-8">
+        <div className="w-full space-y-8">
           <div className="bg-white overflow-hidden">
             {/* Header avatar + bouton */}
             <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 pt-6">

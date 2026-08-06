@@ -24,12 +24,17 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   initialProducts, 
   categories,
 }) => {
+  // Les compteurs viennent du backend (GET /categories) : ils reflètent le
+  // catalogue complet, indépendamment des filtres appliqués. Les recalculer à
+  // partir de initialProducts ferait tomber tous les autres compteurs à 0 dès
+  // qu'une catégorie est sélectionnée (la liste re-fetchée n'en contient plus
+  // qu'une).
   const categoriesWithCounts = React.useMemo(() => {
     return categories.map(cat => ({
       ...cat,
-      productCount: initialProducts.filter(p => String(p.categoryId) === String(cat.id)).length
+      productCount: cat.productCount ?? 0,
     }));
-  }, [categories, initialProducts]);
+  }, [categories]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { filters, updateFilters } = useProductFilters();
   const { paginatedProducts, totalCount, totalPages } = useProductListView(initialProducts, filters);

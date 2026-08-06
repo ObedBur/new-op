@@ -433,7 +433,7 @@ export class OrdersService {
         message: `${customerName} a commandé ${count} article(s) (${total.toLocaleString()} $).`,
         type: NotificationType.ORDER_CREATED,
         metadata: {
-          url: '/admin/notification',
+          url: '/admin/notifications',
           orderCount: count,
           customerName,
         },

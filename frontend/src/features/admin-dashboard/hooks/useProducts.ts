@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '../api/admin.api';
 import { BackendProduct } from '@/core/contracts/product.contract';
-import { MARKETS } from '@/constants/enums';
+import { QUARTERS } from '@/constants/enums';
 
 interface UseProductsProps {
     searchQuery: string;
@@ -22,17 +22,25 @@ export const useProducts = ({ searchQuery, limit = 10 }: UseProductsProps) => {
                 id: p.id,
                 name: p.name,
                 seller: p.user?.fullName || 'Vendeur Inconnu',
+                sellerEmail: p.user?.email,
+                sellerPhone: p.user?.phone,
                 price: p.price,
-                market: p.market?.name || MARKETS.GOMA,
+                // Prefer quartier field, fallback to market.name for backward compat
+                quartier: p.quartier?.name || p.market?.name || QUARTERS.VIRUNGA,
+                ville: p.quartier?.ville,
+                province: p.quartier?.province,
                 lastUpdate: new Date(p.updatedAt).toLocaleDateString('fr-FR'),
+                createdAt: p.createdAt ? new Date(p.createdAt).toLocaleDateString('fr-FR') : undefined,
+                category: p.category,
+                stock: p.stock,
+                description: p.description,
                 iconBg: 'bg-emerald-100/50',
                 iconColor: 'text-emerald-700'
             })) : [];
         },
         enabled: true,
-        staleTime: 30000, 
+        staleTime: 30000,
     });
-
 
     return {
         products,
@@ -41,4 +49,3 @@ export const useProducts = ({ searchQuery, limit = 10 }: UseProductsProps) => {
         refetch
     };
 };
-

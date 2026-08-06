@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLoading } from '@/context/LoadingContext';
 import { getVendorStats } from '@/features/vendors/services/orders.service';
 import {
     TrendingUp, Users, DollarSign, Package,
@@ -16,12 +15,7 @@ export default function AnalyticsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    const { setAppReady } = useLoading();
-
     useEffect(() => {
-        // Dire au Splash Screen de disparaître !
-        setAppReady(true);
-
         const fetchStats = async () => {
             try {
                 const response = await getVendorStats();
@@ -35,7 +29,7 @@ export default function AnalyticsPage() {
             }
         };
         fetchStats();
-    }, [setAppReady]);
+    }, []);
 
     if (isLoading) {
         return (

@@ -43,7 +43,7 @@ export function resolveNotificationUrl(
     case 'ORDER_CREATED':
     case 'ORDER_CONFIRMED':
       if (userRole === 'VENDOR') return '/dashboard/orders';
-      if (userRole === 'ADMIN')  return '/admin/notification';
+      if (userRole === 'ADMIN')  return '/admin/notifications';
       return '/settings?tab=orders';
 
     case 'NEW_PRODUCT':
@@ -59,7 +59,7 @@ export function resolveNotificationUrl(
       return userRole === 'VENDOR' ? '/dashboard/orders' : '/settings?tab=orders';
 
     case 'SYSTEM_ALERT':
-      if (userRole === 'ADMIN') return '/admin/notification';
+      if (userRole === 'ADMIN') return '/admin/notifications';
       return '/settings?tab=notifications';
 
     default:

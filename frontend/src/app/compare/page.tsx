@@ -17,13 +17,14 @@ import {
   Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { compareProducts, CompareProduct } from '@/features/compare/compare.service';
+import { compareProducts, CompareProduct, CompareStats } from '@/features/compare/compare.service';
 import { getBestSellers } from '@/features/products/services/product.service';
 import { Product } from '@/features/products/types';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { ProductQuickView } from '@/features/products/components/ProductQuickView';
 import { useToast } from '@/context/ToastContext';
 import { useCart } from '@/features/cart/context/CartContext';
+import { useCurrency } from '@/hooks/useCurrency';
 
 
 // ─────────────────────────────────────────────
@@ -142,8 +143,10 @@ function EmptyCompareState() {
 function CompareContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
+  const { formatPriceParts } = useCurrency();
   
   const [products, setProducts] = useState<CompareProduct[]>([]);
+  const [stats, setStats] = useState<CompareStats | null>(null);
   const [loading, setLoading] = useState(false);
   const latestRequestRef = useRef(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -165,6 +168,7 @@ function CompareContent() {
 
     if (normalizedQuery.length < 2) {
       setProducts([]);
+      setStats(null);
       setLoading(false);
       return;
     }
@@ -175,6 +179,7 @@ function CompareContent() {
       const res = await compareProducts(normalizedQuery, signal);
       if (res.success && requestId === latestRequestRef.current) {
         setProducts(res.products);
+        setStats(res.stats || null);
       }
     } catch (error) {
       if (!signal?.aborted) {
@@ -417,6 +422,27 @@ function CompareContent() {
                 {filteredAndConverted.length} offre{filteredAndConverted.length !== 1 ? 's' : ''} trouvée{filteredAndConverted.length !== 1 ? 's' : ''}
               </p>
             </div>
+
+            {/* Stats du marché (renvoyées par l'API, affichées ici) */}
+            {stats && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {([
+                  { label: 'Moy.', value: stats.avgPrice },
+                  { label: 'Min', value: stats.minPrice },
+                  { label: 'Max', value: stats.maxPrice },
+                ] as const).map(({ label, value }) => {
+                  const { amount, symbol } = formatPriceParts(value);
+                  return (
+                    <span
+                      key={label}
+                      className="px-3 py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-gray-400 shadow-sm"
+                    >
+                      {label} : {amount} {symbol}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
