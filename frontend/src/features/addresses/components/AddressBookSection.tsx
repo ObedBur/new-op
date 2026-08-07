@@ -14,10 +14,6 @@ export const AddressBookSection = () => {
   const [formData, setFormData] = useState<Partial<CreateAddressData>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAddresses();
-  }, []);
-
   const loadAddresses = async () => {
     try {
       setLoading(true);
@@ -29,6 +25,10 @@ export const AddressBookSection = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadAddresses();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -189,11 +189,14 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
         </div>
 
         {/* Brand Footer */}
-        {!isAuthenticated && (
+        {(!isAuthenticated || user?.role !== 'VENDOR') && (
           <div className="p-4 px-6 border-t border-gray-100 dark:border-white/5">
               <Link 
                 href="/register?role=VENDOR"
-                onClick={onClose}
+                onClick={() => {
+                  if (isAuthenticated) onLogout();
+                  onClose();
+                }}
                 className="w-full py-3 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
               >
                   <span>{t('header.sellOnWapibei')}</span>

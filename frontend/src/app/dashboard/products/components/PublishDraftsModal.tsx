@@ -19,12 +19,6 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
     const [isLoading, setIsLoading] = useState(false);
     const [isPublishing, setIsPublishing] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchDrafts();
-        }
-    }, [isOpen]);
-
     const fetchDrafts = async () => {
         setIsLoading(true);
         try {
@@ -41,6 +35,12 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchDrafts();
+        }
+    }, [isOpen]);
 
     const toggleSelect = (id: string) => {
         setSelectedIds(prev => 

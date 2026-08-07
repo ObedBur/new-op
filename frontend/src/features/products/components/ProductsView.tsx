@@ -14,6 +14,7 @@ import {
 import { useProductFilters } from '../hooks/useProductFilters';
 import { useProductListView } from '../hooks/useProductListView';
 import { useQuickView } from '../hooks/useQuickView';
+import useT from '@/i18n/useT';
 
 interface ProductsViewProps {
   initialProducts: Product[];
@@ -24,6 +25,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   initialProducts, 
   categories,
 }) => {
+  const { t } = useT();
   const categoriesWithCounts = React.useMemo(() => {
     return categories.map(cat => ({
       ...cat,
@@ -34,6 +36,15 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
   const { filters, updateFilters } = useProductFilters();
   const { paginatedProducts, totalCount, totalPages } = useProductListView(initialProducts, filters);
   const { selectedProduct, openQuickView, closeQuickView } = useQuickView();
+  const resultsLabel = (totalCount === 1
+    ? t('productsCatalog.resultsCountSingular')
+    : t('productsCatalog.resultsCountPlural')).replace('{count}', String(totalCount));
+  const title = filters.search
+    ? t('productsCatalog.resultsFor').replace('{search}', filters.search)
+    : t('productsCatalog.allArticles');
+  const description = filters.search
+    ? resultsLabel
+    : t('productsCatalog.browseDescription');
 
   return (
     <>
@@ -43,14 +54,14 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             <div className="flex items-center gap-2 mb-2">
                 <span className="h-1 w-8 bg-[#E67E22] rounded-full"></span>
                 <span className="bg-[#E67E22]/10 text-[#E67E22] border border-[#E67E22]/20 text-xs font-black uppercase px-2.5 py-0.5 rounded-md tracking-widest">
-                  {filters.search ? 'Recherche' : 'Complete'}
+                  {filters.search ? t('productsCatalog.badgeSearch') : t('productsCatalog.badgeComplete')}
                 </span>
             </div>
             <h2 className="text-3xl md:text-5xl font-black text-[#2D5A27] dark:text-white tracking-tight leading-none">
-              {filters.search ? `Résultats pour "${filters.search}"` : 'Tous nos articles'}
+              {title}
             </h2>
             <p className="text-slate-500 text-sm font-medium mt-2">
-              {filters.search ? `${totalCount} produit${totalCount !== 1 ? 's' : ''} trouvé${totalCount !== 1 ? 's' : ''}` : 'Parcourez l\'ensemble de notre catalogue avec les filtres avancés'}
+              {description}
             </p>
         </div>
 

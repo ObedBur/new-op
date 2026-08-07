@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useMemo, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Filter,
   Loader2,
@@ -12,19 +11,15 @@ import {
   Scale,
   MessageCircle,
   X,
-  Store,
   ArrowRight,
   CheckCircle,
   Package,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { compareProducts, CompareProduct } from '@/features/compare/compare.service';
 import { getBestSellers } from '@/features/products/services/product.service';
 import { Product } from '@/features/products/types';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { ProductQuickView } from '@/features/products/components/ProductQuickView';
-import { useToast } from '@/context/ToastContext';
-import { useCart } from '@/features/cart/context/CartContext';
 import useT from '@/i18n/useT';
 
 
@@ -137,11 +132,157 @@ function EmptyCompareState() {
   );
 }
 
+function renderCompareFilterOptions({
+  t,
+  clearFilters,
+  isVerifiedOnly,
+  setIsVerifiedOnly,
+  availability,
+  setAvailability,
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  availableCities,
+  selectedCities,
+  toggleCity,
+  availableShops,
+  selectedShops,
+  toggleShop,
+}: {
+  t: (key: string) => string;
+  clearFilters: () => void;
+  isVerifiedOnly: boolean;
+  setIsVerifiedOnly: React.Dispatch<React.SetStateAction<boolean>>;
+  availability: 'ALL' | 'IN_STOCK';
+  setAvailability: React.Dispatch<React.SetStateAction<'ALL' | 'IN_STOCK'>>;
+  minPrice: string;
+  setMinPrice: React.Dispatch<React.SetStateAction<string>>;
+  maxPrice: string;
+  setMaxPrice: React.Dispatch<React.SetStateAction<string>>;
+  availableCities: string[];
+  selectedCities: string[];
+  toggleCity: (city: string) => void;
+  availableShops: string[];
+  selectedShops: string[];
+  toggleShop: (shop: string) => void;
+}) {
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/5">
+        <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400">{t('compare.filtersTitle')}</h3>
+        <button onClick={clearFilters} className="text-[10px] font-bold text-gray-400 hover:text-[#E67E22] transition-colors">
+          {t('compare.clearAll')}
+        </button>
+      </div>
+
+      <div
+        className="flex items-center justify-between group cursor-pointer"
+        onClick={() => setIsVerifiedOnly(!isVerifiedOnly)}
+      >
+        <div>
+          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">{t('compare.verifiedSellers')}</h4>
+          <p className="text-[9px] font-medium text-gray-400">{t('compare.verifiedOnly')}</p>
+        </div>
+        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center px-1 shrink-0 ${isVerifiedOnly ? 'bg-[#E67E22]' : 'bg-gray-200 dark:bg-white/10'}`}>
+          <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${isVerifiedOnly ? 'translate-x-4' : 'translate-x-0'}`} />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.availability')}</h4>
+        <div className="flex flex-col gap-2.5">
+          <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('ALL')}>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'ALL' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
+              {availability === 'ALL' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
+            </div>
+            <span className={`text-xs font-bold transition-colors ${availability === 'ALL' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.allItems')}</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('IN_STOCK')}>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'IN_STOCK' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
+              {availability === 'IN_STOCK' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
+            </div>
+            <span className={`text-xs font-bold transition-colors ${availability === 'IN_STOCK' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.inStockOnly')}</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.price')}</h4>
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
+            <input
+              type="number"
+              placeholder={t('compare.minPlaceholder')}
+              value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
+            />
+          </div>
+          <div className="w-2 h-px bg-gray-300 dark:bg-white/10 shrink-0" />
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
+            <input
+              type="number"
+              placeholder={t('compare.maxPlaceholder')}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
+            />
+          </div>
+        </div>
+      </div>
+
+      {availableCities.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.cities')}</h4>
+          <div className="space-y-2 max-h-40 overflow-y-auto pr-2 no-scrollbar">
+            {availableCities.map(city => (
+              <label
+                key={city}
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => toggleCity(city)}
+              >
+                <div className={`relative flex items-center justify-center w-4 h-4 rounded border ${selectedCities.includes(city) ? 'bg-[#E67E22] border-[#E67E22]' : 'border-gray-300 dark:border-white/20 group-hover:border-[#E67E22]'} transition-colors`}>
+                  {selectedCities.includes(city) && <CheckCircle className="w-3 h-3 text-white" />}
+                </div>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400 select-none truncate">{city}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {availableShops.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.shops')}</h4>
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
+            {availableShops.map(shop => (
+              <label
+                key={shop}
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => toggleShop(shop)}
+              >
+                <div className={`relative flex items-center justify-center w-4 h-4 rounded border ${selectedShops.includes(shop) ? 'bg-[#E67E22] border-[#E67E22]' : 'border-gray-300 dark:border-white/20 group-hover:border-[#E67E22]'} transition-colors`}>
+                  {selectedShops.includes(shop) && <CheckCircle className="w-3 h-3 text-white" />}
+                </div>
+                <span className="text-xs font-bold text-gray-600 dark:text-gray-400 select-none truncate">{shop}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
 // PAGE PRINCIPALE
 // ─────────────────────────────────────────────
 function CompareContent() {
   const { t } = useT();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   
@@ -149,6 +290,7 @@ function CompareContent() {
   const [loading, setLoading] = useState(false);
   const latestRequestRef = useRef(0);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   // Filtres & Tri
   const [isVerifiedOnly, setIsVerifiedOnly] = useState(false);
@@ -159,41 +301,47 @@ function CompareContent() {
   const [availability, setAvailability] = useState<'ALL' | 'IN_STOCK'>('ALL');
   const [sortBy, setSortBy] = useState('price_asc');
 
-  // 1. Fetch Data
-  const fetchCompare = useCallback(async (q: string, signal?: AbortSignal) => {
-    const normalizedQuery = q.trim();
+  useEffect(() => {
+    const controller = new AbortController();
+    const normalizedQuery = query.trim();
     const requestId = latestRequestRef.current + 1;
     latestRequestRef.current = requestId;
 
-    if (normalizedQuery.length < 2) {
-      setProducts([]);
-      setLoading(false);
-      return;
-    }
+    const runCompare = async () => {
+      // Defer state updates so the effect only schedules work.
+      await Promise.resolve();
 
-    setLoading(true);
+      if (controller.signal.aborted) {
+        return;
+      }
 
-    try {
-      const res = await compareProducts(normalizedQuery, signal);
-      if (res.success && requestId === latestRequestRef.current) {
-        setProducts(res.products);
-      }
-    } catch (error) {
-      if (!signal?.aborted) {
-        console.error('Erreur recherche comparaison:', error);
-      }
-    } finally {
-      if (requestId === latestRequestRef.current) {
+      if (normalizedQuery.length < 2) {
+        setProducts([]);
         setLoading(false);
+        return;
       }
-    }
-  }, []);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchCompare(query, controller.signal);
+      setLoading(true);
+
+      try {
+        const res = await compareProducts(normalizedQuery, controller.signal);
+        if (res.success && requestId === latestRequestRef.current) {
+          setProducts(res.products);
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error('Erreur recherche comparaison:', error);
+        }
+      } finally {
+        if (requestId === latestRequestRef.current) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void runCompare();
     return () => controller.abort();
-  }, [query, fetchCompare]);
+  }, [query]);
 
   // 2. Extraire les options de filtres depuis les données
   const availableCities = useMemo(() => {
@@ -293,120 +441,49 @@ function CompareContent() {
     setAvailability('ALL');
   };
 
-  // Composant: Contenu des filtres (utilisé en desktop et mobile)
-  const FilterOptions = () => (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/5">
-        <h3 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-emerald-400">{t('compare.filtersTitle')}</h3>
-        <button onClick={clearFilters} className="text-[10px] font-bold text-gray-400 hover:text-[#E67E22] transition-colors">
-          {t('compare.clearAll')}
-        </button>
-      </div>
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const normalizedQuery = String(formData.get('compare-query') ?? '').trim();
 
-      {/* Confiance - Toggle Switch */}
-      <div 
-        className="flex items-center justify-between group cursor-pointer" 
-        onClick={() => setIsVerifiedOnly(!isVerifiedOnly)}
-      >
-        <div>
-          <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300">{t('compare.verifiedSellers')}</h4>
-          <p className="text-[9px] font-medium text-gray-400">{t('compare.verifiedOnly')}</p>
-        </div>
-        <div className={`w-10 h-6 rounded-full transition-colors relative flex items-center px-1 shrink-0 ${isVerifiedOnly ? 'bg-[#E67E22]' : 'bg-gray-200 dark:bg-white/10'}`}>
-          <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-300 ${isVerifiedOnly ? 'translate-x-4' : 'translate-x-0'}`} />
-        </div>
-      </div>
+    if (normalizedQuery.length < 2) {
+      router.push('/compare');
+      return;
+    }
 
-      {/* Disponibilité */}
-      <div className="space-y-3">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.availability')}</h4>
-        <div className="flex flex-col gap-2.5">
-          <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('ALL')}>
-            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'ALL' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
-              {availability === 'ALL' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
-            </div>
-            <span className={`text-xs font-bold transition-colors ${availability === 'ALL' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.allItems')}</span>
-          </label>
-          <label className="flex items-center gap-3 cursor-pointer group" onClick={() => setAvailability('IN_STOCK')}>
-            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${availability === 'IN_STOCK' ? 'border-[#E67E22]' : 'border-gray-300 dark:border-white/20'}`}>
-              {availability === 'IN_STOCK' && <div className="w-2 h-2 rounded-full bg-[#E67E22]" />}
-            </div>
-            <span className={`text-xs font-bold transition-colors ${availability === 'IN_STOCK' ? 'text-gray-900 dark:text-white' : 'text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300'}`}>{t('compare.inStockOnly')}</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Fourchette de prix */}
-      <div className="space-y-4">
-        <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.price')}</h4>
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
-            <input 
-              type="number" 
-              placeholder={t('compare.minPlaceholder')} 
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              onBlur={(e) => setMinPrice(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && setMinPrice(e.currentTarget.value)}
-              className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
-            />
-          </div>
-          <div className="w-2 h-px bg-gray-300 dark:bg-white/10 shrink-0" />
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
-            <input 
-              type="number" 
-              placeholder={t('compare.maxPlaceholder')} 
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              onBlur={(e) => setMaxPrice(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && setMaxPrice(e.currentTarget.value)}
-              className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-xl pl-7 pr-3 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-[#E67E22] focus:ring-2 focus:ring-[#E67E22]/20 transition-all placeholder:text-gray-400"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Localisation */}
-      {availableCities.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.cities')}</h4>
-          <div className="space-y-2 max-h-40 overflow-y-auto pr-2 no-scrollbar">
-            {availableCities.map(city => (
-              <label key={city} className="flex items-center gap-3 cursor-pointer group">
-                <div className={`relative flex items-center justify-center w-4 h-4 rounded border ${selectedCities.includes(city) ? 'bg-[#E67E22] border-[#E67E22]' : 'border-gray-300 dark:border-white/20 group-hover:border-[#E67E22]'} transition-colors`}>
-                  {selectedCities.includes(city) && <CheckCircle className="w-3 h-3 text-white" />}
-                </div>
-                <span className="text-xs font-bold text-gray-600 dark:text-gray-400 select-none truncate">{city}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Boutiques */}
-      {availableShops.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.shops')}</h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
-            {availableShops.map(shop => (
-              <label key={shop} className="flex items-center gap-3 cursor-pointer group">
-                <div className={`relative flex items-center justify-center w-4 h-4 rounded border ${selectedShops.includes(shop) ? 'bg-[#E67E22] border-[#E67E22]' : 'border-gray-300 dark:border-white/20 group-hover:border-[#E67E22]'} transition-colors`}>
-                  {selectedShops.includes(shop) && <CheckCircle className="w-3 h-3 text-white" />}
-                </div>
-                <span className="text-xs font-bold text-gray-600 dark:text-gray-400 select-none truncate">{shop}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    router.push(`/compare?q=${encodeURIComponent(normalizedQuery)}`);
+  };
 
   return (
     <main className="min-h-screen bg-[#fafafa] dark:bg-black pt-20 sm:pt-24 pb-20 sm:pb-24">
       <div className="container mx-auto px-4 max-w-[1400px]">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="mb-6 flex items-center gap-3 rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm dark:border-white/5 dark:bg-[#1a1a1a]"
+        >
+          <Search className="h-5 w-5 shrink-0 text-gray-400" />
+          <input
+            name="compare-query"
+            type="text"
+            defaultValue={query}
+            placeholder={t('compare.searchPlaceholder')}
+            className="w-full bg-transparent text-sm font-bold text-[#2D5A27] outline-none placeholder:text-gray-400 dark:text-white"
+          />
+          <button
+            type="submit"
+            className="hidden sm:inline-flex rounded-xl bg-[#E67E22] px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-[#d67118]"
+          >
+            {t('compare.searchButton')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsMobileFiltersOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#2D5A27] lg:hidden dark:border-white/10 dark:text-white"
+          >
+            <Filter className="h-4 w-4" />
+            {t('compare.mobileFilters')}
+          </button>
+        </form>
         
         {/* En-tête de page simple */}
         {query.trim().length >= 2 && !loading && (
@@ -427,7 +504,24 @@ function CompareContent() {
           
           {/* SIDEBAR DESKTOP */}
           <aside className="hidden lg:block w-[280px] shrink-0 sticky top-28 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 p-6 rounded-[2rem] shadow-sm">
-            <FilterOptions />
+            {renderCompareFilterOptions({
+              t,
+              clearFilters,
+              isVerifiedOnly,
+              setIsVerifiedOnly,
+              availability,
+              setAvailability,
+              minPrice,
+              setMinPrice,
+              maxPrice,
+              setMaxPrice,
+              availableCities,
+              selectedCities,
+              toggleCity,
+              availableShops,
+              selectedShops,
+              toggleShop,
+            })}
           </aside>
 
           {/* ZONE PRINCIPALE (Tri + Grille) */}
@@ -495,6 +589,49 @@ function CompareContent() {
           </div>
         </div>
       </div>
+
+      {isMobileFiltersOpen && (
+        <div className="fixed inset-0 z-[120] lg:hidden">
+          <button
+            type="button"
+            aria-label={t('compare.mobileFilters')}
+            onClick={() => setIsMobileFiltersOpen(false)}
+            className="absolute inset-0 bg-black/50"
+          />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-[2rem] bg-white p-5 shadow-2xl dark:bg-[#1a1a1a]">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-widest text-[#2D5A27] dark:text-white">
+                {t('compare.filtersTitle')}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="rounded-full border border-gray-200 p-2 text-gray-500 dark:border-white/10 dark:text-gray-300"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {renderCompareFilterOptions({
+              t,
+              clearFilters,
+              isVerifiedOnly,
+              setIsVerifiedOnly,
+              availability,
+              setAvailability,
+              minPrice,
+              setMinPrice,
+              maxPrice,
+              setMaxPrice,
+              availableCities,
+              selectedCities,
+              toggleCity,
+              availableShops,
+              selectedShops,
+              toggleShop,
+            })}
+          </div>
+        </div>
+      )}
 
       {selectedProduct && (
         <ProductQuickView product={selectedProduct} onClose={() => setSelectedProduct(null)} />

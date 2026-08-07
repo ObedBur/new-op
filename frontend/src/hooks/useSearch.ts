@@ -60,9 +60,11 @@ export function useSearch() {
     const normalizedQuery = query.trim();
     
     if (normalizedQuery.length < 3) {
-      setResults({ suggestions: [], shops: [], products: [] });
-      setLoading(false);
-      return;
+      const resetTimer = setTimeout(() => {
+        setResults({ suggestions: [], shops: [], products: [] });
+        setLoading(false);
+      }, 0);
+      return () => clearTimeout(resetTimer);
     }
 
     const timer = setTimeout(async () => {
