@@ -37,6 +37,16 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
   }
 }
 
+export async function deleteOrder(orderId: string): Promise<ApiResponse<unknown>> {
+  try {
+    const response = await api.delete<ApiResponse<unknown>>(`/orders/${orderId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting order ${orderId}:`, error);
+    throw error;
+  }
+}
+
 // ====== COMMANDES CLIENTS ======
 
 export async function getClientOrders(): Promise<ApiResponse<Order[]>> {
