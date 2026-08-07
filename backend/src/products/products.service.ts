@@ -322,6 +322,10 @@ export class ProductsService {
       imageUrl
     );
 
+    for (const extraImage of data.images || []) {
+      await this.moderationService.validateImage(extraImage);
+    }
+
     const product = await this.prisma.product.create({
       data: {
         name: data.name,
@@ -333,8 +337,10 @@ export class ProductsService {
         descriptionEn: data.descriptionEn || null,
         descriptionSw: data.descriptionSw || null,
         price: Number(data.price),
+        originalPrice: data.originalPrice ? Number(data.originalPrice) : null,
         categoryId: Number(data.categoryId),
         image: imageUrl,
+        images: data.images || [],
         userId: userId,
         isPublic: data.isPublic !== undefined ? data.isPublic : true,
         stockQuantity: data.stockQuantity !== undefined ? Number(data.stockQuantity) : 0,
@@ -397,8 +403,10 @@ export class ProductsService {
         ...(data.descriptionEn !== undefined && { descriptionEn: data.descriptionEn }),
         ...(data.descriptionSw !== undefined && { descriptionSw: data.descriptionSw }),
         ...(data.price && { price: Number(data.price) }),
+        ...(data.originalPrice !== undefined && { originalPrice: data.originalPrice ? Number(data.originalPrice) : null }),
         ...(data.categoryId && { categoryId: Number(data.categoryId) }),
         ...(data.image && { image: data.image }),
+        ...(data.images !== undefined && { images: data.images }),
         ...(data.stockQuantity !== undefined && { stockQuantity: Number(data.stockQuantity) }),
         ...(data.unit && { unit: data.unit }),
         ...(data.availability && { availability: data.availability }),
