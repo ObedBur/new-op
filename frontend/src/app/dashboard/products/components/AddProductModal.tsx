@@ -29,6 +29,9 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const [categories, setCategories] = useState<Category[]>([]);
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [extraImages, setExtraImages] = useState<File[]>([]);
+    const [extraPreviews, setExtraPreviews] = useState<string[]>([]);
+    const [originalPrice, setOriginalPrice] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [quantity, setQuantity] = useState('');
     const [unit, setUnit] = useState('Pièce');
@@ -36,7 +39,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
     const [error, setError] = useState<string | null>(null);
     const [isPublic, setIsPublic] = useState(true);
     const [currency, setCurrency] = useState<'USD' | 'FC'>('USD');
-    const EXCHANGE_RATE = 2850; // Taux de change moyen local
+    const EXCHANGE_RATE = 2800; // Taux de change
     const UNITS = [t('vendor.addProduct.units.piece'), t('vendor.addProduct.units.kg'), t('vendor.addProduct.units.liter'), t('vendor.addProduct.units.bag'), t('vendor.addProduct.units.box'), t('vendor.addProduct.units.dozen'), t('vendor.addProduct.units.meter'), t('vendor.addProduct.units.gram')];
 
 
@@ -65,8 +68,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
             setDescriptionSw('');
             setCategoryId('');
             setQuantity('');
+            setOriginalPrice('');
             setUnit(t('vendor.addProduct.units.piece'));
             setImagePreview(null);
+            setExtraImages([]);
+            setExtraPreviews([]);
             setIsPublic(defaultPublic !== undefined ? defaultPublic : true);
         }
     }, [product, isOpen, defaultPublic]);
@@ -131,6 +137,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 });
             }
 
+            // Encode extra images
+            const extraBase64: string[] = [];
+            for (const extraFile of extraImages) {
+                const b64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(extraFile);
+                    reader.onload = (ev) => resolve(ev.target?.result as string);
+                    reader.onerror = reject;
+                });
+                extraBase64.push(b64);
+            }
+
             const payload: any = {
                 name,
                 description,
@@ -139,15 +157,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                 descriptionEn: descriptionEn || undefined,
                 descriptionSw: descriptionSw || undefined,
                 price: currency === 'USD' ? Number(price) : Number(price) / EXCHANGE_RATE,
+                originalPrice: originalPrice ? (currency === 'USD' ? Number(originalPrice) : Number(originalPrice) / EXCHANGE_RATE) : undefined,
                 categoryId: Number(categoryId),
                 stockQuantity: Number(quantity) || 0,
                 unit: unit,
                 isPublic,
             };
 
-
             if (base64Image) {
                 payload.image = base64Image as string;
+            }
+            if (extraBase64.length > 0) {
+                payload.images = extraBase64;
             }
 
             const response = product
@@ -168,11 +189,14 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                         setName('');
                         setDescription('');
                         setPrice('');
+                        setOriginalPrice('');
                         setCategoryId('');
                         setQuantity('');
                         setUnit(t('vendor.addProduct.units.piece'));
                         setImage(null);
                         setImagePreview(null);
+                        setExtraImages([]);
+                        setExtraPreviews([]);
                     }
                     setIsSuccess(false);
                 }, 1500);
@@ -206,7 +230,8 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                             <p className="text-xs font-medium text-black/50 uppercase tracking-widest">{t('vendor.addProduct.visualSubtitle')}</p>
                         </div>
 
-                        <div className="relative group aspect-[4/3] md:aspect-square mb-4 md:mb-8">
+                        {/* Main image */}
+                        <div className="relative group aspect-[4/3] md:aspect-square mb-3">
                             <input type="file" id="image" accept="image/*" onChange={(e) => {
                                 if (e.target.files?.[0]) {
                                     setImage(e.target.files[0]);
@@ -231,6 +256,42 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                     </div>
                                 )}
                             </label>
+                        </div>
+
+                        {/* Extra photos (max 4 extra = 5 total) */}
+                        <div className="mb-4">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-2">
+                                Photos supplémentaires <span className="text-[#E67E22]">{extraImages.length}/4</span> (max 5 en tout)
+                            </p>
+                            <div className="grid grid-cols-4 gap-2">
+                                {extraPreviews.map((src, i) => (
+                                    <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-black/10">
+                                        <img src={src} alt={`Extra ${i+1}`} className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setExtraImages(prev => prev.filter((_, j) => j !== i));
+                                                setExtraPreviews(prev => prev.filter((_, j) => j !== i));
+                                            }}
+                                            className="absolute top-0.5 right-0.5 size-5 bg-red-500 rounded-full flex items-center justify-center text-white"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {extraImages.length < 4 && (
+                                    <label className="aspect-square rounded-xl border-2 border-dashed border-black/15 flex flex-col items-center justify-center cursor-pointer hover:border-[#E67E22] hover:bg-[#E67E22]/5 transition-all">
+                                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                            if (e.target.files?.[0] && extraImages.length < 4) {
+                                                const f = e.target.files[0];
+                                                setExtraImages(prev => [...prev, f]);
+                                                setExtraPreviews(prev => [...prev, URL.createObjectURL(f)]);
+                                            }
+                                        }} />
+                                        <Plus size={16} className="text-black/30" />
+                                    </label>
+                                )}
+                            </div>
                         </div>
 
                         <div className="p-6 bg-[#E67E22]/5 rounded-3xl border border-[#E67E22]/10 mt-auto">
@@ -300,6 +361,28 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClos
                                         <textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} placeholder={t('vendor.addProduct.descEnLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[60px] resize-none text-black dark:text-white" />
                                         <textarea value={descriptionSw} onChange={(e) => setDescriptionSw(e.target.value)} placeholder={t('vendor.addProduct.descSwLabel')} className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/10 border border-transparent focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold min-h-[60px] resize-none text-black dark:text-white" />
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Original Price (barré) */}
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-black/40 dark:text-white/50 uppercase tracking-widest ml-1">Prix barré (optionnel)</label>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40" size={16} />
+                                        <input
+                                            value={originalPrice}
+                                            onChange={(e) => setOriginalPrice(e.target.value)}
+                                            type="number"
+                                            placeholder={`ex: 50 ${currency} — affiché barré comme ancien prix`}
+                                            className="w-full pl-12 pr-6 py-3 rounded-xl bg-black/5 dark:bg-white/5 border border-dashed border-black/10 focus:border-[#E67E22]/50 outline-none transition-all text-sm font-bold text-black dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                    </div>
+                                    {originalPrice && price && Number(originalPrice) > Number(price) && (
+                                        <p className="text-[10px] text-emerald-600 font-bold ml-1">
+                                            Réduction : {Math.round((1 - Number(price)/Number(originalPrice)) * 100)}% de rabais affiché sur le produit
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 

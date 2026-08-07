@@ -52,15 +52,21 @@ export default function ProductsPage() {
                 const mappedProducts = data.map((p: any) => ({
                     id: p.id,
                     name: p.name,
+                    description: p.description || '',
                     price: p.price,
                     oldPrice: p.originalPrice || null,
+                    originalPrice: p.originalPrice || null,
                     stock: p.stockQuantity || 0,
+                    stockQuantity: p.stockQuantity || 0,
                     maxStock: 500,
                     updatedAt: new Date(p.updatedAt).toLocaleDateString(),
                     status: p.availability === 'IN_STOCK' ? t('vendor.products.status.inStock') : (p.availability === 'LIMITED_STOCK' ? t('vendor.products.status.lowStock') : t('vendor.products.status.outOfStock')),
                     categoryName: p.category?.name || t('vendor.products.categoryDefault'),
+                    categoryId: p.categoryId,
+                    unit: p.unit || 'Pièce',
                     isPublic: p.isPublic ?? false,
-                    image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80'
+                    image: p.image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
+                    images: p.images || [],
                 }));
                 setProducts(mappedProducts);
 
