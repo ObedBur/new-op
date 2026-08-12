@@ -10,17 +10,35 @@ export interface VendorsFilter {
   search?: string;
 }
 
+export interface VendorsPage {
+  data: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 export const vendorsService = {
   /**
-   * Fetch all vendors with optional filters
+   * Fetch vendors with optional filters and pagination
    */
-  async getAllVendors(params: Partial<VendorsFilter> = {}): Promise<User[]> {
+  async getAllVendors(params: Partial<VendorsFilter> = {}): Promise<VendorsPage> {
     const queryParams = { ...params, role: 'VENDOR' };
     const response = await api.get<ApiResponse<User[]>>('/admin/users', { params: queryParams });
     if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to fetch vendors');
     }
-    return response.data.data;
+    return {
+      data: response.data.data,
+      pagination: response.data.pagination || {
+        page: 1,
+        limit: response.data.data.length,
+        total: response.data.data.length,
+        pages: 1,
+      },
+    };
   },
 
   /**

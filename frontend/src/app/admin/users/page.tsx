@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { api } from '@/lib/axios';
 import { adminService } from '@/features/admin-dashboard/api/admin.api';
 import useT from '@/i18n/useT';
+import { ApiResponse } from '@/core/contracts/api.contract';
 
 interface User {
     id: string;
@@ -12,23 +12,30 @@ interface User {
     phone: string;
     role: string;
     isVerified: boolean;
-    city: string | null;
-    country: string;
+    city?: string | null;
+    country?: string;
     createdAt: string;
     trustScore: number;
 }
+
+const PAGE_SIZE = 20;
 
 export default function AdminUsersPage() {
     const { t } = useT();
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [pages, setPages] = useState(0);
 
     useEffect(() => {
         const fetchUsers = async () => {
+            setIsLoading(true);
             try {
-                const data: any = await adminService.getTestUsers();
-                const userData = data?.users || (Array.isArray(data) ? data : []);
-                setUsers(userData);
+                const data: ApiResponse<User[]> = await adminService.getAllUsers({ page, limit: PAGE_SIZE });
+                setUsers(data?.data || []);
+                setTotal(data?.pagination?.total || 0);
+                setPages(data?.pagination?.pages || 0);
             } catch (err) {
                 console.error('Failed to load users', err);
             } finally {
@@ -36,7 +43,7 @@ export default function AdminUsersPage() {
             }
         };
         fetchUsers();
-    }, []);
+    }, [page]);
 
     const handleDelete = async (userId: string, userName: string) => {
         if (!window.confirm(t('adminPage.deleteConfirm').replace('{name}', userName))) {
@@ -79,7 +86,7 @@ export default function AdminUsersPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white">{t('adminPage.usersTitle')}</h1>
-                    <p className="text-sm text-slate-500 mt-1">{users.length} {t('adminPage.usersCount')}</p>
+                    <p className="text-sm text-slate-500 mt-1">{total} {t('adminPage.usersCount')}</p>
                 </div>
             </div>
 
@@ -169,6 +176,34 @@ export default function AdminUsersPage() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination */}
+                {pages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <p className="text-sm text-slate-500">
+                            {t('adminPage.showing')} {(page - 1) * PAGE_SIZE + (users.length > 0 ? 1 : 0)}-{(page - 1) * PAGE_SIZE + users.length} / {total}
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page <= 1}
+                                className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {t('adminPage.prev')}
+                            </button>
+                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">
+                                {page} / {pages}
+                            </span>
+                            <button
+                                onClick={() => setPage(p => Math.min(pages, p + 1))}
+                                disabled={page >= pages}
+                                className="px-3 py-1.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                            >
+                                {t('adminPage.next')}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

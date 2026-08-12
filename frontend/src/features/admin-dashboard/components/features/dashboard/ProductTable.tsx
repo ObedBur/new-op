@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAdminTranslation, useProducts } from '@/features/admin-dashboard/hooks';
 import { AdminProduct } from '@/features/admin-dashboard/types';
 import { useAdminSearch } from '@/features/admin-dashboard/context';
+import { useCurrency } from '@/hooks/useCurrency';
 import { ShoppingBag, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 5;
@@ -124,7 +125,9 @@ const ProductTable: React.FC = () => {
     );
 };
 
-const ProductRow: React.FC<{ product: AdminProduct; editLabel: string }> = ({ product, editLabel }) => (
+const ProductRow: React.FC<{ product: AdminProduct; editLabel: string }> = ({ product, editLabel }) => {
+    const { formatPrice } = useCurrency();
+    return (
     <tr key={product.id} className="hover:bg-slate-50/80 transition-all group">
         <td className="px-5 py-3 whitespace-nowrap">
             <div className="flex items-center gap-3">
@@ -136,7 +139,7 @@ const ProductRow: React.FC<{ product: AdminProduct; editLabel: string }> = ({ pr
         </td>
         <td className="px-5 py-3 text-xs text-slate-600 font-medium whitespace-nowrap">{product.seller}</td>
         <td className="px-5 py-3 font-black text-slate-900 text-xs whitespace-nowrap">
-            {Number(product.price).toLocaleString('fr-FR')} FC
+            {formatPrice(Number(product.price))}
         </td>
         <td className="px-5 py-3 text-xs whitespace-nowrap">
             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold tracking-wider uppercase ${
@@ -157,7 +160,8 @@ const ProductRow: React.FC<{ product: AdminProduct; editLabel: string }> = ({ pr
             </button>
         </td>
     </tr>
-);
+    );
+};
 
 const LoadingSkeletons = () => (
     <>

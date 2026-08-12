@@ -11,8 +11,10 @@ export default function VendorsPage() {
         vendors, 
         isLoading, 
         filters, 
+        pagination,
         setStatusFilter, 
         setSearchQuery, 
+        setPage,
         approveVendor, 
         rejectVendor 
     } = useVendors();
@@ -27,7 +29,9 @@ export default function VendorsPage() {
             vendors={vendors}
             isLoading={isLoading}
             filters={filters}
+            pagination={pagination}
             onFilterChange={setStatusFilter}
+            onPageChange={setPage}
             onApprove={approveVendor}
             onReject={rejectVendor}
         />

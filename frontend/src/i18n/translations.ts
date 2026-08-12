@@ -230,6 +230,9 @@ export const TRANSLATIONS = {
       market: 'Marché',
       lastUpdate: 'Dernière MAJ',
       modify: 'Modifier',
+      showing: 'Affichage de',
+      prev: 'Précédent',
+      next: 'Suivant',
     },
     cart: {
       loginToOrder: 'Veuillez vous connecter pour commander',
@@ -1444,6 +1447,9 @@ export const TRANSLATIONS = {
       market: 'Market',
       lastUpdate: 'Last update',
       modify: 'Edit',
+      showing: 'Showing',
+      prev: 'Previous',
+      next: 'Next',
     },
     cart: {
       loginToOrder: 'Please log in to place an order',
@@ -2645,6 +2651,9 @@ export const TRANSLATIONS = {
       market: 'Soko',
       lastUpdate: 'Sasisho la mwisho',
       modify: 'Hariri',
+      showing: 'Inaonyesha',
+      prev: 'Nyuma',
+      next: 'Mbele',
     },
     cart: {
       loginToOrder: 'Tafadhali ingia kuagiza',

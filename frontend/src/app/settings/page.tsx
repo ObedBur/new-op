@@ -196,8 +196,8 @@ function SettingsPageContent() {
   // This unified view works on both mobile (full screen) and desktop (content area beside VendorSidebar)
   if (activeTab) {
     return (
-      <div className="min-h-0 bg-[#F6F1E0] lg:bg-transparent">
-        <div className="max-w-md mx-auto min-h-0 bg-white shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-8">
+      <div className="min-h-0 bg-[#F6F1E0] dark:bg-black lg:bg-transparent dark:lg:bg-transparent">
+        <div className="max-w-md mx-auto min-h-0 bg-white dark:bg-[#0d1117] shadow-2xl lg:max-w-none lg:shadow-none lg:mx-0 lg:px-8">
           {/* Modale d'édition */}
           <EditProfileModal
             isOpen={isEditModalOpen}
@@ -248,10 +248,10 @@ function SettingsPageContent() {
                     {activeTab === 'notifications' && (
                       <div className="space-y-8">
                         {/* --- SECTION 1: PRÉFÉRENCES (DESIGN UNTITLED UI) --- */}
-                        <section className="bg-white p-4 space-y-6">
+                        <section className="bg-white dark:bg-[#111827] p-4 space-y-6">
                           <div className="mb-6">
-                            <h3 className="text-xl font-black text-black tracking-tight">{t("settingsPage.notifications.title")}</h3>
-                            <p className="text-sm font-medium text-gray-500 mt-1">{t("settingsPage.notifications.description")}</p>
+                            <h3 className="text-xl font-black text-black dark:text-white tracking-tight">{t("settingsPage.notifications.title")}</h3>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">{t("settingsPage.notifications.description")}</p>
                           </div>
 
                           <div className="space-y-6">
@@ -305,10 +305,10 @@ function SettingsPageContent() {
                                 ],
                               }
                             ].map((cat) => (
-                              <div key={cat.id} className="group flex flex-col gap-4 pb-6 border-b border-gray-100 last:border-0 last:pb-0">
+                              <div key={cat.id} className="group flex flex-col gap-4 pb-6 border-b border-gray-100 dark:border-white/5 last:border-0 last:pb-0">
                                 <div className="max-w-md">
-                                  <h4 className="text-base font-black text-black mb-1.5">{cat.title}</h4>
-                                  <p className="text-sm text-gray-500 font-medium leading-relaxed">{cat.desc}</p>
+                                  <h4 className="text-base font-black text-black dark:text-white mb-1.5">{cat.title}</h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed">{cat.desc}</p>
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-4">
@@ -340,7 +340,7 @@ function SettingsPageContent() {
                             <button
                               onClick={handleSavePreferences}
                               disabled={isSavingPref || !preferences}
-                              className="px-8 py-4 bg-black text-white rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-gray-900 dark:hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {isSavingPref
                                 ? t("settingsPage.notifications.saving")
@@ -350,16 +350,16 @@ function SettingsPageContent() {
                         </section>
 
                         {/* --- SECTION 2: ACTIVITÉ RÉCENTE --- */}
-                        <section className="bg-white p-4 space-y-6">
+                        <section className="bg-white dark:bg-[#111827] p-4 space-y-6">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                             <div className="space-y-1">
-                              <h3 className="text-xl font-black text-black tracking-tight">{t("settingsPage.notifications.recentTitle")}</h3>
-                              <p className="text-xs font-semibold text-gray-400 italic">{t("settingsPage.notifications.recentSubtitle")}</p>
+                              <h3 className="text-xl font-black text-black dark:text-white tracking-tight">{t("settingsPage.notifications.recentTitle")}</h3>
+                              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 italic">{t("settingsPage.notifications.recentSubtitle")}</p>
                             </div>
                             {notifications.some(n => !n.isRead) && (
                               <button
                                 onClick={() => markAllAsRead()}
-                                className="group flex items-center gap-2 px-6 py-3 bg-gray-50 hover:bg-orange-50 text-gray-600 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+                                className="group flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/10 text-gray-600 dark:text-gray-400 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
                               >
                                 <CheckCircle2 size={14} />
                                 {t("settingsPage.notifications.markAllRead")}
@@ -383,14 +383,14 @@ function SettingsPageContent() {
                                       variants={fadeUp}
                                       key={n.id}
                                       onClick={() => handleNotificationClick(n)}
-                                      className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${n.isRead ? 'bg-white border-gray-100' : 'bg-orange-50/30 border-orange-100/50 shadow-sm'}`}
+                                      className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer ${n.isRead ? 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5' : 'bg-orange-50/30 dark:bg-orange-500/10 border-orange-100/50 dark:border-orange-500/20 shadow-sm'}`}
                                     >
-                                      <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${n.isRead ? 'bg-gray-50 text-gray-400' : 'bg-orange-100 text-orange-600'}`}>
+                                      <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 ${n.isRead ? 'bg-gray-50 dark:bg-white/5 text-gray-400' : 'bg-orange-100 dark:bg-orange-500/20 text-orange-600'}`}>
                                         <Bell size={18} />
                                       </div>
                                       <div className="flex-1 min-w-0">
-                                        <h4 className={`text-sm font-black truncate ${n.isRead ? 'text-gray-900' : 'text-orange-950'}`}>{n.title}</h4>
-                                        <p className="text-[12px] text-gray-500 line-clamp-1">{n.message}</p>
+                                        <h4 className={`text-sm font-black truncate ${n.isRead ? 'text-gray-900 dark:text-gray-200' : 'text-orange-950 dark:text-orange-300'}`}>{n.title}</h4>
+                                        <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-1">{n.message}</p>
                                       </div>
                                       <div className="text-[10px] font-bold text-gray-300 shrink-0">
                                         {new Date(n.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}
@@ -407,15 +407,15 @@ function SettingsPageContent() {
 
                     {activeTab === 'preferences' && (
                       <div className="space-y-8">
-                        <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-8">
-                          <div className="pb-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-black">{t("settingsPage.preferences.title")}</h2>
-                            <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.preferences.description")}</p>
+                        <div className="bg-white dark:bg-[#111827] p-6 border border-slate-100 dark:border-white/5 shadow-sm space-y-8">
+                          <div className="pb-6 border-b border-slate-100 dark:border-white/5">
+                            <h2 className="text-xl font-bold text-black dark:text-white">{t("settingsPage.preferences.title")}</h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">{t("settingsPage.preferences.description")}</p>
                           </div>
 
                           <div className="space-y-4">
-                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.theme.title")}</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.theme.description")}</p>
+                            <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.preferences.theme.title")}</h3>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">{t("settingsPage.preferences.theme.description")}</p>
                             <div className="grid grid-cols-3 gap-3">
                               {[
                                 {
@@ -442,8 +442,8 @@ function SettingsPageContent() {
                                     toast.success(themeOption.toastLabel);
                                   }}
                                   className={`py-3.5 rounded-full text-xs font-bold transition-all border cursor-pointer ${theme === themeOption.value
-                                    ? "bg-black text-white border-transparent shadow-sm"
-                                    : "bg-gray-50 border-gray-100 text-gray-700 hover:bg-gray-100"
+                                    ? "bg-black dark:bg-white text-white dark:text-black border-transparent shadow-sm"
+                                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
                                     }`}
                                 >
                                   {themeOption.label}
@@ -452,9 +452,9 @@ function SettingsPageContent() {
                             </div>
                           </div>
 
-                          <div className="space-y-4 border-t border-slate-100 pt-6">
-                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.language.title")}</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.language.description")}</p>
+                          <div className="space-y-4 border-t border-slate-100 dark:border-white/5 pt-6">
+                            <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.preferences.language.title")}</h3>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">{t("settingsPage.preferences.language.description")}</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {[
                                 {
@@ -484,20 +484,20 @@ function SettingsPageContent() {
                                     toast.success(lang.toastLabel);
                                   }}
                                   className={`p-4 rounded-full text-left transition-all border cursor-pointer ${language === lang.value
-                                    ? "bg-white border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
-                                    : "bg-gray-50 border-gray-100 text-gray-700 hover:bg-gray-100"
+                                    ? "bg-white dark:bg-white/10 border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
+                                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
                                     }`}
                                 >
-                                  <p className="text-xs font-bold text-black">{lang.label}</p>
-                                  <p className="text-[10px] text-gray-500 font-semibold mt-0.5">{lang.desc}</p>
+                                  <p className="text-xs font-bold text-black dark:text-white">{lang.label}</p>
+                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{lang.desc}</p>
                                 </button>
                               ))}
                             </div>
                           </div>
 
-                          <div className="space-y-4 border-t border-slate-100 pt-6">
-                            <h3 className="text-sm font-bold text-black">{t("settingsPage.preferences.currency.title")}</h3>
-                            <p className="text-[11px] text-gray-500 font-semibold">{t("settingsPage.preferences.currency.description")}</p>
+                          <div className="space-y-4 border-t border-slate-100 dark:border-white/5 pt-6">
+                            <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.preferences.currency.title")}</h3>
+                            <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold">{t("settingsPage.preferences.currency.description")}</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {[
                                 {
@@ -521,12 +521,12 @@ function SettingsPageContent() {
                                     toast.success(curr.toastLabel);
                                   }}
                                   className={`p-4 rounded-full text-left transition-all border cursor-pointer ${currency === curr.value
-                                    ? "bg-white border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
-                                    : "bg-gray-50 border-gray-100 text-gray-700 hover:bg-gray-100"
+                                    ? "bg-white dark:bg-white/10 border-[#E67E22] shadow-sm relative ring-2 ring-orange-500/10"
+                                    : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
                                     }`}
                                 >
-                                  <p className="text-xs font-bold text-black">{curr.label}</p>
-                                  <p className="text-[10px] text-gray-500 font-semibold mt-0.5">{curr.desc}</p>
+                                  <p className="text-xs font-bold text-black dark:text-white">{curr.label}</p>
+                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{curr.desc}</p>
                                 </button>
                               ))}
                             </div>
@@ -537,8 +537,8 @@ function SettingsPageContent() {
 
                     {activeTab === 'profile' && (
                       <div className="space-y-8 max-w-3xl">
-                        <div className="bg-white overflow-hidden rounded-2xl">
-                          <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 pt-6">
+                        <div className="bg-white dark:bg-[#111827] overflow-hidden rounded-2xl">
+                          <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 dark:border-white/5 pt-6">
                             <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
                               <div className="relative group shrink-0">
                                 <div className="w-24 sm:w-28 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg relative">
@@ -558,15 +558,15 @@ function SettingsPageContent() {
                               </div>
 
                               <div className="sm:pb-1">
-                                <h2 className="text-lg sm:text-xl font-bold text-black flex items-center justify-center sm:justify-start gap-2">
+                                <h2 className="text-lg sm:text-xl font-bold text-black dark:text-white flex items-center justify-center sm:justify-start gap-2">
                                   {user?.fullName || t("settingsPage.profile.defaultUser")}
                                   {user?.isVerified && (
-                                    <span className="text-[#2D5A27] bg-green-50 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                                    <span className="text-[#2D5A27] bg-green-50 dark:bg-green-500/10 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
                                       {t("settingsPage.profile.active")}
                                     </span>
                                   )}
                                 </h2>
-                                <p className="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1 uppercase tracking-wider">
                                   {user?.role === 'VENDOR'
                                     ? t("settingsPage.profile.vendorCertified")
                                     : t("settingsPage.profile.clientVerified")}
@@ -588,39 +588,39 @@ function SettingsPageContent() {
 
                           <div className="px-6 pb-8 space-y-6 pt-6">
                             <div>
-                              <h2 className="text-lg font-bold text-black">{t("settingsPage.profile.accountInfoTitle")}</h2>
-                              <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
+                              <h2 className="text-lg font-bold text-black dark:text-white">{t("settingsPage.profile.accountInfoTitle")}</h2>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.firstName")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.firstName")}</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.fullName?.split(' ')[0] || ''}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.lastName")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.lastName")}</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.email")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.email")}</label>
                                 <div className="relative">
                                   <input
                                     type="email"
                                     readOnly
                                     value={user?.email || ''}
-                                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                   />
                                   <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                                     <CheckCircle2 size={10} />
@@ -630,13 +630,13 @@ function SettingsPageContent() {
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.phone")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.phone")}</label>
                                 <div className="relative">
                                   <input
                                     type="text"
                                     readOnly
                                   value={user?.phone || t("settingsPage.profile.phoneUnspecified")}
-                                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                   />
                                   {user?.phoneVerified && (
                                     <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
@@ -648,44 +648,44 @@ function SettingsPageContent() {
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.province")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.province")}</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.province || t("settingsPage.profile.undefinedValue")}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.cityCommune")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.cityCommune")}</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.commune || t("settingsPage.profile.undefinedValue")}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                 />
                               </div>
 
                               {user?.role === 'VENDOR' && (
                                 <div className="space-y-2 md:col-span-2">
-                                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.shopName")}</label>
+                                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.shopName")}</label>
                                   <input
                                     type="text"
                                     readOnly
                                     value={user?.boutiqueName || t("settingsPage.profile.noShop")}
-                                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                   />
                                 </div>
                               )}
 
                               <div className="space-y-2 md:col-span-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.memberSince")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.memberSince")}</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : t("settingsPage.profile.recently")}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed"
                                 />
                               </div>
                             </div>
@@ -695,20 +695,20 @@ function SettingsPageContent() {
                     )}
 
                     {activeTab === 'orders' && (
-                      <motion.div variants={fadeUp} className="bg-white p-4 sm:p-6">
+                      <motion.div variants={fadeUp} className="bg-white dark:bg-[#111827] p-4 sm:p-6">
                         {user?.role === 'VENDOR' ? (
                           <div className="text-center py-12">
-                            <h3 className="text-xl font-black text-black mb-4">{t("settingsPage.orders.unauthorizedTitle")}</h3>
-                            <p className="text-sm font-medium text-gray-500 mb-6">{t("settingsPage.orders.unauthorizedDesc")}</p>
+                            <h3 className="text-xl font-black text-black dark:text-white mb-4">{t("settingsPage.orders.unauthorizedTitle")}</h3>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">{t("settingsPage.orders.unauthorizedDesc")}</p>
                             <Link href="/dashboard/orders" className="px-6 py-3 bg-[#E67E22] text-white rounded-xl font-bold hover:bg-[#cf6d18] transition-colors inline-block">{t("settingsPage.orders.goToDashboard")}</Link>
                           </div>
                         ) : (
                           <>
                             {/* Header + stats */}
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 pb-4 border-b border-gray-100 dark:border-white/5">
                               <div>
-                                <h3 className="text-xl font-black text-black tracking-tight leading-none">{t("settingsPage.orders.title")}</h3>
-                                <p className="text-xs font-semibold text-gray-400 mt-1">{t("settingsPage.orders.subtitle")}</p>
+                                <h3 className="text-xl font-black text-black dark:text-white tracking-tight leading-none">{t("settingsPage.orders.title")}</h3>
+                                <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-1">{t("settingsPage.orders.subtitle")}</p>
                               </div>
                               {clientOrders.length > 0 && (
                                 <div className="flex items-center gap-3">
@@ -756,7 +756,7 @@ function SettingsPageContent() {
 
                                     {/* Info produit — au centre, flex-1 */}
                                     <div className="flex-1 min-w-0">
-                                      <h4 className="font-black text-gray-900 text-sm sm:text-base leading-tight truncate">
+                                      <h4 className="font-black text-gray-900 dark:text-gray-100 text-sm sm:text-base leading-tight truncate">
                                         {order.product?.name}
                                       </h4>
                                       <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
@@ -801,17 +801,17 @@ function SettingsPageContent() {
 
                     {activeTab === 'favorites' && (
                       <div className="space-y-4">
-                        <div className="bg-white p-4 sm:p-6 border border-slate-100 shadow-sm space-y-5">
+                        <div className="bg-white dark:bg-[#111827] p-4 sm:p-6 border border-slate-100 dark:border-white/5 shadow-sm space-y-5">
                           {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <h3 className="text-xl font-black text-black mb-4">{t("settingsPage.favorites.unauthorizedTitle")}</h3>
-                              <p className="text-sm font-medium text-gray-500 mb-6">{t("settingsPage.favorites.unauthorizedDesc")}</p>
+                              <h3 className="text-xl font-black text-black dark:text-white mb-4">{t("settingsPage.favorites.unauthorizedTitle")}</h3>
+                              <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6">{t("settingsPage.favorites.unauthorizedDesc")}</p>
                             </div>
                           ) : (
                             <>
-                              <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+                              <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/5">
                                 <div>
-                                  <h2 className="text-xl font-black text-black">{t("settingsPage.favorites.title")}</h2>
+                                  <h2 className="text-xl font-black text-black dark:text-white">{t("settingsPage.favorites.title")}</h2>
                                   {wishlist.length > 0 && (
                                     <p className="text-xs font-semibold text-gray-400 mt-0.5">
                                       {wishlist.length} {wishlist.length > 1
@@ -859,10 +859,10 @@ function SettingsPageContent() {
 
                     {activeTab === 'security' && (
                       <div className="space-y-8">
-                        <div className="bg-white p-6 border border-slate-100 shadow-sm space-y-8 animate-fade-in">
-                          <div className="pb-6 border-b border-slate-100">
-                            <h2 className="text-xl font-bold text-black">{t("settingsPage.security.title")}</h2>
-                            <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.security.description")}</p>
+                        <div className="bg-white dark:bg-[#111827] p-6 border border-slate-100 dark:border-white/5 shadow-sm space-y-8 animate-fade-in">
+                          <div className="pb-6 border-b border-slate-100 dark:border-white/5">
+                            <h2 className="text-xl font-bold text-black dark:text-white">{t("settingsPage.security.title")}</h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">{t("settingsPage.security.description")}</p>
                           </div>
 
                           <div className="space-y-6">
@@ -871,34 +871,34 @@ function SettingsPageContent() {
                                 <Lock size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.password.title")}</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.password.description")}</p>
+                                <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.security.password.title")}</h3>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{t("settingsPage.security.password.description")}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.current")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.security.password.current")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-850 outline-none focus:border-[#E67E22] transition-colors"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none focus:border-[#E67E22] transition-colors"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.new")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.security.password.new")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-850 outline-none focus:border-[#E67E22] transition-colors"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none focus:border-[#E67E22] transition-colors"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.password.confirm")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.security.password.confirm")}</label>
                                 <input
                                   type="password"
                                   placeholder="••••••••"
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-860 outline-none focus:border-[#E67E22] transition-colors"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none focus:border-[#E67E22] transition-colors"
                                 />
                               </div>
                             </div>
@@ -920,28 +920,28 @@ function SettingsPageContent() {
                                 <ShieldCheck size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.pin.title")}</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.pin.description")}</p>
+                                <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.security.pin.title")}</h3>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{t("settingsPage.security.pin.description")}</p>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.pin.new")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.security.pin.new")}</label>
                                 <input
                                   type="text"
                                   maxLength={4}
                                   placeholder={t("settingsPage.security.pin.placeholder")}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-850 outline-none focus:border-emerald-500 transition-colors"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition-colors"
                                 />
                               </div>
                               <div className="space-y-2">
-                                <label className="text-xs font-semibold text-gray-500">{t("settingsPage.security.pin.confirm")}</label>
+                                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.security.pin.confirm")}</label>
                                 <input
                                   type="text"
                                   maxLength={4}
                                   placeholder={t("settingsPage.security.pin.placeholder")}
-                                  className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-855 outline-none focus:border-emerald-500 transition-colors"
+                                  className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-2.5 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition-colors"
                                 />
                               </div>
                             </div>
@@ -963,14 +963,14 @@ function SettingsPageContent() {
                                 <Smartphone size={18} />
                               </div>
                               <div>
-                                <h3 className="text-sm font-bold text-black">{t("settingsPage.security.phone.title")}</h3>
-                                <p className="text-[11px] text-gray-500 font-semibold mt-0.5">{t("settingsPage.security.phone.description")}</p>
+                                <h3 className="text-sm font-bold text-black dark:text-white">{t("settingsPage.security.phone.title")}</h3>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">{t("settingsPage.security.phone.description")}</p>
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
                               <div className="flex items-center gap-3">
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                   {t("settingsPage.security.phone.status")}: {user?.phoneVerified
                                     ? t("settingsPage.security.phone.verified")
                                     : t("settingsPage.security.phone.unverified")}
@@ -987,11 +987,11 @@ function SettingsPageContent() {
 
                     {activeTab === 'addresses' && (
                       <div className="space-y-8 animate-fade-in">
-                        <div className="bg-white p-6 border border-slate-100 shadow-sm rounded-2xl">
+                        <div className="bg-white dark:bg-[#111827] p-6 border border-slate-100 dark:border-white/5 shadow-sm rounded-2xl">
                           {user?.role === 'VENDOR' ? (
                             <div className="text-center py-12">
-                              <h3 className="text-xl md:text-xl font-black text-black mb-4">{t("settingsPage.addresses.unauthorizedTitle")}</h3>
-                              <p className="text-sm font-medium text-gray-500">{t("settingsPage.addresses.unauthorizedDesc")}</p>
+                              <h3 className="text-xl md:text-xl font-black text-black dark:text-white mb-4">{t("settingsPage.addresses.unauthorizedTitle")}</h3>
+                              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t("settingsPage.addresses.unauthorizedDesc")}</p>
                             </div>
                           ) : (
                             <AddressBookSection />
@@ -1089,15 +1089,15 @@ function SettingsPageContent() {
       </div>
 
       {/* ===== DESKTOP : Affiche le profil complet par défaut ===== */}
-      <div className="hidden lg:block px-8 py-8">
+      <div className="hidden lg:block px-8 py-8 dark:bg-transparent">
         <EditProfileModal
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
         />
-        <div className="max-w-3xl space-y-8">
-          <div className="bg-white overflow-hidden">
+        <div className="w-full space-y-8">
+          <div className="bg-white dark:bg-[#111827] overflow-hidden">
             {/* Header avatar + bouton */}
-            <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 pt-6">
+            <div className="px-6 relative flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 pb-6 border-b border-gray-100 dark:border-white/5 pt-6">
               <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5 text-center sm:text-left">
                 <div className="relative group shrink-0">
                   <div className="w-24 sm:w-28 rounded-full overflow-hidden bg-gradient-to-br from-[#E67E22] to-[#2D5A27] flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-lg relative">
@@ -1116,15 +1116,15 @@ function SettingsPageContent() {
                   </button>
                 </div>
                 <div className="sm:pb-1">
-                  <h2 className="text-lg sm:text-xl font-bold text-black flex items-center justify-center sm:justify-start gap-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-black dark:text-white flex items-center justify-center sm:justify-start gap-2">
                     {user?.fullName || t("settingsPage.profile.defaultUser")}
                     {user?.isVerified && (
-                      <span className="text-[#2D5A27] bg-green-50 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
+                      <span className="text-[#2D5A27] bg-green-50 dark:bg-green-500/10 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider">
                         {t("settingsPage.profile.active")}
                       </span>
                     )}
                   </h2>
-                  <p className="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1 uppercase tracking-wider">
                     {user?.role === 'VENDOR' ? t("settingsPage.profile.vendorCertified") : t("settingsPage.profile.clientVerified")}
                   </p>
                 </div>
@@ -1144,28 +1144,28 @@ function SettingsPageContent() {
             {/* Champs d'information */}
             <div className="px-6 pb-8 space-y-6 pt-6">
               <div>
-                <h2 className="text-lg font-bold text-black">{t("settingsPage.profile.accountInfoTitle")}</h2>
-                <p className="text-xs text-gray-500 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
+                <h2 className="text-lg font-bold text-black dark:text-white">{t("settingsPage.profile.accountInfoTitle")}</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-1">{t("settingsPage.profile.accountInfoDesc")}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.firstName")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.firstName")}</label>
                   <input type="text" readOnly value={user?.fullName?.split(' ')[0] || ''}
-                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.lastName")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.lastName")}</label>
                   <input type="text" readOnly value={user?.fullName?.split(' ').slice(1).join(' ') || ''}
-                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.email")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.email")}</label>
                   <div className="relative">
                     <input type="email" readOnly value={user?.email || ''}
-                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                      className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                       <CheckCircle2 size={10} />
                       {t("settingsPage.profile.verified")}
@@ -1174,10 +1174,10 @@ function SettingsPageContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.phone")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.phone")}</label>
                   <div className="relative">
                     <input type="text" readOnly value={user?.phone || t("settingsPage.profile.phoneUnspecified")}
-                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                      className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full pl-4 pr-24 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                     {user?.phoneVerified && (
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded-full">
                         <CheckCircle2 size={10} />
@@ -1188,30 +1188,30 @@ function SettingsPageContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.province")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.province")}</label>
                   <input type="text" readOnly value={user?.province || t("settingsPage.profile.undefinedValue")}
-                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.cityCommune")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.cityCommune")}</label>
                   <input type="text" readOnly value={user?.commune || t("settingsPage.profile.undefinedValue")}
-                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                 </div>
 
                 {user?.role === 'VENDOR' && (
                   <div className="space-y-2 md:col-span-2">
-                    <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.shopName")}</label>
+                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.shopName")}</label>
                     <input type="text" readOnly value={user?.boutiqueName || t("settingsPage.profile.noShop")}
-                      className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                      className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                   </div>
                 )}
 
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-xs font-semibold text-gray-500">{t("settingsPage.profile.memberSince")}</label>
+                  <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{t("settingsPage.profile.memberSince")}</label>
                   <input type="text" readOnly
                     value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }) : t("settingsPage.profile.recently")}
-                    className="w-full bg-[#F9FAFB] border border-gray-100 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 outline-none cursor-not-allowed" />
+                    className="w-full bg-[#F9FAFB] dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-full px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 outline-none cursor-not-allowed" />
                 </div>
               </div>
             </div>

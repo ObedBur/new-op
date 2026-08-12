@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useProducts } from '@/features/admin-dashboard/hooks';
 import useT from '@/i18n/useT';
+import { useCurrency } from '@/hooks/useCurrency';
 import { useAdminSearch } from '@/features/admin-dashboard/context';
 import { AdminProduct } from '@/features/admin-dashboard/types';
 import {
@@ -36,6 +37,7 @@ const InfoRow: React.FC<{ icon: React.ReactNode; label: string; value: string; a
 
 const ProductDetailModal: React.FC<{ product: AdminProduct; onClose: () => void }> = ({ product, onClose }) => {
     const { t } = useT();
+    const { formatPrice } = useCurrency();
     const marketColors: Record<string, string> = {
         Virunga: 'bg-blue-50 text-blue-700 border border-blue-200/60',
         Birere: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
@@ -78,7 +80,7 @@ const ProductDetailModal: React.FC<{ product: AdminProduct; onClose: () => void 
 
                 {/* Info rows */}
                 <div className="px-6 pb-2">
-                    <InfoRow icon={<Tag className="size-4" />} label={t('adminPage.currentPrice')} value={`${Number(product.price).toLocaleString('fr-FR')} FC`} accent />
+                    <InfoRow icon={<Tag className="size-4" />} label={t('adminPage.currentPrice')} value={formatPrice(Number(product.price))} accent />
                     <InfoRow icon={<Store className="size-4" />} label={t('adminPage.seller')} value={product.seller} />
                     <InfoRow icon={<MapPin className="size-4" />} label={t('adminPage.market')} value={product.quartier || '—'} />
                     <InfoRow icon={<Calendar className="size-4" />} label={t('adminPage.lastUpdate')} value={product.lastUpdate || '—'} />
@@ -103,6 +105,7 @@ const ProductDetailModal: React.FC<{ product: AdminProduct; onClose: () => void 
 
 const ProductRow: React.FC<{ product: AdminProduct; onClick: () => void }> = ({ product, onClick }) => {
     const { t } = useT();
+    const { formatPrice } = useCurrency();
     return (
     <button
         onClick={onClick}
@@ -121,7 +124,7 @@ const ProductRow: React.FC<{ product: AdminProduct; onClick: () => void }> = ({ 
 
         {/* Price */}
         <div className="text-right shrink-0 hidden sm:block">
-            <p className="text-sm font-black text-slate-900">{Number(product.price).toLocaleString('fr-FR')} FC</p>
+            <p className="text-sm font-black text-slate-900">{formatPrice(Number(product.price))}</p>
             <p className="text-[10px] text-slate-400 font-semibold">{product.lastUpdate}</p>
         </div>
 
@@ -149,11 +152,14 @@ const QUARTIERS = [ALL_QUARTIERS, 'Virunga', 'Birere', 'Himbi', 'Katindo', 'Kari
 export default function AdminProductsPage() {
     const { searchQuery } = useAdminSearch();
     const { t } = useT();
-    const { products, isLoading, error } = useProducts({ searchQuery, limit: 100 });
+    const [page, setPage] = useState(1);
+    const { products, pagination, isLoading, error } = useProducts({ searchQuery, page, limit: 20 });
     const [selectedProduct, setSelectedProduct] = useState<AdminProduct | null>(null);
     const [activeQuartier, setActiveQuartier] = useState(ALL_QUARTIERS);
 
     const filtered = activeQuartier === ALL_QUARTIERS ? products : products.filter(p => p.quartier === activeQuartier);
+    const totalPages = pagination?.pages || 1;
+    const total = pagination?.total || products.length;
 
     if (isLoading) {
         return (
@@ -182,7 +188,7 @@ export default function AdminProductsPage() {
             {/* Stats mini row */}
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { label: t('adminPage.totalProducts'), value: products.length, icon: <Package className="size-4" />, bg: 'bg-emerald-50 text-emerald-600' },
+                    { label: t('adminPage.totalProducts'), value: total, icon: <Package className="size-4" />, bg: 'bg-emerald-50 text-emerald-600' },
                     { label: t('adminPage.activeMarkets'), value: 5, icon: <MapPin className="size-4" />, bg: 'bg-orange-50 text-orange-600' },
                     { label: t('adminPage.filtered'), value: filtered.length, icon: <ShoppingBag className="size-4" />, bg: 'bg-blue-50 text-blue-600' },
                 ].map(s => (
@@ -238,6 +244,32 @@ export default function AdminProductsPage() {
             {/* Product Detail Modal */}
             {selectedProduct && (
                 <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200/80 shadow-xs px-4 py-3">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                        {(page - 1) * 20 + (products.length > 0 ? 1 : 0)}-{(page - 1) * 20 + products.length} / {total}
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(Math.max(1, page - 1))}
+                            disabled={page <= 1}
+                            className="h-8 px-3 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition-all shadow-xs uppercase tracking-wider cursor-pointer"
+                        >
+                            {t('adminPage.prev')}
+                        </button>
+                        <span className="text-xs font-black text-slate-700">{page} / {totalPages}</span>
+                        <button
+                            onClick={() => setPage(Math.min(totalPages, page + 1))}
+                            disabled={page >= totalPages}
+                            className="h-8 px-3 bg-emerald-600 text-white rounded-lg text-[10px] font-bold hover:bg-emerald-700 disabled:opacity-40 disabled:hover:bg-emerald-600 transition-all shadow-xs uppercase tracking-wider cursor-pointer"
+                        >
+                            {t('adminPage.next')}
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );
