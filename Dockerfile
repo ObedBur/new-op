@@ -1,8 +1,10 @@
 # --- ÉTAPE 1 : BUILDER ---
 FROM node:20-alpine AS builder
 
-# Installation des outils nécessaires
-RUN apk add --no-cache libc6-compat
+# Installation des outils nécessaires. bcrypt peut devoir être compilé si le
+# binaire précompilé ne peut pas être téléchargé ; node-gyp requiert Python,
+# make et un compilateur C++.
+RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
 # Activation de pnpm
@@ -35,6 +37,10 @@ RUN pnpm --filter backend build
 
 # --- ÉTAPE 2 : RUNNER (PRODUCTION) ---
 FROM node:20-alpine AS production
+
+# bcrypt est aussi installé dans cette étape ; conserver les outils de build
+# permet le repli de node-gyp lorsque GitHub ne répond pas.
+RUN apk add --no-cache python3 make g++
 
 # Installation de pnpm (INDISPENSABLE - chaque FROM repart de zéro)
 RUN corepack enable && corepack prepare pnpm@latest --activate
