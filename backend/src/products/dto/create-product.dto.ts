@@ -114,18 +114,4 @@ export class CreateProductDto {
   @IsString()
   unit?: string;
 
-  /**
-   * Prix original (barré) pour afficher une réduction.
-   */
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber({}, { message: 'Le prix original doit être un nombre valide.' })
-  @Min(0)
-  originalPrice?: number;
-
-  /**
-   * Images supplémentaires du produit (galerie, max 5 en tout avec image principale).
-   */
-  @IsOptional()
-  images?: string[];
 }
