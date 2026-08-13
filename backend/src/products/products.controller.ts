@@ -109,10 +109,10 @@ export class ProductsController {
 
   /**
    * Fournit des suggestions de recherche en temps réel.
-   * Cache de 15 minutes pour optimiser l'expérience de saisie.
+   * Cache de 60 secondes.
    */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10)
+  @CacheTTL(60)
   @Get('suggestions')
   async getSuggestions(@Query('q') query: string, @Query('lang') lang?: string) {
     if (!query || query.length < 2) return { success: true, data: [] };
@@ -122,9 +122,10 @@ export class ProductsController {
 
   /**
    * Compare les prix des produits sur différents vendeurs.
+   * Cache de 60 secondes.
    */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10)
+  @CacheTTL(60)
   @Get('compare')
   async compare(@Query('search') search: string, @Query('lang') lang?: string) {
     const data = await this.productsService.compareProducts(search || '', lang);
@@ -133,9 +134,10 @@ export class ProductsController {
 
   /**
    * Liste publique des produits avec filtres.
+   * Cache de 60 secondes pour éviter de surcharger la base sur la page catalogue.
    */
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10)
+  @CacheTTL(60)
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,
