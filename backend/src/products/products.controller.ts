@@ -171,6 +171,8 @@ export class ProductsController {
   /**
    * Récupère les détails d'un produit spécifique.
    */
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(60)
   @Get(':id')
   async findOne(@Param('id') id: string, @Query('lang') lang?: string) {
     const product = await this.productsService.findOne(id, lang);

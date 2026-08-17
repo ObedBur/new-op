@@ -131,7 +131,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/*  GALERIES INTELLIGENTES */}
       <section className="py-10 space-y-12">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4">
 
           {/*  Offres du moment (Promotions) */}
           {deals.length > 0 && (
@@ -181,7 +181,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           )}
 
           {showProductEmptyState && (
-            <div className="rounded-[2rem] border border-[#DDB88C]/25 bg-[#DDB88C]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
+            <div className="rounded-[2rem] border border-[#E67E22]/25 bg-gradient-to-br from-[#E67E22]/10 via-transparent to-[#2D5A27]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
               <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {t("home.homeView.emptyTitle")}
               </h2>
@@ -200,8 +200,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/*  MEILLEURES ADRESSES */}
-      <div className="py-16 bg-[#DDB88C]/5 dark:bg-[#DDB88C]/10">
-        <FeaturedStores stores={loading.stores ? [] : stores} />
+      <div className="py-16 bg-gradient-to-b from-[#E67E22]/5 via-transparent to-[#2D5A27]/5 dark:from-[#E67E22]/10 dark:via-transparent dark:to-[#2D5A27]/10">
+        <div className="container mx-auto max-w-7xl px-4">
+          <FeaturedStores stores={loading.stores ? [] : stores} />
+        </div>
       </div>
 
       {/*  SERVICES & CTA */}

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Star, CheckCircle } from 'lucide-react';
 
 interface SellerCardProps {
   boutiqueName?: string;
@@ -53,12 +54,10 @@ export const SellerCard: React.FC<SellerCardProps> = ({
           </div>
           {isVerified && (
             <span
-              className="absolute -bottom-1 -right-1 size-5 bg-blue-500 rounded-full flex items-center justify-center"
+              className="absolute -bottom-1 -right-1 size-5 bg-blue-500 rounded-full flex items-center justify-center text-white"
               title="Vendeur vérifié"
             >
-              <span className="material-symbols-outlined text-white text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                verified
-              </span>
+              <CheckCircle className="size-3 fill-current" />
             </span>
           )}
         </div>
@@ -73,13 +72,10 @@ export const SellerCard: React.FC<SellerCardProps> = ({
           <div className="flex items-center gap-1.5 mt-1">
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map(s => (
-                <span
+                <Star
                   key={s}
-                  className={`material-symbols-outlined text-[13px] ${s <= stars ? 'text-[#E67E22]' : 'text-gray-300'}`}
-                  style={{ fontVariationSettings: s <= stars ? "'FILL' 1" : "'FILL' 0" }}
-                >
-                  star
-                </span>
+                  className={`size-3 ${s <= stars ? 'text-[#E67E22] fill-current' : 'text-gray-300'}`}
+                />
               ))}
             </div>
             <span className="text-[11px] font-black text-[#E67E22]">{trustScore} pts</span>

@@ -142,7 +142,7 @@ export default function OrdersPage() {
             <div className="w-full">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#E67E22]"></div>
+                        <div className="animate-spin rounded-full h-10 w-10 border-t border-b border-[#E67E22]"></div>
                     </div>
                 ) : filteredOrders.length === 0 ? (
                         <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-16 text-center border border-gray-100 dark:border-white/5 shadow-sm mt-12">

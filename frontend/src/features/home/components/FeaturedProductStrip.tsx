@@ -17,7 +17,7 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
   const { t } = useT();
   return (
     <div className="w-full mb-8 bg-transparent">
-      <div className="container mx-auto px-4 flex items-end justify-between mb-4">
+      <div className="flex items-end justify-between mb-4">
         <div className="space-y-0.5">
           <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-none">
             {title.split(' ')[0]} <span className="text-[#E67E22]">{title.split(' ').slice(1).join(' ')}</span>
@@ -32,22 +32,22 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
         </Link>
       </div>
 
-      <div className="container mx-auto px-4">
-        {/* Grille compacte : 2 sur mobile, 6 sur PC/Mac */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-2.5 md:gap-4">
+      <div>
+        {/* Grille RESPONSIVE adaptée : densité max 5 colonnes pour ne pas écraser les cartes */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-3.5 md:gap-5">
           {products.map((p) => (
             <ProductCard
               key={p.id}
               product={p}
               onQuickView={onQuickView}
-              className="w-full transform transition hover:-translate-y-1 hover:shadow-xl rounded-2xl"
+              className="w-full transform transition hover:-translate-y-1 hover:shadow-xl rounded-[1.75rem]"
             />
           ))}
 
           {/* Card "Tout voir" plus élégante sur mobile */}
           <Link
             href="/products"
-            className="w-full min-h-[160px] flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-[#E67E22]/50 dark:hover:border-[#E67E22]/50 hover:bg-white dark:hover:bg-white/10 transition-all group lg:hidden"
+            className="w-full flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-white/5 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-[1.75rem] cursor-pointer hover:border-[#E67E22]/50 dark:hover:border-[#E67E22]/50 hover:bg-white dark:hover:bg-white/10 transition-all group lg:hidden aspect-[4/5]"
           >
             <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight group-hover:text-[#E67E22] dark:group-hover:text-[#E67E22]">{t('home.productStrip.viewAllMobile')}</span>
           </Link>

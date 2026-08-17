@@ -129,7 +129,7 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
           
           <div className="space-y-1">
             <div className="px-6 mb-2">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">{t('header.mainNavigation')}</span>
+              <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.25em]">{t('header.mainNavigation')}</span>
             </div>
 
             <div className="grid gap-1 px-2">
@@ -138,7 +138,7 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
                   key={link.id}
                   href={link.id}
                   onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
                   {link.label}
                 </Link>
@@ -149,7 +149,7 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
           {isAuthenticated && (
             <div className="space-y-1 pt-2">
               <div className="px-6 mb-2">
-                <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.25em]">
+                <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.25em]">
                   {user?.role === 'VENDOR' ? t('header.vendorSpace') : t('header.clientSpace')}
                 </span>
               </div>
@@ -158,7 +158,7 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
                   <Link 
                     href="/dashboard" 
                     onClick={onClose}
-                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/dashboard') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/dashboard') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
                   >
                     {t('header.dashboard')}
                   </Link>
@@ -167,7 +167,7 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
                 <Link 
                   href="/settings" 
                   onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/5'}`}
+                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
                 >
                   {t('header.myAccount')}
                 </Link>

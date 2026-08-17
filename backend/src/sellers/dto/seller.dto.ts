@@ -5,4 +5,8 @@ export class SellerDto {
   isVerified: boolean;
   avatarUrl?: string;
   productPreviews: string[];
+  productCount: number;
+  salesCount: number;
+  isOnline: boolean;
+  lastSeenAt?: Date | null;
 }

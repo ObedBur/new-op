@@ -82,7 +82,7 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('vendor.publishDrafts.subtitle')}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="size-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:bg-red-500 hover:text-white transition-all">
+                    <button onClick={onClose} className="size-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-slate-900 hover:bg-red-500 hover:text-white transition-all">
                         <X size={20} />
                     </button>
                 </div>
@@ -92,7 +92,7 @@ export default function PublishDraftsModal({ isOpen, onClose, onPublished }: Pub
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                             <Loader2 className="animate-spin text-[#E67E22]" size={32} />
-                            <p className="text-sm font-black text-gray-400 uppercase tracking-widest">{t('vendor.publishDrafts.loading')}</p>
+                            <p className="text-sm font-black text-slate-900 uppercase tracking-widest">{t('vendor.publishDrafts.loading')}</p>
                         </div>
                     ) : drafts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">

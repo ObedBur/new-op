@@ -359,7 +359,7 @@ function SettingsPageContent() {
                             {notifications.some(n => !n.isRead) && (
                               <button
                                 onClick={() => markAllAsRead()}
-                                className="group flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/10 text-gray-600 dark:text-gray-400 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+                                className="group flex items-center gap-2 px-6 py-3 bg-gray-50 dark:bg-white/5 hover:bg-orange-50 dark:hover:bg-orange-500/10 text-slate-900 dark:text-gray-400 hover:text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
                               >
                                 <CheckCircle2 size={14} />
                                 {t("settingsPage.notifications.markAllRead")}

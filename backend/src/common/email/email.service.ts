@@ -229,7 +229,7 @@ export class EmailService {
             </tfoot>
           </table>
 
-          <div style="background-color: #f0fdf4; border-left: 4px solid #2D5A27; padding: 16px; border-radius: 8px; margin: 32px 0;">
+          <div style="background-color: #f0fdf4; border-left: 1px solid rgba(45,90,39,0.12); padding: 16px; border-radius: 8px; margin: 32px 0;">
             <p style="margin: 0; font-size: 14px; color: #166534; line-height: 1.5;">
               <strong>${t(language, 'email.bulk.noteTitle')}</strong> ${t(language, 'email.bulk.note')}
             </p>
@@ -407,7 +407,7 @@ export class EmailService {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = t(language, 'email.welcome.subject', { name });
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
         <div style="background-color: #E67E22; padding: 40px 20px; text-align: center;">
           <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -1px;">WAPIBEI</h1>
           <p style="color: rgba(255,255,255,0.9); margin-top: 10px; font-weight: 600;">${t(language, 'email.welcome.subtitle')}</p>
@@ -454,7 +454,7 @@ export class EmailService {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = t(language, 'email.pricedrop.subject', { product: data.productName });
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
         <div style="padding: 30px; text-align: center;">
           <div style="display: inline-block; background-color: #2D5A27; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase;">${t(language, 'email.pricedrop.badge')}</div>
           <h2 style="font-size: 22px; font-weight: 900; color: #1a202c; margin-top: 0;">${t(language, 'email.pricedrop.title')}</h2>
@@ -479,7 +479,7 @@ export class EmailService {
     const sendSmtpEmail = new Brevo.SendSmtpEmail();
     sendSmtpEmail.subject = t(language, 'email.cart.subject', { name: data.name });
     sendSmtpEmail.htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background-color: #ffffff;">
         <div style="padding: 30px; text-align: center;">
           <h2 style="font-size: 22px; font-weight: 900; color: #1a202c; margin-top: 0;">${t(language, 'email.cart.title')}</h2>
           <p style="color: #4a5568; margin-bottom: 20px;">${t(language, 'email.cart.body', { count: data.itemCount })}</p>
@@ -499,7 +499,7 @@ export class EmailService {
     sendSmtpEmail.subject = t(language, 'email.closure.subject', { orderId: data.orderId });
     sendSmtpEmail.htmlContent = `
       <div style="font-family: monospace; background: #f1f5f9; padding: 20px;">
-        <div style="background: #ffffff; padding: 30px; border-radius: 5px; border-top: 4px solid #2D5A27;">
+        <div style="background: #ffffff; padding: 30px; border-radius: 5px; border-top: 1px solid rgba(45,90,39,0.12);">
           <h2 style="margin-top: 0;">${t(language, 'email.closure.title')}</h2>
           <p>${t(language, 'email.closure.body')}</p>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">

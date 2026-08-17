@@ -7,6 +7,10 @@ export interface HomeSeller {
   isVerified: boolean;
   avatarUrl?: string;
   productPreviews: string[];
+  productCount?: number;
+  salesCount?: number;
+  isOnline?: boolean;
+  lastSeenAt?: string | null;
 }
 
 // Backward-compatible alias used across older UI modules

@@ -190,7 +190,7 @@ export default function VerifyOtpPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center p-4 font-sans min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E67E22]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b border-[#E67E22]"></div>
       </div>
     }>
       <VerifyOtpContent />

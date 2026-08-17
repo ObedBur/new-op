@@ -98,7 +98,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       ) : (
         <Link 
           href="/login"
-            className="size-10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-[#4f46e5] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-all duration-300"
+            className="size-10 flex items-center justify-center text-slate-900 dark:text-gray-400 hover:text-[#4f46e5] hover:bg-blue-50 dark:hover:bg-white/5 rounded-full transition-all duration-300"
             title={t('header.login')}
         >
             <span className="material-symbols-outlined text-[24px]">account_circle</span>

@@ -302,8 +302,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Grid pattern for tech sections */
 .bg-grid-tech {
   background-image: 
-    linear-gradient(hsla(var(--border), 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(var(--border), 0.3) 1px, transparent 1px);
+    linear-gradient(hsla(var(--border), 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--border), 0.07) 1px, transparent 1px);
   background-size: 30px 30px;
 }
 

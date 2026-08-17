@@ -82,7 +82,7 @@ function ResetPasswordContent() {
     return (
       <div className="flex items-center justify-center p-4 font-sans h-full">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b border-emerald-600"></div>
           <p className="mt-4 text-slate-600 dark:text-slate-400">{t('auth.resetPassword.validating')}</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ function ResetPasswordContent() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder={t('auth.resetPassword.newPasswordPlaceholder')}
-                      className="w-full h-12 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
+                      className="w-full h-12 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-700 dark:placeholder:text-slate-300 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
                     />
                     <button
                       type="button"
@@ -202,7 +202,7 @@ function ResetPasswordContent() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder={t('auth.resetPassword.confirmPlaceholder')}
-                      className={`w-full h-12 pl-4 pr-12 rounded-xl border ${confirmPassword && !passwordsMatch ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'} text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 ${confirmPassword && !passwordsMatch ? 'focus:border-red-500 focus:ring-red-500' : 'focus:border-emerald-500 focus:ring-emerald-500'} transition-all`}
+                      className={`w-full h-12 pl-4 pr-12 rounded-xl border ${confirmPassword && !passwordsMatch ? 'border-red-500 bg-red-50 dark:bg-red-900/10' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'} text-slate-900 dark:text-white placeholder:text-slate-700 dark:placeholder:text-slate-300 focus:outline-none focus:ring-1 ${confirmPassword && !passwordsMatch ? 'focus:border-red-500 focus:ring-red-500' : 'focus:border-emerald-500 focus:ring-emerald-500'} transition-all`}
                     />
                     <button
                       type="button"
@@ -274,7 +274,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center p-4 font-sans min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b border-emerald-600"></div>
       </div>
     }>
       <ResetPasswordContent />

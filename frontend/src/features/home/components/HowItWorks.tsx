@@ -5,8 +5,8 @@ import { useT } from "@/i18n/useT";
 export const HowItWorks = ({ steps }: any) => {
   const { t } = useT();
   return (
-    <section className="py-20 px-4 bg-white dark:bg-black">
-      <div className="container mx-auto max-w-7xl">
+    <section className="py-20 bg-white dark:bg-black">
+      <div className="container mx-auto max-w-7xl px-4">
         
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white">

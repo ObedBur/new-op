@@ -136,7 +136,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             disabled={isLoading}
                             className="col-span-1 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
-                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <CheckCircle size={16} />}
+                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t border-b border-white"></div> : <CheckCircle size={16} /> }
                             <span>{t('vendor.orderCard.confirm')}</span>
                         </button>
                         <a
@@ -156,7 +156,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                             disabled={isLoading}
                             className="col-span-1 py-3 bg-[#E67E22] dark:bg-[#E67E22] text-white rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
-                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div> : <Truck size={16} />}
+                            {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t border-b border-white"></div> : <Truck size={16} /> }
                             <span>{t('vendor.orderCard.ship')}</span>
                         </button>
                         <a
@@ -175,7 +175,7 @@ export function OrderCard({ id, originalId, status, total, date, count, customer
                         disabled={isLoading}
                         className="col-span-2 py-3 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 rounded-xl font-black text-[11px] sm:text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
-                        {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current"></div> : <CheckCircle size={16} />}
+                        {isLoading ? <div className="animate-spin rounded-full h-4 w-4 border-t border-b border-current"></div> : <CheckCircle size={16} /> }
                         <span>{t('vendor.orderCard.confirmDelivery')}</span>
                     </button>
                 ) : (

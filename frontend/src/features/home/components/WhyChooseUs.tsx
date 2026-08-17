@@ -40,12 +40,11 @@ export const WhyChooseUs = () => {
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section className="py-24 px-4 bg-white dark:bg-black relative overflow-hidden">
+    <section className="py-24 bg-white dark:bg-black relative overflow-hidden">
       {/* Subtle decorative blobs */}
       <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#E67E22] rounded-full blur-[140px] opacity-[0.06] dark:opacity-[0.10] pointer-events-none" />
       <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#2D5A27] rounded-full blur-[140px] opacity-[0.06] dark:opacity-[0.10] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="container mx-auto max-w-7xl px-4 relative z-10">
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}

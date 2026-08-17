@@ -108,7 +108,7 @@ const LoadingSkeleton = () => (
 const EmptyState: React.FC<{ searchQuery: string; labels: { search_empty: string; empty: string; } }> = ({ searchQuery, labels }) => (
     <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="size-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
-            {searchQuery ? <SearchX className="size-6 text-slate-400" /> : <CheckCircle2 className="size-6 text-emerald-600" />}
+            {searchQuery ? <SearchX className="size-6 text-emerald-600" /> : <CheckCircle2 className="size-6 text-emerald-600" /> }
         </div>
         <p className="text-xs font-bold text-slate-500">
             {searchQuery ? labels.search_empty : labels.empty}

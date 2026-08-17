@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface ProductImageGalleryProps {
   mainImage: string;
@@ -96,15 +97,15 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         {/* Availability badge */}
         <div className="absolute top-4 left-4 z-10">
           {isOutOfStock ? (
-            <span className="px-3 py-1.5 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+            <span className="px-3 py-1.5 bg-black/85 dark:bg-black/90 backdrop-blur-md text-[#E67E22] text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg ring-1 ring-[#E67E22]/30">
               Épuisé
             </span>
           ) : isLowStock ? (
-            <span className="px-3 py-1.5 bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg animate-pulse">
+            <span className="px-3 py-1.5 bg-[#E67E22] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-[#E67E22]/30 animate-pulse">
               Stock Faible
             </span>
           ) : (
-            <span className="px-3 py-1.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+            <span className="px-3 py-1.5 bg-[#2D5A27] text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-[#2D5A27]/30">
               En Stock
             </span>
           )}
@@ -131,13 +132,13 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={(e) => { e.stopPropagation(); setActive(i => (i - 1 + gallery.length) % gallery.length); }}
               className="absolute left-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-[#E67E22] hover:text-white transition-all opacity-0 group-hover:opacity-100"
             >
-              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+              <ChevronLeft className="size-5" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); setActive(i => (i + 1) % gallery.length); }}
               className="absolute right-3 top-1/2 -translate-y-1/2 size-9 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-md hover:bg-[#E67E22] hover:text-white transition-all opacity-0 group-hover:opacity-100"
             >
-              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+              <ChevronRight className="size-5" />
             </button>
           </>
         )}
@@ -151,7 +152,7 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           onClick={() => setZoomed(false)}
           className="absolute top-6 right-6 z-50 size-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
         >
-          <span className="material-symbols-outlined text-[28px]">close</span>
+          <X className="size-7" />
         </button>
 
         <div className="relative w-full max-w-6xl h-full flex items-center justify-center">
@@ -172,13 +173,13 @@ export const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={() => setActive(i => (i - 1 + gallery.length) % gallery.length)}
               className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 size-12 md:size-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
             >
-              <span className="material-symbols-outlined text-[32px] md:text-[40px]">chevron_left</span>
+              <ChevronLeft className="size-8 md:size-10" />
             </button>
             <button
               onClick={() => setActive(i => (i + 1) % gallery.length)}
               className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 size-12 md:size-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
             >
-              <span className="material-symbols-outlined text-[32px] md:text-[40px]">chevron_right</span>
+              <ChevronRight className="size-8 md:size-10" />
             </button>
           </>
         )}

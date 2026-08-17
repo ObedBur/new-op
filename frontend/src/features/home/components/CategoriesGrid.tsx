@@ -70,8 +70,8 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
   }
 
   return (
-    <section className="py-8 px-4 bg-[#F8F9FA] dark:bg-transparent overflow-hidden">
-      <div className="container mx-auto relative">
+    <section className="py-8 bg-[#F8F9FA] dark:bg-transparent overflow-hidden">
+      <div className="container mx-auto max-w-7xl px-4 relative">
 
         {/* HEADER : Titre, Boutons et Filtres */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
@@ -109,21 +109,21 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
         </div>
 
         {/* CARROUSEL HORIZONTAL FLUIDE */}
-        <div className="relative -mx-4 px-4 md:mx-0 md:px-0 group flex items-center">
+        <div className="relative group flex items-center">
           
           {/* Bouton Gauche */}
           <button 
             onClick={() => scroll('left')}
-            className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            className="hidden md:flex absolute -left-5 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl items-center justify-center text-slate-500 hover:text-[#E67E22] hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
             aria-label={t('home.categories.scrollLeft')}
           >
-            <ChevronLeft size={24} strokeWidth={2} />
+            <ChevronLeft size={24} strokeWidth={2.5} />
           </button>
 
           <div 
             ref={scrollContainerRef}
             className="flex flex-nowrap overflow-x-auto scrollbar-hide scroll-smooth gap-4 pb-6 pt-2 snap-x snap-mandatory w-full"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} /* Fallback for older browsers */
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {displayedCategories.map((cat) => (
               <Link
@@ -140,25 +140,18 @@ export const CategoriesGrid: React.FC<{ categories: Category[], isLoading?: bool
                   </span>
                 </div>
                 
-                {/* Icône vectorielle pure à droite sans fond gris */}
                 <ChevronRight size={20} className="text-slate-300 dark:text-slate-600 group-hover:text-[#E67E22] group-hover:translate-x-1 transition-all shrink-0" strokeWidth={2} />
               </Link>
             ))}
-            
-            {/* Espace de sécurité à droite pour éviter que la dernière carte soit collée au bord */}
-            <div className="shrink-0 w-4 md:w-8" aria-hidden="true"></div>
           </div>
-          
-          {/* Masque dégradé sur la droite (Desktop) pour indiquer qu'il y a du contenu masqué */}
-          <div className="absolute top-0 right-0 bottom-6 w-16 md:w-32 bg-gradient-to-l from-[#F8F9FA] dark:from-[#0b1221] to-transparent pointer-events-none hidden lg:block z-0"></div>
           
           {/* Bouton Droite */}
           <button 
             onClick={() => scroll('right')}
-            className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white/70 backdrop-blur-sm border border-slate-200/50 shadow-sm items-center justify-center text-slate-500 hover:text-[#E67E22] hover:bg-white hover:scale-105 transition-all duration-300 opacity-0 group-hover:opacity-100"
+            className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl items-center justify-center text-slate-500 hover:text-[#E67E22] hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100"
             aria-label={t('home.categories.scrollRight')}
           >
-            <ChevronRight size={24} strokeWidth={2} />
+            <ChevronRight size={24} strokeWidth={2.5} />
           </button>
         </div>
 

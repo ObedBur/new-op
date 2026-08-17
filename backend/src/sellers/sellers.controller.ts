@@ -8,9 +8,9 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 @Controller('sellers')
 export class SellersController {
   constructor(private readonly sellersService: SellersService) { }
-  // mise en cache pour 1 heure
+  // mise en cache pour 5 minutes
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(3600)
+  @CacheTTL(300)
   @Get()
   async getActiveSellers() {
     return this.sellersService.findActiveVendors();

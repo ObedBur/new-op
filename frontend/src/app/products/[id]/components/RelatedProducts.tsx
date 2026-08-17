@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import { Product } from '@/types/product.types';
 import { useCurrency } from '@/hooks/useCurrency';
 
@@ -42,7 +43,7 @@ const RelatedCard: React.FC<{ product: Product }> = ({ product }) => {
         />
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="px-2 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
+            <span className="px-2 py-1 bg-black/85 backdrop-blur-md ring-1 ring-[#E67E22]/30 text-[#E67E22] text-[9px] font-black uppercase tracking-widest rounded-full">
               Épuisé
             </span>
           </div>
@@ -82,7 +83,7 @@ export const RelatedProducts: React.FC<RelatedProductsProps> = ({ products, isLo
           className="text-[11px] font-black text-gray-400 hover:text-[#E67E22] uppercase tracking-widest transition-colors flex items-center gap-1"
         >
           Voir tout
-          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+          <ArrowRight className="size-4" />
         </Link>
       </div>
 

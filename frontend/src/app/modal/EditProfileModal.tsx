@@ -340,7 +340,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
                                                 onChange={handleChange}
                                                 placeholder={t('editProfile.placeholderBoutique')}
                                                 type="text"
-                                                className="w-full bg-orange-50/50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/20 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
+                                                className="w-full bg-orange-50/50 dark:bg-orange-500/5 border border-orange-100 dark:border-orange-500/20 rounded-xl pl-10 pr-4 py-3 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22]/50 transition-all"
                                             />
                                         </div>
                                     </div>

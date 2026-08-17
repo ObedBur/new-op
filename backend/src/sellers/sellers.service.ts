@@ -13,15 +13,34 @@ export class SellersService {
         products: {
           take: 3,
           orderBy: { createdAt: 'desc' },
-          where: { isPublic: true }, // only public products
+          where: { isPublic: true },
           select: { images: true, image: true },
+        },
+        _count: {
+          select: {
+            products: { where: { isPublic: true } },
+          },
         },
       },
     });
 
+    const vendorIds = vendors.map((v) => v.id);
+
+    const salesAggregates = await this.prisma.product.groupBy({
+      by: ['userId'],
+      where: { userId: { in: vendorIds } },
+      _sum: { totalSales: true },
+    });
+
+    const salesByVendor: Record<string, number> = {};
+    for (const agg of salesAggregates) {
+      salesByVendor[agg.userId] = agg._sum.totalSales ?? 0;
+    }
+
+
     return vendors.map((vendor) => ({
       id: vendor.id,
-      boutiqueName: vendor.boutiqueName,
+      boutiqueName: vendor.boutiqueName ?? '',
       trustScore: vendor.trustScore,
       isVerified: vendor.isVerified,
       avatarUrl: vendor.avatarUrl,
@@ -31,6 +50,9 @@ export class SellersService {
         }
         return p.image ? [p.image] : [];
       }).slice(0, 3),
+      productCount: vendor._count.products,
+      salesCount: salesByVendor[vendor.id] ?? 0,
+      isOnline: false,
     }));
   }
 
