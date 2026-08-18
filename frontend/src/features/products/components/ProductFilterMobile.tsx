@@ -19,11 +19,11 @@ export const ProductFilterMobile: React.FC<MobileDrawerProps> = ({ isOpen, onClo
   const [searchQuery, setSearchQuery] = useState<string>(filters.search || '');
 
   const handleCategoryClick = (categoryId: string | null) => {
-    onUpdate({ categoryId, page: 1 });
+    onUpdate({ categoryId, page: 1, search: searchQuery || null });
   };
 
   const handleApply = () => {
-    onUpdate({ minPrice, maxPrice, search: searchQuery || null });
+    onUpdate({ categoryId: filters.categoryId, minPrice, maxPrice, search: searchQuery || null });
     onClose();
   };
 

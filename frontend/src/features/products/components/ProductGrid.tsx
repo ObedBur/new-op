@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ProductCard } from './ProductCard';
+import { ProductCardSkeleton } from './ProductCardSkeleton';
 import { Product } from '../types';
 
 interface ProductGridProps {
@@ -15,7 +16,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, onQuickView,
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-6">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="bg-white dark:bg-[#1a1a1a] rounded-2xl aspect-[3/4] animate-pulse border border-gray-100 dark:border-white/5" />
+          <ProductCardSkeleton key={i} />
         ))}
       </div>
     );

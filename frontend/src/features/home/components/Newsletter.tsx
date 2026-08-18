@@ -22,19 +22,10 @@ export const Newsletter = () => {
   };
 
   return (
-    <section className="py-16 md:py-20 relative overflow-hidden">
-      {/* Fond gradient distinctif */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#E67E22] via-[#d4691a] to-[#2D5A27]" />
-      {/* Motif géométrique en overlay */}
-      <div className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
-      {/* Blob décoratif */}
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/10 rounded-full blur-3xl pointer-events-none" />
+    <section className="py-16 md:py-20 relative overflow-hidden bg-white dark:bg-black">
+      {/* Blob décoratif subtil */}
+      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#E67E22]/5 dark:bg-[#E67E22]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#2D5A27]/5 dark:bg-[#2D5A27]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="container mx-auto max-w-7xl px-4 relative z-10">
         <motion.div
@@ -45,16 +36,16 @@ export const Newsletter = () => {
           className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-16"
         >
           {/* Text */}
-          <div className="text-white max-w-xl text-center md:text-left">
-            <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 text-xs font-black tracking-wide text-white mb-5">
+          <div className="text-slate-900 dark:text-white max-w-xl text-center md:text-left">
+            <div className="inline-flex items-center gap-2 bg-[#E67E22]/10 border border-[#E67E22]/30 rounded-full px-4 py-2 text-xs font-black tracking-wide text-[#E67E22] dark:text-[#E67E22] mb-5">
               <Sparkles size={14} />
               {t('home.newsletter.badge')}
             </div>
-            <h2 className="text-3xl md:text-4xl font-black mb-3 leading-tight tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-black mb-3 leading-tight tracking-tight text-slate-900 dark:text-white">
               {t('home.newsletter.title')}{' '}
-              <span className="underline decoration-white/40 underline-offset-4">{t('home.newsletter.titleHighlight')}</span>
+              <span className="text-[#E67E22] underline decoration-[#E67E22]/40 underline-offset-4">{t('home.newsletter.titleHighlight')}</span>
             </h2>
-            <p className="text-white/80 text-base leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
               {t('home.newsletter.description')}
             </p>
           </div>
@@ -67,10 +58,10 @@ export const Newsletter = () => {
                   type="email"
                   disabled
                   placeholder="Newsletter (Bientôt disponible)"
-                  className="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-full py-4 pl-6 pr-6 cursor-not-allowed transition-all text-sm backdrop-blur-sm"
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-full py-4 pl-6 pr-6 cursor-not-allowed transition-all text-sm"
                 />
               </div>
-              <p className="text-center md:text-left text-xs text-white/50 pl-2">
+              <p className="text-center md:text-left text-xs text-slate-500 dark:text-slate-400 pl-2">
                 Nous préparons un nouveau système de newsletter. Restez à l'écoute !
               </p>
             </div>

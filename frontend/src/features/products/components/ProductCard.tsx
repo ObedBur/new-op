@@ -137,19 +137,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <h3 className={`min-w-0 flex-[1.6] ${compact ? 'text-[11.5px] md:text-[12.5px] line-clamp-2' : 'text-[12.5px] md:text-[14.5px] line-clamp-2'} font-black text-white leading-tight tracking-tight drop-shadow-sm`}>
                 {product.name}
               </h3>
+              {/* PRIX — Pilule sombre pour lisibilité garantie sur toute image */}
               <div className="shrink-0 flex flex-col items-end gap-0">
-                <div className="flex items-baseline gap-0.5">
-                  {/* PRIX REDUIT DRATIQUEMENT : 15→18px (avant 22→28px !!) */}
-                  <span className={`${compact ? 'text-[14px] md:text-[15px]' : 'text-[15px] md:text-[18px]'} font-black text-[#E67E22] leading-none tracking-tight drop-shadow`}>
+                <div className="inline-flex items-baseline gap-0.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
+                  <span className={`${compact ? 'text-[13px] md:text-[14px]' : 'text-[14px] md:text-[17px]'} font-black text-[#E67E22] leading-none tracking-tight`}>
                     {amount}
                   </span>
-                  <span className={`${compact ? 'text-[8.5px] md:text-[9.5px]' : 'text-[9.5px] md:text-[11px]'} font-black text-[#E67E22]/92 uppercase leading-none`}>
+                  <span className={`${compact ? 'text-[8px] md:text-[9px]' : 'text-[9px] md:text-[10px]'} font-black text-[#E67E22]/90 uppercase leading-none`}>
                     {symbol}
                   </span>
                 </div>
-                {/* Unité : "/Pièce" SANS ICONE pour ne pas gaspiller de place, ALIGNÉ À DROITE */}
+                {/* Unité : "/Pièce" ALIGNÉ À DROITE */}
                 {product.unit && (
-                  <span className={`${compact ? 'text-[8px]' : 'text-[8.5px] md:text-[9.5px]'} font-medium text-white/65 leading-none mt-0.5`}>
+                  <span className={`${compact ? 'text-[8px]' : 'text-[8.5px] md:text-[9.5px]'} font-medium text-white/65 leading-none mt-0.5 pr-1`}>
                     {t('product.unitPer').replace('{unit}', product.unit)}
                   </span>
                 )}

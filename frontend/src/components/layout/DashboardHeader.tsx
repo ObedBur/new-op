@@ -5,20 +5,23 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileDropdown } from './Header/components/ProfileDropdown';
-import { Search } from 'lucide-react';
+import { MobileSidebar } from './Header/components/MobileSidebar';
+import { Search, Menu } from 'lucide-react';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
+import { useT } from '@/i18n/useT';
 
 export const DashboardHeader = () => {
-    const { isAuthenticated, user, logout } = useAuth();
+    const { t } = useT();
+    const { isAuthenticated, user, logout, isLoading: isAuthLoading } = useAuth();
     const router = useRouter();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
 
     const { notifications, unreadCount, markAsRead } = useAppNotifications();
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
@@ -29,42 +32,54 @@ export const DashboardHeader = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const navLinks = [
+        { id: "/", label: t("header.nav.home"), icon: "home" },
+        { id: "/products", label: t("header.nav.products"), icon: "inventory_2" },
+        { id: "/sellers", label: t("header.nav.sellers"), icon: "store" },
+        { id: "/compare", label: t("header.nav.compare"), icon: "compare_arrows" },
+    ];
+
     return (
+        <>
         <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-md border-b border-black/[0.03] dark:border-white/5 h-16 md:h-20 shrink-0">
             <div className="container mx-auto max-w-7xl h-full px-6 md:px-12 lg:px-16 flex items-center justify-between">
-                
-                {/* Left Side: Logo & Home Link (shown on mobile) */}
-                <div className="flex items-center gap-6 md:hidden">
-                    <Link
-                        href="/"
-                        className="flex items-center gap-2.5 cursor-pointer shrink-0 group"
+
+                {/* Left: Hamburger (mobile) + Logo */}
+                <div className="flex items-center gap-3 md:hidden">
+                    <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="flex items-center justify-center p-2 -ml-1 text-slate-700 dark:text-white"
+                        aria-label="Ouvrir le menu"
                     >
-                        <div className="flex items-center justify-center size-9 rounded-xl bg-[#E67E22] shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
-                             <div className="size-4 bg-white rounded-sm rotate-45" />
+                        <Menu size={24} />
+                    </button>
+                    <Link href="/" className="flex items-center gap-2 cursor-pointer shrink-0 group">
+                        <div className="flex items-center justify-center size-8 rounded-xl bg-[#E67E22] shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
+                            <div className="size-[14px] bg-white rounded-sm rotate-45" />
                         </div>
-                        <h1 className="text-xl font-black tracking-tighter uppercase flex items-center">
+                        <h1 className="text-[18px] font-black tracking-tighter uppercase">
                             <span className="text-[#E67E22]">Wapi</span>
                             <span className="text-[#2D5A27] dark:text-[#52c140]">Bei</span>
                         </h1>
                     </Link>
                 </div>
 
-                {/* Center: Search Bar (hidden on mobile) */}
+                {/* Center: Search (desktop only) */}
                 <div className="relative w-64 md:w-80 hidden md:block">
                     <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                         <Search size={16} className="text-slate-400" />
                     </div>
-                    <input 
-                        type="text" 
-                        placeholder="Search" 
+                    <input
+                        type="text"
+                        placeholder="Search"
                         className="w-full bg-[#F3F4F6] dark:bg-white/5 border-none rounded-full pl-11 pr-4 py-2 text-sm placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:ring-2 focus:ring-[#E67E22]/10 dark:text-white"
                     />
                 </div>
 
-                {/* Right Side: Notification Bell + Profile Dropdown */}
+                {/* Right: Notifications + Profile */}
                 <div className="flex items-center gap-4 sm:gap-6">
-                    
-                    {/* Notification Bell with real-time badge and dropdown */}
+
+                    {/* Notification Bell */}
                     <div className="relative" ref={notifRef}>
                         <button
                             onClick={() => setIsNotifOpen(prev => !prev)}
@@ -78,11 +93,10 @@ export const DashboardHeader = () => {
                             )}
                         </button>
 
-                        {/* Notification Dropdown Panel */}
+                        {/* Notification Dropdown */}
                         <div className={`absolute right-0 top-[calc(100%+12px)] w-80 transition-all duration-300 transform origin-top-right z-50 ${isNotifOpen ? 'opacity-100 visible scale-100' : 'opacity-0 invisible scale-95'}`}>
                             <div className="bg-white/95 dark:bg-[#111]/95 backdrop-blur-xl border border-gray-100 dark:border-white/5 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[400px]">
-                                
-                                {/* Panel Header */}
+
                                 <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white dark:from-white/5 dark:to-transparent shrink-0">
                                     <h3 className="text-black dark:text-white font-black text-sm tracking-tight">Notifications</h3>
                                     {unreadCount > 0 ? (
@@ -96,7 +110,6 @@ export const DashboardHeader = () => {
                                     )}
                                 </div>
 
-                                {/* Notification List */}
                                 <div className="flex flex-col overflow-y-auto">
                                     {notifications.length === 0 ? (
                                         <div className="p-8 text-center flex flex-col items-center justify-center">
@@ -121,12 +134,8 @@ export const DashboardHeader = () => {
                                                 {!notification.isRead && (
                                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#E67E22]" />
                                                 )}
-                                                <p className="text-[13px] text-gray-800 dark:text-gray-200 font-medium leading-tight mb-1">
-                                                    {notification.title}
-                                                </p>
-                                                <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">
-                                                    {notification.message}
-                                                </p>
+                                                <p className="text-[13px] text-gray-800 dark:text-gray-200 font-medium leading-tight mb-1">{notification.title}</p>
+                                                <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">{notification.message}</p>
                                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                                     {new Date(notification.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
@@ -135,7 +144,6 @@ export const DashboardHeader = () => {
                                     )}
                                 </div>
 
-                                {/* Panel Footer */}
                                 <div className="p-3 bg-gray-50/50 dark:bg-white/5 text-center border-t border-gray-100 dark:border-white/5 shrink-0">
                                     <Link
                                         href="/notifications"
@@ -149,22 +157,28 @@ export const DashboardHeader = () => {
                         </div>
                     </div>
 
-                    {/* Vertical Divider */}
                     <div className="h-5 w-px bg-slate-200 dark:bg-white/10 hidden lg:block" />
 
-                    {/* Profile Dropdown */}
-                    <div>
-                        <ProfileDropdown
-                            isAuthenticated={isAuthenticated}
-                            user={user}
-                            onLogout={logout}
-                            isProfileOpen={isProfileOpen}
-                            setIsProfileOpen={setIsProfileOpen}
-                        />
-                    </div>
+                    <ProfileDropdown
+                        isAuthenticated={isAuthenticated}
+                        user={user}
+                        onLogout={logout}
+                        isProfileOpen={isProfileOpen}
+                        setIsProfileOpen={setIsProfileOpen}
+                    />
                 </div>
-
             </div>
         </header>
+
+        <MobileSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            navLinks={navLinks}
+            isAuthenticated={isAuthenticated}
+            isAuthLoading={isAuthLoading ?? false}
+            user={user}
+            onLogout={logout}
+        />
+        </>
     );
 };

@@ -5,18 +5,13 @@ import { ProductGridSkeleton, CategoryGridSkeleton } from '@/components/ui/Skele
 
 export const dynamic = 'force-dynamic';
 
-interface ProductsPageProps {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
-
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const params = await searchParams;
+export default async function ProductsPage() {
   // Parallel fetching in Server Component
+  // On charge tout le catalogue (sans filtre) pour que le filtrage côté client
+  // soit exact : compteurs de catégories, recherche, tri et pagination portent
+  // sur l'ensemble des produits, pas sur un sous-ensemble de 50.
   const [productsRes, categoriesRes] = await Promise.all([
-    getProducts({ 
-      search: params.search as string | undefined,
-      categoryId: params.category ? Number(params.category) : undefined
-    }),
+    getProducts({ limit: 1000 }),
     getCategories()
   ]);
 

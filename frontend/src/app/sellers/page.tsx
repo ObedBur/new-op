@@ -1,15 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getActiveSellers, Seller } from '@/features/home/services/seller.service';
+import { FeaturedStoreCard } from '@/features/home/components/FeaturedStoreCard';
+import { FeaturedStoreSkeleton } from '@/features/home/components/FeaturedStoreSkeleton';
 import useT from '@/i18n/useT';
+
+const SELLERS_PER_PAGE = 10;
 
 export default function SellersPage() {
     const { t } = useT();
     const [sellers, setSellers] = useState<Seller[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const fetchSellers = async () => {
@@ -25,13 +29,23 @@ export default function SellersPage() {
         fetchSellers();
     }, []);
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center pt-20">
-                <div className="animate-spin size-10 border-4 border-primary border-t-transparent rounded-full" />
-            </div>
-        );
-    }
+    const totalPages = useMemo(
+        () => Math.ceil(sellers.length / SELLERS_PER_PAGE),
+        [sellers]
+    );
+
+    const paginatedSellers = useMemo(
+        () => sellers.slice(
+            (currentPage - 1) * SELLERS_PER_PAGE,
+            currentPage * SELLERS_PER_PAGE
+        ),
+        [sellers, currentPage]
+    );
+
+    const goToPage = (page: number) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
   return (
     <main className="flex-1 pt-20">
@@ -44,107 +58,80 @@ export default function SellersPage() {
               </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
-                  {sellers.map((seller) => (
-                      <div key={seller.id} className="group bg-white dark:bg-[#1a1a1a] rounded-[2rem] sm:rounded-3xl p-3 sm:p-6 border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative overflow-hidden">
-                      
-                      <div className="absolute top-0 left-0 w-full h-16 sm:h-24 bg-linear-to-b from-blue-50 to-transparent dark:from-blue-900/10"></div>
-                      
-                      <div className="relative mb-3 sm:mb-4">
-                          <div className="size-16 sm:size-24 rounded-full p-0.5 sm:p-1 bg-white dark:bg-[#1a1a1a] shadow-lg overflow-hidden border border-gray-100 dark:border-white/5">
-                              <Image 
-                                  src={seller.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.boutiqueName)}&background=random&size=200`}
-                                  alt={seller.boutiqueName} 
-                                  width={96}
-                                  height={96}
-                                  className="w-full h-full rounded-full object-cover"
-                              />
-                          </div>
-                          {seller.isVerified && (
-                              <div className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-0.5 sm:p-1 border-2 border-white dark:border-[#1a1a1a] shadow-sm" title={t('sellersPage.verifiedTitle')}>
-                                  <span className="material-symbols-outlined text-[12px] sm:text-[16px] block font-bold">verified</span>
-                              </div>
-                          )}
-                      </div>
-
-                      <h3 className="text-xs sm:text-xl font-black text-deep-blue dark:text-white line-clamp-1 truncate uppercase tracking-tight w-full px-1">
-                          {seller.boutiqueName}
-                      </h3>
-                      
-                      <div className="flex items-center gap-1 text-[10px] sm:text-sm text-gray-400 mb-4 mt-1 font-bold uppercase tracking-widest">
-                          <span className="material-symbols-outlined text-[14px] sm:text-[16px]">location_on</span>
-                          RDC
-                      </div>
-
-                      {/* Showcase Gallery — Only if seller has product previews */}
-                      {seller.productPreviews.length > 0 && (
-                        <div className={seller.productPreviews.length === 1 ? "grid grid-cols-1 gap-1.5 sm:gap-2 h-24 sm:h-40 mb-4 sm:mb-5 w-full" : "grid grid-cols-2 gap-1.5 sm:gap-2 h-24 sm:h-40 mb-4 sm:mb-5 w-full"}>
-                          {/* Large Image (Left) */}
-                          <div className={seller.productPreviews.length === 1 ? "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 col-span-1" : "relative rounded-xl sm:rounded-2xl overflow-hidden bg-gray-50 dark:bg-white/5 row-span-2"}>
-                            {seller.productPreviews[0] && (
-                              <Image
-                                src={seller.productPreviews[0]}
-                                alt={`${seller.boutiqueName} preview 1`}
-                                fill
-                                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                            )}
-                          </div>
-
-                          {/* Second Image (Right, if exists) */}
-                          {seller.productPreviews.length >= 2 && (
-                            <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
-                              <Image
-                                src={seller.productPreviews[1]}
-                                alt={`${seller.boutiqueName} preview 2`}
-                                fill
-                                sizes="(max-width: 768px) 25vw, (max-width: 1024px) 17vw, 12vw"
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                            </div>
-                          )}
-
-                          {/* Third Image (Right bottom, if exists) */}
-                          {seller.productPreviews.length >= 3 && (
-                            <div className="relative rounded-lg sm:rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5">
-                              <Image
-                                src={seller.productPreviews[2]}
-                                alt={`${seller.boutiqueName} preview 3`}
-                                fill
-                                sizes="(max-width: 768px) 25vw, (max-width: 1024px) 17vw, 12vw"
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-2 sm:gap-4 w-full border-t border-b border-gray-100 dark:border-white/10 py-3 sm:py-4 mb-4 sm:mb-6">
-                           <div className="flex flex-col">
-                               <div className="flex items-center justify-center gap-0.5 text-orange-400">
-                                   <span className="text-[12px] sm:text-lg font-black text-deep-blue dark:text-white mr-1">{(seller.trustScore / 20).toFixed(1)}</span>
-                                   <span className="material-symbols-outlined text-[12px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                               </div>
-                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">{t('sellersPage.score')}</span>
-                           </div>
-                           <div className="flex flex-col border-l border-gray-100 dark:border-white/10">
-                               <span className="font-black text-[12px] sm:text-lg text-deep-blue dark:text-white">{seller.productPreviews.length}+</span>
-                               <span className="text-[8px] sm:text-[10px] uppercase text-gray-400 font-black mt-0.5 tracking-tighter">{t('sellersPage.items')}</span>
-                           </div>
-                      </div>
-
-                      <Link 
-                        href={`/sellers/${seller.id}`}
-                        className="w-full py-2.5 sm:py-3.5 bg-gray-50 dark:bg-white/5 text-deep-blue dark:text-white font-black text-[10px] sm:text-sm uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-lg group-hover:shadow-primary/20"
-                      >
-                          <span className="hidden sm:inline">{t('sellersPage.visit')}</span>
-                          <span className="sm:hidden">{t('sellersPage.view')}</span>
-                          <span className="material-symbols-outlined text-[16px] sm:text-[18px]">arrow_forward</span>
-                      </Link>
-                  </div>
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+              {Array.from({ length: 10 }).map((_, idx) => (
+                <FeaturedStoreSkeleton key={idx} />
               ))}
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+                {paginatedSellers.map((seller) => (
+                  <FeaturedStoreCard key={seller.id} store={seller} />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-12">
+                  {/* PREV */}
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="flex items-center justify-center size-10 rounded-xl bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 shadow-sm text-gray-400 hover:text-[#E67E22] hover:border-[#E67E22]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    aria-label="Page précédente"
+                  >
+                    <ChevronLeft className="size-5" strokeWidth={2.5} />
+                  </button>
+
+                  {/* PAGE NUMBERS */}
+                  {Array.from({ length: totalPages }).map((_, idx) => {
+                    const page = idx + 1;
+                    // Affiche première, dernière, courante ±1, avec points de suspension
+                    const showPage = page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                    const showEllipsisBefore = page === currentPage - 2 && page > 2;
+                    const showEllipsisAfter = page === currentPage + 2 && page < totalPages - 1;
+
+                    if (!showPage && !showEllipsisBefore && !showEllipsisAfter) return null;
+                    if (showEllipsisBefore || showEllipsisAfter) {
+                      return <span key={`ellipsis-${idx}`} className="text-gray-400 text-sm font-black px-1">…</span>;
+                    }
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page)}
+                        aria-current={currentPage === page ? 'page' : undefined}
+                        className={`size-10 rounded-xl text-sm font-black transition-all ${
+                          currentPage === page
+                            ? 'bg-[#E67E22] text-white shadow-lg shadow-[#E67E22]/25'
+                            : 'bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 text-gray-500 hover:border-[#E67E22]/30 hover:text-[#E67E22]'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+
+                  {/* NEXT */}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center justify-center size-10 rounded-xl bg-white dark:bg-[#111827] border border-gray-100 dark:border-white/5 shadow-sm text-gray-400 hover:text-[#E67E22] hover:border-[#E67E22]/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    aria-label="Page suivante"
+                  >
+                    <ChevronRight className="size-5" strokeWidth={2.5} />
+                  </button>
+                </div>
+              )}
+
+              {totalPages > 1 && (
+                <p className="text-center text-xs text-gray-400 font-medium mt-4">
+                  {(currentPage - 1) * SELLERS_PER_PAGE + 1}–{Math.min(currentPage * SELLERS_PER_PAGE, sellers.length)} sur {sellers.length} vendeurs
+                </p>
+              )}
+            </>
+          )}
       </section>
     </main>
   );

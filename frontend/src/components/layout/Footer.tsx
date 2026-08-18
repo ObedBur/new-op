@@ -1,9 +1,13 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from 'next/image';
 import { useT } from "@/i18n/useT";
+import { getCategories } from "@/features/products/services/product.service";
+
+// Cache module : évite de refetch les catégories à chaque navigation/remontage
+let categoryIdCache: Record<string, number> | null = null;
 
 // --- Sous-composant pour éviter la répétition ---
 const FooterLink = ({ href, label, dotColor = "bg-[#E67E22]/30" }: { href: string; label: string; dotColor?: string }) => (
@@ -20,6 +24,28 @@ export const Footer: React.FC = () => {
   const { t } = useT();
   const authPaths = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-otp"];
 
+  const [categoryIds, setCategoryIds] = useState<Record<string, number>>(
+    categoryIdCache ?? {}
+  );
+
+  useEffect(() => {
+    if (categoryIdCache) return;
+
+    let cancelled = false;
+    getCategories().then((res) => {
+      const map: Record<string, number> = {};
+      for (const c of res.success ? res.data : []) {
+        map[c.name] = c.id;
+      }
+      categoryIdCache = map;
+      if (!cancelled) setCategoryIds(map);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   if (authPaths.some((path) => pathname?.startsWith(path))) return null;
 
   const NAV_LINKS = [
@@ -27,16 +53,20 @@ export const Footer: React.FC = () => {
     { label: t("header.nav.products"), href: "/products" },
     { label: t("header.nav.sellers"), href: "/sellers" },
     { label: t("footer.howItWorks"), href: "/#how-it-works" },
-    { label: t("footer.pricing"), href: "/pricing" },
   ];
 
   const SECTORS = [
-    t("footer.sectorsList.agricultural"),
-    t("footer.sectorsList.highTech"),
-    t("footer.sectorsList.fashion"),
-    t("footer.sectorsList.express"),
-    t("footer.sectorsList.services"),
+    { key: "footer.sectorsList.agricultural", catName: "Agricole" },
+    { key: "footer.sectorsList.highTech", catName: "High-Tech" },
+    { key: "footer.sectorsList.fashion", catName: "Mode" },
+    { key: "footer.sectorsList.express", catName: "Boutique Express" },
+    { key: "footer.sectorsList.services", catName: "Services & Travaux" },
   ];
+
+  const sectorHref = (catName: string) => {
+    const id = categoryIds[catName];
+    return id ? `/products?category=${id}` : "/products";
+  };
 
   return (
     <footer className="bg-slate-50 dark:bg-[#0b1221] text-slate-900 dark:text-white pt-24 pb-12 border-t border-slate-200 dark:border-white/10 relative overflow-hidden">
@@ -79,7 +109,9 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-3 space-y-8">
             <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#E67E22]">{t("footer.sectors")}</h4>
             <ul className="space-y-4">
-              {SECTORS.map((s) => <FooterLink key={s} label={s} href={`/products?category=${s}`} dotColor="bg-slate-300 dark:bg-slate-700" />)}
+              {SECTORS.map((s) => (
+                <FooterLink key={s.key} label={t(s.key)} href={sectorHref(s.catName)} dotColor="bg-slate-300 dark:bg-slate-700" />
+              ))}
             </ul>
           </div>
 

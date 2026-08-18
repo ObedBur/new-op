@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Product } from '@/features/products/types';
 import { FeaturedProductStrip } from './FeaturedProductStrip';
+import { ProductCardSkeleton } from '@/features/products/components/ProductCardSkeleton';
 import { useT } from '@/i18n/useT';
 
 interface ProductTabsProps {
@@ -42,8 +43,24 @@ export const ProductTabs: React.FC<ProductTabsProps> = ({
   ].filter(tab => tab.products.length > 0);
 
   if (showSkeleton) {
+    // Generate an array of 10 dummy items to fill the grid (2 rows of 5)
+    const skeletonItems = Array.from({ length: 10 });
     return (
-      <div className="w-full h-64 bg-slate-100 dark:bg-white/5 animate-pulse rounded-3xl" />
+      <div className="space-y-6">
+        {/* Fake tabs layout skeleton */}
+        <div className="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+          <div className="w-32 h-10 rounded-full bg-slate-200 dark:bg-white/5 animate-pulse" />
+          <div className="w-32 h-10 rounded-full bg-slate-200 dark:bg-white/5 animate-pulse" />
+          <div className="w-40 h-10 rounded-full bg-slate-200 dark:bg-white/5 animate-pulse" />
+        </div>
+        
+        {/* Same responsive grid as FeaturedProductStrip */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-3.5 md:gap-5">
+          {skeletonItems.map((_, idx) => (
+            <ProductCardSkeleton key={idx} />
+          ))}
+        </div>
+      </div>
     );
   }
 

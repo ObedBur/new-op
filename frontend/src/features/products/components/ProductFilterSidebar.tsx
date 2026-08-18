@@ -23,7 +23,9 @@ export const ProductFilterSidebar: React.FC<SidebarProps> = ({ categories, filte
   };
 
   const handleCategoryClick = (categoryId: string | null) => {
-    onUpdate({ categoryId, page: 1 });
+    // On regroupe la recherche en attente avec la catégorie dans un seul push URL
+    // pour éviter que le clic écrase la recherche commitée par le blur de l'input.
+    onUpdate({ categoryId, page: 1, search: searchQuery || null });
   };
 
   return (

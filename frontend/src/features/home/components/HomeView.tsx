@@ -166,11 +166,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/*  MEILLEURES ADRESSES */}
-      <div className="py-16 bg-gradient-to-b from-[#E67E22]/5 via-transparent to-[#2D5A27]/5 dark:from-[#E67E22]/10 dark:via-transparent dark:to-[#2D5A27]/10">
-        <div className="container mx-auto max-w-7xl px-4">
-          <FeaturedStores stores={loading.stores ? [] : stores} />
+      {(loading.stores || stores?.length > 0) && (
+        <div className="py-16 bg-gradient-to-b from-[#E67E22]/5 via-transparent to-[#2D5A27]/5 dark:from-[#E67E22]/10 dark:via-transparent dark:to-[#2D5A27]/10">
+          <div className="container mx-auto max-w-7xl px-4">
+            <FeaturedStores stores={loading.stores ? [] : stores} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/*  SERVICES & CTA */}
       <div className="bg-white dark:bg-black">

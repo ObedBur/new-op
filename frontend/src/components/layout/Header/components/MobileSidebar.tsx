@@ -5,19 +5,20 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { User } from '@/types/auth';
+import { User as UserType } from '@/types/auth';
 import {
-  X, 
-  LayoutGrid, 
-  Package, 
-  ShoppingCart, 
-  User as UserIcon, 
-  Settings,
-  LogOut, 
-  ArrowRight, 
+  X,
   Home,
-  Store as StoreIcon,
-  ArrowLeftRight
+  ShoppingBag,
+  Store,
+  Scale,
+  LayoutGrid,
+  Settings,
+  LogOut,
+  User as UserIcon,
+  ArrowRight,
+  ChevronRight,
+  GripHorizontal
 } from 'lucide-react';
 import { useT } from '@/i18n/useT';
 
@@ -33,22 +34,27 @@ interface MobileSidebarProps {
   navLinks: NavLink[];
   isAuthenticated: boolean;
   isAuthLoading: boolean;
-  user: User | null;
+  user: UserType | null;
   onLogout: () => void;
 }
 
-const MobileSidebarContent: React.FC<MobileSidebarProps> = ({ 
-  isOpen, 
-  onClose, 
-  navLinks, 
-  isAuthenticated, 
+const NAV_ITEMS = [
+  { id: '/',         label: 'Accueil',  Icon: Home,        vendor: true,  client: true },
+  { id: '/products', label: 'Produits', Icon: ShoppingBag, vendor: true,  client: true },
+  { id: '/sellers',  label: 'Vendeurs', Icon: Store,       vendor: false, client: true },
+  { id: '/compare',  label: 'Comparer', Icon: Scale,       vendor: true,  client: true },
+];
+
+const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
+  isOpen,
+  onClose,
+  isAuthenticated,
   isAuthLoading,
   user,
-  onLogout
+  onLogout,
 }) => {
   const pathname = usePathname();
   const { t } = useT();
-  const isActive = (path: string) => pathname === path;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -57,152 +63,232 @@ const MobileSidebarContent: React.FC<MobileSidebarProps> = ({
 
   if (!mounted) return null;
 
-  const getInitials = (name: string) => {
-    return name?.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
-  };
+  const isActive = (path: string) => pathname === path;
+
+  const getInitials = (name: string) =>
+    name?.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2) || 'U';
+
+  const isVendor = user?.role === 'VENDOR';
+  const navItems = NAV_ITEMS.filter((item) => (isVendor ? item.vendor : item.client));
 
   const sidebarContent = (
-    <div className={`fixed inset-0 z-[99999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
-      <div 
-        className={`absolute inset-0 bg-[#1e293b]/60 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
+    <div
+      className={`fixed inset-0 z-[99999] transition-all duration-500 ${
+        isOpen ? 'visible' : 'invisible'
+      }`}
+    >
+      {/* Backdrop */}
+      <div
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          isOpen ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          background: 'rgba(15,23,42,0.4)',
+          backdropFilter: 'blur(4px)',
+        }}
         onClick={onClose}
-      ></div>
-      
-      <div 
-        className={`absolute right-0 top-0 bottom-0 w-[220px] max-w-[70vw] bg-white dark:bg-[#0f172a] shadow-[0_0_50px_rgba(0,0,0,0.3)] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) transform ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col rounded-l-xl overflow-hidden`}
-      >
-        {/* Header - Minimalist Profile */}
-        <div className="relative pt-6 pb-6 px-6 sm:px-8 border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-gray-50 to-white dark:from-[#1e293b]/50 dark:to-[#0f172a]">
-          
-          <div className="flex justify-between items-center mb-6">
-            <span className="text-[10px] font-black tracking-widest text-[#E67E22] uppercase">{t('header.menu')}</span>
-            <button 
-              onClick={onClose} 
-              className="size-9 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 border border-transparent dark:border-white/10 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
-            >
-              <X size={18} />
-            </button>
-          </div>
+      />
 
-          {isAuthLoading ? (
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-gray-200 dark:bg-white/10 animate-pulse" />
-              <div className="min-w-0 space-y-2">
-                <div className="h-3 w-24 rounded bg-gray-200 dark:bg-white/10 animate-pulse" />
-                <div className="h-2 w-16 rounded bg-gray-200 dark:bg-white/10 animate-pulse" />
+      {/* Drawer */}
+      <div
+        className={`absolute right-0 top-0 bottom-0 w-[88vw] max-w-[400px] bg-[#F8FAFC] dark:bg-[#0f172a] shadow-[0_0_60px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) rounded-l-[2.5rem] ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex-1 overflow-y-auto scrollbar-hide flex flex-col">
+          {/* Header section with Menu & Login */}
+          <div className="bg-white dark:bg-[#1e293b] pt-8 pb-6 px-6 sm:px-8 rounded-bl-[2.5rem] shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] shrink-0">
+            {/* Title + Close */}
+            <div className="flex items-start justify-between mb-8">
+              <div>
+                <span className="text-xl font-black text-[#0F172A] dark:text-white uppercase tracking-wider">
+                  MENU
+                </span>
+                <div className="h-1 w-8 bg-[#E67E22] rounded-full mt-1.5" />
               </div>
+
+              <button
+                onClick={onClose}
+                aria-label="Fermer le menu"
+                className="size-10 flex items-center justify-center rounded-full bg-[#F1F5F9] dark:bg-white/10 text-[#0F172A] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
+              >
+                <X size={20} strokeWidth={2.5} />
+              </button>
             </div>
-          ) : isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-[#E67E22] flex items-center justify-center text-white text-lg font-black shadow-lg shadow-orange-500/20 border-2 border-white dark:border-white/10 overflow-hidden relative">
-                {user?.avatarUrl ? (
-                  <Image src={user.avatarUrl} alt={user.fullName} fill className="object-cover" />
-                ) : (
-                  getInitials(user?.fullName || '')
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-black text-[#1e293b] dark:text-white truncate uppercase tracking-tight italic">
-                  {user?.fullName?.split(' ')[0]}
-                </p>
-                <div className="flex items-center gap-1.5 opacity-60">
-                   <div className={`size-1.5 rounded-full ${user?.role === 'VENDOR' ? 'bg-orange-500' : 'bg-emerald-500'}`} />
-                   <span className="text-[9px] font-bold uppercase tracking-widest">{user?.role === 'VENDOR' ? t('header.vendor') : t('header.client')}</span>
+
+            {/* Auth Card */}
+            {isAuthLoading ? (
+              <div className="h-[84px] w-full rounded-3xl bg-gray-100 dark:bg-white/5 animate-pulse" />
+            ) : isAuthenticated ? (
+              <div className="flex items-center gap-4 bg-[#0F172A] dark:bg-white/5 p-4 sm:p-5 rounded-3xl shadow-lg shadow-slate-900/10">
+                <div className="size-12 sm:size-14 rounded-2xl bg-[#E67E22] flex items-center justify-center text-white text-lg font-black shadow-inner overflow-hidden relative shrink-0">
+                  {user?.avatarUrl ? (
+                    <Image
+                      src={user.avatarUrl}
+                      alt={user.fullName || ''}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    getInitials(user?.fullName || '')
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-bold text-white truncate">
+                    {user?.fullName?.split(' ')[0]}
+                  </p>
+                  <p className="text-xs text-white/60 mt-0.5 truncate">
+                    {isVendor ? t('header.vendor') : t('header.client')}
+                  </p>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div>
-              <Link 
+            ) : (
+              <Link
                 href="/login"
-                className="w-full py-3 flex items-center justify-center gap-2 bg-[#1e293b] dark:bg-white text-white dark:text-[#1e293b] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gray-200 dark:shadow-none"
                 onClick={onClose}
+                className="flex items-center gap-4 bg-[#0F172A] dark:bg-white/5 p-4 sm:p-5 rounded-3xl shadow-lg shadow-slate-900/10 active:scale-[0.98] transition-transform group"
               >
-                {t('header.login')} <ArrowRight size={12} />
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Scrollable Navigation - Minimal Textual List */}
-        <div className="flex-1 overflow-y-auto py-4 px-2 space-y-4 scrollbar-hide">
-          
-          <div className="space-y-1">
-            <div className="px-6 mb-2">
-              <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.25em]">{t('header.mainNavigation')}</span>
-            </div>
-
-            <div className="grid gap-1 px-2">
-              {navLinks?.filter(l => l.id !== '/compare').map((link) => (
-                <Link 
-                  key={link.id}
-                  href={link.id}
-                  onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive(link.id) ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {isAuthenticated && (
-            <div className="space-y-1 pt-2">
-              <div className="px-6 mb-2">
-                <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.25em]">
-                  {user?.role === 'VENDOR' ? t('header.vendorSpace') : t('header.clientSpace')}
-                </span>
-              </div>
-              <div className="grid gap-1 px-2">
-                {user?.role === 'VENDOR' && (
-                  <Link 
-                    href="/dashboard" 
-                    onClick={onClose}
-                    className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/dashboard') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
-                  >
-                    {t('header.dashboard')}
-                  </Link>
-                )}
+                <div className="size-12 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                  <UserIcon size={20} className="text-white" strokeWidth={2} />
+                </div>
                 
-                <Link 
-                  href="/settings" 
-                  onClick={onClose}
-                  className={`w-full block px-4 py-2.5 rounded-xl text-[12px] font-bold uppercase tracking-tight transition-all ${isActive('/settings') ? 'bg-[#E67E22] text-white shadow-md shadow-[#E67E22]/20' : 'text-[#1e293b] dark:text-white hover:bg-orange-50 dark:hover:bg-white/5'}`}
-                >
-                  {t('header.myAccount')}
-                </Link>
-              </div>
-            </div>
-          )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[15px] font-bold text-white">Se connecter</p>
+                  <p className="text-[11px] text-white/60 mt-0.5 truncate">Accédez à votre compte</p>
+                </div>
 
-          {/* Logout Section */}
-          {isAuthenticated && (
-            <div className="pt-2 mt-2 px-2 border-t border-gray-100 dark:border-white/5">
-                <button 
-                  onClick={() => { onLogout(); onClose(); }}
-                  className="w-full block px-4 py-2.5 rounded-xl text-[11px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-left uppercase tracking-wider"
-                >
-                  {t('header.logout')}
-                </button>
-            </div>
-          )}
-        </div>
-
-        {/* Brand Footer */}
-        {(!isAuthenticated || user?.role !== 'VENDOR') && (
-          <div className="p-4 px-6 border-t border-gray-100 dark:border-white/5">
-              <Link 
-                href="/register?role=VENDOR"
-                onClick={() => {
-                  if (isAuthenticated) onLogout();
-                  onClose();
-                }}
-                className="w-full py-3 bg-gradient-to-r from-[#E67E22] to-[#f39c12] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
-              >
-                  <span>{t('header.sellOnWapibei')}</span>
+                <div className="size-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 group-hover:bg-[#E67E22] transition-colors">
+                  <ArrowRight size={16} className="text-white" strokeWidth={2} />
+                </div>
               </Link>
+            )}
           </div>
-        )}
+
+          {/* Navigation Links */}
+          <div className="px-6 sm:px-8 py-8">
+            <div className="flex items-center gap-3 mb-5">
+              <LayoutGrid size={15} className="text-[#94A3B8]" strokeWidth={2.5} />
+              <span className="text-[11px] font-black text-[#64748B] dark:text-gray-400 uppercase tracking-widest shrink-0">
+                NAVIGATION PRINCIPALE
+              </span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {navItems.map(({ id, label, Icon }) => {
+                const active = isActive(id);
+
+                return (
+                  <Link
+                    key={id}
+                    href={id}
+                    onClick={onClose}
+                    className={`flex items-center gap-4 p-3 pr-4 rounded-[1.5rem] transition-all duration-300 ${
+                      active
+                        ? 'bg-[#E67E22] shadow-[0_8px_20px_-6px_rgba(230,126,34,0.4)]'
+                        : 'bg-white dark:bg-[#1e293b] border border-transparent shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-orange-200 dark:hover:border-white/10'
+                    }`}
+                  >
+                    <div className={`size-11 flex items-center justify-center rounded-[1rem] transition-colors ${
+                      active ? 'bg-white/20' : 'bg-[#F8FAFC] dark:bg-white/5'
+                    }`}>
+                      <Icon
+                        size={22}
+                        strokeWidth={active ? 2.5 : 2}
+                        className={active ? 'text-white' : 'text-[#0F172A] dark:text-white'}
+                      />
+                    </div>
+                    
+                    <span className={`flex-1 text-[15px] font-bold ${
+                      active ? 'text-white' : 'text-[#0F172A] dark:text-white'
+                    }`}>
+                      {label}
+                    </span>
+
+                    <ChevronRight 
+                      size={18} 
+                      strokeWidth={2.5} 
+                      className={active ? 'text-white' : 'text-[#94A3B8]'} 
+                    />
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Authenticated extras */}
+            {isAuthenticated && (
+              <div className="mt-8 pt-1">
+                <div className="flex items-center gap-3 mb-5">
+                  <GripHorizontal size={15} className="text-[#94A3B8]" strokeWidth={2.5} />
+                  <span className="text-[11px] font-black text-[#64748B] dark:text-gray-400 uppercase tracking-widest shrink-0">
+                    {isVendor ? 'ESPACE VENDEUR' : 'ESPACE CLIENT'}
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {isVendor && (
+                    <Link
+                      href="/dashboard"
+                      onClick={onClose}
+                      className={`flex items-center gap-4 p-3 pr-4 rounded-[1.5rem] transition-all duration-300 ${
+                        isActive('/dashboard')
+                          ? 'bg-[#E67E22] shadow-[0_8px_20px_-6px_rgba(230,126,34,0.4)]'
+                          : 'bg-white dark:bg-[#1e293b] border border-transparent shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-orange-200 dark:hover:border-white/10'
+                      }`}
+                    >
+                      <div className={`size-11 flex items-center justify-center rounded-[1rem] ${
+                        isActive('/dashboard') ? 'bg-white/20' : 'bg-[#F8FAFC] dark:bg-white/5'
+                      }`}>
+                        <LayoutGrid size={22} strokeWidth={isActive('/dashboard') ? 2.5 : 2} className={isActive('/dashboard') ? 'text-white' : 'text-[#0F172A] dark:text-white'} />
+                      </div>
+                      <span className={`flex-1 text-[15px] font-bold ${isActive('/dashboard') ? 'text-white' : 'text-[#0F172A] dark:text-white'}`}>
+                        {t('header.dashboard')}
+                      </span>
+                      <ChevronRight size={18} strokeWidth={2.5} className={isActive('/dashboard') ? 'text-white' : 'text-[#94A3B8]'} />
+                    </Link>
+                  )}
+
+                  <Link
+                    href="/settings"
+                    onClick={onClose}
+                    className={`flex items-center gap-4 p-3 pr-4 rounded-[1.5rem] transition-all duration-300 ${
+                      isActive('/settings')
+                        ? 'bg-[#E67E22] shadow-[0_8px_20px_-6px_rgba(230,126,34,0.4)]'
+                        : 'bg-white dark:bg-[#1e293b] border border-transparent shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-orange-200 dark:hover:border-white/10'
+                    }`}
+                  >
+                    <div className={`size-11 flex items-center justify-center rounded-[1rem] ${
+                      isActive('/settings') ? 'bg-white/20' : 'bg-[#F8FAFC] dark:bg-white/5'
+                    }`}>
+                      <Settings size={22} strokeWidth={isActive('/settings') ? 2.5 : 2} className={isActive('/settings') ? 'text-white' : 'text-[#0F172A] dark:text-white'} />
+                    </div>
+                    <span className={`flex-1 text-[15px] font-bold ${isActive('/settings') ? 'text-white' : 'text-[#0F172A] dark:text-white'}`}>
+                      {t('header.myAccount')}
+                    </span>
+                    <ChevronRight size={18} strokeWidth={2.5} className={isActive('/settings') ? 'text-white' : 'text-[#94A3B8]'} />
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      onLogout();
+                      onClose();
+                    }}
+                    className="flex items-center gap-4 p-3 pr-4 rounded-[1.5rem] transition-all duration-300 bg-white dark:bg-[#1e293b] border border-transparent shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:border-red-100"
+                  >
+                    <div className="size-11 flex items-center justify-center rounded-[1rem] bg-red-50 dark:bg-red-500/10">
+                      <LogOut size={22} strokeWidth={2} className="text-red-500" />
+                    </div>
+                    <span className="flex-1 text-[15px] font-bold text-red-500 text-left">
+                      {t('header.logout')}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
