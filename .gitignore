@@ -4,6 +4,11 @@ node_modules/
 .pnp.js
 backend/src/generated/
 
+# Outils de développement (Antigravity / Impeccable)
+.opencode/
+impeccable-*.txt
+impeccable-*.md
+
 # Testing
 coverage/
 
