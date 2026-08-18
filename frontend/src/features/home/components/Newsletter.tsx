@@ -22,59 +22,57 @@ export const Newsletter = () => {
   };
 
   return (
-    <section className="py-24 bg-white dark:bg-black">
-      <div className="container mx-auto max-w-7xl px-4">
+    <section className="py-16 md:py-20 relative overflow-hidden">
+      {/* Fond gradient distinctif */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#E67E22] via-[#d4691a] to-[#2D5A27]" />
+      {/* Motif géométrique en overlay */}
+      <div className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+        }}
+      />
+      {/* Blob décoratif */}
+      <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="container mx-auto max-w-7xl px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.65 }}
-          className="relative overflow-hidden bg-transparent border-transparent"
+          className="flex flex-col md:flex-row items-center justify-between gap-10 md:gap-16"
         >
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12 p-6 md:p-8 lg:p-10 xl:p-12">
-            {/* Text */}
-            <div className="text-slate-900 dark:text-white max-w-xl text-center md:text-left">
-              <div className="inline-flex items-center gap-2 bg-[#E67E22]/10 border border-[#E67E22]/20 rounded-full px-4 py-2 text-xs font-bold tracking-wide text-[#E67E22] dark:text-[#E67E22] mb-6">
-                <Sparkles size={14} className="text-[#E67E22]" />
-                {t('home.newsletter.badge')}
-              </div>
-              <h2 className="text-3xl md:text-4xl font-black mb-4 leading-tight tracking-tight">
-                {t('home.newsletter.title')}{' '}
-                <span className="text-[#E67E22]">{t('home.newsletter.titleHighlight')}</span>
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
-                {t('home.newsletter.description')}
-              </p>
+          {/* Text */}
+          <div className="text-white max-w-xl text-center md:text-left">
+            <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-2 text-xs font-black tracking-wide text-white mb-5">
+              <Sparkles size={14} />
+              {t('home.newsletter.badge')}
             </div>
+            <h2 className="text-3xl md:text-4xl font-black mb-3 leading-tight tracking-tight">
+              {t('home.newsletter.title')}{' '}
+              <span className="underline decoration-white/40 underline-offset-4">{t('home.newsletter.titleHighlight')}</span>
+            </h2>
+            <p className="text-white/80 text-base leading-relaxed">
+              {t('home.newsletter.description')}
+            </p>
+          </div>
 
-            {/* Form */}
-            <div className="w-full md:w-auto flex-1 max-w-md">
-              <form onSubmit={handleSubscribe} className="w-full">
-                <div className="relative flex items-center">
-                  <input
-                    type="email"
-                    required
-                    placeholder={t('home.newsletter.emailPlaceholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-full py-4 pl-6 pr-16 focus:outline-none focus:ring-2 focus:ring-[#E67E22] focus:border-transparent transition-all text-sm shadow-sm"
-                  />
-                  <motion.button
-                    type="submit"
-                    disabled={loading}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-[#E67E22] hover:bg-orange-600 disabled:opacity-70 rounded-full flex items-center justify-center text-white transition-colors shadow-lg shadow-[#E67E22]/30 shrink-0 cursor-pointer"
-                  >
-                    {loading
-                      ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                      : <Send size={16} className="-ml-0.5" />
-                    }
-                  </motion.button>
-                </div>
-                <p className="text-center md:text-left text-xs text-slate-500 dark:text-slate-500 mt-3 pl-2">
-                  {t('home.newsletter.noSpam')}
-                </p>
-              </form>
+          {/* Form */}
+          <div className="w-full md:w-auto flex-1 max-w-md">
+            <div className="w-full relative flex flex-col gap-2">
+              <div className="relative flex items-center">
+                <input
+                  type="email"
+                  disabled
+                  placeholder="Newsletter (Bientôt disponible)"
+                  className="w-full bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-full py-4 pl-6 pr-6 cursor-not-allowed transition-all text-sm backdrop-blur-sm"
+                />
+              </div>
+              <p className="text-center md:text-left text-xs text-white/50 pl-2">
+                Nous préparons un nouveau système de newsletter. Restez à l'écoute !
+              </p>
             </div>
           </div>
         </motion.div>

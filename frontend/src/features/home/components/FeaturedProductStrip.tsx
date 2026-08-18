@@ -17,20 +17,22 @@ export const FeaturedProductStrip: React.FC<FeaturedProductStripProps> = ({ titl
   const { t } = useT();
   return (
     <div className="w-full mb-8 bg-transparent">
-      <div className="flex items-end justify-between mb-4">
-        <div className="space-y-0.5">
-          <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-none">
-            {title.split(' ')[0]} <span className="text-[#E67E22]">{title.split(' ').slice(1).join(' ')}</span>
-          </h3>
-          <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
+      {(title || subtitle) && (
+        <div className="flex items-end justify-between mb-4">
+          <div className="space-y-0.5">
+            <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-none">
+              {title.split(' ')[0]} <span className="text-[#E67E22]">{title.split(' ').slice(1).join(' ')}</span>
+            </h3>
+            {subtitle && <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>}
+          </div>
+          <Link
+            href="/products"
+            className="flex items-center gap-2 group text-slate-400 hover:text-white transition-all duration-300"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-widest hidden md:inline">{t('home.productStrip.viewAll')}</span>
+          </Link>
         </div>
-        <Link
-          href="/products"
-          className="flex items-center gap-2 group text-slate-400 hover:text-white transition-all duration-300"
-        >
-          <span className="text-[10px] font-bold uppercase tracking-widest hidden md:inline">{t('home.productStrip.viewAll')}</span>
-        </Link>
-      </div>
+      )}
 
       <div>
         {/* Grille RESPONSIVE adaptée : densité max 5 colonnes pour ne pas écraser les cartes */}

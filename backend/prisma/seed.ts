@@ -140,13 +140,13 @@ async function main() {
   logger.log('🛍️ Création de 150 produits...');
   const productImages: Record<string, string[]> = {
     'Agricole': [
-      'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=800',
       'https://images.unsplash.com/photo-1595855759920-86582396756a?w=800',
-      'https://images.unsplash.com/photo-1566385101042-1a010c1274cc?w=800'
+      'https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'
     ],
     'High-Tech': [
       'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800',
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca4?w=800'
+      'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?w=800'
     ],
     'Mode': [
       'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800',

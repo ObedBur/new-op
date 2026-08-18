@@ -18,8 +18,8 @@ export type Seller = HomeSeller;
 
 export async function getActiveSellers(): Promise<HomeSeller[]> {
   try {
-    const response = await api.get<HomeSeller[]>('/sellers');
-    return response.data;
+    const response = await api.get<{ success: boolean; data: HomeSeller[] }>('/sellers');
+    return response.data.data;
   } catch (error) {
     console.error('Error fetching active sellers:', error);
     return [];

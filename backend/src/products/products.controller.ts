@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, Req, UseGuards, Patch, Delete, UseInterceptors, NotFoundException } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -176,6 +176,12 @@ export class ProductsController {
   @Get(':id')
   async findOne(@Param('id') id: string, @Query('lang') lang?: string) {
     const product = await this.productsService.findOne(id, lang);
+    if (!product) {
+      throw new NotFoundException({
+        code: 'PRODUCT_NOT_FOUND',
+        message: 'Produit non trouvé',
+      });
+    }
     return { success: true, data: product };
   }
 

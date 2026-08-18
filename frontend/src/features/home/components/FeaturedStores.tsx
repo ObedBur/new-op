@@ -196,10 +196,11 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                               className="object-cover"
                             />
                           </div>
-
-                          {/* ONLINE — VRAI STATUT BASE SUR API: < 5min de lastSeenAt */}
+                          {/* ONLINE INDICATOR */}
                           {store.isOnline === true && (
-                            <span className="absolute -right-0.5 -bottom-0.5 size-4 md:size-[18px] rounded-full bg-[#22C55E] border-[3px] border-white shadow-md" />
+                            <div className="absolute -right-0.5 -bottom-0.5 size-4 md:size-[18px] bg-green-500 border-[3px] border-white rounded-full shadow-md z-10">
+                              <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-30" />
+                            </div>
                           )}
                         </div>
 
@@ -252,6 +253,7 @@ export const FeaturedStores: React.FC<FeaturedStoresProps> = ({ stores }) => {
                           ===================================================== */}
                       {store.productCount !== undefined && store.productCount >= 2 && (
                         <div className="flex items-center gap-2">
+
                           {secondaries.map((preview, i) => (
                             <div
                               key={i}

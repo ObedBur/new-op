@@ -12,13 +12,13 @@ export const Testimonials = () => {
   const { user } = useAuth();
   const { t } = useT();
 
-  const initialTestimonials = [
+  const testimonials = [
     {
       name: 'Sophie M.',
       role: t('home.testimonials.mock.t1Role'),
       content: t('home.testimonials.mock.t1Content'),
       rating: 5,
-      avatar: 'https://i.pravatar.cc/150?img=47',
+      avatar: 'https://ui-avatars.com/api/?name=Sophie+M&background=E67E22&color=fff',
       accent: '#E67E22',
     },
     {
@@ -26,7 +26,7 @@ export const Testimonials = () => {
       role: t('home.testimonials.mock.t2Role'),
       content: t('home.testimonials.mock.t2Content'),
       rating: 5,
-      avatar: 'https://i.pravatar.cc/150?img=11',
+      avatar: 'https://ui-avatars.com/api/?name=Marc+D&background=2D5A27&color=fff',
       accent: '#2D5A27',
     },
     {
@@ -34,7 +34,7 @@ export const Testimonials = () => {
       role: t('home.testimonials.mock.t3Role'),
       content: t('home.testimonials.mock.t3Content'),
       rating: 5,
-      avatar: 'https://i.pravatar.cc/150?img=32',
+      avatar: 'https://ui-avatars.com/api/?name=Aline+K&background=E67E22&color=fff',
       accent: '#E67E22',
     },
     {
@@ -42,37 +42,13 @@ export const Testimonials = () => {
       role: t('home.testimonials.mock.t4Role'),
       content: t('home.testimonials.mock.t4Content'),
       rating: 5,
-      avatar: 'https://i.pravatar.cc/150?img=60',
+      avatar: 'https://ui-avatars.com/api/?name=Julien+T&background=2D5A27&color=fff',
       accent: '#2D5A27',
     }
   ];
 
-  const [localTestimonials, setLocalTestimonials] = useState(initialTestimonials);
-  const [email, setEmail] = useState('');
-  const [comment, setComment] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    const newTestimonial = {
-      name: user?.fullName || email.split('@')[0] || t('home.testimonials.visitor'),
-      role: user?.role === 'VENDOR' ? t('home.testimonials.vendor') : t('home.testimonials.client'),
-      content: comment,
-      rating: 5,
-      avatar: user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || email || 'V')}&background=random`,
-      accent: '#E67E22',
-    };
-
-    // On ajoute le nouveau commentaire à l'état local
-    setLocalTestimonials([newTestimonial, ...localTestimonials]);
-    setComment('');
-    setEmail('');
-    toast.success(t('home.testimonials.success'));
-  };
-
   // On duplique le tableau pour créer l'effet de boucle infinie sans coupure
-  const duplicatedItems = [...localTestimonials, ...localTestimonials];
+  const duplicatedItems = [...testimonials, ...testimonials];
 
   return (
     <section className="py-24 bg-slate-50 dark:bg-[#0a0a0a] relative overflow-hidden">
@@ -109,7 +85,7 @@ export const Testimonials = () => {
           <motion.div
             className="flex gap-6 w-max hover:[animation-play-state:paused]"
             animate={{ x: ["0%", "-50%"] }}
-            transition={{ duration: localTestimonials.length * 8, ease: "linear", repeat: Infinity }}
+            transition={{ duration: testimonials.length * 8, ease: "linear", repeat: Infinity }}
           >
             {duplicatedItems.map((t, i) => (
               <div
@@ -147,59 +123,6 @@ export const Testimonials = () => {
               </div>
             ))}
           </motion.div>
-        </div>
-
-        {/* Formulaire pour ajouter un avis */}
-        <div className="max-w-2xl mx-auto mt-24">
-          <div className="bg-white dark:bg-[#111] border border-slate-100 dark:border-white/[0.05] rounded-3xl p-6 md:p-8 shadow-xl">
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">{t('home.testimonials.formTitle')}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.testimonials.formDesc')}</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!user && (
-                <div>
-                  <input
-                    type="email"
-                    placeholder={t('home.testimonials.emailPlaceholder')}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22] dark:text-white"
-                    required
-                  />
-                </div>
-              )}
-              
-              <div className="relative">
-                <textarea
-                  placeholder={t('home.testimonials.messagePlaceholder')}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  rows={3}
-                  className="w-full bg-slate-50 dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#E67E22] dark:text-white resize-none"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="absolute bottom-3 right-3 bg-[#E67E22] hover:bg-[#d6711a] text-white p-2 rounded-lg transition-colors flex items-center justify-center shadow-md shadow-[#E67E22]/20"
-                >
-                  <Send size={16} />
-                </button>
-              </div>
-              
-              {user && (
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="w-6 h-6 rounded-full overflow-hidden relative border border-slate-200 dark:border-white/10">
-                    <Image src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName)}`} alt="Avatar" fill className="object-cover" unoptimized />
-                  </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {t('home.testimonials.commentAs')} <strong className="text-slate-900 dark:text-white">{user.fullName}</strong>
-                  </span>
-                </div>
-              )}
-            </form>
-          </div>
         </div>
       </div>
     </section>

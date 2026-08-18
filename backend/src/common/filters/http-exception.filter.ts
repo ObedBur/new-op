@@ -20,6 +20,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Une erreur interne est survenue. Veuillez réessayer plus tard.';
+        let code: string | undefined;
         let isOperational = false;
 
         // ============ ERREURS HTTP (Opérationnelles) ============
@@ -30,6 +31,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             // Récupérer le message depuis la réponse
             if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
                 message = (exceptionResponse as any).message || exception.message;
+                code = (exceptionResponse as any).code;
             } else {
                 message = exception.message;
             }
@@ -69,6 +71,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             success: false,
             statusCode: status,
             message,
+            ...(code !== undefined && { code }),
             timestamp: new Date().toISOString(),
             ...(this.exposeDebug && {
                 // Afficher le détail SEULEMENT en développement

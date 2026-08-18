@@ -13,7 +13,8 @@ export class SellersController {
   @CacheTTL(300)
   @Get()
   async getActiveSellers() {
-    return this.sellersService.findActiveVendors();
+    const data = await this.sellersService.findActiveVendors();
+    return { success: true, data };
   }
   // Route publique avec auth optionnelle pour retourner isFollowed aux utilisateurs connectés.
   // Ne pas cacher cette réponse: isFollowed dépend de l'utilisateur connecté.

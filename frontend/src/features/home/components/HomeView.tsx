@@ -3,7 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { Hero } from "./Hero";
+import { TrustBar } from "./TrustBar";
 import { CategoriesGrid } from "./CategoriesGrid";
+import { ProductTabs } from "./ProductTabs";
 import { FeaturedProductStrip } from "./FeaturedProductStrip";
 import { FeaturedStores } from "./FeaturedStores";
 import { HowItWorks } from "./HowItWorks";
@@ -126,59 +128,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/*  HERO */}
       <Hero slides={heroSlides} />
 
+      {/* TRUST BAR */}
+      <TrustBar />
+
       {/*  CATEGORIES */}
       <CategoriesGrid categories={categories} isLoading={loading.categories} />
 
       {/*  GALERIES INTELLIGENTES */}
-      <section className="py-10 space-y-12">
+      <section className="py-10">
         <div className="container mx-auto max-w-7xl px-4">
-
-          {/*  Offres du moment (Promotions) */}
-          {deals.length > 0 && (
-            <FeaturedProductStrip
-              title={t("home.homeView.dealsTitle")}
-              subtitle={t("home.homeView.dealsSubtitle")}
-              products={deals}
-              onQuickView={openQuickView}
-            />
-          )}
-
-          {showProductFallback && deals.length === 0 && (
-            <ProductStripSkeleton
-              title={t("home.homeView.loadingTitle")}
-              subtitle={t("home.homeView.loadingSubtitle")}
-            />
-          )}
-
-          {/*  Nouveautés (< 7 jours) */}
-          {newArrivals.length > 0 && (
-            <FeaturedProductStrip
-              title={t("home.homeView.newTitle")}
-              subtitle={t("home.homeView.newSubtitle")}
-              products={newArrivals}
-              onQuickView={openQuickView}
-            />
-          )}
-
-          {/*  Recommandations (basé sur historique) */}
-          {recommendations.length > 0 && (
-            <FeaturedProductStrip
-              title={t("home.homeView.recTitle")}
-              subtitle={t("home.homeView.recSubtitle")}
-              products={recommendations}
-              onQuickView={openQuickView}
-            />
-          )}
-
-          {/*  Meilleures ventes */}
-          {bestSellers.length > 0 && (
-            <FeaturedProductStrip
-              title={t("home.homeView.bestTitle")}
-              subtitle={t("home.homeView.bestSubtitle")}
-              products={bestSellers}
-              onQuickView={openQuickView}
-            />
-          )}
+          <ProductTabs 
+            deals={deals}
+            newArrivals={newArrivals}
+            recommendations={recommendations}
+            bestSellers={bestSellers}
+            onQuickView={openQuickView}
+            showSkeleton={showProductFallback && deals.length === 0}
+          />
 
           {showProductEmptyState && (
             <div className="rounded-[2rem] border border-[#E67E22]/25 bg-gradient-to-br from-[#E67E22]/10 via-transparent to-[#2D5A27]/10 px-6 py-12 md:px-10 md:py-14 text-center space-y-4">
@@ -219,8 +185,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* NEWSLETTER */}
       <Newsletter />
-
-      <LoginBanner />
 
       {selectedProduct && (
         <ProductQuickView
