@@ -10,6 +10,8 @@ export interface CompareProduct {
   image: string | null;
   images: string[];
   availability: string;
+  stockQuantity?: number;
+  unit?: string | null;
   city: string;
   country: string;
   location: string | null;

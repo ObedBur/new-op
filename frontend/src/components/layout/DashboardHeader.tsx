@@ -5,19 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileDropdown } from './Header/components/ProfileDropdown';
-import { MobileSidebar } from './Header/components/MobileSidebar';
-import { Search, Menu } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useAppNotifications } from '@/hooks/useAppNotifications';
 import { resolveNotificationUrl } from '@/types/notification';
 import { useT } from '@/i18n/useT';
 
 export const DashboardHeader = () => {
     const { t } = useT();
-    const { isAuthenticated, user, logout, isLoading: isAuthLoading } = useAuth();
+    const { isAuthenticated, user, logout } = useAuth();
     const router = useRouter();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
 
     const { notifications, unreadCount, markAsRead } = useAppNotifications();
@@ -32,27 +30,13 @@ export const DashboardHeader = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const navLinks = [
-        { id: "/", label: t("header.nav.home"), icon: "home" },
-        { id: "/products", label: t("header.nav.products"), icon: "inventory_2" },
-        { id: "/sellers", label: t("header.nav.sellers"), icon: "store" },
-        { id: "/compare", label: t("header.nav.compare"), icon: "compare_arrows" },
-    ];
-
     return (
         <>
         <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#111]/80 backdrop-blur-md border-b border-black/[0.03] dark:border-white/5 h-16 md:h-20 shrink-0">
             <div className="container mx-auto max-w-7xl h-full px-6 md:px-12 lg:px-16 flex items-center justify-between">
 
-                {/* Left: Hamburger (mobile) + Logo */}
+                {/* Left: Logo */}
                 <div className="flex items-center gap-3 md:hidden">
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="flex items-center justify-center p-2 -ml-1 text-slate-700 dark:text-white"
-                        aria-label="Ouvrir le menu"
-                    >
-                        <Menu size={24} />
-                    </button>
                     <Link href="/" className="flex items-center gap-2 cursor-pointer shrink-0 group">
                         <div className="flex items-center justify-center size-8 rounded-xl bg-[#E67E22] shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform shrink-0">
                             <div className="size-[14px] bg-white rounded-sm rotate-45" />
@@ -170,15 +154,6 @@ export const DashboardHeader = () => {
             </div>
         </header>
 
-        <MobileSidebar
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            navLinks={navLinks}
-            isAuthenticated={isAuthenticated}
-            isAuthLoading={isAuthLoading ?? false}
-            user={user}
-            onLogout={logout}
-        />
         </>
     );
 };

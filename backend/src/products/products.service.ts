@@ -83,16 +83,29 @@ export class ProductsService {
       const conditions = terms.map((_, i) => `("name" ILIKE $${(i * 2) + 1} OR "description" ILIKE $${(i * 2) + 2})`);
       const joinedConditions = conditions.join(' AND ');
       
+      const nameConditions = terms.map((_, i) => `"name" ILIKE $${(i * 2) + 1}`);
+      const joinedNameConditions = nameConditions.join(' AND ');
+      
       const params: string[] = [];
       terms.forEach(term => {
         params.push(`%${term}%`);
         params.push(`%${term}%`);
       });
 
+      params.push(`%${search.trim()}%`);
+      const exactMatchParam = params.length;
+
       const queryString = `
         SELECT id FROM "Product"
         WHERE "isPublic" = true
         AND ${joinedConditions}
+        ORDER BY 
+          CASE 
+            WHEN "name" ILIKE $${exactMatchParam} THEN 2
+            WHEN ${joinedNameConditions} THEN 1 
+            ELSE 0 
+          END DESC,
+          "createdAt" DESC
         LIMIT ${limit}
       `;
 
@@ -102,6 +115,56 @@ export class ProductsService {
     } catch (e: any) {
       require('fs').writeFileSync('search-error.txt', (e.message || e.toString()) + '\n' + (e.stack || ''));
       // Fallback
+      return undefined;
+    }
+  }
+
+  /**
+   * Variante ciblée : recherche PRÉCISE basée UNIQUEMENT sur les champs de nom du produit
+   * (name, nameFr, nameEn, nameSw) — jamais la description.
+   * Utilisée par les suggestions et la comparaison ("Voir tous les résultats")
+   * pour que les deux aient exactement la même logique.
+   */
+  private async getSearchProductIdsByName(search: string, limit: number = 100): Promise<string[] | undefined> {
+    try {
+      if (!search) return undefined;
+      const terms = search.trim().split(/\s+/).filter(t => t.length > 0);
+      if (terms.length === 0) return undefined;
+
+      const nameFields = ['name', 'nameFr', 'nameEn', 'nameSw'];
+      const ilikeOne = (paramIdx: number) =>
+        nameFields.map(f => `COALESCE("${f}", '') ILIKE $${paramIdx}`).join(' OR ');
+
+      // WHERE : chaque terme doit apparaître dans au moins un champ de nom (et non la description)
+      const conditions = terms.map((_, i) => `(${ilikeOne(i + 1)})`);
+      const joinedConditions = conditions.join(' AND ');
+
+      // Rang : phrase exacte dans "name" > tous les termes dans "name" > match partiel du nom
+      const nameOnlyConditions = terms.map((_, i) => `COALESCE("name", '') ILIKE $${i + 1}`);
+      const joinedNameConditions = nameOnlyConditions.join(' AND ');
+
+      const params: string[] = terms.map(term => `%${term}%`);
+      params.push(`%${search.trim()}%`);
+      const exactMatchParam = params.length;
+
+      const queryString = `
+        SELECT id FROM "Product"
+        WHERE "isPublic" = true
+        AND ${joinedConditions}
+        ORDER BY
+          CASE
+            WHEN "name" ILIKE $${exactMatchParam} THEN 2
+            WHEN ${joinedNameConditions} THEN 1
+            ELSE 0
+          END DESC,
+          "createdAt" DESC
+        LIMIT ${limit}
+      `;
+
+      const results = await this.prisma.$queryRawUnsafe<{ id: string }[]>(queryString, ...params);
+      return results.map(r => r.id);
+    } catch (e: any) {
+      this.logger.error(`Search-by-name failed: ${e?.message || e}`);
       return undefined;
     }
   }
@@ -248,13 +311,16 @@ export class ProductsService {
     };
 
     try {
-      const items = await this.prisma.product.findMany({
+      let items = await this.prisma.product.findMany({
         where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
+        ...(searchIds ? {} : { skip, take: limit, orderBy: { createdAt: 'desc' } }),
         include: productInclude,
       });
+
+      if (searchIds) {
+        items.sort((a, b) => searchIds.indexOf(a.id) - searchIds.indexOf(b.id));
+        items = items.slice(skip, skip + limit);
+      }
 
       const total = await this.prisma.product.count({ where });
 
@@ -294,16 +360,18 @@ export class ProductsService {
       ...(searchIds && { id: { in: searchIds } }),
     };
 
-    const [items, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: { category: true },
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+    const total = await this.prisma.product.count({ where });
+    
+    let items = await this.prisma.product.findMany({
+      where,
+      ...(searchIds ? {} : { skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      include: { category: true },
+    });
+
+    if (searchIds) {
+      items.sort((a, b) => searchIds.indexOf(a.id) - searchIds.indexOf(b.id));
+      items = items.slice(skip, skip + limit);
+    }
 
     return { items: localizeList(items, resolved), total, page, limit, pages: Math.ceil(total / limit) };
   }
@@ -463,7 +531,7 @@ export class ProductsService {
    */
   async getSuggestions(query: string, lang?: string) {
     const resolved = resolveLang(lang);
-    const searchIds = await this.getSearchProductIds(query, 20);
+    const searchIds = await this.getSearchProductIdsByName(query, 20);
 
     const products = await this.prisma.product.findMany({
       where: {
@@ -504,7 +572,7 @@ export class ProductsService {
     }
     const resolved = resolveLang(lang);
 
-    const searchIds = await this.getSearchProductIds(search, 100);
+    const searchIds = await this.getSearchProductIdsByName(search, 100);
     
     if (searchIds && searchIds.length === 0) {
       return { query: search, products: [] };

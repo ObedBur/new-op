@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { getActiveSellers, Seller } from '@/features/home/services/seller.service';
 import { FeaturedStoreCard } from '@/features/home/components/FeaturedStoreCard';
 import { FeaturedStoreSkeleton } from '@/features/home/components/FeaturedStoreSkeleton';
@@ -11,9 +12,11 @@ const SELLERS_PER_PAGE = 10;
 
 export default function SellersPage() {
     const { t } = useT();
+    const searchParams = useSearchParams();
     const [sellers, setSellers] = useState<Seller[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
     useEffect(() => {
         const fetchSellers = async () => {
@@ -29,17 +32,27 @@ export default function SellersPage() {
         fetchSellers();
     }, []);
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    const filteredSellers = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return sellers;
+        return sellers.filter((s) => s.boutiqueName.toLowerCase().includes(q));
+    }, [sellers, searchQuery]);
+
     const totalPages = useMemo(
-        () => Math.ceil(sellers.length / SELLERS_PER_PAGE),
-        [sellers]
+        () => Math.ceil(filteredSellers.length / SELLERS_PER_PAGE),
+        [filteredSellers]
     );
 
     const paginatedSellers = useMemo(
-        () => sellers.slice(
+        () => filteredSellers.slice(
             (currentPage - 1) * SELLERS_PER_PAGE,
             currentPage * SELLERS_PER_PAGE
         ),
-        [sellers, currentPage]
+        [filteredSellers, currentPage]
     );
 
     const goToPage = (page: number) => {
@@ -56,6 +69,17 @@ export default function SellersPage() {
               <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-lg">
                   {t('sellersPage.subtitle')}
               </p>
+
+              <div className="relative max-w-md mx-auto mt-6 sm:mt-8">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('sellersPage.searchPlaceholder')}
+                  className="w-full bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/10 rounded-full pl-10 pr-4 py-2.5 text-sm font-bold text-deep-blue dark:text-white outline-none focus:ring-2 focus:ring-[#E67E22]/30 focus:border-[#E67E22] transition-all placeholder:text-gray-400"
+                />
+              </div>
           </div>
 
           {isLoading ? (
@@ -66,11 +90,20 @@ export default function SellersPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
-                {paginatedSellers.map((seller) => (
-                  <FeaturedStoreCard key={seller.id} store={seller} />
-                ))}
-              </div>
+              {filteredSellers.length === 0 ? (
+                <div className="py-16 text-center bg-white dark:bg-[#111827] rounded-[2rem] border border-gray-100 dark:border-white/5">
+                  <div className="mx-auto w-14 h-14 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                    <Search className="w-7 h-7 text-gray-300 dark:text-white/20" />
+                  </div>
+                  <h3 className="text-lg font-black text-gray-500 dark:text-gray-400">{t('sellersPage.noResults')}</h3>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+                  {paginatedSellers.map((seller) => (
+                    <FeaturedStoreCard key={seller.id} store={seller} />
+                  ))}
+                </div>
+              )}
 
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-12">
@@ -127,7 +160,7 @@ export default function SellersPage() {
 
               {totalPages > 1 && (
                 <p className="text-center text-xs text-gray-400 font-medium mt-4">
-                  {(currentPage - 1) * SELLERS_PER_PAGE + 1}–{Math.min(currentPage * SELLERS_PER_PAGE, sellers.length)} sur {sellers.length} vendeurs
+                  {(currentPage - 1) * SELLERS_PER_PAGE + 1}–{Math.min(currentPage * SELLERS_PER_PAGE, filteredSellers.length)} sur {filteredSellers.length} vendeurs
                 </p>
               )}
             </>

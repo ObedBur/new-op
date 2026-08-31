@@ -20,6 +20,7 @@ import { getBestSellers } from '@/features/products/services/product.service';
 import { Product } from '@/features/products/types';
 import { ProductCard } from '@/features/products/components/ProductCard';
 import { ProductQuickView } from '@/features/products/components/ProductQuickView';
+import { useCurrency } from '@/hooks/useCurrency';
 import useT from '@/i18n/useT';
 
 
@@ -143,6 +144,7 @@ function renderCompareFilterOptions({
   setMinPrice,
   maxPrice,
   setMaxPrice,
+  currencySymbol,
   availableCities,
   selectedCities,
   toggleCity,
@@ -160,6 +162,7 @@ function renderCompareFilterOptions({
   setMinPrice: React.Dispatch<React.SetStateAction<string>>;
   maxPrice: string;
   setMaxPrice: React.Dispatch<React.SetStateAction<string>>;
+  currencySymbol: string;
   availableCities: string[];
   selectedCities: string[];
   toggleCity: (city: string) => void;
@@ -211,7 +214,7 @@ function renderCompareFilterOptions({
         <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400">{t('compare.price')}</h4>
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">{currencySymbol}</span>
             <input
               type="number"
               placeholder={t('compare.minPlaceholder')}
@@ -222,7 +225,7 @@ function renderCompareFilterOptions({
           </div>
           <div className="w-2 h-px bg-gray-300 dark:bg-white/10 shrink-0" />
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-black">{currencySymbol}</span>
             <input
               type="number"
               placeholder={t('compare.maxPlaceholder')}
@@ -369,8 +372,8 @@ function CompareContent() {
     images: cp.images,
     updatedAt: new Date().toISOString(),
     availability: cp.availability as 'IN_STOCK' | 'LIMITED_STOCK' | 'OUT_OF_STOCK',
-    stockQuantity: undefined,
-    unit: undefined,
+    stockQuantity: cp.stockQuantity,
+    unit: cp.unit || undefined,
     user: {
       id: cp.user.id,
       fullName: cp.user.fullName,
@@ -391,7 +394,10 @@ function CompareContent() {
     }
 
     if (availability === 'IN_STOCK') {
-      result = result.filter(p => p.availability === 'IN_STOCK' || p.availability === 'LIMITED_STOCK');
+      result = result.filter(p =>
+        (p.availability === 'IN_STOCK' || p.availability === 'LIMITED_STOCK') &&
+        (p.stockQuantity === undefined || p.stockQuantity > 0)
+      );
     }
     
     if (minPrice) {
@@ -410,6 +416,16 @@ function CompareContent() {
       result = result.filter(p => selectedShops.includes(p.user.boutiqueName || p.user.fullName));
     }
 
+    // Dédup : une seule ligne par vendeur + nom de produit (le moins cher est gardé)
+    result = Array.from(
+      new Map(
+        [...result].sort((a, b) => a.price - b.price).map((p) => [
+          `${p.user.id}::${p.name.trim().toLowerCase()}`,
+          p,
+        ])
+      ).values()
+    );
+
     const sorted = result.sort((a, b) => {
       if (sortBy === 'price_asc') return a.price - b.price;
       if (sortBy === 'price_desc') return b.price - a.price;
@@ -422,6 +438,18 @@ function CompareContent() {
 
   const filteredPrices = filteredAndConverted.map((p) => p.price);
   const filteredMin = filteredPrices.length > 0 ? Math.min(...filteredPrices) : 0;
+
+  const { formatPrice, formatPriceParts } = useCurrency();
+
+  // Statistiques recalculées côté client sur la liste affichée (filtres + tri appliqués)
+  const localStats = useMemo(() => {
+    if (filteredAndConverted.length === 0) return null;
+    const prices = filteredAndConverted.map((p) => p.price);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const avg = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+    return { count: prices.length, minPrice: min, avgPrice: avg, maxPrice: max };
+  }, [filteredAndConverted]);
 
   // Toggle helpers
   const toggleCity = (city: string) => {
@@ -496,6 +524,25 @@ function CompareContent() {
                 {filteredAndConverted.length} {filteredAndConverted.length !== 1 ? t('compare.offersFoundPlural') : t('compare.offersFoundSingular')}
               </p>
             </div>
+            
+            {localStats && localStats.count > 0 && (
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6 bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl p-4 shadow-sm animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Prix Min</span>
+                  <span className="text-sm font-bold text-emerald-500">{formatPrice(localStats.minPrice)}</span>
+                </div>
+                <div className="w-px h-8 bg-gray-200 dark:bg-white/10 hidden sm:block" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Prix Moyen</span>
+                  <span className="text-sm font-bold text-blue-500">{formatPrice(localStats.avgPrice)}</span>
+                </div>
+                <div className="w-px h-8 bg-gray-200 dark:bg-white/10 hidden sm:block" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Prix Max</span>
+                  <span className="text-sm font-bold text-rose-500">{formatPrice(localStats.maxPrice)}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -515,6 +562,7 @@ function CompareContent() {
               setMinPrice,
               maxPrice,
               setMaxPrice,
+              currencySymbol: formatPriceParts(0).symbol,
               availableCities,
               selectedCities,
               toggleCity,
@@ -527,9 +575,9 @@ function CompareContent() {
           {/* ZONE PRINCIPALE (Tri + Grille) */}
           <div className="flex-1 w-full min-w-0">
             
-            {/* Barre de Tri (Desktop) */}
+            {/* Barre de Tri (Desktop + Mobile) */}
             {filteredAndConverted.length > 0 && !loading && (
-              <div className="hidden lg:flex items-center justify-between bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-3 shadow-sm mb-6">
+              <div className="flex items-center justify-between bg-white dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-3 shadow-sm mb-6">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                   {filteredAndConverted.length} {filteredAndConverted.length !== 1 ? t('compare.resultsPlural') : t('compare.resultsSingular')}
                 </span>
@@ -622,6 +670,7 @@ function CompareContent() {
               setMinPrice,
               maxPrice,
               setMaxPrice,
+              currencySymbol: formatPriceParts(0).symbol,
               availableCities,
               selectedCities,
               toggleCity,

@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { useSearch, SearchSector } from '@/hooks/useSearch';
 import { useT } from '@/i18n/useT';
+import { getCategories } from '@/features/products/services/product.service';
+import { Category } from '@/types/category.types';
+import { translateCategoryName } from '@/i18n/categoryNames';
 
 export const GlobalSearch = () => {
   const router = useRouter();
@@ -38,6 +41,20 @@ export const GlobalSearch = () => {
 
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isSectorOpen, setIsSectorOpen] = React.useState(false);
+  const [popularCategories, setPopularCategories] = React.useState<Category[]>([]);
+
+  // Catégories réelles pour le raccourci "Catégories populaires"
+  useEffect(() => {
+    let mounted = true;
+    getCategories().then((res) => {
+      if (mounted && res.success) {
+        setPopularCategories(res.data.slice(0, 4));
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const sectorOptions: Record<SearchSector, string> = {
     ALL: t('search.all'),
@@ -68,11 +85,7 @@ export const GlobalSearch = () => {
     if (sector === 'SHOPS') {
       router.push(`/sellers?q=${encodeURIComponent(query.trim())}`);
     } else {
-      if (pathname === '/compare') {
-        router.push(`/compare?q=${encodeURIComponent(query.trim())}`);
-      } else {
-        router.push(`/products?search=${encodeURIComponent(query.trim())}`);
-      }
+      router.push(`/compare?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
@@ -81,14 +94,15 @@ export const GlobalSearch = () => {
     addRecentSearch(term);
     setIsFocused(false);
     setIsExpanded(false);
-    if (pathname === '/compare') {
-      router.push(`/compare?q=${encodeURIComponent(term)}`);
+    
+    if (sector === 'SHOPS') {
+      router.push(`/sellers?q=${encodeURIComponent(term)}`);
     } else {
-      router.push(`/products?search=${encodeURIComponent(term)}`);
+      router.push(`/compare?q=${encodeURIComponent(term)}`);
     }
   };
 
-  const showDropdown = isFocused && (query.trim().length === 0 || query.trim().length >= 3);
+  const showDropdown = isFocused;
 
   return (
     <div 
@@ -213,8 +227,8 @@ export const GlobalSearch = () => {
       {showDropdown && (
         <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           
-          {/* 1. ÉTAT FOCUS (Input vide) */}
-          {query.trim().length === 0 && (
+          {/* 1. ÉTAT FOCUS (Input vide ou court) */}
+          {query.trim().length < 2 && (
             <div className="p-4 sm:p-6 space-y-6">
               
               {/* Recherches récentes */}
@@ -246,34 +260,46 @@ export const GlobalSearch = () => {
               )}
 
               {/* Catégories Populaires */}
-              <div>
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-3.5 h-3.5" /> {t('search.popularCategories')}
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {[t('search.categories.rice'), t('search.categories.oils'), t('search.categories.fresh'), t('search.categories.electronics')].map((cat, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSuggestionClick(cat)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-left transition-colors group"
-                    >
-                      <Search className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#E67E22]" />
-                      <span className="text-xs font-bold text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white truncate">
-                        {cat}
-                      </span>
-                    </button>
-                  ))}
+              {popularCategories.length > 0 && (
+                <div>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
+                    <TrendingUp className="w-3.5 h-3.5" /> {t('search.popularCategories')}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {popularCategories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/products?category=${cat.id}`}
+                        onClick={() => {
+                          setIsFocused(false);
+                          setIsExpanded(false);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-left transition-colors group"
+                      >
+                        <Search className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#E67E22]" />
+                        <span className="text-xs font-bold text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white truncate">
+                          {translateCategoryName(cat.name, t)}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
           {/* 2. ÉTAT TYPING (Résultats de recherche) */}
-          {query.trim().length >= 3 && !loading && (
+          {query.trim().length >= 2 && (
             <div className="flex flex-col sm:flex-row max-h-[60vh] sm:max-h-[400px]">
               
               {/* Colonne de Gauche : Suggestions & Boutiques */}
-              <div className="w-full sm:w-5/12 sm:border-r border-gray-100 dark:border-white/5 p-4 sm:p-5 space-y-6 overflow-y-auto custom-scrollbar">
+              <div className="w-full sm:w-5/12 sm:border-r border-gray-100 dark:border-white/5 p-4 sm:p-5 space-y-6 overflow-y-auto custom-scrollbar relative">
+                
+                {loading && results.products.length === 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-[#121212]/80 z-10">
+                    <div className="w-6 h-6 border-2 border-gray-300 border-t-[#E67E22] rounded-full animate-spin" />
+                  </div>
+                )}
                 
                 {/* Suggestions */}
                 {(sector === 'ALL' || sector === 'PRODUCTS') && results.suggestions.length > 0 && (
@@ -308,7 +334,7 @@ export const GlobalSearch = () => {
                       {results.shops.map(shop => (
                         <Link
                           key={shop.id}
-                          href={`/shop/${shop.id}`}
+                          href={`/sellers/${shop.id}`}
                           onClick={() => setIsFocused(false)}
                           className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
                         >
@@ -338,7 +364,12 @@ export const GlobalSearch = () => {
 
               {/* Colonne de Droite : Produits Phares */}
               {(sector === 'ALL' || sector === 'PRODUCTS') && (
-                <div className="w-full sm:w-7/12 bg-gray-50/50 dark:bg-white/[0.02] p-4 sm:p-5 overflow-y-auto custom-scrollbar border-t sm:border-t-0 border-gray-100 dark:border-white/5">
+                <div className="w-full sm:w-7/12 bg-gray-50/50 dark:bg-white/[0.02] p-4 sm:p-5 overflow-y-auto custom-scrollbar border-t sm:border-t-0 border-gray-100 dark:border-white/5 relative">
+                  {loading && results.products.length === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 dark:bg-[#1a1a1a]/80 z-10">
+                      <div className="w-6 h-6 border-2 border-gray-300 border-t-[#E67E22] rounded-full animate-spin" />
+                    </div>
+                  )}
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-[#E67E22] mb-4 flex items-center gap-2">
                     <Package className="w-3.5 h-3.5" /> {t('search.featuredProducts')}
                   </h3>

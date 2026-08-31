@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/axios';
 import { Product } from '@/types';
+import { getActiveSellers } from '@/features/home/services/seller.service';
 
 export type SearchSector = 'ALL' | 'PRODUCTS' | 'SHOPS';
 
@@ -59,7 +60,7 @@ export function useSearch() {
   useEffect(() => {
     const normalizedQuery = query.trim();
     
-    if (normalizedQuery.length < 3) {
+    if (normalizedQuery.length < 2) {
       const resetTimer = setTimeout(() => {
         setResults({ suggestions: [], shops: [], products: [] });
         setLoading(false);
@@ -72,34 +73,63 @@ export function useSearch() {
       const requestId = ++latestRequestRef.current;
 
       try {
-        // En attendant un endpoint global, on utilise /products pour extraire les suggestions et produits
-        // Si le backend a un endpoint spécifique, on remplacera ici.
-        const res = await api.get('/products', { params: { search: normalizedQuery, limit: 10 } });
-        
+        // Secteur BOUTIQUES : vraie recherche de vendeurs (endpoint /sellers)
+        if (sector === 'SHOPS') {
+          const sellers = await getActiveSellers();
+          if (requestId !== latestRequestRef.current) return;
+
+          const q = normalizedQuery.toLowerCase();
+          const matched = sellers.filter((s) => s.boutiqueName.toLowerCase().includes(q));
+
+          setResults({
+            suggestions: matched.slice(0, 4).map((s) => s.boutiqueName),
+            shops: matched.slice(0, 3).map((s) => ({
+              id: s.id,
+              boutiqueName: s.boutiqueName,
+              avatarUrl: s.avatarUrl,
+              trustScore: s.trustScore,
+              isVerified: s.isVerified,
+            })),
+            products: [],
+          });
+          return;
+        }
+
+        // Produits + suggestions (endpoint d'autocomplétion unifié avec la barre mobile)
+        const [res, suggRes] = await Promise.all([
+          api.get('/products', { params: { search: normalizedQuery, limit: 10 } }),
+          api.get('/products/suggestions', { params: { q: normalizedQuery } }),
+        ]);
+
         if (requestId === latestRequestRef.current && res.data?.success) {
           const fetchedProducts: Product[] = res.data.data || [];
-          
-          // Extraire des shops uniques depuis les produits retournés (simulation si pas d'API vendors dédiée)
-          
+
           const uniqueShopsMap = new Map<string, SearchVendor>();
-fetchedProducts.forEach(p => {
-  if (p.user && !uniqueShopsMap.has(p.user.id)) {
-    uniqueShopsMap.set(p.user.id, {
-      id: p.user.id,
-      boutiqueName: p.user.boutiqueName || p.user.fullName || 'Inconnu',
-      avatarUrl: p.user.avatarUrl,
-      trustScore: p.user.trustScore || 0,
-      isVerified: p.user.isVerified || false
-    });
-  }
-});
-          // Extraire des suggestions simples
-          const suggestions = Array.from(new Set(fetchedProducts.map(p => p.name.toLowerCase()))).slice(0, 4);
+          fetchedProducts.forEach(p => {
+            if (p.user && !uniqueShopsMap.has(p.user.id)) {
+              uniqueShopsMap.set(p.user.id, {
+                id: p.user.id,
+                boutiqueName: p.user.boutiqueName || p.user.fullName || 'Inconnu',
+                avatarUrl: p.user.avatarUrl,
+                trustScore: p.user.trustScore || 0,
+                isVerified: p.user.isVerified || false,
+              });
+            }
+          });
+
+          const endpointSuggestions: string[] = (suggRes.data?.data || []).map((s: any) => s.text).filter(Boolean);
+          const seen = new Set<string>();
+          const suggestions = [...endpointSuggestions, ...fetchedProducts.map(p => p.name)].filter((s) => {
+            const key = s.trim().toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          }).slice(0, 5);
 
           setResults({
             suggestions,
             shops: Array.from(uniqueShopsMap.values()).slice(0, 3),
-            products: fetchedProducts.slice(0, 4)
+            products: fetchedProducts.slice(0, 4),
           });
         }
       } catch (error) {

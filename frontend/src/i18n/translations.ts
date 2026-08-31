@@ -105,6 +105,8 @@ export const TRANSLATIONS = {
       items: 'Items',
       visit: 'Visiter',
       view: 'Voir',
+      searchPlaceholder: 'Rechercher une boutique...',
+      noResults: 'Aucune boutique ne correspond à votre recherche.',
     },
     sellerDetail: {
       notFound: 'Boutique introuvable',
@@ -1322,6 +1324,8 @@ export const TRANSLATIONS = {
       items: 'Items',
       visit: 'Visit',
       view: 'View',
+      searchPlaceholder: 'Search for a shop...',
+      noResults: 'No shops match your search.',
     },
     sellerDetail: {
       notFound: 'Shop not found',
@@ -2528,6 +2532,8 @@ export const TRANSLATIONS = {
       items: 'Vitu',
       visit: 'Tembelea',
       view: 'Ona',
+      searchPlaceholder: 'Tafuta duka...',
+      noResults: 'Hakuna duka linalolingana na utafutaji wako.',
     },
     sellerDetail: {
       notFound: 'Duka halikupatikana',

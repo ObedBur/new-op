@@ -13,6 +13,7 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSearchExpanded }) => {
   const { t } = useT();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchBarRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -23,6 +24,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSea
       searchInputRef.current.focus();
     }
   }, [isSearchExpanded]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchBarRef.current && !searchBarRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+        // Optionally close search entirely on mobile if clicking outside
+        // setIsSearchExpanded(false); 
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Fetch suggestions with debounce
   useEffect(() => {
@@ -51,14 +64,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSea
     if (e) e.preventDefault();
     const finalQuery = selectedQuery || query;
     if (finalQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(finalQuery.trim())}`);
+      router.push(`/compare?q=${encodeURIComponent(finalQuery.trim())}`);
       setIsSearchExpanded(false);
       setShowSuggestions(false);
     }
   };
 
   return (
-    <div className={`
+    <div ref={searchBarRef} className={`
       ${isSearchExpanded 
         ? 'flex flex-1 items-center animate-in slide-in-from-right-4 duration-300' 
         : 'hidden md:flex flex-1 max-w-[500px] mx-4'} 
@@ -109,14 +122,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({ isSearchExpanded, setIsSea
           </div>
         )}
       </form>
-      
-      {/* Click outside to close */}
-      {showSuggestions && (
-        <div 
-          className="fixed inset-0 z-[-1]" 
-          onClick={() => setShowSuggestions(false)}
-        />
-      )}
     </div>
   );
 };
